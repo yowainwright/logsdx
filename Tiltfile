@@ -1,7 +1,15 @@
-docker_build('logsx', '.', dockerfile='Dockerfile')
+docker_build(
+    'logsdx',
+    '.',
+    live_update=[
+        sync('.', '/app'),
+        run('bun install'),
+        run('bun run build'),
+    ],
+)
 
 local_resource(
-  'logsx-dev',
+  'logsdx-dev',
   './scripts/tilt-entrypoint.sh',
   deps=['src/', 'fixtures/', 'log_rules.json'],
   resource_deps=[],

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { LogEnhancer } from './logenhancer';
+import React from "react";
+import { LogEnhancer } from "./logenhancer";
 
 interface LogViewerProps {
   log: string;
@@ -9,7 +9,7 @@ interface LogViewerProps {
 }
 
 const LogViewer: React.FC<LogViewerProps> = ({ log, enhancer }) => {
-  const lines = log.split('\n');
+  const lines = log.split("\n");
 
   return (
     <div className="font-mono text-sm p-2 overflow-auto whitespace-pre-wrap h-full w-full">

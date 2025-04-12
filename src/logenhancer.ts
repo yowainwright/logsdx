@@ -1,128 +1,144 @@
-import { type LogEnhancerPluginInitial } from './types';
+import {
+  type LogPlugin,
+  type LogParser,
+  type LogClient,
+  type LogEnhancerOptions,
+} from "@/src/types";
 
 export class LogEnhancer {
-    
-    private enhancers: LogEnhancerPluginInitial[] = [];
-    private highlighter: 'shiki' | 'prism';
-    private lang: string;
-    private theme: string;
-    private debug: boolean;
-    private inferLangFromLine?: (line: string) => string | undefined;
+  private plugins: LogPlugin[] = [];
+  private parsers: LogParser[] = [];
+  private clients: LogClient[] = [];
+  private debug: boolean;
 
-    constructor(options: LogEnhancerOptions = {}) {
-        this.highlighter = options.highlighter ?? 'shiki';
-        this.lang = options.lang ?? DEFAULT_LANG;
-        this.theme = options.theme ?? DEFAULT_THEME;
-        this.debug = options.debug ?? false;
-        this.inferLangFromLine = options.inferLangFromLine;
+  constructor(options: LogEnhancerOptions = {}) {
+    this.debug = options.debug ?? false;
 
-        if (options.plugins?.length) {
-        this.enhancers.push(...options.plugins);
-        }
+    if (options.plugins) {
+      this.loadPlugins(options.plugins);
     }
-
-    async init() {
-        await this.loadHighlighter();
+    if (options.parsers) {
+      this.loadParsers(options.parsers);
     }
-
-    async loadHighlighter() {
-        if (this.debug) {
-        console.debug('[LogEnhancer] Loading highlighter:', this.highlighter);
-        }
-
-        if (this.highlighter === 'shiki') {
-        const highlighter = await getHighlighter({ theme: this.theme });
-
-        this.use({
-            enhanceLine: (line, lineIndex) => {
-                const detectedLang = this.inferLangFromLine?.(line) ?? this.lang;
-                const html = highlighter.codeToHtml(line, { lang: detectedLang as Lang });
-                return (
-                    <div
-                        key={lineIndex}
-                        className="shiki"
-                        dangerouslySetInnerHTML={{ __html: html }}
-                    />
-                );
-            },
-        });
-        }
-
-        if (this.highlighter === 'prism') {
-        this.use({
-            enhanceLine: (line, lineIndex) => {
-            const detectedLang = this.inferLangFromLine?.(line) ?? this.lang;
-            const highlighted = Prism.highlight(line, Prism.languages[detectedLang], detectedLang);
-            return (
-                <div
-                key={lineIndex}
-                className={`language-${detectedLang}`}
-                dangerouslySetInnerHTML={{ __html: highlighted }}
-                />
-            );
-            },
-        });
-        }
-    }
-
-    use(plugin: LogEnhancerPlugin) {
-        this.enhancers.push(plugin);
-    }
-
-    reset() {
-        this.enhancers = [];
-    }
-
-    async setLang(newLang: string) {
-        if (this.debug) console.debug('[LogEnhancer] Language changed to', newLang);
-        this.lang = newLang;
-        this.reset();
-        await this.loadHighlighter();
-    }
-
-    async setTheme(newTheme: string) {
-        if (this.debug) console.debug('[LogEnhancer] Theme changed to', newTheme);
-        this.theme = newTheme;
-        this.reset();
-        await this.loadHighlighter();
-    }
-
-    async setHighlighter(type: 'shiki' | 'prism') {
-        if (this.debug) console.debug('[LogEnhancer] Highlighter changed to', type);
-        this.highlighter = type;
-        this.reset();
-        await this.loadHighlighter();
-    }
-
-    setLangInference(fn: (line: string) => string | undefined) {
-        this.inferLangFromLine = fn;
-    }
-
-    getPlugins(): LogEnhancerPlugin[] {
-        return this.enhancers;
-    }
-    
-    enhanceLine(line: string, index: number): string {
-        const context = this.parseLine(line);
-        for (const plugin of this.enhancers) {
-            if (plugin.enhanceLine) {
-            const result = plugin.enhanceLine(line, index, context);
-            if (result) return result;
-            }
-        }
-        return line;
-    }
-  
-    enhanceWords(line: string, index: number): string[] {
-      const context = this.parseLine(line);
-      return line.split(' ').map((word, i) => {
-        for (const plugin of this.enhancers) {
-          if (plugin.enhanceWord) {
-            const result = plugin.enhanceWord(word, index, i, context);
-            if (result) return result;
-          }
-        }
-        return word;
-      });
+    if (options.clients) {
+      this.loadClients(options.clients);
     }
   }
+
+  private async loadPlugins(plugins: (string | LogPlugin)[]) {
+    for (const plugin of plugins) {
+      if (typeof plugin === "string") {
+        try {
+          const mod = await import(plugin);
+          this.use(mod.default);
+        } catch (err) {
+          if (this.debug) {
+            console.error(`Failed to load plugin: ${plugin}`, err);
+          }
+        }
+      } else {
+        this.use(plugin);
+      }
+    }
+  }
+
+  private async loadParsers(parsers: (string | LogParser)[]) {
+    for (const parser of parsers) {
+      if (typeof parser === "string") {
+        try {
+          const mod = await import(parser);
+          this.addParser(mod.default);
+        } catch (err) {
+          if (this.debug) {
+            console.error(`Failed to load parser: ${parser}`, err);
+          }
+        }
+      } else {
+        this.addParser(parser);
+      }
+    }
+  }
+
+  private async loadClients(clients: (string | LogClient)[]) {
+    for (const client of clients) {
+      if (typeof client === "string") {
+        try {
+          const mod = await import(client);
+          this.addClient(mod.default);
+        } catch (err) {
+          if (this.debug) {
+            console.error(`Failed to load client: ${client}`, err);
+          }
+        }
+      } else {
+        this.addClient(client);
+      }
+    }
+  }
+
+  use(plugin: LogPlugin) {
+    if (this.debug) {
+      console.log(`Adding plugin: ${plugin.name}`);
+    }
+    this.plugins.push(plugin);
+  }
+
+  addParser(parser: LogParser) {
+    if (this.debug) {
+      console.log(`Adding parser: ${parser.name}`);
+    }
+    this.parsers.push(parser);
+  }
+
+  addClient(client: LogClient) {
+    if (this.debug) {
+      console.log(`Adding client: ${client.name}`);
+    }
+    this.clients.push(client);
+  }
+
+  process(line: string): string {
+    // First parse the line
+    const context = this.parsers.reduce((acc, parser) => {
+      try {
+        return { ...acc, ...parser.parse(line) };
+      } catch (err) {
+        if (this.debug) {
+          console.error(`Parser error in ${parser.name}:`, err);
+        }
+        return acc;
+      }
+    }, {});
+
+    // Then enhance it
+    let result = line;
+    for (const plugin of this.plugins) {
+      try {
+        result = plugin.enhance(result);
+      } catch (err) {
+        if (this.debug) {
+          console.error(`Plugin error in ${plugin.name}:`, err);
+        }
+      }
+    }
+
+    // Finally send to clients
+    for (const client of this.clients) {
+      try {
+        client.write(result);
+      } catch (err) {
+        if (this.debug) {
+          console.error(`Client error in ${client.name}:`, err);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  reset() {
+    this.plugins = [];
+    this.parsers = [];
+    this.clients = [];
+  }
+}

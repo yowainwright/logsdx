@@ -1,8 +1,4 @@
 entrypoint = "src/cli.ts"
 
-[loader]
-[loader.ts]
-[loader.tsx]
-
 [resolve]
 paths = { "@src" = "src" }
