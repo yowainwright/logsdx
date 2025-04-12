@@ -1,26 +1,25 @@
-
-import { type RegexParserRule } from '../../types';
+import { type RegexParserRule } from "../../types";
 
 export const logParserRules: RegexParserRule[] = [
   {
     match: /^\[json\]/,
-    extract: () => ({ lang: 'json' }),
+    extract: () => ({ lang: "json" }),
   },
   {
     match: /^\[sql\]/,
-    extract: () => ({ lang: 'sql' }),
+    extract: () => ({ lang: "sql" }),
   },
   {
     match: /ERROR/,
-    extract: () => ({ level: 'error' }),
+    extract: () => ({ level: "error" }),
   },
   {
     match: /WARN/,
-    extract: () => ({ level: 'warn' }),
+    extract: () => ({ level: "warn" }),
   },
   {
     match: /INFO/,
-    extract: () => ({ level: 'info' }),
+    extract: () => ({ level: "info" }),
   },
   {
     match: /^\[lang:(\w+)\]/,

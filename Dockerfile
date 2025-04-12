@@ -2,9 +2,13 @@ FROM oven/bun:slim
 
 WORKDIR /app
 
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
+
 COPY . .
 
-RUN bun install
-RUN bun build src/cli.ts --outdir=/app/dist --target=bun
+RUN bun run build
 
-ENTRYPOINT ["bun", "src/cli.ts"]
+ENV NODE_ENV=production
+
+CMD ["bun", "run", "start"]

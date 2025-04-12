@@ -1,3 +1,4 @@
 entrypoint = "src/cli.ts"
 
-[define]
+[resolve]
+paths = { "@src" = "src" }

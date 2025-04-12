@@ -1,24 +1,34 @@
 {
-  "name": "logsx",
+  "name": "logsdx",
   "version": "0.0.1",
   "description": "xtreme log streams",
   "type": "module",
   "bin": {
-    "logsx": "src/cli.ts"
+    "logsdx": "src/cli.ts"
   },
   "scripts": {
     "dev": "bun run src/cli.ts",
-    "build": "bun build src/cli.ts --outdir=dist --target=bun",
-    "lint": "bun run lint",
-    "format": "bun run format",
+    "build": "bun build src/cli.ts --outdir=dist --target=bun --exclude '**/*.test.*'",
+    "lint": "bunx eslint .",
+    "format": "bunx prettier --write .",
     "preview": "bun run dist/cli.js",
-    "test": "bun test"
+    "test": "node --test src/**/*.test.ts",
+    "release": "bunx release-it"
   },
-  "keywords": ["logs", "log-stream", "cli", "log-enhancer"],
+  "keywords": [
+    "logs",
+    "log-stream",
+    "cli",
+    "log-enhancer"
+  ],
   "author": "me@jeffry.in",
   "license": "MIT",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/node": "^22.14.1",
+    "@types/prismjs": "^1.26.5",
+    "@types/react": "^19.1.1",
+    "@types/react-dom": "^19.1.2"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -29,5 +39,36 @@
     "./clients/ink": "./src/clients/ink.tsx",
     "./plugins/shiki": "./src/plugins/shikiPlugin.ts",
     "./plugins/prism": "./src/plugins/prismPlugin.ts"
-  }
+  },
+  "dependencies": {
+    "ink": "^5.2.0",
+    "prismjs": "^1.30.0",
+    "react": "^19.1.0",
+    "shiki": "^3.2.2"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}",
+      "push": true
+    },
+    "github": {
+      "release": true,
+      "releaseName": "Release ${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "hooks": {
+      "before:init": ["mise run check"],
+      "after:bump": ["bun run build"],
+      "after:release": "echo Successfully released ${version} to npm."
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "!**/*.test.*",
+    "!**/__tests__"
+  ]
 }

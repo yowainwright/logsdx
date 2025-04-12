@@ -21,6 +21,10 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/src/*": ["./src/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["src", "tests"]
 }
