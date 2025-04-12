@@ -1,0 +1,33 @@
+{
+  "name": "logsx",
+  "version": "0.0.1",
+  "description": "xtreme log streams",
+  "type": "module",
+  "bin": {
+    "logsx": "src/cli.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "build": "bun build src/cli.ts --outdir=dist --target=bun",
+    "lint": "bun run lint",
+    "format": "bun run format",
+    "preview": "bun run dist/cli.js",
+    "test": "bun test"
+  },
+  "keywords": ["logs", "log-stream", "cli", "log-enhancer"],
+  "author": "me@jeffry.in",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./clients/react": "./src/clients/react.tsx",
+    "./clients/ink": "./src/clients/ink.tsx",
+    "./plugins/shiki": "./src/plugins/shikiPlugin.ts",
+    "./plugins/prism": "./src/plugins/prismPlugin.ts"
+  }
+}

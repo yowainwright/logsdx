@@ -1,0 +1,27 @@
+name: logsx CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install deps
+        run: bun install
+
+      - name: Run dev test
+        run: bun run test
+
+      - name: Build CLI
+        run: bun build src/cli.ts --outdir=dist --target=bun
+
+      - name: Run CLI on fixture
+        run: cat fixtures/sample.log | bun run dist/cli.js

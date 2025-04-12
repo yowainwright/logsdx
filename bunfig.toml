@@ -1,0 +1,3 @@
+entrypoint = "src/cli.ts"
+
+[define]
