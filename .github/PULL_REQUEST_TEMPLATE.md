@@ -17,4 +17,4 @@ Brief description of changes and related issue.
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
-- [ ] No new warnings 
+- [ ] No new warnings

@@ -1,7 +1,7 @@
 {
   "name": "logsdx",
   "version": "0.0.1",
-  "description": "xtreme log streams",
+  "description": "log streaming with dx on the 🧠",
   "type": "module",
   "bin": {
     "logsdx": "src/cli.ts"
@@ -12,7 +12,7 @@
     "lint": "bunx eslint .",
     "format": "bunx prettier --write .",
     "preview": "bun run dist/cli.js",
-    "test": "node --test src/**/*.test.ts",
+    "test": "bun test",
     "release": "bunx release-it"
   },
   "keywords": [
@@ -60,8 +60,12 @@
       "publish": true
     },
     "hooks": {
-      "before:init": ["mise run check"],
-      "after:bump": ["bun run build"],
+      "before:init": [
+        "mise run check"
+      ],
+      "after:bump": [
+        "bun run build"
+      ],
       "after:release": "echo Successfully released ${version} to npm."
     }
   },
