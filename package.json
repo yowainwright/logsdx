@@ -41,7 +41,10 @@
     "./plugins/prism": "./src/plugins/prismPlugin.ts"
   },
   "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
     "ink": "^5.2.0",
+    "json5": "^2.2.3",
     "prismjs": "^1.30.0",
     "react": "^19.1.0",
     "shiki": "^3.2.2"

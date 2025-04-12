@@ -10,15 +10,87 @@ npm install logsx
 
 ## CLI Usage
 
+LogsDX provides a powerful command-line interface for processing and formatting logs.
+
+### Basic Usage
+
 ```bash
-# Basic usage
+# Process a log file
 logsx input.log
 
-# With options
-logsx input.log --output output.log --min-level warn --debug
+# Process logs from stdin
+cat input.log | logsx
 
-# With syntax highlighting
-logsx input.log --plugin @logsx/prism
+# Save output to a file
+logsx input.log --output formatted.log
+```
+
+### Options
+
+```bash
+--quiet, -q           Suppress all output except errors
+--debug, -d           Enable debug mode
+--level, -l <level>   Minimum log level to display (default: "info")
+--parser, -p <parser> Parser to use for log parsing (default: "default")
+--rules, -r <file>    Path to custom rules file
+--output, -o <file>   Path to output file
+--list-parsers        List available parsers
+```
+
+### Examples
+
+#### List Available Parsers
+
+```bash
+logsx --list-parsers
+```
+
+#### Parse JSON Logs
+
+```bash
+# Parse a JSON log file
+logsx input.json --parser=json
+
+# Parse JSON logs from stdin
+echo '{"level":"info","message":"Test message","timestamp":"2023-01-01T00:00:00.000Z"}' | logsx --parser=json
+
+# Parse complex JSON logs
+echo '{"level":"error","message":"Database connection failed","timestamp":"2023-01-01T00:00:00.000Z","service":"api","user_id":123,"error_code":500}' | logsx --parser=json
+```
+
+#### Parse with Custom Rules
+
+```bash
+# Parse logs with custom regex rules
+logsx input.log --parser=regex --rules=rules.json
+
+# Example rules.json:
+[
+  {
+    "match": "\\[(.*?)\\]\\s+(.*)",
+    "extract": {
+      "level": "$1",
+      "message": "$2"
+    }
+  }
+]
+```
+
+#### Filter by Log Level
+
+```bash
+# Show only warnings and errors
+logsx input.log --level=warn
+
+# Show only errors
+logsx input.log --level=error
+```
+
+#### Debug Mode
+
+```bash
+# Enable debug mode for verbose output
+logsx input.log --debug
 ```
 
 ## React Component Usage

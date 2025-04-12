@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: json-logger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: json-logger
+  template:
+    metadata:
+      labels:
+        app: json-logger
+    spec:
+      containers:
+      - name: json-logger
+        image: json-logger:latest
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+          requests:
+            memory: "64Mi"
+            cpu: "50m" 

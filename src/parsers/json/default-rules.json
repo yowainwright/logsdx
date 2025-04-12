@@ -1,0 +1,13 @@
+[
+  {
+    "match": "\\{.*\\}",
+    "lang": "json",
+    "level": "info",
+    "meta": {
+      "service": "service",
+      "timestamp": "timestamp",
+      "message": "message",
+      "level": "level"
+    }
+  }
+] 

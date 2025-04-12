@@ -142,12 +142,17 @@ export interface CliFlags {
   debug?: boolean;
 }
 
+export type ParserType = string;
+
 export interface CliOptions {
-  flags: Set<string>;
-  inputFile: string;
-  outputFile: string;
-  minLevel?: LogLevel;
-  isDebug: boolean;
+  quiet?: boolean;
+  debug?: boolean;
+  level?: LogLevel;
+  parser?: string;
+  rules?: string;
+  output?: string;
+  listParsers?: boolean;
+  input?: string;
 }
 
 export type ThemeStyles = {
