@@ -18,7 +18,8 @@
   "author": "me@jeffry.in",
   "license": "MIT",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/node": "^22.14.1"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -29,5 +30,11 @@
     "./clients/ink": "./src/clients/ink.tsx",
     "./plugins/shiki": "./src/plugins/shikiPlugin.ts",
     "./plugins/prism": "./src/plugins/prismPlugin.ts"
+  },
+  "dependencies": {
+    "ink": "^5.2.0",
+    "prismjs": "^1.30.0",
+    "react": "^19.1.0",
+    "shiki": "^3.2.2"
   }
 }
