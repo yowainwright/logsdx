@@ -3,16 +3,19 @@
   "version": "0.1.0",
   "description": "log streaming with dx on the 🧠",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "bin": {
-    "logsdx": "src/cli.ts"
+    "logsdx": "./dist/cli/index.js"
   },
   "scripts": {
     "dev": "bun run src/cli.ts",
-    "build:css": "bunx @tailwindcss/cli -i ./src/clients/react/globals.css -o ./dist/globals.css",
-    "build": "bun run build:css && bun build src/cli/index.ts --outdir=dist --target=bun",
-    "lint": "bunx eslint .",
+    "build": "tsup",
+    "postbuild": "mkdir -p dist/clients/react && cp src/clients/react/globals.css dist/clients/react/globals.css",
+    "lint": "bun eslint . -c eslint.config.ts",
     "format": "bunx prettier --write .",
-    "preview": "bun run dist/cli.js",
+    "preview": "bun run dist/cli/index.js",
     "test": "bun test",
     "release": "bunx release-it"
   },
@@ -25,6 +28,7 @@
   "author": "me@jeffry.in",
   "license": "MIT",
   "devDependencies": {
+    "tsup": "^8.2.3",
     "@tailwindcss/cli": "^4.1.3",
     "@types/bun": "latest",
     "@types/node": "^22.14.1",
@@ -33,6 +37,8 @@
     "@types/react-dom": "^19.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "eslint": "^9.24.0",
+    "jiti": "^2.4.2",
     "lucide-react": "^0.487.0",
     "shadcn-ui": "^0.9.5",
     "tailwind-merge": "^3.2.0",
@@ -42,10 +48,42 @@
     "typescript": "^5"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./clients/react": "./src/clients/react/index.tsx",
-    "./plugins/shiki": "./src/plugins/shikiPlugin.ts",
-    "./plugins/prism": "./src/plugins/prismPlugin.ts"
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./clients/react": {
+      "import": "./dist/clients/react/index.mjs",
+      "require": "./dist/clients/react/index.js",
+      "types": "./dist/clients/react/index.d.ts"
+    },
+    "./clients/react/globals.css": "./dist/clients/react/globals.css",
+    "./themes/asci/styles": {
+      "import": "./dist/themes/asci/styles.mjs",
+      "require": "./dist/themes/asci/styles.js",
+      "types": "./dist/themes/asci/styles.d.ts"
+    },
+    "./logenhancer": {
+      "import": "./dist/logenhancer.mjs",
+      "require": "./dist/logenhancer.js",
+      "types": "./dist/logenhancer.d.ts"
+    },
+    "./plugins/shiki": {
+      "import": "./dist/plugins/shiki.mjs",
+      "require": "./dist/plugins/shiki.js",
+      "types": "./dist/plugins/shiki.d.ts"
+    },
+    "./plugins/prism": {
+      "import": "./dist/plugins/prism.mjs",
+      "require": "./dist/plugins/prism.js",
+      "types": "./dist/plugins/prism.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/index.mjs",
+      "require": "./dist/cli/index.js",
+      "types": "./dist/cli/index.d.ts"
+    }
   },
   "dependencies": {
     "@radix-ui/react-scroll-area": "^1.2.4",

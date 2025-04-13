@@ -4,7 +4,7 @@ import { loadJsonRules } from "@/src/parsers/json";
 import { defaultLineParser } from "@/src/parsers/default";
 
 // Default configuration for regex parser
-const DEFAULT_CONFIG = {
+export const DEFAULT_CONFIG = {
   defaultRules: [
     {
       match:
@@ -25,7 +25,7 @@ const DEFAULT_CONFIG = {
 };
 
 // Registry to store available parsers
-const parserRegistry: Record<string, (options?: any) => Promise<LineParser>> = {
+export const parserRegistry: Record<string, (options?: any) => Promise<LineParser>> = {
   // Default parser
   default: async () => defaultLineParser,
 
@@ -77,6 +77,3 @@ export async function getParser(
 export function getRegisteredParsers(): string[] {
   return Object.keys(parserRegistry);
 }
-
-// Export the default config for regex parser
-export { DEFAULT_CONFIG };

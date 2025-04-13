@@ -2,13 +2,37 @@
 
 # LogsDX
 
-A flexible log processing and visualization library that supports multiple output formats and syntax highlighting.
+A flexible log processing and visualization library that supports multiple output formats and, **most importantly**, 
+
+## _`asci` syntax highlighting, theming, and extendability for all!_
+
+LogDX aims to provide the ability create use and extend asci themes that can be used in terminal and clients.
+
+## Why
+
+After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a way to have the same visual athstetic of logs in both the terminal and clients seemed necessary.
+
+#### As of, 2025-04-13, these features are planned:
+
+- [x] basic theming and theme support for piping JSON logs in a terminal
+- [x] code functionality for non-specific logs in a terminal
+- [ ] full example and importability of non-specifiic logs in a terminal (in progress)
+- [x] code functionality for asci log theming in a react client
+- [ ] full example and importability of asci log theming in a react client (in progress)
+- [ ] more composable way to import and treeshake features
+- [ ] documented working demo displaying the ability to add/use/create custom themes
+- [ ] documented working demo displaying the ability to add/use/create custom parsers
+- [ ] documented workign demo displaying the ability to add/use/create custom clients
+- [ ] clearly documented schemas for theming and parsing
+- [ ] clearly documented way to create and use custome clients
 
 ## Installation
 
 ```bash
 npm install logsx
 ```
+
+---
 
 ## CLI Usage
 
@@ -95,7 +119,11 @@ logsx input.log --level=error
 logsx input.log --debug
 ```
 
-## React Component Usage
+## Client usage
+
+LogDX aims to provide the ability create asci themes that can be used in clients.
+
+### React Component Usage
 
 ```tsx
 import { LogViewer } from "logsx";
@@ -115,6 +143,8 @@ function App() {
   );
 }
 ```
+
+---
 
 ## Plugins
 
@@ -146,6 +176,8 @@ const MyPlugin: LogEnhancerPlugin = {
 };
 ```
 
+---
+
 ## Clients
 
 ### Using Clients
@@ -173,6 +205,8 @@ const MyClient: LogClient = {
   },
 };
 ```
+
+---
 
 ## Parsers
 
@@ -203,6 +237,12 @@ const MyParser: LogParser = {
 };
 ```
 
+---
+
+
+
+---
+
 ## Contributing
 
 1. Fork the repository
@@ -220,6 +260,7 @@ const MyParser: LogParser = {
 bun install
 
 # Using mise for development tasks
+# brew install mise
 mise run check      # Run all checks (tests, lint, format)
 mise run pre-commit # Run pre-commit checks
 mise run lint       # Run ESLint

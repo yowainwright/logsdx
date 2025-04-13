@@ -121,14 +121,18 @@ program
           if (!line.trim()) continue;
 
           const parsed = parser(line);
-          if (!parsed) continue;
 
-          if (shouldRender(parsed.level, options.level as LogLevel)) {
-            // Format the line based on the parsed result
-            const formattedLine = styleManager.styleLine(line, parsed);
-            // Use logger for stdout, write for file streams
+          // Determine the level for filtering, even if parsing failed
+          const level = parsed?.level || "info"; // Default to 'info' if undefined
+
+          // Check if the line should be rendered based on level
+          if (shouldRender(level, options.level as LogLevel)) {
+            // Always call styleLine, passing the original line, parsed result (can be undefined), and parser name
+            const formattedLine = styleManager.styleLine(line, parsed, options.parser || "default");
+            
+            // Use process.stdout.write for stdout, write for file streams
             if (outputStream === process.stdout) {
-              logger.info(formattedLine);
+              process.stdout.write(formattedLine + "\n");
             } else {
               (outputStream as fs.WriteStream).write(formattedLine + "\n");
             }
@@ -139,12 +143,15 @@ program
       inputStream.on("end", () => {
         if (buffer.trim()) {
           const parsed = parser(buffer);
-          if (parsed && shouldRender(parsed.level, options.level as LogLevel)) {
-            // Format the line based on the parsed result
-            const formattedLine = styleManager.styleLine(buffer, parsed);
-            // Use logger for stdout, write for file streams
+          const level = parsed?.level || "info";
+
+          if (shouldRender(level, options.level as LogLevel)) {
+            // Always call styleLine for the remaining buffer
+            const formattedLine = styleManager.styleLine(buffer, parsed, options.parser || "default");
+            
+            // Use process.stdout.write for stdout, write for file streams
             if (outputStream === process.stdout) {
-              logger.info(formattedLine);
+              process.stdout.write(formattedLine + "\n");
             } else {
               (outputStream as fs.WriteStream).write(formattedLine + "\n");
             }

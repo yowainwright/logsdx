@@ -1,20 +1,14 @@
 import { test, expect, describe, mock, spyOn, beforeEach } from "bun:test";
-import React from "react"; // Import React
+import React from "react";
 import {
   LogDx,
   LogDxProvider,
-  LogDxContent,
-  useLogDx,
   logViewerReducer,
   initialState,
-  type LogDxAction,
   type LogDxState,
 } from "./index";
 import { LogEnhancer } from "@/src/logenhancer";
 
-// --- Mocks ---
-
-// Mock LogEnhancer
 mock.module("@/src/logenhancer", () => ({
   LogEnhancer: class {
     options: any;
@@ -22,28 +16,19 @@ mock.module("@/src/logenhancer", () => ({
       this.options = options;
     }
     process(line: string) {
-      // Simple mock processing
       return `Enhanced: ${line}`;
     }
   },
 }));
 
-// Mock Logger
 mock.module("@/src/utils/logger", () => ({
   Logger: class {
-    info(...args: any[]) {
-      /* console.log("[Mock Logger INFO]", ...args); */
-    }
-    warn(...args: any[]) {
-      /* console.warn("[Mock Logger WARN]", ...args); */
-    }
-    error(...args: any[]) {
-      /* console.error("[Mock Logger ERROR]", ...args); */
-    }
+    info(...args: any[]) {}
+    warn(...args: any[]) {}
+    error(...args: any[]) {}
   },
 }));
 
-// Mock UI components (simple divs)
 mock.module("@/components/ui/scroll-area", () => ({
   ScrollArea: ({ children, ...props }: { children: React.ReactNode }) => (
     <div data-testid="scroll-area" {...props}>
@@ -55,9 +40,6 @@ mock.module("@/components/ui/input", () => ({
   Input: (props: any) => <input data-testid="input" {...props} />,
 }));
 
-// Remove the complex React hook mocking
-
-// Mock localStorage
 const localStorageMock = (() => {
   let store: { [key: string]: string } = {};
   return {
@@ -78,7 +60,6 @@ const localStorageMock = (() => {
   };
 })();
 
-// Define window properties for server-side testing environment
 if (typeof window !== "undefined") {
   Object.defineProperty(window, "localStorage", {
     value: localStorageMock,
@@ -87,12 +68,11 @@ if (typeof window !== "undefined") {
   Object.defineProperty(window, "Date", {
     value: {
       ...Date,
-      now: mock(() => 1700000000000), // Mock Date.now() for predictable timestamps
+      now: mock(() => 1700000000000),
     },
     writable: true,
   });
 } else {
-  // Define mocks on global if window is not available (e.g., pure Bun test environment)
   (global as any).localStorage = localStorageMock;
   (global as any).Date = {
     ...Date,
@@ -100,23 +80,19 @@ if (typeof window !== "undefined") {
   };
 }
 
-// --- Tests ---
-
 describe("LogDx React Client", () => {
   let enhancer: LogEnhancer;
 
   beforeEach(() => {
-    // Reset mocks before each test
     localStorageMock.clear();
     localStorageMock.getItem.mockClear();
     localStorageMock.setItem.mockClear();
     localStorageMock.removeItem.mockClear();
-    (global as any).Date.now.mockClear(); // Clear Date mock calls
+    (global as any).Date.now.mockClear();
 
-    enhancer = new LogEnhancer({}); // Create a new instance
+    enhancer = new LogEnhancer({});
   });
 
-  // Test Reducer directly
   describe("logViewerReducer", () => {
     test("should return initial state for unknown actions", () => {
       expect(
@@ -138,11 +114,10 @@ describe("LogDx React Client", () => {
         type: "SET_SEARCH_QUERY",
         payload: "test",
       });
-      expect(newState).toBe(state); // Check for reference equality
+      expect(newState).toBe(state);
     });
   });
 
-  // Basic component render checks (no interaction/state testing)
   test("LogDx component renders without crashing", () => {
     const logData = "line1\nline2";
     expect(() => <LogDx log={logData} enhancer={enhancer} />).not.toThrow();
@@ -156,37 +131,19 @@ describe("LogDx React Client", () => {
     )).not.toThrow();
   });
 
-  // Note: Testing LogDxContent directly is hard without mocking the context provider properly.
-  // We'll skip testing it in isolation for simplicity.
-
-  // Test localStorage interactions conceptually (can't easily test useEffect)
   test("LogDxProvider tries to load from localStorage (conceptual)", () => {
-    // We can't easily trigger useEffect in this setup, but we can check
-    // if the provider *would* call getItem if useEffect ran.
-    // This requires spying on the mock directly.
     const getItemSpy = spyOn(localStorageMock, "getItem");
-    // Simulate the provider being rendered (conceptually)
     <LogDxProvider logSearchKey="test-key" ttl={60000}>
       <div>Child</div>
     </LogDxProvider>;
-    // In a real scenario, useEffect would run here.
-    // We assert that *if* it ran, it *would* call getItem.
-    // TODO: Find a reliable way to test useEffect with Bun mocks or accept limitation.
-    // For now, we know the code exists, but can't guarantee execution via this test.
-    expect(getItemSpy).toHaveBeenCalledTimes(0); // Currently 0 because useEffect isn't triggered
+    expect(getItemSpy).toHaveBeenCalledTimes(0);
   });
 
   test("LogDxProvider tries to save to localStorage (conceptual)", () => {
-    // Similar to the load test, we check if setItem would be called
-    // if the state change triggered the relevant useEffect.
     const setItemSpy = spyOn(localStorageMock, "setItem");
-    // Simulate rendering and a state change that would trigger save
     <LogDxProvider logSearchKey="test-key" ttl={60000}>
       <div>Child</div>
     </LogDxProvider>;
-    // Simulate dispatch changing state (won't trigger useEffect in this mock setup)
-    // logViewerReducer({searchQuery: ''}, { type: 'SET_SEARCH_QUERY', payload: 'new query' });
-    // TODO: Find reliable way to test useEffect + state change interaction.
-    expect(setItemSpy).toHaveBeenCalledTimes(0); // Currently 0 because useEffect isn't triggered
+    expect(setItemSpy).toHaveBeenCalledTimes(0);
   });
 });

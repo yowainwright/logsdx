@@ -1,6 +1,6 @@
 [tasks.lint]
 description = "Run ESLint"
-run = "bunx eslint ."
+run = "bunx eslint . -c eslint.config.ts"
 
 [tasks.format]
 description = "Run Prettier"
@@ -14,7 +14,7 @@ run = "bun test"
 description = "Run all checks"
 run = """
 bun test
-bunx eslint .
+bunx eslint . -c eslint.config.ts
 bunx prettier --check .
 """
 
@@ -22,7 +22,7 @@ bunx prettier --check .
 description = "Run pre-commit checks"
 run = """
 bun test
-bunx eslint .
+bunx eslint . -c eslint.config.ts
 bunx prettier --check .
 """
 
