@@ -2,10 +2,9 @@
 
 import { Command } from "commander";
 import fs from "fs";
-import path from "path";
 import { styleLine } from "./styles";
 import { logger } from "@/src/utils/logger";
-import type { LogLevel, ParsedLine, CliOptions } from "@/src/types";
+import type { LogLevel, CliOptions } from "@/src/types";
 import { getParser, getRegisteredParsers } from "@/src/parsers/registry";
 import { DEFAULT_CONFIG } from "@/src/parsers/registry";
 import { createRegexLineParser } from "@/src/parsers/regex/line";

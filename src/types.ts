@@ -1,5 +1,4 @@
-import type { ReactNode, ReactElement } from "react";
-import type { ANSI } from "./cli/styles";
+import type { ReactElement } from "react";
 
 // Core types
 export type LogLevel =
@@ -116,7 +115,7 @@ export type JSONRule = {
 };
 
 // Ink client types
-export type InkStyle = keyof typeof ANSI | (keyof typeof ANSI)[];
+export type InkStyle = any[];
 
 export type HighlightPattern = {
   pattern: RegExp | string;
@@ -156,5 +155,10 @@ export interface CliOptions {
 }
 
 export type ThemeStyles = {
-  [K in LogLevel]: (keyof typeof ANSI)[];
+  [K in LogLevel]: any[];
 };
+
+
+export type ParsedJSON = {
+  [key: string]: any;
+}

@@ -1,83 +1,133 @@
 import fs from "fs";
-import path from "path";
 import JSON5 from "json5";
-import { type RegexParserRule } from "@/src/types";
-import { createRegexLineParser } from "@/src/parsers/regex/line";
 import {
   type LineParser,
   type LineParseResult,
+  type LogLevel,
   type JSONRule,
+  type ParsedJSON,
 } from "@/src/types";
+import { logger } from "@/src/utils/logger";
+import { LOG_TYPES, DEFAULT_JSON_RULES } from "@/src/parsers/json/constants";
 
-// Default rules for JSON parsing
-const DEFAULT_JSON_RULES: JSONRule[] = [
-  {
-    match: "\\{.*\\}",
-    lang: "json",
-    level: "info",
-    meta: {
-      service: "service",
-      timestamp: "timestamp",
-      message: "message",
-      level: "level"
-    }
-  }
-];
-
-/**
- * Loads JSON rules from a file or uses default rules
- * @param filePath Optional path to a custom rules file
- * @returns A line parser function
- */
 export async function loadJsonRules(
   filePath?: string,
+  debug = false,
 ): Promise<LineParser> {
-  let rules: JSONRule[] = DEFAULT_JSON_RULES;
-  
-  // If a file path is provided, try to load custom rules
-  if (filePath) {
-    try {
-      const data = fs.readFileSync(filePath, "utf-8");
-      const customRules = JSON5.parse(data);
-      if (Array.isArray(customRules) && customRules.length > 0) {
-        rules = customRules;
-      }
-    } catch (error) {
-      console.error("Failed to load custom JSON rules:", error);
-      console.log("Using default JSON rules instead");
-    }
-  }
+  const rules = getRulesFromPath(filePath, debug);
 
-  // Create a direct JSON parser using JSON5
   return (line: string): LineParseResult | undefined => {
     try {
-      // Check if the line looks like JSON
-      if (!line.trim().startsWith("{") || !line.trim().endsWith("}")) {
-        return undefined;
-      }
+      const matchingRule = testRule(rules, line);
+      if (!matchingRule) return undefined;
 
-      // Parse the JSON using JSON5
       const json = JSON5.parse(line);
-
-      // Extract common log fields
-      const result: LineParseResult = {
-        level: json.level || json.status || json.severity || "info",
-        timestamp: json.timestamp || json.time || json.date || json["@timestamp"],
-        message: json.message || json.msg || json.log || json.text,
-        language: "json",
-      };
-
-      // Add all other fields as metadata
-      for (const [key, value] of Object.entries(json)) {
-        if (!["level", "status", "severity", "timestamp", "time", "date", "@timestamp", "message", "msg", "log", "text"].includes(key)) {
-          result[key] = value;
-        }
-      }
-
-      return result;
+      return parseJsonLine(json, matchingRule);
     } catch (error) {
-      // If parsing fails, return undefined to let other parsers handle it
       return undefined;
     }
   };
 }
+
+export const getRulesFromPath = (filePath?: string, debug = false) => {
+  let rules = DEFAULT_JSON_RULES;
+  if (!filePath) return rules;
+  let data: undefined | unknown;
+  try {
+    const data = fs.readFileSync(filePath, "utf-8");
+    const customRules = JSON5.parse(data);
+    if (Array.isArray(customRules) && customRules?.length > 0) {
+      rules = customRules;
+    }
+  } catch (err) {
+    if (debug) {
+      if (filePath && !data) {
+        logger.warn(`Tried and failed to load custom JSON rules: ${JSON5.stringify(err)}`);
+      }
+      logger.info("Using default JSON rules");
+    }
+  }
+  return rules;
+}
+
+export const parseJsonLine = (json: ParsedJSON, matchingRule: JSONRule): LineParseResult => {
+  // Check for level in JSON first
+  const jsonLevel = json?.level || json?.status || json?.severity;
+  
+  // Create base result with the found level or fallback to matchingRule's level
+  const result = createBaseResult({
+    ...matchingRule,
+    level: jsonLevel as LogLevel || matchingRule?.level
+  });
+  
+  const resultWithMetadata = matchingRule.meta 
+  ? applyMetadata(result, json, matchingRule.meta)
+  : result;
+  
+  const timestamp = setTimestamp(resultWithMetadata, json);
+  const message = setMessage(resultWithMetadata, json);
+  
+  const additionalMetadata = Object.entries(json).reduce((acc, [key, value]) => {
+    if (!LOG_TYPES.includes(key) && !resultWithMetadata[key]) {
+      return { ...acc, [key]: value };
+    }
+    return acc;
+  }, {});
+  
+  return {
+    ...resultWithMetadata,
+    ...additionalMetadata,
+    timestamp,
+    message,
+  };
+};
+
+export const applyMetadata = (
+  result: LineParseResult, 
+  json: ParsedJSON, 
+  meta: Record<string, string>
+): LineParseResult => {
+  const metadata = Object.entries(meta).reduce((acc, [key, field]) => {
+    const value = json?.[field];
+    if (!value) return acc;
+    return { ...acc, [key]: value };
+  }, {});
+
+  return {
+    ...result,
+    ...metadata
+  };
+};
+
+export const testRule = (
+  rules: JSONRule[], 
+  line: string
+): JSONRule | undefined => rules.find(rule => {
+  const regex = new RegExp(rule.match);
+  return regex.test(line.trim());
+});
+
+export const createBaseResult = (matchingRule: JSONRule): LineParseResult => ({
+  language: matchingRule?.lang ?? "json",
+  level: matchingRule?.level ?? "info"
+});
+
+export const setTimestamp = (result: LineParseResult, json: ParsedJSON): string | undefined => {
+  if (result?.timestamp) return result.timestamp;
+  return json?.timestamp || json?.time || json?.date || json?.["@timestamp"];
+}
+
+export const setMessage = (result: LineParseResult, json: ParsedJSON): string | undefined => {
+  if (result?.message) return result.message;
+  return json?.message || json?.msg || json?.log || json?.text;
+}
+
+export const setLevel = (result: LineParseResult, json: ParsedJSON): LogLevel => {
+  if (result?.level) return result.level;
+  
+  const jsonLevel = json?.level || json?.status || json?.severity;
+  if (jsonLevel) return jsonLevel as LogLevel;
+  
+  return "info";
+}
+
