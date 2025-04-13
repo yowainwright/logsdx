@@ -133,3 +133,11 @@ export interface CliOptions {
   theme?: string;
   listThemes?: boolean;
 }
+
+export type CustomParserOptions ={
+  name: string;
+  description?: string;
+  canParse?: (line: string) => boolean;
+  parse: (line: string) => LineParseResult | undefined;
+  validate?: () => boolean;
+}

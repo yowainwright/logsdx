@@ -4,33 +4,11 @@ import {
   type LogLevel,
 } from "@/src/types";
 
-/**
- * Options for creating a custom parser
- */
-export interface CustomParserOptions {
-  /**
-   * Name of the parser
-   */
+export type CustomParserOptions ={
   name: string;
-
-  /**
-   * Description of the parser
-   */
   description?: string;
-
-  /**
-   * Function to determine if a line should be parsed by this parser
-   */
   canParse?: (line: string) => boolean;
-
-  /**
-   * Function to parse a line and extract information
-   */
   parse: (line: string) => LineParseResult | undefined;
-
-  /**
-   * Optional function to validate the parser configuration
-   */
   validate?: () => boolean;
 }
 
