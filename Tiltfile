@@ -16,13 +16,3 @@ k8s_resource(
     trigger_mode=TRIGGER_MODE_AUTO,
     auto_init=True
 )
-
-# Add log formatter for json-logger
-local_resource(
-    'json-logger-formatter',
-    cmd='kubectl logs -f deployment/json-logger | bun run src/cli/index.ts --parser json --debug',
-    auto_init=True,
-    labels=['json-logger'],
-    resource_deps=['json-logger'],
-    trigger_mode=TRIGGER_MODE_AUTO
-) 

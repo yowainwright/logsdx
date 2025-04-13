@@ -136,7 +136,7 @@ export const THEMES = {
       json: { regex: /\{.*\}|\[.*\]/, color: "white" },
     },
     elements: {
-      brackets: { color: "gray" },
+      brackets: { color: "yellow" },
       keyValue: {
         key: { color: "cyan" },
         separator: { color: "gray" },
@@ -353,6 +353,172 @@ export const THEMES = {
         key: { color: "white" },
         separator: { color: "gray" },
         value: { color: "white" },
+      },
+    },
+  },
+  dracula: {
+    name: "dracula",
+    levels: {
+      error: { color: "#ff5555", bold: true }, // Red
+      warn: { color: "#f1fa8c" },        // Yellow
+      info: { color: "#8be9fd" },        // Cyan
+      debug: { color: "#6272a4", dim: true }, // Comment Purple
+      success: { color: "#50fa7b" },      // Green
+      trace: { color: "#f8f8f2", dim: true }, // Foreground
+    },
+    fields: { 
+      timestamp: { color: "#6272a4" },
+      service: { color: "#ff79c6" },      // Pink
+      action: { color: "#bd93f9" },      // Purple
+      user: { color: "#8be9fd" },        // Cyan (Placeholder - adjust if needed)
+      duration: { color: "#f1fa8c" },      // Yellow
+      requestId: { color: "#6272a4" },
+      correlationId: { color: "#6272a4" },
+      environment: { color: "#50fa7b" },      // Green
+      version: { color: "#bd93f9" },      // Purple
+      method: { color: "#8be9fd" },        // Cyan
+      path: { color: "#f8f8f2" },        // Foreground
+      statusCode: { color: "#ffb86c" },      // Orange
+      ip: { color: "#6272a4" },
+      userAgent: { color: "#6272a4", dim: true },
+    },
+    status: { 
+      success: { color: "#50fa7b" },
+      failure: { color: "#ff5555" },
+      error: { color: "#ff5555" },
+      pending: { color: "#f1fa8c" },
+      cancelled: { color: "#6272a4" },
+      timeout: { color: "#ff5555" },
+    },
+    patterns: { // Colors adjusted to match Dracula
+      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#ff5555", bold: true },
+      warning: { regex: /\b(warning|warn|caution)\b/i, color: "#f1fa8c" },
+      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#50fa7b" },
+      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#8be9fd" },
+      url: { regex: /https?:\/\/[^\s]+/, color: "#8be9fd", italic: true },
+      ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#6272a4" },
+      email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#8be9fd" },
+      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#bd93f9" },
+      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#6272a4" },
+      json: { regex: /\{.*\}|\[.*\]/, color: "#f8f8f2" },
+    },
+    elements: {
+      brackets: { color: "#f8f8f2" },      // Foreground for {}, [], "
+      keyValue: {
+        key: { color: "#8be9fd" },      // Cyan for keys
+        separator: { color: "#ff79c6" }, // Pink for :
+        value: { color: "#f8f8f2" },     // Foreground for values
+      },
+    },
+  },
+
+  githubLight: {
+    name: "githubLight",
+    levels: {
+      error: { color: "#d73a49", bold: true }, // Red-600
+      warn: { color: "#b08800" },       // Yellow-700 
+      info: { color: "#0366d6" },       // Blue-600
+      debug: { color: "#586069", dim: true }, // Gray-600
+      success: { color: "#22863a" },      // Green-600
+      trace: { color: "#24292e", dim: true }, // Gray-900 (Default Text)
+    },
+    fields: { 
+      timestamp: { color: "#586069" },
+      service: { color: "#6f42c1" },      // Purple-600
+      action: { color: "#005cc5" },       // Blue-700
+      user: { color: "#0366d6" },        // Blue-600
+      duration: { color: "#e36209" },     // Orange-600
+      requestId: { color: "#586069" },
+      correlationId: { color: "#586069" },
+      environment: { color: "#22863a" },      // Green-600
+      version: { color: "#6f42c1" },      // Purple-600
+      method: { color: "#005cc5" },       // Blue-700
+      path: { color: "#24292e" },        // Gray-900
+      statusCode: { color: "#b08800" },     // Yellow-700
+      ip: { color: "#586069" },
+      userAgent: { color: "#586069", dim: true },
+    },
+    status: { 
+      success: { color: "#22863a" },
+      failure: { color: "#d73a49" },
+      error: { color: "#d73a49" },
+      pending: { color: "#b08800" },
+      cancelled: { color: "#586069" },
+      timeout: { color: "#d73a49" },
+    },
+    patterns: {
+      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#d73a49", bold: true },
+      warning: { regex: /\b(warning|warn|caution)\b/i, color: "#b08800" },
+      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#22863a" },
+      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#005cc5" },
+      url: { regex: /https?:\/\/[^\s]+/, color: "#0366d6", italic: true },
+      ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#586069" },
+      email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#0366d6" },
+      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#6f42c1" },
+      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#586069" },
+      json: { regex: /\{.*\}|\[.*\]/, color: "#24292e" },
+    },
+    elements: {
+      brackets: { color: "#586069" },
+      keyValue: {
+        key: { color: "#005cc5" },
+        separator: { color: "#586069" },
+        value: { color: "#24292e" },
+      },
+    },
+  },
+  githubDark: {
+    name: "githubDark",
+    levels: {
+      error: { color: "#f97583", bold: true },
+      warn: { color: "#dbab09" },
+      info: { color: "#79b8ff" },
+      debug: { color: "#6a737d", dim: true },
+      success: { color: "#85e89d" },
+      trace: { color: "#d1d5da", dim: true },
+    },
+    fields: {
+      timestamp: { color: "#6a737d" },
+      service: { color: "#b392f0" },
+      action: { color: "#58a6ff" },
+      user: { color: "#79b8ff" },
+      duration: { color: "#ffab70" },
+      requestId: { color: "#6a737d" },
+      correlationId: { color: "#6a737d" },
+      environment: { color: "#85e89d" },
+      version: { color: "#b392f0" },
+      method: { color: "#58a6ff" },
+      path: { color: "#d1d5da" },
+      statusCode: { color: "#dbab09" },
+      ip: { color: "#6a737d" },
+      userAgent: { color: "#6a737d", dim: true },
+    },
+    status: {
+      success: { color: "#85e89d" },
+      failure: { color: "#f97583" },
+      error: { color: "#f97583" },
+      pending: { color: "#dbab09" },
+      cancelled: { color: "#6a737d" },
+      timeout: { color: "#f97583" },
+    },
+    patterns: {
+      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#f97583", bold: true },
+      warning: { regex: /\b(warning|warn|caution)\b/i, color: "#dbab09" },
+      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#85e89d" },
+      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#58a6ff" },
+      url: { regex: /https?:\/\/[^\s]+/, color: "#79b8ff", italic: true },
+      ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#6a737d" },
+      email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#79b8ff" },
+      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#b392f0" },
+      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#6a737d" },
+      json: { regex: /\{.*\}|\[.*\]/, color: "#d1d5da" },
+    },
+    elements: {
+      brackets: { color: "#6a737d" },
+      keyValue: {
+        key: { color: "#79b8ff" },
+        separator: { color: "#6a737d" },
+        value: { color: "#d1d5da" },
       },
     },
   },
@@ -593,10 +759,24 @@ export class StyleManager {
     return lines.join("\n");
   }
 
-  styleLine(line: string, parsed: { level?: LogLevel }): string {
-    if (!parsed.level) return line;
+  styleLine(line: string, parsed?: { level?: LogLevel; [key: string]: any }, parserName?: string): string {
+    // If parser is json, try to format it compactly
+    if (parserName === "json") {
+      try {
+        const json = JSON5.parse(line);
+        return formatJsonCompact(json, this); // Use the compact formatter
+      } catch (error) {
+        // JSON parsing failed, fall back to default styling for the raw line
+        // Use level from parsed object if available, otherwise default to 'info'
+        const level = parsed?.level || "info"; 
+        const style = this.getLevelStyle(level);
+        return this.applyPatternStyles(style(line));
+      }
+    }
 
-    const style = this.getLevelStyle(parsed.level);
+    // Fallback for non-JSON parsers or if parsing failed above
+    const level = parsed?.level || "info";
+    const style = this.getLevelStyle(level);
     const styledLine = style(line);
     return this.applyPatternStyles(styledLine);
   }
@@ -605,28 +785,22 @@ export class StyleManager {
 // Export singleton instance
 export const styleManager = StyleManager.getInstance();
 
-// Export convenience functions that use the style manager
+// UPDATE: Accept optional parserName and pass it to the manager's method
 export const styleLine = (
   line: string,
-  parsed: { level?: LogLevel; [key: string]: any },
+  parsed?: { level?: LogLevel; [key: string]: any },
+  parserName?: string, // Added parserName argument
 ): string => {
-  if (parsed.language === "json") {
-    try {
-      const json = JSON5.parse(line);
-      return styleManager.formatJson(json);
-    } catch (error) {
-      // If JSON parsing fails, fall back to level-based styling
-      const level = parsed.level || "info";
-      return styleManager.getLevelStyle(level)(line);
-    }
-  }
+  // Remove the previous logic, delegate entirely to the manager instance
+  return styleManager.styleLine(line, parsed, parserName);
 
+  // OLD Logic moved/modified into styleManager.styleLine:
+  // if (parsed.language === "json") { ... }
   // Apply level-based styling
-  const level = parsed.level || "info";
-  const styledLine = styleManager.getLevelStyle(level)(line);
-
+  // const level = parsed.level || "info";
+  // const styledLine = styleManager.getLevelStyle(level)(line);
   // Apply pattern-based styling
-  return styleManager.applyPatternStyles(styledLine);
+  // return styleManager.applyPatternStyles(styledLine);
 };
 
 // Export theme-related functions
@@ -663,3 +837,49 @@ export const setTheme = (
 };
 
 export const getTheme = () => styleManager.currentTheme;
+
+// NEW function: Format JSON compactly on a single line with colors
+function formatJsonCompact(
+  obj: any,
+  styleManager: StyleManager,
+  isRoot = true,
+): string {
+  const bracketStyle = styleManager.getBracketStyle();
+  const {
+    key: keyStyle,
+    separator: separatorStyle,
+    value: valueStyle,
+  } = styleManager.getKeyValueStyles();
+
+  if (obj === null) {
+    return valueStyle("null");
+  }
+  if (typeof obj === "string") {
+    // NEW: Style quotes with bracketStyle, content with valueStyle
+    return `${bracketStyle('"')}${valueStyle(obj)}${bracketStyle('"')}`;
+  }
+  if (typeof obj === "number" || typeof obj === "boolean") {
+    return valueStyle(String(obj));
+  }
+
+  if (Array.isArray(obj)) {
+    const items = obj
+      .map((item) => formatJsonCompact(item, styleManager, false))
+      .join(separatorStyle(", "));
+    return `${bracketStyle("[")}${items}${bracketStyle("]")}`;
+  }
+
+  if (typeof obj === "object") {
+    const entries = Object.entries(obj)
+      .map(([key, value]) => {
+        const formattedKey = `${bracketStyle('"')}${keyStyle(key)}${bracketStyle('"')}`;
+        const formattedValue = formatJsonCompact(value, styleManager, false);
+        return `${formattedKey}${separatorStyle(":")}${formattedValue}`;
+      })
+      .join(separatorStyle(", "));
+    return `${bracketStyle("{")}${entries}${bracketStyle("}")}`;
+  }
+
+  // Fallback for unexpected types
+  return valueStyle(String(obj));
+}

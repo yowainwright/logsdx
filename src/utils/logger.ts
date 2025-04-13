@@ -2,7 +2,9 @@ import type { LogLevel, LoggerConfig } from "@/src/types";
 
 const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 0,
+  trace: 0,
   info: 1,
+  success: 1,
   warn: 2,
   error: 3,
 };
@@ -42,7 +44,7 @@ export class Logger {
 
   debug(message: string): void {
     if (this.shouldLog("debug")) {
-      console.debug(this.formatMessage("debug", message));
+      console.error(this.formatMessage("debug", message));
     }
   }
 
@@ -54,7 +56,7 @@ export class Logger {
 
   warn(message: string): void {
     if (this.shouldLog("warn")) {
-      console.warn(this.formatMessage("warn", message));
+      console.error(this.formatMessage("warn", message));
     }
   }
 
