@@ -70,9 +70,6 @@
       "publish": true
     },
     "hooks": {
-      "before:init": [
-        "mise run check"
-      ],
       "after:bump": [
         "bun run build"
       ],
