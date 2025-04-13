@@ -31,8 +31,8 @@ program
       // Handle list parsers command
       if (options.listParsers) {
         const parsers = getRegisteredParsers();
-        console.log("Available parsers:");
-        parsers.forEach(parser => console.log(`  - ${parser}`));
+        logger.info("Available parsers:");
+        parsers.forEach(parser => logger.info(`  - ${parser}`));
         process.exit(0);
       }
 
@@ -40,15 +40,15 @@ program
       if (options.listThemes) {
         const config = loadConfig();
         const themes = config ? Object.keys(config.customThemes || {}) : [];
-        console.log("Available themes:");
-        console.log("Built-in themes:");
-        console.log("  - default");
-        console.log("  - dark");
-        console.log("  - light");
-        console.log("  - minimal");
+        logger.info("Available themes:");
+        logger.info("Built-in themes:");
+        logger.info("  - default");
+        logger.info("  - dark");
+        logger.info("  - light");
+        logger.info("  - minimal");
         if (themes.length > 0) {
-          console.log("Custom themes:");
-          themes.forEach(theme => console.log(`  - ${theme}`));
+          logger.info("Custom themes:");
+          themes.forEach(theme => logger.info(`  - ${theme}`));
         }
         process.exit(0);
       }
@@ -108,9 +108,9 @@ program
           if (shouldRender(parsed.level, options.level as LogLevel)) {
             // Format the line based on the parsed result
             const formattedLine = styleManager.styleLine(line, parsed);
-            // Use console.log for stdout, write for file streams
+            // Use logger for stdout, write for file streams
             if (outputStream === process.stdout) {
-              console.log(formattedLine);
+              logger.info(formattedLine);
             } else {
               (outputStream as fs.WriteStream).write(formattedLine + "\n");
             }
@@ -124,9 +124,9 @@ program
           if (parsed && shouldRender(parsed.level, options.level as LogLevel)) {
             // Format the line based on the parsed result
             const formattedLine = styleManager.styleLine(buffer, parsed);
-            // Use console.log for stdout, write for file streams
+            // Use logger for stdout, write for file streams
             if (outputStream === process.stdout) {
-              console.log(formattedLine);
+              logger.info(formattedLine);
             } else {
               (outputStream as fs.WriteStream).write(formattedLine + "\n");
             }

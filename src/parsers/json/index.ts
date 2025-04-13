@@ -1,13 +1,12 @@
 import fs from "fs";
-import path from "path";
 import JSON5 from "json5";
-import { type RegexParserRule } from "@/src/types";
-import { createRegexLineParser } from "@/src/parsers/regex/line";
 import {
   type LineParser,
   type LineParseResult,
   type JSONRule,
+  type LogLevel,
 } from "@/src/types";
+import { logger } from "@/src/utils/logger";
 
 // Default rules for JSON parsing
 const DEFAULT_JSON_RULES: JSONRule[] = [
@@ -23,6 +22,43 @@ const DEFAULT_JSON_RULES: JSONRule[] = [
     }
   }
 ];
+
+/**
+ * Maps various log level formats to our standard log levels
+ * @param level The log level to map
+ * @returns A standardized log level
+ */
+function mapLogLevel(level: string): LogLevel {
+  const levelMap: Record<string, LogLevel> = {
+    // Standard levels
+    debug: "debug",
+    info: "info",
+    warn: "warn",
+    warning: "warn",
+    error: "error",
+    err: "error",
+    success: "success",
+    trace: "trace",
+    
+    // Common variations
+    fatal: "error",
+    critical: "error",
+    notice: "info",
+    verbose: "debug",
+    silly: "debug",
+    
+    // Status-based levels
+    fail: "error",
+    failed: "error",
+    failure: "error",
+    pending: "warn",
+    in_progress: "info",
+    completed: "success",
+  };
+
+  const normalizedLevel = level.toLowerCase().trim();
+  return levelMap[normalizedLevel] || "info";
+}
 
 /**
  * Loads JSON rules from a file or uses default rules
@@ -43,8 +79,8 @@ export async function loadJsonRules(
         rules = customRules;
       }
     } catch (error) {
-      console.error("Failed to load custom JSON rules:", error);
-      console.log("Using default JSON rules instead");
+      logger.warn(`Failed to load custom JSON rules: ${JSON5.stringify(error)}`);
+      logger.info("Using default JSON rules instead");
     }
   }
 
@@ -61,7 +97,7 @@ export async function loadJsonRules(
 
       // Extract common log fields
       const result: LineParseResult = {
-        level: json.level || json.status || json.severity || "info",
+        level: mapLogLevel(json.level || json.status || json.severity || "info"),
         timestamp: json.timestamp || json.time || json.date || json["@timestamp"],
         message: json.message || json.msg || json.log || json.text,
         language: "json",

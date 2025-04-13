@@ -84,7 +84,7 @@ function parseArgs(args: string[]): any {
   let i = 0;
   while (i < args.length) {
     const arg = args[i];
-    const skip = processArg(arg, i, options, args);
+    const skip = processArg(arg as any, i, options, args);
     i += skip + 1;
   }
   

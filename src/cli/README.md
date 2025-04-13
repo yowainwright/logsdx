@@ -10,6 +10,8 @@ The LogsDX CLI is a command-line interface for processing and formatting logs wi
 - **Multiple Output Formats**: View logs in the terminal or save to files
 - **Filtering**: Filter logs by minimum log level
 - **JSON Formatting**: Pretty-prints JSON content in logs with syntax highlighting
+- **Theme Support**: Multiple built-in themes and custom theme support
+- **Configuration**: Customizable through config files and command-line options
 
 ## Installation
 
@@ -48,6 +50,8 @@ logsdx input.log --output formatted.log
 - `-r, --rules <file>`: Path to custom rules file
 - `-o, --output <file>`: Path to output file
 - `--list-parsers`: List available parsers
+- `-t, --theme <theme>`: Theme to use (default, dark, light, minimal, or custom theme name)
+- `--list-themes`: List available themes
 
 ### Log Levels
 
@@ -79,28 +83,22 @@ logsdx --list-parsers
 logsdx input.log --parser json
 ```
 
+### Using Themes
+
+```bash
+# List available themes
+logsdx --list-themes
+
+# Use a specific theme
+logsdx input.log --theme dark
+
+# Use a custom theme
+logsdx input.log --theme my-custom-theme
+```
+
 ### Custom Rules
 
 ```bash
 # Use custom parsing rules
 logsdx input.log --rules my-rules.json
 ```
-
-## Development
-
-### Project Structure
-
-- `index.ts`: Main CLI entry point
-- `styles.ts`: Styling utilities for log output
-- `parsers/`: Log parsers for different formats
-- `utils/`: Utility functions
-
-### Running Tests
-
-```bash
-# Run all tests
-bun test
-
-# Run specific test file
-bun test src/cli/styles.test.ts
-``` 
