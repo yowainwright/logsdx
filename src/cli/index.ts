@@ -1,290 +1,211 @@
 #!/usr/bin/env node
 
+import { Command } from "commander";
 import fs from "fs";
-import path from "path";
-import { createRegexLineParser } from "@/src/parsers/regex/line";
-import { loadJsonRules } from "@/src/parsers/json";
-import { styleLine } from "./styles";
+import { styleManager, setTheme } from "@/src/themes/asci/styles";
 import { logger } from "@/src/utils/logger";
-import type { LogLevel, ParsedLine, CliOptions } from "@/src/types";
-import { DEFAULT_CONFIG } from "@/src/constants";
+import type { LogLevel, CliOptions } from "@/src/types";
+import { getParser, getRegisteredParsers } from "@/src/parsers/registry";
+import { loadConfig } from "@/src/themes/asci/loader";
 
-export const processArg = (
-  arg: string,
-  index: number,
-  options: CliOptions,
-  args: string[],
-): number => {
-  if (!arg) return index;
+const program = new Command();
 
-  if (arg === "--quiet") {
-    options.flags.add("quiet");
-    return index;
-  }
+program
+  .name("logsdx")
+  .description("A powerful log parsing and formatting tool")
+  .version("0.0.1");
 
-  if (arg === "--debug") {
-    options.isDebug = true;
-    logger
-      .withConfig({ level: "debug", prefix: "CLI" })
-      .debug("Debug mode enabled");
-    return index;
-  }
+program
+  .option("-q, --quiet", "Suppress all output except errors")
+  .option("-d, --debug", "Enable debug mode")
+  .option("-l, --level <level>", "Minimum log level to display", "info")
+  .option("-p, --parser <parser>", "Parser to use for log parsing", "default")
+  .option("-r, --rules <file>", "Path to custom rules file")
+  .option("-o, --output <file>", "Path to output file")
+  .option("--list-parsers", "List available parsers")
+  .option(
+    "-t, --theme <theme>",
+    "Theme to use (default, dark, light, minimal, or custom theme name)",
+  )
+  .option("--list-themes", "List available themes")
+  .argument("[input]", "Input file to process (defaults to stdin)")
+  .action(async (input: string, options: CliOptions) => {
+    try {
+      // Handle list parsers command
+      if (options.listParsers) {
+        const parsers = getRegisteredParsers();
+        logger.info("Available parsers:");
+        parsers.forEach((parser) => logger.info(`  - ${parser}`));
+        process.exit(0);
+      }
 
-  if (arg.startsWith("--level=")) {
-    const level = arg.split("=")[1];
-    if (
-      level &&
-      (level === "debug" ||
-        level === "info" ||
-        level === "warn" ||
-        level === "error")
-    ) {
-      options.minLevel = level as LogLevel;
-      if (options.isDebug) {
+      // Handle list themes command
+      if (options.listThemes) {
+        const config = loadConfig();
+        const themes = config ? Object.keys(config.customThemes || {}) : [];
+        logger.info("Available themes:");
+        logger.info("Built-in themes:");
+        logger.info("  - default");
+        logger.info("  - dark");
+        logger.info("  - light");
+        logger.info("  - minimal");
+        if (themes.length > 0) {
+          logger.info("Custom themes:");
+          themes.forEach((theme) => logger.info(`  - ${theme}`));
+        }
+        process.exit(0);
+      }
+
+      // Set up debug logging
+      if (options.debug) {
         logger
           .withConfig({ level: "debug", prefix: "CLI" })
-          .debug(`Minimum log level set to: ${level}`);
+          .debug("Debug mode enabled");
       }
-    }
-    return index;
-  }
 
-  if (arg === "--output" && index + 1 < args.length) {
-    const nextArg = args[index + 1];
-    if (nextArg && !nextArg.startsWith("--")) {
-      options.outputFile = nextArg;
-      if (options.isDebug) {
+      // Load and apply theme
+      const config = loadConfig();
+      if (options.theme) {
+        if (options.debug) {
+          logger
+            .withConfig({ level: "debug", prefix: "CLI" })
+            .debug(`Using theme: ${options.theme}`);
+        }
+        setTheme(options.theme);
+      } else if (config?.theme) {
+        if (options.debug) {
+          logger
+            .withConfig({ level: "debug", prefix: "CLI" })
+            .debug(`Using theme from config: ${config.theme}`);
+        }
+        setTheme(config.theme);
+      }
+
+      // Validate log level
+      if (
+        options.level &&
+        !["debug", "info", "warn", "error"].includes(options.level)
+      ) {
+        throw new Error(`Invalid log level: ${options.level}`);
+      }
+
+      // Create input stream
+      const inputStream = input ? fs.createReadStream(input) : process.stdin;
+      if (input && options.debug) {
         logger
           .withConfig({ level: "debug", prefix: "CLI" })
-          .debug(`Output file set to: ${nextArg}`);
+          .debug(`Input file set to: ${input}`);
       }
-      return index + 1;
+
+      // Create output stream
+      const outputStream = options.output
+        ? fs.createWriteStream(options.output)
+        : process.stdout;
+      if (options.output && options.debug) {
+        logger
+          .withConfig({ level: "debug", prefix: "CLI" })
+          .debug(`Output file set to: ${options.output}`);
+      }
+
+      // Get parser
+      const parser = await getParserForOptions(options);
+
+      // Process input
+      let buffer = "";
+      inputStream.on("data", (chunk: Buffer | string) => {
+        buffer += chunk.toString();
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          const parsed = parser(line);
+          if (!parsed) continue;
+
+          if (shouldRender(parsed.level, options.level as LogLevel)) {
+            // Format the line based on the parsed result
+            const formattedLine = styleManager.styleLine(line, parsed);
+            // Use logger for stdout, write for file streams
+            if (outputStream === process.stdout) {
+              logger.info(formattedLine);
+            } else {
+              (outputStream as fs.WriteStream).write(formattedLine + "\n");
+            }
+          }
+        }
+      });
+
+      inputStream.on("end", () => {
+        if (buffer.trim()) {
+          const parsed = parser(buffer);
+          if (parsed && shouldRender(parsed.level, options.level as LogLevel)) {
+            // Format the line based on the parsed result
+            const formattedLine = styleManager.styleLine(buffer, parsed);
+            // Use logger for stdout, write for file streams
+            if (outputStream === process.stdout) {
+              logger.info(formattedLine);
+            } else {
+              (outputStream as fs.WriteStream).write(formattedLine + "\n");
+            }
+          }
+        }
+        if (options.output) {
+          (outputStream as fs.WriteStream).end();
+        }
+      });
+
+      inputStream.on("error", (error: Error) => {
+        logger.error("Error reading input:", error);
+        process.exit(1);
+      });
+    } catch (error) {
+      logger.error("Error:", error as Error);
+      process.exit(1);
     }
-  }
+  });
 
-  if (!arg.startsWith("--")) {
-    options.inputFile = arg;
-    if (options.isDebug) {
-      logger
-        .withConfig({ level: "debug", prefix: "CLI" })
-        .debug(`Input file set to: ${arg}`);
-    }
-  }
+program.parse();
 
-  return index;
-};
-
-export const parseArgs = (args: string[]): CliOptions => {
-  const options: CliOptions = {
-    flags: new Set<string>(),
-    inputFile: "",
-    outputFile: "",
-    minLevel: undefined,
-    isDebug: false,
-  };
-
-  // First pass: handle flags and options
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg && arg.startsWith("--")) {
-      i = processArg(arg, i, options, args);
-    }
-  }
-
-  // Second pass: handle input file (first non-flag argument)
-  for (const arg of args) {
-    if (arg && !arg.startsWith("--") && !options.inputFile) {
-      processArg(arg, 0, options, args);
-      break;
-    }
-  }
-
-  return options;
-};
-
-export const createOutputStream = (
-  outputFile: string,
-  isDebug: boolean,
-): fs.WriteStream | NodeJS.WriteStream => {
-  if (!outputFile) return process.stdout;
+// Helper function to get parser for options
+async function getParserForOptions(options: CliOptions) {
+  const parserName = options.parser || "default";
 
   try {
-    const stream = fs.createWriteStream(outputFile, { flags: "a" });
-    stream.on("error", (error: Error) => {
-      logger.error("Error writing to output file:", error);
-      process.exit(1);
-    });
-    if (isDebug) {
+    if (options.debug) {
       logger
         .withConfig({ level: "debug", prefix: "CLI" })
-        .debug(`Created write stream for: ${outputFile}`);
+        .debug(`Using parser: ${parserName}`);
     }
-    return stream;
+
+    return await getParser(parserName, {
+      rulesFile: options.rules,
+    });
   } catch (error) {
-    logger.error("Failed to create output stream:", error as Error);
+    logger.error(`Error loading parser '${parserName}':`, error as Error);
+    logger.info(`Available parsers: ${getRegisteredParsers().join(", ")}`);
     process.exit(1);
   }
-};
+}
 
-export const getParser = async (options: CliOptions) => {
-  const rulePath = path.resolve(process.cwd(), "log_rules.json");
-
-  try {
-    if (fs.existsSync(rulePath)) {
-      if (options.isDebug) {
-        logger
-          .withConfig({ level: "debug", prefix: "CLI" })
-          .debug(`Loading rules from: ${rulePath}`);
-      }
-      return await loadJsonRules(rulePath);
-    }
-  } catch (error) {
-    logger.error("Failed to load rules from file:", error as Error);
-  }
-
-  if (options.isDebug) {
-    logger
-      .withConfig({ level: "debug", prefix: "CLI" })
-      .debug("Using default regex rules");
-  }
-  return createRegexLineParser(DEFAULT_CONFIG.defaultRules);
-};
-
-export const shouldRender = (
+// Helper function to determine if a line should be rendered
+function shouldRender(
   level: string | undefined,
   minLevel: LogLevel | undefined,
-): boolean => {
+): boolean {
   if (!minLevel || !level) return true;
-  const current = DEFAULT_CONFIG.levels[level as LogLevel] ?? 0;
-  const min = DEFAULT_CONFIG.levels[minLevel] ?? 0;
+
+  // Define log level priorities
+  const levelPriorities: Record<string, number> = {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    error: 3,
+    success: 1,
+    trace: 0,
+  };
+
+  const current = levelPriorities[level] ?? 0;
+  const min = levelPriorities[minLevel] ?? 0;
   return current >= min;
-};
-
-export const handleLine = (
-  parser: ReturnType<typeof createRegexLineParser>,
-  line: string,
-  options: CliOptions,
-  output: fs.WriteStream | NodeJS.WriteStream,
-): void => {
-  try {
-    const parsed = parser(line) as ParsedLine;
-    const level = parsed?.level;
-    const styled = styleLine(line, level);
-
-    if (shouldRender(level, options.minLevel)) {
-      if (!options.flags.has("quiet")) console.log(styled);
-      if (output !== process.stdout) {
-        const writeStream = output as fs.WriteStream;
-        writeStream.write(styled + "\n", (error: Error | null | undefined) => {
-          if (error) {
-            logger.error("Error writing to output file:", error);
-            process.exit(1);
-          }
-        });
-      }
-    }
-  } catch (error) {
-    logger.error("Error processing line:", error as Error);
-  }
-};
-
-export const processFile = async (
-  inputFile: string,
-  parser: ReturnType<typeof createRegexLineParser>,
-  options: CliOptions,
-  output: fs.WriteStream | NodeJS.WriteStream,
-): Promise<void> => {
-  try {
-    if (options.isDebug) {
-      logger
-        .withConfig({ level: "debug", prefix: "CLI" })
-        .debug(`Reading from file: ${inputFile}`);
-    }
-    const content = fs.readFileSync(inputFile, "utf-8");
-    const lines = content.split("\n");
-    if (options.isDebug) {
-      logger
-        .withConfig({ level: "debug", prefix: "CLI" })
-        .debug(`Processing ${lines.length} lines from file`);
-    }
-    lines.forEach((line) => handleLine(parser, line, options, output));
-  } catch (error) {
-    logger.error("Error reading input file:", error as Error);
-    process.exit(1);
-  }
-};
-
-export const processStdin = (
-  parser: ReturnType<typeof createRegexLineParser>,
-  options: CliOptions,
-  output: fs.WriteStream | NodeJS.WriteStream,
-): void => {
-  if (options.isDebug) {
-    logger
-      .withConfig({ level: "debug", prefix: "CLI" })
-      .debug("Reading from stdin");
-  }
-  let buffer = "";
-
-  process.stdin.setEncoding("utf8");
-
-  process.stdin.on("data", (chunk) => {
-    buffer += chunk;
-    const lines = buffer.split("\n");
-    buffer = lines.pop() || "";
-    lines.forEach((line) => handleLine(parser, line, options, output));
-  });
-
-  process.stdin.on("error", (error: Error) => {
-    logger.error("Error reading from stdin:", error);
-    process.exit(1);
-  });
-
-  process.stdin.on("end", () => {
-    if (buffer) handleLine(parser, buffer, options, output);
-    if (output !== process.stdout) {
-      (output as fs.WriteStream).end();
-    }
-  });
-};
-
-// Handle process termination
-let globalOptions: CliOptions | null = null;
-
-process.on("SIGINT", () => {
-  if (globalOptions?.isDebug) {
-    logger
-      .withConfig({ level: "debug", prefix: "CLI" })
-      .debug("Received SIGINT, shutting down");
-  }
-  if (process.stdout !== process.stdout) {
-    (process.stdout as unknown as fs.WriteStream).end();
-  }
-  process.exit(0);
-});
-
-export const main = async (): Promise<void> => {
-  try {
-    const options = parseArgs(process.argv.slice(2));
-    globalOptions = options; // Set global options for signal handlers
-    const parser = await getParser(options);
-    const output = createOutputStream(options.outputFile, options.isDebug);
-
-    if (options.inputFile) {
-      await processFile(options.inputFile, parser, options, output);
-    } else {
-      processStdin(parser, options, output);
-    }
-  } catch (error) {
-    logger.error("Fatal error:", error as Error);
-    process.exit(1);
-  }
-};
-
-// Only run main if this file is being executed directly
-if (require.main === module) {
-  main().catch((error) => {
-    logger.error("Unhandled error:", error as Error);
-    process.exit(1);
-  });
 }
