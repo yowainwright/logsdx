@@ -1,5 +1,4 @@
-import type { ReactNode, ReactElement } from "react";
-import type { ANSI } from "./cli/styles";
+import type { ReactElement } from "react";
 
 // Core types
 export type LogLevel =
@@ -115,27 +114,6 @@ export type JSONRule = {
   meta?: Record<string, string>;
 };
 
-// Ink client types
-export type InkStyle = keyof typeof ANSI | (keyof typeof ANSI)[];
-
-export type HighlightPattern = {
-  pattern: RegExp | string;
-  style: InkStyle;
-};
-
-export interface InkLogViewerProps {
-  log: string;
-  enhancer: LogEnhancer;
-  showLineNumbers?: boolean;
-  highlightPatterns?: HighlightPattern[];
-  theme?: {
-    [key in LogLevel]?: InkStyle;
-  };
-  maxLines?: number;
-  wrap?: boolean;
-  padding?: number | [number, number] | [number, number, number, number];
-}
-
 // CLI types
 export interface CliFlags {
   quiet?: boolean;
@@ -155,7 +133,3 @@ export interface CliOptions {
   theme?: string;
   listThemes?: boolean;
 }
-
-export type ThemeStyles = {
-  [K in LogLevel]: (keyof typeof ANSI)[];
-};

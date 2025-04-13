@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
@@ -23,8 +23,11 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/src/*": ["./src/*"]
+      "@/src/*": ["./src/*"],
+      "@/components/*": ["src/clients/react/components/*"],
+      "@/lib/*": ["src/clients/react/lib/*"]
     }
   },
-  "include": ["src", "tests"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
 }
