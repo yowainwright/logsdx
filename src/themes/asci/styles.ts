@@ -3,8 +3,8 @@ import JSON5 from "json5";
 import type { LogLevel } from "@/src/types";
 import { loadConfig } from "./loader";
 
-// Force chalk to use colors if supported
-chalk.level = process.env.FORCE_COLOR ? 3 : chalk.level;
+// Force chalk to use colors (level 3) for consistent testing
+chalk.level = 3;
 
 // Theme configuration type
 export interface ThemeConfig {
