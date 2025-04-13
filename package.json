@@ -1,6 +1,6 @@
 {
   "name": "logsdx",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "log streaming with dx on the 🧠",
   "type": "module",
   "bin": {
