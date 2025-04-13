@@ -14,7 +14,7 @@ export const logParserRules: RegexParserRule[] = [
     match: /^\[lang:(\w+)\]/i,
     extract: (_line, match) => ({ lang: match[1]?.toLowerCase() }),
   },
-  
+
   // Log levels with various formats
   {
     match: /\[(ERROR|ERR|FATAL|CRITICAL)\]/i,
@@ -36,10 +36,11 @@ export const logParserRules: RegexParserRule[] = [
     match: /\[(SUCCESS|SUCCEEDED|COMPLETED)\]/i,
     extract: () => ({ level: "success" as LogLevel }),
   },
-  
+
   // Common log formats
   {
-    match: /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\s+\[(\w+)\]\s+(.*)$/,
+    match:
+      /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\s+\[(\w+)\]\s+(.*)$/,
     extract: (_line, match) => ({
       timestamp: match[1],
       level: match[2]?.toLowerCase() as LogLevel,
@@ -47,7 +48,8 @@ export const logParserRules: RegexParserRule[] = [
     }),
   },
   {
-    match: /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s+\[(\w+)\]\s+(.*)$/,
+    match:
+      /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s+\[(\w+)\]\s+(.*)$/,
     extract: (_line, match) => ({
       timestamp: match[1],
       level: match[2]?.toLowerCase() as LogLevel,
@@ -55,14 +57,15 @@ export const logParserRules: RegexParserRule[] = [
     }),
   },
   {
-    match: /^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\]\s+\[(\w+)\]\s+(.*)$/,
+    match:
+      /^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)\]\s+\[(\w+)\]\s+(.*)$/,
     extract: (_line, match) => ({
       timestamp: match[1],
       level: match[2]?.toLowerCase() as LogLevel,
       message: match[3],
     }),
   },
-  
+
   // Simple level detection (fallback)
   {
     match: /\b(ERROR|ERR|FATAL|CRITICAL)\b/i,

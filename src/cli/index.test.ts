@@ -19,9 +19,12 @@ const createMockParser = () => {
 };
 
 // Helper function to determine if a line should be rendered
-function shouldRender(level: string | undefined, minLevel: LogLevel | undefined): boolean {
+function shouldRender(
+  level: string | undefined,
+  minLevel: LogLevel | undefined,
+): boolean {
   if (!minLevel || !level) return true;
-  
+
   // Define log level priorities
   const levelPriorities: Record<string, number> = {
     debug: 0,
@@ -29,27 +32,32 @@ function shouldRender(level: string | undefined, minLevel: LogLevel | undefined)
     warn: 2,
     error: 3,
     success: 1,
-    trace: 0
+    trace: 0,
   };
-  
+
   const current = levelPriorities[level] ?? 0;
   const min = levelPriorities[minLevel] ?? 0;
   return current >= min;
 }
 
 // Mock implementation of processArg
-function processArg(arg: string, index: number, options: any, args: string[]): number {
+function processArg(
+  arg: string,
+  index: number,
+  options: any,
+  args: string[],
+): number {
   if (arg === "--quiet") {
     options.flags = options.flags || new Set<string>();
     options.flags.add("quiet");
     return 0;
   }
-  
+
   if (arg === "--debug") {
     options.isDebug = true;
     return 0;
   }
-  
+
   if (arg === "--output") {
     if (index + 1 < args.length) {
       options.outputFile = args[index + 1];
@@ -57,7 +65,7 @@ function processArg(arg: string, index: number, options: any, args: string[]): n
     }
     return 0;
   }
-  
+
   if (arg.startsWith("--level=")) {
     const parts = arg.split("=");
     if (parts.length > 1) {
@@ -65,7 +73,7 @@ function processArg(arg: string, index: number, options: any, args: string[]): n
     }
     return 0;
   }
-  
+
   // Assume it's an input file
   options.inputFile = arg;
   return 0;
@@ -80,33 +88,38 @@ function parseArgs(args: string[]): any {
     minLevel: undefined,
     isDebug: false,
   };
-  
+
   let i = 0;
   while (i < args.length) {
     const arg = args[i];
     const skip = processArg(arg as any, i, options, args);
     i += skip + 1;
   }
-  
+
   return options;
 }
 
 // Mock implementation of handleLine
-function handleLine(parser: (line: string) => ParsedLine, line: string, options: any, outputStream: any): void {
+function handleLine(
+  parser: (line: string) => ParsedLine,
+  line: string,
+  options: any,
+  outputStream: any,
+): void {
   const parsed = parser(line);
   if (!parsed) return;
-  
+
   if (options.flags && options.flags.has("quiet")) {
     return;
   }
-  
+
   if (options.minLevel && !shouldRender(parsed.level, options.minLevel)) {
     return;
   }
-  
+
   // In a real implementation, this would use styleLine
   const formattedLine = line;
-  
+
   if (outputStream === process.stdout) {
     console.log(formattedLine);
   } else {

@@ -13,13 +13,13 @@ spec:
         app: json-logger
     spec:
       containers:
-      - name: json-logger
-        image: json-logger:latest
-        imagePullPolicy: Never
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "100m"
-          requests:
-            memory: "64Mi"
-            cpu: "50m" 
+        - name: json-logger
+          image: json-logger:latest
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+            requests:
+              memory: "64Mi"
+              cpu: "50m"

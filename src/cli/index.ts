@@ -23,7 +23,10 @@ program
   .option("-r, --rules <file>", "Path to custom rules file")
   .option("-o, --output <file>", "Path to output file")
   .option("--list-parsers", "List available parsers")
-  .option("-t, --theme <theme>", "Theme to use (default, dark, light, minimal, or custom theme name)")
+  .option(
+    "-t, --theme <theme>",
+    "Theme to use (default, dark, light, minimal, or custom theme name)",
+  )
   .option("--list-themes", "List available themes")
   .argument("[input]", "Input file to process (defaults to stdin)")
   .action(async (input: string, options: CliOptions) => {
@@ -32,7 +35,7 @@ program
       if (options.listParsers) {
         const parsers = getRegisteredParsers();
         logger.info("Available parsers:");
-        parsers.forEach(parser => logger.info(`  - ${parser}`));
+        parsers.forEach((parser) => logger.info(`  - ${parser}`));
         process.exit(0);
       }
 
@@ -48,45 +51,60 @@ program
         logger.info("  - minimal");
         if (themes.length > 0) {
           logger.info("Custom themes:");
-          themes.forEach(theme => logger.info(`  - ${theme}`));
+          themes.forEach((theme) => logger.info(`  - ${theme}`));
         }
         process.exit(0);
       }
 
       // Set up debug logging
       if (options.debug) {
-        logger.withConfig({ level: "debug", prefix: "CLI" }).debug("Debug mode enabled");
+        logger
+          .withConfig({ level: "debug", prefix: "CLI" })
+          .debug("Debug mode enabled");
       }
 
       // Load and apply theme
       const config = loadConfig();
       if (options.theme) {
         if (options.debug) {
-          logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Using theme: ${options.theme}`);
+          logger
+            .withConfig({ level: "debug", prefix: "CLI" })
+            .debug(`Using theme: ${options.theme}`);
         }
         setTheme(options.theme);
       } else if (config?.theme) {
         if (options.debug) {
-          logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Using theme from config: ${config.theme}`);
+          logger
+            .withConfig({ level: "debug", prefix: "CLI" })
+            .debug(`Using theme from config: ${config.theme}`);
         }
         setTheme(config.theme);
       }
 
       // Validate log level
-      if (options.level && !["debug", "info", "warn", "error"].includes(options.level)) {
+      if (
+        options.level &&
+        !["debug", "info", "warn", "error"].includes(options.level)
+      ) {
         throw new Error(`Invalid log level: ${options.level}`);
       }
 
       // Create input stream
       const inputStream = input ? fs.createReadStream(input) : process.stdin;
       if (input && options.debug) {
-        logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Input file set to: ${input}`);
+        logger
+          .withConfig({ level: "debug", prefix: "CLI" })
+          .debug(`Input file set to: ${input}`);
       }
 
       // Create output stream
-      const outputStream = options.output ? fs.createWriteStream(options.output) : process.stdout;
+      const outputStream = options.output
+        ? fs.createWriteStream(options.output)
+        : process.stdout;
       if (options.output && options.debug) {
-        logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Output file set to: ${options.output}`);
+        logger
+          .withConfig({ level: "debug", prefix: "CLI" })
+          .debug(`Output file set to: ${options.output}`);
       }
 
       // Get parser
@@ -141,7 +159,6 @@ program
         logger.error("Error reading input:", error);
         process.exit(1);
       });
-
     } catch (error) {
       logger.error("Error:", error as Error);
       process.exit(1);
@@ -153,14 +170,16 @@ program.parse();
 // Helper function to get parser for options
 async function getParserForOptions(options: CliOptions) {
   const parserName = options.parser || "default";
-  
+
   try {
     if (options.debug) {
-      logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Using parser: ${parserName}`);
+      logger
+        .withConfig({ level: "debug", prefix: "CLI" })
+        .debug(`Using parser: ${parserName}`);
     }
-    
+
     return await getParser(parserName, {
-      rulesFile: options.rules
+      rulesFile: options.rules,
     });
   } catch (error) {
     logger.error(`Error loading parser '${parserName}':`, error as Error);
@@ -170,9 +189,12 @@ async function getParserForOptions(options: CliOptions) {
 }
 
 // Helper function to determine if a line should be rendered
-function shouldRender(level: string | undefined, minLevel: LogLevel | undefined): boolean {
+function shouldRender(
+  level: string | undefined,
+  minLevel: LogLevel | undefined,
+): boolean {
   if (!minLevel || !level) return true;
-  
+
   // Define log level priorities
   const levelPriorities: Record<string, number> = {
     debug: 0,
@@ -180,9 +202,9 @@ function shouldRender(level: string | undefined, minLevel: LogLevel | undefined)
     warn: 2,
     error: 3,
     success: 1,
-    trace: 0
+    trace: 0,
   };
-  
+
   const current = levelPriorities[level] ?? 0;
   const min = levelPriorities[minLevel] ?? 0;
   return current >= min;

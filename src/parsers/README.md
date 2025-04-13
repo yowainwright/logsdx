@@ -140,7 +140,9 @@ const appParser = createParserFactory({
   description: "Parser for application logs",
   canParse: (line: string) => line.startsWith("[APP]"),
   parse: (line: string) => {
-    const match = line.match(/^\[APP\]\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(\w+)\]\s+(.*)$/);
+    const match = line.match(
+      /^\[APP\]\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(\w+)\]\s+(.*)$/,
+    );
     if (match) {
       return {
         timestamp: match[1],
@@ -167,7 +169,9 @@ const apiParser = createParserFactory({
   description: "Parser for API logs",
   canParse: (line: string) => line.startsWith("[API]"),
   parse: (line: string) => {
-    const match = line.match(/^\[API\]\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+(\d{3})\s+(.*)$/);
+    const match = line.match(
+      /^\[API\]\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+(\d{3})\s+(.*)$/,
+    );
     if (match) {
       return {
         timestamp: match[1],
@@ -197,15 +201,15 @@ const customParser = createParserFactory({
   parse: (line: string) => {
     // Remove the prefix
     const content = line.substring(3);
-    
+
     // Split by pipe character
     const parts = content.split("|");
-    
+
     // Extract information
     const timestamp = parts[0]?.trim() || "";
     const level = mapLogLevel(parts[1]?.trim() || "");
     const message = parts[2]?.trim() || "";
-    
+
     // Create the result
     const result: LineParseResult = {
       timestamp,
@@ -213,7 +217,7 @@ const customParser = createParserFactory({
       message,
       format: "custom",
     };
-    
+
     // Add any additional fields
     for (let i = 3; i < parts.length; i++) {
       const part = parts[i];
@@ -224,10 +228,10 @@ const customParser = createParserFactory({
         }
       }
     }
-    
+
     return result;
   },
 });
 
 registerParser("custom-logs", customParser);
-``` 
+```

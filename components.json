@@ -13,4 +13,4 @@
     "components": "@/src/clients/react/components",
     "utils": "@/src/clients/react/lib/utils"
   }
-} 
+}

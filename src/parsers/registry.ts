@@ -7,7 +7,8 @@ import { defaultLineParser } from "@/src/parsers/default";
 const DEFAULT_CONFIG = {
   defaultRules: [
     {
-      match: /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)\s+\[(\w+)\]\s+(.*)$/,
+      match:
+        /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)\s+\[(\w+)\]\s+(.*)$/,
       extract: (line: string, match: RegExpMatchArray) => ({
         timestamp: match[1],
         level: match[2].toLowerCase() as any,
@@ -27,12 +28,12 @@ const DEFAULT_CONFIG = {
 const parserRegistry: Record<string, (options?: any) => Promise<LineParser>> = {
   // Default parser
   default: async () => defaultLineParser,
-  
+
   // Built-in parsers
   regex: async () => {
     return createRegexLineParser(DEFAULT_CONFIG.defaultRules);
   },
-  
+
   json: async (options?: { rulesFile?: string }) => {
     return loadJsonRules(options?.rulesFile);
   },
@@ -45,7 +46,7 @@ const parserRegistry: Record<string, (options?: any) => Promise<LineParser>> = {
  */
 export function registerParser(
   name: string,
-  factory: (options?: any) => Promise<LineParser>
+  factory: (options?: any) => Promise<LineParser>,
 ): void {
   parserRegistry[name] = factory;
 }
@@ -58,12 +59,14 @@ export function registerParser(
  */
 export async function getParser(
   name: string,
-  options?: any
+  options?: any,
 ): Promise<LineParser> {
   if (!parserRegistry[name]) {
-    throw new Error(`Parser '${name}' not found. Available parsers: ${Object.keys(parserRegistry).join(", ")}`);
+    throw new Error(
+      `Parser '${name}' not found. Available parsers: ${Object.keys(parserRegistry).join(", ")}`,
+    );
   }
-  
+
   return parserRegistry[name](options);
 }
 
@@ -76,4 +79,4 @@ export function getRegisteredParsers(): string[] {
 }
 
 // Export the default config for regex parser
-export { DEFAULT_CONFIG }; 
+export { DEFAULT_CONFIG };

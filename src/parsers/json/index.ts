@@ -18,9 +18,9 @@ const DEFAULT_JSON_RULES: JSONRule[] = [
       service: "service",
       timestamp: "timestamp",
       message: "message",
-      level: "level"
-    }
-  }
+      level: "level",
+    },
+  },
 ];
 
 /**
@@ -39,14 +39,14 @@ function mapLogLevel(level: string): LogLevel {
     err: "error",
     success: "success",
     trace: "trace",
-    
+
     // Common variations
     fatal: "error",
     critical: "error",
     notice: "info",
     verbose: "debug",
     silly: "debug",
-    
+
     // Status-based levels
     fail: "error",
     failed: "error",
@@ -65,11 +65,9 @@ function mapLogLevel(level: string): LogLevel {
  * @param filePath Optional path to a custom rules file
  * @returns A line parser function
  */
-export async function loadJsonRules(
-  filePath?: string,
-): Promise<LineParser> {
+export async function loadJsonRules(filePath?: string): Promise<LineParser> {
   let rules: JSONRule[] = DEFAULT_JSON_RULES;
-  
+
   // If a file path is provided, try to load custom rules
   if (filePath) {
     try {
@@ -79,7 +77,9 @@ export async function loadJsonRules(
         rules = customRules;
       }
     } catch (error) {
-      logger.warn(`Failed to load custom JSON rules: ${JSON5.stringify(error)}`);
+      logger.warn(
+        `Failed to load custom JSON rules: ${JSON5.stringify(error)}`,
+      );
       logger.info("Using default JSON rules instead");
     }
   }
@@ -97,15 +97,32 @@ export async function loadJsonRules(
 
       // Extract common log fields
       const result: LineParseResult = {
-        level: mapLogLevel(json.level || json.status || json.severity || "info"),
-        timestamp: json.timestamp || json.time || json.date || json["@timestamp"],
+        level: mapLogLevel(
+          json.level || json.status || json.severity || "info",
+        ),
+        timestamp:
+          json.timestamp || json.time || json.date || json["@timestamp"],
         message: json.message || json.msg || json.log || json.text,
         language: "json",
       };
 
       // Add all other fields as metadata
       for (const [key, value] of Object.entries(json)) {
-        if (!["level", "status", "severity", "timestamp", "time", "date", "@timestamp", "message", "msg", "log", "text"].includes(key)) {
+        if (
+          ![
+            "level",
+            "status",
+            "severity",
+            "timestamp",
+            "time",
+            "date",
+            "@timestamp",
+            "message",
+            "msg",
+            "log",
+            "text",
+          ].includes(key)
+        ) {
           result[key] = value;
         }
       }

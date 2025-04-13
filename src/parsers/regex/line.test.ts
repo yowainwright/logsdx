@@ -166,4 +166,4 @@ describe("Regex Line Parser", () => {
       expect(result?.level).toBe("error");
     });
   });
-}); 
+});

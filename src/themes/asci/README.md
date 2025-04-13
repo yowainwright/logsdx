@@ -14,15 +14,19 @@ The LogsDX theme system provides a flexible and powerful way to customize the ap
 ## Built-in Themes
 
 ### Default Theme
+
 The default theme uses standard terminal colors with a balanced color scheme.
 
 ### Dark Theme
+
 A dark theme inspired by the Dracula color palette, perfect for dark terminals.
 
 ### Light Theme
+
 A light theme using Material Design colors, ideal for light terminals.
 
 ### Minimal Theme
+
 A minimal theme with reduced color usage, suitable for terminals with limited color support.
 
 ## Using Themes
@@ -30,13 +34,13 @@ A minimal theme with reduced color usage, suitable for terminals with limited co
 ### Basic Usage
 
 ```typescript
-import { styleLine, setTheme } from '@/src/themes/asci/styles';
+import { styleLine, setTheme } from "@/src/themes/asci/styles";
 
 // Use a built-in theme
-setTheme('dark');
+setTheme("dark");
 
 // Style a log line
-const styledLine = styleLine('ERROR: Something went wrong', { level: 'error' });
+const styledLine = styleLine("ERROR: Something went wrong", { level: "error" });
 ```
 
 ### Custom Themes
@@ -44,40 +48,48 @@ const styledLine = styleLine('ERROR: Something went wrong', { level: 'error' });
 You can create custom themes by extending the default theme or creating a new one from scratch:
 
 ```typescript
-import { setTheme, type ThemeConfig } from '@/src/themes/asci/styles';
+import { setTheme, type ThemeConfig } from "@/src/themes/asci/styles";
 
 // Create a custom theme
 const customTheme: Partial<ThemeConfig> = {
-  name: 'custom',
+  name: "custom",
   levels: {
-    error: { color: '#ff0000', bold: true },
-    warn: { color: '#ffa500', bold: true },
-    info: { color: '#0000ff', italic: true },
-    debug: { color: '#808080', dim: true },
-    success: { color: '#00ff00', bold: true },
-    trace: { color: '#ffffff', dim: true },
+    error: { color: "#ff0000", bold: true },
+    warn: { color: "#ffa500", bold: true },
+    info: { color: "#0000ff", italic: true },
+    debug: { color: "#808080", dim: true },
+    success: { color: "#00ff00", bold: true },
+    trace: { color: "#ffffff", dim: true },
   },
   fields: {
-    timestamp: { color: '#808080', dim: true },
-    service: { color: '#00ffff', bold: true },
+    timestamp: { color: "#808080", dim: true },
+    service: { color: "#00ffff", bold: true },
     // Add more field styles as needed
   },
   status: {
-    success: { color: '#00ff00', bold: true },
-    failure: { color: '#ff0000', bold: true },
+    success: { color: "#00ff00", bold: true },
+    failure: { color: "#ff0000", bold: true },
     // Add more status styles as needed
   },
   patterns: {
-    error: { regex: /\b(error|exception|failed|failure)\b/i, color: '#ff0000', bold: true },
-    warning: { regex: /\b(warning|warn|caution)\b/i, color: '#ffa500', bold: true },
+    error: {
+      regex: /\b(error|exception|failed|failure)\b/i,
+      color: "#ff0000",
+      bold: true,
+    },
+    warning: {
+      regex: /\b(warning|warn|caution)\b/i,
+      color: "#ffa500",
+      bold: true,
+    },
     // Add more pattern styles as needed
   },
   elements: {
-    brackets: { color: '#808080' },
+    brackets: { color: "#808080" },
     keyValue: {
-      key: { color: '#00ffff', bold: true },
-      separator: { color: '#808080' },
-      value: { color: '#ffffff' },
+      key: { color: "#00ffff", bold: true },
+      separator: { color: "#808080" },
+      value: { color: "#ffffff" },
     },
   },
 };
@@ -135,10 +147,12 @@ Each style can have the following properties:
 The theme system supports regex-based pattern styling:
 
 ```typescript
-import { styleManager } from '@/src/themes/asci/styles';
+import { styleManager } from "@/src/themes/asci/styles";
 
 // Apply pattern styles to text
-const styledText = styleManager.applyPatternStyles('Error occurred at https://example.com');
+const styledText = styleManager.applyPatternStyles(
+  "Error occurred at https://example.com",
+);
 ```
 
 ### JSON Formatting
@@ -146,13 +160,13 @@ const styledText = styleManager.applyPatternStyles('Error occurred at https://ex
 Format JSON with theme colors:
 
 ```typescript
-import { styleManager } from '@/src/themes/asci/styles';
+import { styleManager } from "@/src/themes/asci/styles";
 
 // Format JSON with theme colors
 const formattedJson = styleManager.formatJson({
-  error: 'Something went wrong',
-  timestamp: '2023-01-01T12:00:00Z',
-  service: 'api',
+  error: "Something went wrong",
+  timestamp: "2023-01-01T12:00:00Z",
+  service: "api",
 });
 ```
 
@@ -161,16 +175,16 @@ const formattedJson = styleManager.formatJson({
 Access theme styles directly:
 
 ```typescript
-import { styleManager } from '@/src/themes/asci/styles';
+import { styleManager } from "@/src/themes/asci/styles";
 
 // Get level style
-const errorStyle = styleManager.getLevelStyle('error');
+const errorStyle = styleManager.getLevelStyle("error");
 
 // Get field style
-const timestampStyle = styleManager.getFieldStyle('timestamp');
+const timestampStyle = styleManager.getFieldStyle("timestamp");
 
 // Get status style
-const successStyle = styleManager.getStatusStyle('success');
+const successStyle = styleManager.getStatusStyle("success");
 
 // Get bracket style
 const bracketStyle = styleManager.getBracketStyle();
@@ -192,4 +206,4 @@ const { key, separator, value } = styleManager.getKeyValueStyles();
 - **Colors Not Showing**: Ensure your terminal supports ANSI colors
 - **Theme Not Applying**: Check that the theme name is correct or the theme object is valid
 - **Patterns Not Matching**: Verify your regex patterns are correct
-- **Performance Issues**: The StyleManager caches styles, but excessive theme switching can impact performance 
+- **Performance Issues**: The StyleManager caches styles, but excessive theme switching can impact performance

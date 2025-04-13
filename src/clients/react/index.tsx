@@ -1,6 +1,12 @@
 "use client";
 
-import React, { isValidElement, createContext, useReducer, useContext, useEffect } from "react";
+import React, {
+  isValidElement,
+  createContext,
+  useReducer,
+  useContext,
+  useEffect,
+} from "react";
 import type { ReactElement, ReactNode, Dispatch } from "react";
 import { LogEnhancer } from "@/src/logenhancer";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,23 +14,25 @@ import { Input } from "@/components/ui/input";
 import { Logger } from "@/src/utils/logger";
 import "@/src/clients/react/globals.css";
 
-const LOCALSTORAGE_KEY = 'logdx_search_query';
+const LOCALSTORAGE_KEY = "logdx_search_query";
 const DEFAULT_TTL_SECONDS = 60;
 
 export type LogDxState = {
   searchQuery: string;
-}
-
-export type LogDxAction = 
-  | { type: 'SET_SEARCH_QUERY'; payload: string };
-
-export const initialState: LogDxState = {
-  searchQuery: '',
 };
 
-export const logViewerReducer = (state: LogDxState, action: LogDxAction): LogDxState => {
+export type LogDxAction = { type: "SET_SEARCH_QUERY"; payload: string };
+
+export const initialState: LogDxState = {
+  searchQuery: "",
+};
+
+export const logViewerReducer = (
+  state: LogDxState,
+  action: LogDxAction,
+): LogDxState => {
   switch (action.type) {
-    case 'SET_SEARCH_QUERY':
+    case "SET_SEARCH_QUERY":
       if (state.searchQuery === action.payload) {
         return state;
       }
@@ -34,24 +42,31 @@ export const logViewerReducer = (state: LogDxState, action: LogDxAction): LogDxS
   }
 };
 
-export type LogDxContextProps ={
+export type LogDxContextProps = {
   state: LogDxState;
   dispatch: Dispatch<LogDxAction>;
-}
+};
 
-export const LogViewerContext = createContext<LogDxContextProps | undefined>(undefined);
+export const LogViewerContext = createContext<LogDxContextProps | undefined>(
+  undefined,
+);
 
 export type LogDxProviderProps = {
   children: ReactNode;
   ttl: number;
   logSearchKey: string;
-}
+};
 
-export const LogDxProvider: React.FC<LogDxProviderProps> = ({ children, ttl, logSearchKey }) => {
+export const LogDxProvider: React.FC<LogDxProviderProps> = ({
+  children,
+  ttl,
+  logSearchKey,
+}) => {
   const [state, dispatch] = useReducer(logViewerReducer, initialState);
-  const logger = new Logger({ level: 'error', prefix: 'LogDxProvider' });
+  const logger = new Logger({ level: "error", prefix: "LogDxProvider" });
 
-  const isLocalStorageAvailable = typeof window !== 'undefined' && window.localStorage;
+  const isLocalStorageAvailable =
+    typeof window !== "undefined" && window.localStorage;
 
   useEffect(() => {
     if (!isLocalStorageAvailable) return;
@@ -61,16 +76,23 @@ export const LogDxProvider: React.FC<LogDxProviderProps> = ({ children, ttl, log
       if (storedItem) {
         const { query, timestamp } = JSON.parse(storedItem);
         const now = Date.now();
-        if (typeof query === 'string' && typeof timestamp === 'number' && now - timestamp < ttl) {
+        if (
+          typeof query === "string" &&
+          typeof timestamp === "number" &&
+          now - timestamp < ttl
+        ) {
           if (query !== initialState.searchQuery) {
-             dispatch({ type: 'SET_SEARCH_QUERY', payload: query });
+            dispatch({ type: "SET_SEARCH_QUERY", payload: query });
           }
         } else {
           localStorage.removeItem(logSearchKey);
         }
       }
     } catch (error) {
-      logger.error("Failed to load search query from localStorage:", error as Error);
+      logger.error(
+        "Failed to load search query from localStorage:",
+        error as Error,
+      );
       localStorage.removeItem(logSearchKey);
     }
   }, [ttl, isLocalStorageAvailable]);
@@ -81,11 +103,14 @@ export const LogDxProvider: React.FC<LogDxProviderProps> = ({ children, ttl, log
     try {
       const itemToStore = JSON.stringify({
         query: state.searchQuery,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
       localStorage.setItem(logSearchKey, itemToStore);
     } catch (error) {
-      logger.error("Failed to save search query to localStorage:", error as Error);
+      logger.error(
+        "Failed to save search query to localStorage:",
+        error as Error,
+      );
     }
   }, [state.searchQuery, isLocalStorageAvailable]);
 
@@ -99,7 +124,7 @@ export const LogDxProvider: React.FC<LogDxProviderProps> = ({ children, ttl, log
 export const useLogDx = (): LogDxContextProps => {
   const context = useContext(LogViewerContext);
   if (context === undefined) {
-    throw new Error('useLogDx must be used within a LogDxProvider');
+    throw new Error("useLogDx must be used within a LogDxProvider");
   }
   return context;
 };
@@ -108,16 +133,19 @@ export type LogDxProps = {
   log: string;
   enhancer: LogEnhancer;
   ttl?: number;
-}
+};
 
-export const LogDxContent: React.FC<Omit<LogDxProps, 'ttl'>> = ({ log, enhancer }) => {
+export const LogDxContent: React.FC<Omit<LogDxProps, "ttl">> = ({
+  log,
+  enhancer,
+}) => {
   const { state, dispatch } = useLogDx();
   const { searchQuery } = state;
 
   const lines = log.split("\n");
 
   const filteredLines = lines.filter((line) =>
-    line.toLowerCase().includes(searchQuery.toLowerCase())
+    line.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -126,8 +154,8 @@ export const LogDxContent: React.FC<Omit<LogDxProps, 'ttl'>> = ({ log, enhancer 
         type="text"
         placeholder="Search logs..."
         value={searchQuery}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-          dispatch({ type: 'SET_SEARCH_QUERY', payload: e.target.value })
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          dispatch({ type: "SET_SEARCH_QUERY", payload: e.target.value })
         }
         className="mb-2"
       />
@@ -148,10 +176,10 @@ export const LogDxContent: React.FC<Omit<LogDxProps, 'ttl'>> = ({ log, enhancer 
   );
 };
 
-export const LogDx: React.FC<LogDxProps> = ({ 
+export const LogDx: React.FC<LogDxProps> = ({
   log,
   enhancer,
-  ttl = DEFAULT_TTL_SECONDS
+  ttl = DEFAULT_TTL_SECONDS,
 }) => {
   const ttlMilliseconds = ttl * 1000;
 

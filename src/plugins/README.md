@@ -17,7 +17,7 @@ const prismPlugin = createPrismPlugin();
 // With custom options
 const prismPlugin = createPrismPlugin({
   lang: "javascript", // Default language for syntax highlighting
-  theme: "github-dark" // Theme to use for highlighting
+  theme: "github-dark", // Theme to use for highlighting
 });
 
 // Use with LogEnhancer
@@ -30,6 +30,7 @@ enhancer.use(prismPlugin);
 #### Supported Languages
 
 The Prism plugin supports all languages that Prism.js supports. By default, it includes:
+
 - TypeScript
 - JavaScript
 
@@ -44,6 +45,7 @@ import "prismjs/components/prism-java";
 #### Themes
 
 The plugin supports different themes for syntax highlighting. Available themes include:
+
 - `default`
 - `github-dark`
 - `github-light`
@@ -59,7 +61,7 @@ import { createShikiPlugin } from "logsx/plugins/shiki";
 
 const shikiPlugin = createShikiPlugin({
   theme: "github-dark",
-  langs: ["typescript", "javascript"]
+  langs: ["typescript", "javascript"],
 });
 ```
 
@@ -77,18 +79,24 @@ interface MyPluginProps {
   option2?: number;
 }
 
-export function createMyPlugin(options: MyPluginProps = {}): LogEnhancerPlugin<ReactElement> {
+export function createMyPlugin(
+  options: MyPluginProps = {},
+): LogEnhancerPlugin<ReactElement> {
   return {
-    enhanceLine: (line: string, lineIndex: number, context?: LineParseResult) => {
+    enhanceLine: (
+      line: string,
+      lineIndex: number,
+      context?: LineParseResult,
+    ) => {
       // Implement your line enhancement logic
       return {
         type: "div",
         props: {
           children: line,
-          className: "my-plugin-class"
-        }
+          className: "my-plugin-class",
+        },
       };
-    }
+    },
   };
 }
 ```
@@ -100,7 +108,7 @@ interface LogEnhancerPlugin<T = string> {
   enhanceLine: (
     line: string,
     lineIndex: number,
-    context?: LineParseResult
+    context?: LineParseResult,
   ) => T;
 }
 ```
@@ -108,16 +116,19 @@ interface LogEnhancerPlugin<T = string> {
 ## Best Practices
 
 1. **Plugin Configuration**
+
    - Keep plugin options simple and well-documented
    - Provide sensible defaults for all options
    - Use TypeScript interfaces for type safety
 
 2. **Performance**
+
    - Cache expensive operations
    - Avoid unnecessary re-renders
    - Use memoization when appropriate
 
 3. **Error Handling**
+
    - Gracefully handle unsupported languages or themes
    - Provide helpful error messages
    - Fall back to default behavior when possible
@@ -156,9 +167,9 @@ const timestampPlugin: LogEnhancerPlugin = {
   enhanceLine: (line, index) => {
     const timestamp = new Date().toISOString();
     return `[${timestamp}] ${line}`;
-  }
+  },
 };
 
 const enhancer = createLogEnhancer();
 enhancer.use(timestampPlugin);
-``` 
+```
