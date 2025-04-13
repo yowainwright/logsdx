@@ -4,7 +4,7 @@
 
 A flexible log processing and visualization library that supports multiple output formats and, **most importantly**, 
 
-> ## asci syntax highlightly themes, theming, and extensibility!
+> ## asci syntax highlighting, theming, and extendability!
 
 LogDX aims to provide the ability create use and extend asci themes that can be used in terminal and clients.
 
