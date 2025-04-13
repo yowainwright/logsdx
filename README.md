@@ -1,3 +1,5 @@
+<div align="center"><img alt="logsdx" width="300" src="https://github.com/user-attachments/assets/cc2a3b55-5bfd-44e8-a330-bfa146b50059" /></div>
+
 # LogsDX
 
 A flexible log processing and visualization library that supports multiple output formats and syntax highlighting.
