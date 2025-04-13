@@ -225,7 +225,3 @@ mise run format     # Run Prettier
 mise run test       # Run tests
 mise run build      # Build the project
 ```
-
-## License
-
-MIT

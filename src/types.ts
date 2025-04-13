@@ -147,12 +147,13 @@ export type ParserType = string;
 export interface CliOptions {
   quiet?: boolean;
   debug?: boolean;
-  level?: LogLevel;
+  level?: string;
   parser?: string;
   rules?: string;
   output?: string;
   listParsers?: boolean;
-  input?: string;
+  theme?: string;
+  listThemes?: boolean;
 }
 
 export type ThemeStyles = {

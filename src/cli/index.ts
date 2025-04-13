@@ -2,20 +2,18 @@
 
 import { Command } from "commander";
 import fs from "fs";
-import path from "path";
-import { styleLine } from "./styles";
+import { styleManager, setTheme } from "@/src/themes/asci/styles";
 import { logger } from "@/src/utils/logger";
-import type { LogLevel, ParsedLine, CliOptions } from "@/src/types";
+import type { LogLevel, CliOptions } from "@/src/types";
 import { getParser, getRegisteredParsers } from "@/src/parsers/registry";
-import { DEFAULT_CONFIG } from "@/src/parsers/registry";
-import { createRegexLineParser } from "@/src/parsers/regex/line";
+import { loadConfig } from "@/src/themes/asci/loader";
 
 const program = new Command();
 
 program
   .name("logsdx")
   .description("A powerful log parsing and formatting tool")
-  .version("1.0.0");
+  .version("0.0.1");
 
 program
   .option("-q, --quiet", "Suppress all output except errors")
@@ -25,6 +23,8 @@ program
   .option("-r, --rules <file>", "Path to custom rules file")
   .option("-o, --output <file>", "Path to output file")
   .option("--list-parsers", "List available parsers")
+  .option("-t, --theme <theme>", "Theme to use (default, dark, light, minimal, or custom theme name)")
+  .option("--list-themes", "List available themes")
   .argument("[input]", "Input file to process (defaults to stdin)")
   .action(async (input: string, options: CliOptions) => {
     try {
@@ -36,9 +36,40 @@ program
         process.exit(0);
       }
 
+      // Handle list themes command
+      if (options.listThemes) {
+        const config = loadConfig();
+        const themes = config ? Object.keys(config.customThemes || {}) : [];
+        console.log("Available themes:");
+        console.log("Built-in themes:");
+        console.log("  - default");
+        console.log("  - dark");
+        console.log("  - light");
+        console.log("  - minimal");
+        if (themes.length > 0) {
+          console.log("Custom themes:");
+          themes.forEach(theme => console.log(`  - ${theme}`));
+        }
+        process.exit(0);
+      }
+
       // Set up debug logging
       if (options.debug) {
         logger.withConfig({ level: "debug", prefix: "CLI" }).debug("Debug mode enabled");
+      }
+
+      // Load and apply theme
+      const config = loadConfig();
+      if (options.theme) {
+        if (options.debug) {
+          logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Using theme: ${options.theme}`);
+        }
+        setTheme(options.theme);
+      } else if (config?.theme) {
+        if (options.debug) {
+          logger.withConfig({ level: "debug", prefix: "CLI" }).debug(`Using theme from config: ${config.theme}`);
+        }
+        setTheme(config.theme);
       }
 
       // Validate log level
@@ -76,7 +107,7 @@ program
 
           if (shouldRender(parsed.level, options.level as LogLevel)) {
             // Format the line based on the parsed result
-            const formattedLine = styleLine(line, parsed);
+            const formattedLine = styleManager.styleLine(line, parsed);
             // Use console.log for stdout, write for file streams
             if (outputStream === process.stdout) {
               console.log(formattedLine);
@@ -92,7 +123,7 @@ program
           const parsed = parser(buffer);
           if (parsed && shouldRender(parsed.level, options.level as LogLevel)) {
             // Format the line based on the parsed result
-            const formattedLine = styleLine(buffer, parsed);
+            const formattedLine = styleManager.styleLine(buffer, parsed);
             // Use console.log for stdout, write for file streams
             if (outputStream === process.stdout) {
               console.log(formattedLine);
