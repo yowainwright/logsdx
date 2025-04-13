@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "bun run src/cli.ts",
-    "build:css": "bunx @tailwindcss/cli -i ./src/globals.css -o ./dist/globals.css",
-    "build": "bun run build:css && bun build src/cli.ts --outdir=dist --target=bun --exclude '**/*.test.*'",
+    "build:css": "bunx @tailwindcss/cli -i ./src/clients/react/globals.css -o ./dist/globals.css",
+    "build": "bun run build:css && bun build src/cli/index.ts --outdir=dist --target=bun",
     "lint": "bunx eslint .",
     "format": "bunx prettier --write .",
     "preview": "bun run dist/cli.js",
