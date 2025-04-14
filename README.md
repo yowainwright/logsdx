@@ -16,7 +16,7 @@ After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a
 
 - [x] basic theming and theme support for piping JSON logs in a terminal
 - [x] code functionality for non-specific logs in a terminal
-- [ ] full example and importability of non-specifiic logs in a terminal (in progress)
+- [ ] full example and importability of non-specific logs in a terminal (in progress)
 - [x] code functionality for asci log theming in a react client
 - [ ] full example and importability of asci log theming in a react client (in progress)
 - [ ] more composable way to import and treeshake features
@@ -24,7 +24,8 @@ After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a
 - [ ] documented working demo displaying the ability to add/use/create custom parsers
 - [ ] documented workign demo displaying the ability to add/use/create custom clients
 - [ ] clearly documented schemas for theming and parsing
-- [ ] clearly documented way to create and use custome clients
+- [ ] clearly documented way to create and use custom clients
+- [ ] improve ways to use build artifacts—only client, only cli, etc
 
 ## Installation
 
