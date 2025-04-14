@@ -2,10 +2,10 @@ import { createHighlighter } from "shiki";
 import type { LogEnhancerPlugin, LineParseResult } from "../types";
 import type { ReactElement } from "react";
 
-export interface ShikiProps {
+export type ShikiProps = {
   dangerouslySetInnerHTML: { __html: string };
   className: string;
-}
+};
 
 /**
  * Creates a plugin that enhances code with syntax highlighting using Shiki

@@ -7,7 +7,7 @@ import { loadConfig } from "./loader";
 chalk.level = 3;
 
 // Theme configuration type
-export interface ThemeConfig {
+export type ThemeConfig = {
   name: string;
   levels: {
     [key in LogLevel]?: {
@@ -70,7 +70,7 @@ export interface ThemeConfig {
       };
     };
   };
-}
+};
 
 // Built-in themes
 export const THEMES = {
@@ -360,29 +360,29 @@ export const THEMES = {
     name: "dracula",
     levels: {
       error: { color: "#ff5555", bold: true }, // Red
-      warn: { color: "#f1fa8c" },        // Yellow
-      info: { color: "#8be9fd" },        // Cyan
+      warn: { color: "#f1fa8c" }, // Yellow
+      info: { color: "#8be9fd" }, // Cyan
       debug: { color: "#6272a4", dim: true }, // Comment Purple
-      success: { color: "#50fa7b" },      // Green
+      success: { color: "#50fa7b" }, // Green
       trace: { color: "#f8f8f2", dim: true }, // Foreground
     },
-    fields: { 
+    fields: {
       timestamp: { color: "#6272a4" },
-      service: { color: "#ff79c6" },      // Pink
-      action: { color: "#bd93f9" },      // Purple
-      user: { color: "#8be9fd" },        // Cyan (Placeholder - adjust if needed)
-      duration: { color: "#f1fa8c" },      // Yellow
+      service: { color: "#ff79c6" }, // Pink
+      action: { color: "#bd93f9" }, // Purple
+      user: { color: "#8be9fd" }, // Cyan (Placeholder - adjust if needed)
+      duration: { color: "#f1fa8c" }, // Yellow
       requestId: { color: "#6272a4" },
       correlationId: { color: "#6272a4" },
-      environment: { color: "#50fa7b" },      // Green
-      version: { color: "#bd93f9" },      // Purple
-      method: { color: "#8be9fd" },        // Cyan
-      path: { color: "#f8f8f2" },        // Foreground
-      statusCode: { color: "#ffb86c" },      // Orange
+      environment: { color: "#50fa7b" }, // Green
+      version: { color: "#bd93f9" }, // Purple
+      method: { color: "#8be9fd" }, // Cyan
+      path: { color: "#f8f8f2" }, // Foreground
+      statusCode: { color: "#ffb86c" }, // Orange
       ip: { color: "#6272a4" },
       userAgent: { color: "#6272a4", dim: true },
     },
-    status: { 
+    status: {
       success: { color: "#50fa7b" },
       failure: { color: "#ff5555" },
       error: { color: "#ff5555" },
@@ -390,24 +390,43 @@ export const THEMES = {
       cancelled: { color: "#6272a4" },
       timeout: { color: "#ff5555" },
     },
-    patterns: { // Colors adjusted to match Dracula
-      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#ff5555", bold: true },
+    patterns: {
+      // Colors adjusted to match Dracula
+      error: {
+        regex: /\b(error|exception|failed|failure)\b/i,
+        color: "#ff5555",
+        bold: true,
+      },
       warning: { regex: /\b(warning|warn|caution)\b/i, color: "#f1fa8c" },
-      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#50fa7b" },
-      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#8be9fd" },
+      success: {
+        regex: /\b(success|succeeded|completed)\b/i,
+        color: "#50fa7b",
+      },
+      http: {
+        regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/,
+        color: "#8be9fd",
+      },
       url: { regex: /https?:\/\/[^\s]+/, color: "#8be9fd", italic: true },
       ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#6272a4" },
       email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#8be9fd" },
-      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#bd93f9" },
-      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#6272a4" },
+      uuid: {
+        regex:
+          /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i,
+        color: "#bd93f9",
+      },
+      timestamp: {
+        regex:
+          /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/,
+        color: "#6272a4",
+      },
       json: { regex: /\{.*\}|\[.*\]/, color: "#f8f8f2" },
     },
     elements: {
-      brackets: { color: "#f8f8f2" },      // Foreground for {}, [], "
+      brackets: { color: "#f8f8f2" }, // Foreground for {}, [], "
       keyValue: {
-        key: { color: "#8be9fd" },      // Cyan for keys
+        key: { color: "#8be9fd" }, // Cyan for keys
         separator: { color: "#ff79c6" }, // Pink for :
-        value: { color: "#f8f8f2" },     // Foreground for values
+        value: { color: "#f8f8f2" }, // Foreground for values
       },
     },
   },
@@ -416,29 +435,29 @@ export const THEMES = {
     name: "githubLight",
     levels: {
       error: { color: "#d73a49", bold: true }, // Red-600
-      warn: { color: "#b08800" },       // Yellow-700 
-      info: { color: "#0366d6" },       // Blue-600
+      warn: { color: "#b08800" }, // Yellow-700
+      info: { color: "#0366d6" }, // Blue-600
       debug: { color: "#586069", dim: true }, // Gray-600
-      success: { color: "#22863a" },      // Green-600
+      success: { color: "#22863a" }, // Green-600
       trace: { color: "#24292e", dim: true }, // Gray-900 (Default Text)
     },
-    fields: { 
+    fields: {
       timestamp: { color: "#586069" },
-      service: { color: "#6f42c1" },      // Purple-600
-      action: { color: "#005cc5" },       // Blue-700
-      user: { color: "#0366d6" },        // Blue-600
-      duration: { color: "#e36209" },     // Orange-600
+      service: { color: "#6f42c1" }, // Purple-600
+      action: { color: "#005cc5" }, // Blue-700
+      user: { color: "#0366d6" }, // Blue-600
+      duration: { color: "#e36209" }, // Orange-600
       requestId: { color: "#586069" },
       correlationId: { color: "#586069" },
-      environment: { color: "#22863a" },      // Green-600
-      version: { color: "#6f42c1" },      // Purple-600
-      method: { color: "#005cc5" },       // Blue-700
-      path: { color: "#24292e" },        // Gray-900
-      statusCode: { color: "#b08800" },     // Yellow-700
+      environment: { color: "#22863a" }, // Green-600
+      version: { color: "#6f42c1" }, // Purple-600
+      method: { color: "#005cc5" }, // Blue-700
+      path: { color: "#24292e" }, // Gray-900
+      statusCode: { color: "#b08800" }, // Yellow-700
       ip: { color: "#586069" },
       userAgent: { color: "#586069", dim: true },
     },
-    status: { 
+    status: {
       success: { color: "#22863a" },
       failure: { color: "#d73a49" },
       error: { color: "#d73a49" },
@@ -447,15 +466,33 @@ export const THEMES = {
       timeout: { color: "#d73a49" },
     },
     patterns: {
-      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#d73a49", bold: true },
+      error: {
+        regex: /\b(error|exception|failed|failure)\b/i,
+        color: "#d73a49",
+        bold: true,
+      },
       warning: { regex: /\b(warning|warn|caution)\b/i, color: "#b08800" },
-      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#22863a" },
-      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#005cc5" },
+      success: {
+        regex: /\b(success|succeeded|completed)\b/i,
+        color: "#22863a",
+      },
+      http: {
+        regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/,
+        color: "#005cc5",
+      },
       url: { regex: /https?:\/\/[^\s]+/, color: "#0366d6", italic: true },
       ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#586069" },
       email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#0366d6" },
-      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#6f42c1" },
-      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#586069" },
+      uuid: {
+        regex:
+          /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i,
+        color: "#6f42c1",
+      },
+      timestamp: {
+        regex:
+          /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/,
+        color: "#586069",
+      },
       json: { regex: /\{.*\}|\[.*\]/, color: "#24292e" },
     },
     elements: {
@@ -502,15 +539,33 @@ export const THEMES = {
       timeout: { color: "#f97583" },
     },
     patterns: {
-      error: { regex: /\b(error|exception|failed|failure)\b/i, color: "#f97583", bold: true },
+      error: {
+        regex: /\b(error|exception|failed|failure)\b/i,
+        color: "#f97583",
+        bold: true,
+      },
       warning: { regex: /\b(warning|warn|caution)\b/i, color: "#dbab09" },
-      success: { regex: /\b(success|succeeded|completed)\b/i, color: "#85e89d" },
-      http: { regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/, color: "#58a6ff" },
+      success: {
+        regex: /\b(success|succeeded|completed)\b/i,
+        color: "#85e89d",
+      },
+      http: {
+        regex: /\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/,
+        color: "#58a6ff",
+      },
       url: { regex: /https?:\/\/[^\s]+/, color: "#79b8ff", italic: true },
       ip: { regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, color: "#6a737d" },
       email: { regex: /\b[\w\.-]+@[\w\.-]+\.\w+\b/, color: "#79b8ff" },
-      uuid: { regex: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, color: "#b392f0" },
-      timestamp: { regex: /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/, color: "#6a737d" },
+      uuid: {
+        regex:
+          /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i,
+        color: "#b392f0",
+      },
+      timestamp: {
+        regex:
+          /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?\b/,
+        color: "#6a737d",
+      },
       json: { regex: /\{.*\}|\[.*\]/, color: "#d1d5da" },
     },
     elements: {
@@ -525,7 +580,7 @@ export const THEMES = {
 } as const;
 
 // Create a chalk style from theme config
-function createStyle(
+export function createStyle(
   config:
     | ThemeConfig["levels"][LogLevel]
     | ThemeConfig["fields"][string]
@@ -759,7 +814,11 @@ export class StyleManager {
     return lines.join("\n");
   }
 
-  styleLine(line: string, parsed?: { level?: LogLevel; [key: string]: any }, parserName?: string): string {
+  styleLine(
+    line: string,
+    parsed?: { level?: LogLevel; [key: string]: any },
+    parserName?: string,
+  ): string {
     // If parser is json, try to format it compactly
     if (parserName === "json") {
       try {
@@ -768,7 +827,7 @@ export class StyleManager {
       } catch (error) {
         // JSON parsing failed, fall back to default styling for the raw line
         // Use level from parsed object if available, otherwise default to 'info'
-        const level = parsed?.level || "info"; 
+        const level = parsed?.level || "info";
         const style = this.getLevelStyle(level);
         return this.applyPatternStyles(style(line));
       }
@@ -839,7 +898,7 @@ export const setTheme = (
 export const getTheme = () => styleManager.currentTheme;
 
 // NEW function: Format JSON compactly on a single line with colors
-function formatJsonCompact(
+export function formatJsonCompact(
   obj: any,
   styleManager: StyleManager,
   isRoot = true,

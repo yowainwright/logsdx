@@ -25,7 +25,10 @@ export const DEFAULT_CONFIG = {
 };
 
 // Registry to store available parsers
-export const parserRegistry: Record<string, (options?: any) => Promise<LineParser>> = {
+export const parserRegistry: Record<
+  string,
+  (options?: any) => Promise<LineParser>
+> = {
   // Default parser
   default: async () => defaultLineParser,
 

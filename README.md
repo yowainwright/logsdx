@@ -2,7 +2,7 @@
 
 # LogsDX
 
-A flexible log processing and visualization library that supports multiple output formats and, **most importantly**, 
+A flexible log processing and visualization library that supports multiple output formats and, **most importantly**,
 
 ## _`asci` syntax highlighting, theming, and extendability for all!_
 
@@ -238,8 +238,6 @@ const MyParser: LogParser = {
 ```
 
 ---
-
-
 
 ---
 
