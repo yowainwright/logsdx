@@ -15,7 +15,7 @@ export type LogsDXConfig = {
   customThemes?: {
     [key: string]: Partial<ThemeConfig>;
   };
-}
+};
 
 /**
  * Load config from the first available config file

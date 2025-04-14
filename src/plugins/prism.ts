@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 export type PrismProps = {
   dangerouslySetInnerHTML: { __html: string };
   className: string;
-}
+};
 
 /**
  * Creates a plugin that enhances code with syntax highlighting using Prism.js

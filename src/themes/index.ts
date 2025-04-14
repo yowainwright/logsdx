@@ -1,1 +1,1 @@
-export * as asci from '@/src/themes/asci';
+export * as asci from "@/src/themes/asci";

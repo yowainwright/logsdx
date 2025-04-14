@@ -1,12 +1,9 @@
-import {
-  createRegexLineParser,
-  logParserRules,
-} from '@/src/parsers/regex'
+import { createRegexLineParser, logParserRules } from "@/src/parsers/regex";
 
 import {
   DEFAULT_JSON_RULES as DEFAULT_JSON_RULES_DEFAULT,
   loadJsonRules,
-} from '@/src/parsers/json'
+} from "@/src/parsers/json";
 
 import {
   getRegisteredParsers,
@@ -14,17 +11,15 @@ import {
   getParser,
 } from "@/src/parsers/registry";
 
-import { 
-  createCustomParser, 
-  createAppLogParser, 
+import {
+  createCustomParser,
+  createAppLogParser,
   createCsvLogParser,
   mapLogLevel,
   createParserFactory,
 } from "@/src/parsers/custom";
 
-import {
-  defaultLineParser,
-} from '@/src/parsers/default';
+import { defaultLineParser } from "@/src/parsers/default";
 
 export {
   createCustomParser,

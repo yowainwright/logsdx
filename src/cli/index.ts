@@ -128,8 +128,12 @@ program
           // Check if the line should be rendered based on level
           if (shouldRender(level, options.level as LogLevel)) {
             // Always call styleLine, passing the original line, parsed result (can be undefined), and parser name
-            const formattedLine = styleManager.styleLine(line, parsed, options.parser || "default");
-            
+            const formattedLine = styleManager.styleLine(
+              line,
+              parsed,
+              options.parser || "default",
+            );
+
             // Use process.stdout.write for stdout, write for file streams
             if (outputStream === process.stdout) {
               process.stdout.write(formattedLine + "\n");
@@ -147,8 +151,12 @@ program
 
           if (shouldRender(level, options.level as LogLevel)) {
             // Always call styleLine for the remaining buffer
-            const formattedLine = styleManager.styleLine(buffer, parsed, options.parser || "default");
-            
+            const formattedLine = styleManager.styleLine(
+              buffer,
+              parsed,
+              options.parser || "default",
+            );
+
             // Use process.stdout.write for stdout, write for file streams
             if (outputStream === process.stdout) {
               process.stdout.write(formattedLine + "\n");
@@ -216,8 +224,4 @@ function shouldRender(
   return current >= min;
 }
 
-export {
-  program,
-  getParserForOptions,
-  shouldRender,
-}
+export { program, getParserForOptions, shouldRender };

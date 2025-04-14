@@ -192,6 +192,4 @@ export const LogDx: React.FC<LogDxProps> = ({
   );
 };
 
-export {
-  LogEnhancer
-}
+export { LogEnhancer };

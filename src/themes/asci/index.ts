@@ -2,7 +2,7 @@ import {
   loadConfig,
   loadThemeFromFile,
   getAllThemes,
-} from '@/src/themes/asci/loader';
+} from "@/src/themes/asci/loader";
 
 import {
   THEMES,
@@ -11,7 +11,7 @@ import {
   styleManager,
   setTheme,
   getTheme,
-} from '@/src/themes/asci/styles';
+} from "@/src/themes/asci/styles";
 
 export {
   loadConfig,
@@ -23,4 +23,4 @@ export {
   styleManager,
   setTheme,
   getTheme,
-}
+};

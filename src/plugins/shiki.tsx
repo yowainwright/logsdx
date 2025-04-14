@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 export type ShikiProps = {
   dangerouslySetInnerHTML: { __html: string };
   className: string;
-}
+};
 
 /**
  * Creates a plugin that enhances code with syntax highlighting using Shiki

@@ -14,7 +14,8 @@
     "build": "bunx tsup",
     "postbuild": "mkdir -p dist/clients/react && cp src/clients/react/globals.css dist/clients/react/globals.css",
     "lint": "eslint -c eslint.config.ts src/**/*.ts",
-    "format": "bunx prettier --write .",
+    "format": "bunx prettier .",
+    "format:fix": "bunx prettier --write .",
     "preview": "bun run dist/cli/index.js",
     "test": "bun test",
     "release": "bunx release-it"

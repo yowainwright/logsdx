@@ -4,13 +4,13 @@ import {
   type LogLevel,
 } from "@/src/types";
 
-export type CustomParserOptions ={
+export type CustomParserOptions = {
   name: string;
   description?: string;
   canParse?: (line: string) => boolean;
   parse: (line: string) => LineParseResult | undefined;
   validate?: () => boolean;
-}
+};
 
 /**
  * Creates a custom parser with the given options
