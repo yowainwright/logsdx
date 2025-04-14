@@ -13,7 +13,7 @@
     "dev": "bun run src/cli.ts",
     "build": "tsup",
     "postbuild": "mkdir -p dist/clients/react && cp src/clients/react/globals.css dist/clients/react/globals.css",
-    "lint": "bun eslint .",
+    "lint": "bun eslint -c eslint.config.ts",
     "format": "bunx prettier --write .",
     "preview": "bun run dist/cli/index.js",
     "test": "bun test",
