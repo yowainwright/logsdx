@@ -1,5 +1,4 @@
-import type { LogLevel, Config, ThemeStyles } from "./types";
-import { ANSI } from "./cli/styles";
+import type { LogLevel, Config } from "@/src/types";
 
 export const LEVEL_PRIORITY: Record<LogLevel, number> = {
   debug: 0,
@@ -18,12 +17,3 @@ export const DEFAULT_CONFIG: Config = {
     { match: /INFO/, extract: () => ({ level: "info" }) },
   ],
 };
-
-export const INK_DEFAULT_THEME: ThemeStyles = {
-  error: ["brightRed", "bold"],
-  warn: ["yellow"],
-  info: ["blue"],
-  debug: ["dim", "gray"],
-  success: ["green"],
-  trace: ["dim", "white"],
-} as const;

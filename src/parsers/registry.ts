@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG = {
         /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)\s+\[(\w+)\]\s+(.*)$/,
       extract: (line: string, match: RegExpMatchArray) => ({
         timestamp: match[1],
-        level: match[2].toLowerCase() as any,
+        level: match?.[2]?.toLowerCase() as any,
         message: match[3],
       }),
     },
