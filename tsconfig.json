@@ -20,6 +20,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
