@@ -7,7 +7,7 @@ import { loadConfig } from "./loader";
 chalk.level = 3;
 
 // Theme configuration type
-export interface ThemeConfig {
+export type ThemeConfig = {
   name: string;
   levels: {
     [key in LogLevel]?: {
@@ -525,7 +525,7 @@ export const THEMES = {
 } as const;
 
 // Create a chalk style from theme config
-function createStyle(
+export function createStyle(
   config:
     | ThemeConfig["levels"][LogLevel]
     | ThemeConfig["fields"][string]
@@ -839,7 +839,7 @@ export const setTheme = (
 export const getTheme = () => styleManager.currentTheme;
 
 // NEW function: Format JSON compactly on a single line with colors
-function formatJsonCompact(
+export function formatJsonCompact(
   obj: any,
   styleManager: StyleManager,
   isRoot = true,

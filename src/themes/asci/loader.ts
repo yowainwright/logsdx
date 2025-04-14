@@ -4,13 +4,13 @@ import { homedir } from "os";
 import type { ThemeConfig } from "./styles";
 import { THEMES } from "./styles";
 
-const CONFIG_FILES = [
+export const CONFIG_FILES = [
   ".logsdxrc", // Project root
   ".logsdxrc.json", // Project root (explicit JSON)
   ".config/logsdx/config.json", // User config (XDG)
 ];
 
-interface LogsDXConfig {
+export type LogsDXConfig = {
   theme?: keyof typeof THEMES | Partial<ThemeConfig>;
   customThemes?: {
     [key: string]: Partial<ThemeConfig>;

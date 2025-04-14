@@ -9,7 +9,7 @@ import {
 import { logger } from "@/src/utils/logger";
 
 // Default rules for JSON parsing
-const DEFAULT_JSON_RULES: JSONRule[] = [
+export const DEFAULT_JSON_RULES: JSONRule[] = [
   {
     match: "\\{.*\\}",
     lang: "json",
@@ -28,7 +28,7 @@ const DEFAULT_JSON_RULES: JSONRule[] = [
  * @param level The log level to map
  * @returns A standardized log level
  */
-function mapLogLevel(level: string): LogLevel {
+export function mapLogLevel(level: string): LogLevel {
   const levelMap: Record<string, LogLevel> = {
     // Standard levels
     debug: "debug",

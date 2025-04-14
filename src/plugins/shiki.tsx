@@ -2,7 +2,7 @@ import { createHighlighter } from "shiki";
 import type { LogEnhancerPlugin, LineParseResult } from "../types";
 import type { ReactElement } from "react";
 
-export interface ShikiProps {
+export type ShikiProps = {
   dangerouslySetInnerHTML: { __html: string };
   className: string;
 }

@@ -13,6 +13,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Logger } from "@/src/utils/logger";
 import "@/src/clients/react/globals.css";
+export { Input as LogDxInput } from "@/src/clients/react/components/ui/input";
+export { ScrollArea as LogDxScrollArea } from "@/src/clients/react/components/ui/scroll-area";
 
 const LOCALSTORAGE_KEY = "logdx_search_query";
 const DEFAULT_TTL_SECONDS = 60;

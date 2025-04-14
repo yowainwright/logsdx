@@ -52,37 +52,6 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./clients/react": {
-      "import": "./dist/clients/react/index.mjs",
-      "require": "./dist/clients/react/index.js",
-      "types": "./dist/clients/react/index.d.ts"
-    },
-    "./clients/react/globals.css": "./dist/clients/react/globals.css",
-    "./themes/asci/styles": {
-      "import": "./dist/themes/asci/styles.mjs",
-      "require": "./dist/themes/asci/styles.js",
-      "types": "./dist/themes/asci/styles.d.ts"
-    },
-    "./logenhancer": {
-      "import": "./dist/logenhancer.mjs",
-      "require": "./dist/logenhancer.js",
-      "types": "./dist/logenhancer.d.ts"
-    },
-    "./plugins/shiki": {
-      "import": "./dist/plugins/shiki.mjs",
-      "require": "./dist/plugins/shiki.js",
-      "types": "./dist/plugins/shiki.d.ts"
-    },
-    "./plugins/prism": {
-      "import": "./dist/plugins/prism.mjs",
-      "require": "./dist/plugins/prism.js",
-      "types": "./dist/plugins/prism.d.ts"
-    },
-    "./cli": {
-      "import": "./dist/cli/index.mjs",
-      "require": "./dist/cli/index.js",
-      "types": "./dist/cli/index.d.ts"
     }
   },
   "dependencies": {

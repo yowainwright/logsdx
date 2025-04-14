@@ -195,7 +195,6 @@ async function getParserForOptions(options: CliOptions) {
   }
 }
 
-// Helper function to determine if a line should be rendered
 function shouldRender(
   level: string | undefined,
   minLevel: LogLevel | undefined,
@@ -215,4 +214,10 @@ function shouldRender(
   const current = levelPriorities[level] ?? 0;
   const min = levelPriorities[minLevel] ?? 0;
   return current >= min;
+}
+
+export {
+  program,
+  getParserForOptions,
+  shouldRender,
 }

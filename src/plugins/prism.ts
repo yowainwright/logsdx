@@ -4,7 +4,7 @@ import "prismjs/components/prism-javascript";
 import type { LogEnhancerPlugin, LineParseResult } from "../types";
 import type { ReactElement } from "react";
 
-export interface PrismProps {
+export type PrismProps = {
   dangerouslySetInnerHTML: { __html: string };
   className: string;
 }

@@ -1,4 +1,14 @@
 import {
+  createRegexLineParser,
+  logParserRules,
+} from '@/src/parsers/regex'
+
+import {
+  DEFAULT_JSON_RULES as DEFAULT_JSON_RULES_DEFAULT,
+  loadJsonRules,
+} from '@/src/parsers/json'
+
+import {
   getRegisteredParsers,
   registerParser,
   getParser,
@@ -26,4 +36,8 @@ export {
   registerParser,
   getParser,
   defaultLineParser,
+  createRegexLineParser,
+  logParserRules,
+  DEFAULT_JSON_RULES_DEFAULT,
+  loadJsonRules,
 };
