@@ -1,8 +1,8 @@
-import {
-  type LogPlugin,
-  type LogParser,
-  type LogClient,
-  type LogEnhancerOptions,
+import type {
+  LogPlugin,
+  LogParser,
+  LogClient,
+  LogEnhancerOptions,
 } from "@/src/types";
 
 export class LogEnhancer {
@@ -13,84 +13,38 @@ export class LogEnhancer {
 
   constructor(options: LogEnhancerOptions = {}) {
     this.debug = options.debug ?? false;
-
     if (options.plugins) {
-      this.loadPlugins(options.plugins);
+      this.plugins = options.plugins.map((p) =>
+        typeof p === "string" ? { name: p, enhance: (line) => line } : p,
+      );
     }
     if (options.parsers) {
-      this.loadParsers(options.parsers);
+      this.parsers = options.parsers.map((p) =>
+        typeof p === "string" ? { name: p, parse: () => ({}) } : p,
+      );
     }
     if (options.clients) {
-      this.loadClients(options.clients);
+      this.clients = options.clients.map((c) =>
+        typeof c === "string" ? { name: c, write: () => {} } : c,
+      );
     }
   }
 
-  private async loadPlugins(plugins: (string | LogPlugin)[]) {
-    for (const plugin of plugins) {
-      if (typeof plugin === "string") {
-        try {
-          const mod = await import(plugin);
-          this.use(mod.default);
-        } catch (err) {
-          if (this.debug) {
-            console.error(`Failed to load plugin: ${plugin}`, err);
-          }
-        }
-      } else {
-        this.use(plugin);
-      }
-    }
-  }
-
-  private async loadParsers(parsers: (string | LogParser)[]) {
-    for (const parser of parsers) {
-      if (typeof parser === "string") {
-        try {
-          const mod = await import(parser);
-          this.addParser(mod.default);
-        } catch (err) {
-          if (this.debug) {
-            console.error(`Failed to load parser: ${parser}`, err);
-          }
-        }
-      } else {
-        this.addParser(parser);
-      }
-    }
-  }
-
-  private async loadClients(clients: (string | LogClient)[]) {
-    for (const client of clients) {
-      if (typeof client === "string") {
-        try {
-          const mod = await import(client);
-          this.addClient(mod.default);
-        } catch (err) {
-          if (this.debug) {
-            console.error(`Failed to load client: ${client}`, err);
-          }
-        }
-      } else {
-        this.addClient(client);
-      }
-    }
-  }
-
-  use(plugin: LogPlugin) {
+  use(plugin: LogPlugin): void {
     if (this.debug) {
       console.log(`Adding plugin: ${plugin.name}`);
     }
     this.plugins.push(plugin);
   }
 
-  addParser(parser: LogParser) {
+  addParser(parser: LogParser): void {
     if (this.debug) {
       console.log(`Adding parser: ${parser.name}`);
     }
     this.parsers.push(parser);
   }
 
-  addClient(client: LogClient) {
+  addClient(client: LogClient): void {
     if (this.debug) {
       console.log(`Adding client: ${client.name}`);
     }

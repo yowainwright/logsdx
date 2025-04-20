@@ -1,30 +1,78 @@
-[tasks.lint]
-description = "Run ESLint"
-run = "bunx eslint . -c eslint.config.ts"
+[tasks]
+build = { description = "Build all packages", run = """
+  cache key=build:$MISE_CACHE_KEY \
+  inputs="src/**/*.{ts,tsx}" \
+  inputs="clients/*/src/**/*.{ts,tsx}" \
+  inputs="plugins/*/src/**/*.{ts,tsx}" \
+  inputs="packages/*/src/**/*.{ts,tsx}" \
+  inputs="**/package.json" \
+  inputs="**/bun.lockb" \
+  -- bun run build:packages
+""" }
 
-[tasks.format]
-description = "Run Prettier"
-run = "bunx prettier --write ."
+"build:root" = { description = "Build root package", run = """
+  cache key=build:root:$MISE_CACHE_KEY \
+  inputs="src/**/*.ts" \
+  inputs="package.json" \
+  -- bun build src/index.ts --outdir=dist
+""" }
 
-[tasks.test]
-description = "Run tests"
-run = "bun test"
+"build:plugin-prism" = { description = "Build Prism plugin", run = """
+  cache key=build:plugin-prism:$MISE_CACHE_KEY \
+  inputs="packages/plugins/prism/src/**/*.ts" \
+  inputs="packages/plugins/prism/package.json" \
+  -- bun build packages/plugins/prism/src/index.ts --outdir=packages/plugins/prism/dist
+""" }
 
-[tasks.check]
-description = "Run all checks"
-run = """
-bun test
-bunx eslint . -c eslint.config.ts
-bunx prettier --check .
-"""
+"build:plugin-shiki" = { description = "Build Shiki plugin", run = """
+  cache key=build:plugin-shiki:$MISE_CACHE_KEY \
+  inputs="packages/plugins/shiki/src/**/*.ts" \
+  inputs="packages/plugins/shiki/package.json" \
+  -- bun build packages/plugins/shiki/src/index.ts --outdir=packages/plugins/shiki/dist
+""" }
 
-[tasks.pre-commit]
-description = "Run pre-commit checks"
-run = """
-bun test
-bunx eslint . -c eslint.config.ts
-bunx prettier --check .
-"""
+"build:theme-synthwave" = { description = "Build synthwave theme", run = """
+  cache key=build:theme-synthwave:$MISE_CACHE_KEY \
+  inputs="packages/themes/synthwave/src/**/*.ts" \
+  inputs="packages/themes/synthwave/package.json" \
+  -- bun build packages/themes/synthwave/src/index.ts --outdir=packages/themes/synthwave/dist
+""" }
+
+"build:client-html" = { description = "Build HTML client", run = """
+  cache key=build:client-html:$MISE_CACHE_KEY \
+  inputs="clients/html/src/**/*.ts" \
+  inputs="clients/html/package.json" \
+  -- bun build clients/html/src/index.ts --outdir=clients/html/dist
+""" }
+
+"build:cli" = { description = "Build CLI package", run = """
+  cache key=build:cli:$MISE_CACHE_KEY \
+  inputs="packages/cli/src/**/*.ts" \
+  inputs="packages/cli/package.json" \
+  -- bun build packages/cli/src/index.ts --outdir=packages/cli/dist
+""" }
+
+# Development tasks
+dev = { description = "Start development environment", run = "bun run dev" }
+
+# Testing tasks with caching
+test = { description = "Run tests", run = """
+  cache key=test:$MISE_CACHE_KEY \
+  inputs="**/*.{ts,tsx}" \
+  inputs="**/*.test.{ts,tsx}" \
+  -- bun test
+""" }
+
+# Linting and formatting
+lint = { description = "Run ESLint", run = "bunx eslint . -c eslint.config.ts" }
+format = { description = "Run Prettier", run = "bunx prettier --write ." }
+
+# Combined check task
+check = { description = "Run all checks", run = """
+  mise run test
+  mise run lint
+  mise run format
+""" }
 
 [env]
 BUN_VERSION = "1.2.9"

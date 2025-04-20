@@ -25,11 +25,9 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/src/*": ["./src/*"],
-      "@/components/*": ["src/clients/react/components/*"],
-      "@/lib/*": ["src/clients/react/lib/*"]
+      "@/src/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src", "packages/*/src"],
   "exclude": ["node_modules", "dist"]
 }

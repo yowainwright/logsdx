@@ -17,7 +17,7 @@ while true; do
       \"environment\": \"development\",
       \"version\": \"1.0.0\",
       \"message\": \"Processing user request with status: $status\"
-    }" | tr -d '\n' | FORCE_COLOR=3 NO_COLOR= bun run src/cli/index.ts --parser json --debug
+    }" | tr -d '\n' | FORCE_COLOR=3 NO_COLOR="" bun packages/cli/dist/index.js --parser json --debug
     sleep 1
   done
-done 
+done

@@ -40,6 +40,16 @@ export interface LineParseResult {
   [key: string]: unknown;
 }
 
+export interface ThemeConfig {
+  // Add theme configuration interface
+}
+
+export interface LogsDXPlugin {
+  name: string;
+  transformLine?: (line: string) => Promise<string> | string;
+  transformTheme?: (theme: ThemeConfig) => Promise<ThemeConfig> | ThemeConfig;
+}
+
 // Alias for backward compatibility
 export type ParsedLine = LineParseResult;
 
@@ -141,3 +151,68 @@ export type CustomParserOptions = {
   parse: (line: string) => LineParseResult | undefined;
   validate?: () => boolean;
 };
+
+// Color types for better type safety
+export type HexColor = `#${string}`;
+export type RGBColor = `rgb(${number}, ${number}, ${number})`;
+export type RGBAColor = `rgba(${number}, ${number}, ${number}, ${number})`;
+export type HSLColor = `hsl(${number}, ${number}%, ${number}%)`;
+export type HSLAColor = `hsla(${number}, ${number}%, ${number}%, ${number})`;
+
+// Predefined terminal colors for better autocomplete
+export type TerminalColor =
+  | "black"
+  | "red"
+  | "green"
+  | "yellow"
+  | "blue"
+  | "magenta"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "grey"
+  | "brightRed"
+  | "brightGreen"
+  | "brightYellow"
+  | "brightBlue"
+  | "brightMagenta"
+  | "brightCyan"
+  | "brightWhite";
+
+export type ColorValue =
+  | HexColor
+  | RGBColor
+  | RGBAColor
+  | HSLColor
+  | HSLAColor
+  | TerminalColor;
+
+export type StyleOptions = {
+  className?: string;
+  asciColor?: ColorValue;
+  bold?: boolean;
+  italic?: boolean;
+  dim?: boolean;
+  underline?: boolean;
+};
+
+export type PatternMatch = {
+  pattern: RegExp;
+  options: StyleOptions;
+};
+
+export type WordMatch = Record<string, StyleOptions>;
+
+export type Schema = {
+  matchWords?: WordMatch;
+  matchPatterns?: PatternMatch[];
+  defaultStyle?: StyleOptions;
+  lineNumbers?: boolean;
+};
+
+// Example usage type
+export type ThemePreset = {
+  name: string;
+  schema: Schema;
+};
+

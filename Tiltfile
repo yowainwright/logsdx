@@ -14,21 +14,22 @@ k8s_resource(
 )
 
 docker_build(
-    'react-preview-app',
+    'react-client',
     '.',
     dockerfile='./ops/dockerfiles/react.Dockerfile',
     live_update=[
-        sync('opts/fixtures/react-preview', '/app'),
+        sync('ops/svcs/react-client', '/app'),
         sync('src', '/app/src'),
+        sync('packages', '/app/packages'),
     ]
 )
 
 k8s_yaml('./ops/k8s/react.yaml')
 
 k8s_resource(
-    'react-preview-app', 
-    labels=['react-preview-app'],
-    port_forwards=['3001:3001'], 
+    'react-client',
+    labels=['react-client'],
+    port_forwards=['8080:80'],
     trigger_mode=TRIGGER_MODE_AUTO,
     auto_init=True
 )

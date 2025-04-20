@@ -1,51 +1,10 @@
 {
   "name": "logsdx",
   "version": "0.1.1",
-  "description": "log streaming with dx on the 🧠",
-  "type": "module",
+  "private": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "logsdx": "./dist/cli/index.js"
-  },
-  "scripts": {
-    "dev": "bun run src/cli.ts",
-    "build": "bun build src/index.ts && tsc",
-    "postbuild": "mkdir -p dist/clients/react && cp src/clients/react/globals.css dist/clients/react/globals.css",
-    "lint": "eslint -c eslint.config.ts src/**/*.ts",
-    "format": "bunx prettier .",
-    "format:fix": "bunx prettier --write .",
-    "preview": "bun run dist/cli/index.js",
-    "test": "bun test",
-    "release": "bunx release-it"
-  },
-  "keywords": [
-    "logs",
-    "log-stream",
-    "cli",
-    "log-enhancer"
-  ],
-  "author": "me@jeffry.in",
-  "license": "MIT",
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.1.3",
-    "@types/bun": "latest",
-    "@types/node": "^22.14.1",
-    "@types/prismjs": "^1.26.5",
-    "@types/react": "^19.1.1",
-    "@types/react-dom": "^19.1.2",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "eslint": "^9.24.0",
-    "lucide-react": "^0.487.0",
-    "shadcn-ui": "^0.9.5",
-    "tailwind-merge": "^3.2.0",
-    "tailwindcss": "^4.1.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -53,39 +12,43 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "workspaces": [
+    "packages/*",
+    "packages/clients/*",
+    "packages/plugins/*",
+    "packages/themes/*",
+    "packages/parsers/core",
+    "packages/parsers/json",
+    "packages/parsers/regex"
+  ],
+  "scripts": {
+    "build": "mise run build",
+    "build:packages": "bun run build:root && bun run build:plugins && bun run build:themes && bun run build:clients && bun run build:cli && bun run build:parsers",
+    "build:parsers": "bun run build:parser-core && bun run build:parser-json && bun run build:parser-regex",
+    "build:parser-core": "bun build packages/parsers/core/src/index.ts --outdir=packages/parsers/core/dist",
+    "build:parser-json": "bun build packages/parsers/json/src/index.ts --outdir=packages/parsers/json/dist",
+    "build:parser-regex": "bun build packages/parsers/regex/src/index.ts --outdir=packages/parsers/regex/dist",
+    "build:root": "bun build src/index.ts --outdir=dist",
+    "build:plugins": "bun build packages/plugins/*/src/index.ts --outdir=packages/plugins/*/dist",
+    "build:themes": "bun build packages/themes/*/src/index.ts --outdir=packages/themes/*/dist",
+    "build:clients": "bun build packages/clients/*/src/index.ts --outdir=packages/clients/*/dist",
+    "build:cli": "bun build packages/cli/src/index.ts --outdir=packages/cli/dist",
+    "dev": "mise run dev",
+    "test": "mise run test",
+    "lint": "mise run lint",
+    "format": "mise run format",
+    "check": "mise run check"
+  },
   "dependencies": {
-    "@radix-ui/react-scroll-area": "^1.2.4",
     "chalk": "^5.4.1",
-    "commander": "^13.1.0",
     "json5": "^2.2.3",
-    "prismjs": "^1.30.0",
-    "react": "^19.1.0",
-    "shiki": "^3.2.2"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "zod": "^3.22.4"
   },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release v${version}",
-      "tagName": "v${version}",
-      "push": true
-    },
-    "github": {
-      "release": true,
-      "releaseName": "Release ${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "hooks": {
-      "after:bump": [
-        "bun run build"
-      ],
-      "after:release": "echo Successfully released ${version} to npm."
-    }
-  },
-  "files": [
-    "dist",
-    "src",
-    "!**/*.test.*",
-    "!**/__tests__"
-  ]
+  "devDependencies": {
+    "turbo": "^1.12.4",
+    "@changesets/cli": "^2.27.1",
+    "typescript": "^5.0.0"
+  }
 }

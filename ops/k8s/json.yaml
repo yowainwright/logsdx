@@ -16,6 +16,8 @@ spec:
         - name: json-logger
           image: json-logger:latest
           imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
           resources:
             limits:
               memory: "128Mi"
@@ -23,3 +25,15 @@ spec:
             requests:
               memory: "64Mi"
               cpu: "50m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: json-logger
+spec:
+  selector:
+    app: json-logger
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP

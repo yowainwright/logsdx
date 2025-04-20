@@ -1,6 +1,6 @@
 import { expect, test, describe, mock } from "bun:test";
-import { LogEnhancer } from "./logenhancer";
-import { type LogPlugin, type LogParser, type LogClient } from "./types";
+import { LogEnhancer } from "@/src/logenhancer";
+import { type LogPlugin, type LogParser, type LogClient } from "@/src/types";
 
 describe("LogEnhancer", () => {
   test("should initialize with default options", () => {

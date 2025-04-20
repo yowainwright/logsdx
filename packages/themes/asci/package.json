@@ -1,0 +1,22 @@
+{
+  "name": "@logsdx/theme-asci",
+  "version": "0.1.0",
+  "description": "ASCII theme for LogsDX",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir=dist",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1"
+  }
+}
