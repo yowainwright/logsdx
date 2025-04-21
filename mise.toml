@@ -5,6 +5,7 @@ build = { description = "Build all packages", run = """
   inputs="clients/*/src/**/*.{ts,tsx}" \
   inputs="plugins/*/src/**/*.{ts,tsx}" \
   inputs="packages/*/src/**/*.{ts,tsx}" \
+  inputs="packages/parsers/*/src/**/*.{ts,tsx}" \
   inputs="**/package.json" \
   inputs="**/bun.lockb" \
   -- bun run build:packages
@@ -50,6 +51,27 @@ build = { description = "Build all packages", run = """
   inputs="packages/cli/src/**/*.ts" \
   inputs="packages/cli/package.json" \
   -- bun build packages/cli/src/index.ts --outdir=packages/cli/dist
+""" }
+
+"build:parser-core" = { description = "Build parser core package", run = """
+  cache key=build:parser-core:$MISE_CACHE_KEY \
+  inputs="packages/parsers/core/src/**/*.ts" \
+  inputs="packages/parsers/core/package.json" \
+  -- bun build packages/parsers/core/src/index.ts --outdir=packages/parsers/core/dist
+""" }
+
+"build:parser-json" = { description = "Build JSON parser package", run = """
+  cache key=build:parser-json:$MISE_CACHE_KEY \
+  inputs="packages/parsers/json/src/**/*.ts" \
+  inputs="packages/parsers/json/package.json" \
+  -- bun build packages/parsers/json/src/index.ts --outdir=packages/parsers/json/dist
+""" }
+
+"build:parser-regex" = { description = "Build regex parser package", run = """
+  cache key=build:parser-regex:$MISE_CACHE_KEY \
+  inputs="packages/parsers/regex/src/**/*.ts" \
+  inputs="packages/parsers/regex/package.json" \
+  -- bun build packages/parsers/regex/src/index.ts --outdir=packages/parsers/regex/dist
 """ }
 
 # Development tasks

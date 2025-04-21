@@ -31,7 +31,7 @@ jobs:
         run: bun run format --check
 
       - name: Build packages
-        run: bun run build
+        run: bun run build:packages
 
       - name: Upload artifacts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -40,4 +40,5 @@ jobs:
           name: dist
           path: |
             packages/*/dist
+            packages/parsers/*/dist
             !**/node_modules/**:

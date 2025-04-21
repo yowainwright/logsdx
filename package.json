@@ -12,7 +12,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "_workspaces_disabled": [
+  "workspaces": [
     "packages/*",
     "packages/clients/*",
     "packages/plugins/*",
