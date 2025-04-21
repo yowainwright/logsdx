@@ -12,7 +12,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "workspaces": [
+  "_workspaces_disabled": [
     "packages/*",
     "packages/clients/*",
     "packages/plugins/*",
@@ -44,7 +44,10 @@
     "json5": "^2.2.3",
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@logsdx/parser-core": "workspace:*",
+    "@logsdx/parser-json": "workspace:*",
+    "@logsdx/parser-regex": "workspace:*"
   },
   "devDependencies": {
     "turbo": "^1.12.4",

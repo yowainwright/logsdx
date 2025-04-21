@@ -1,6 +1,108 @@
 import React, { useState, useEffect, useRef } from 'react';
-// Import from the LogsDX package
-import { getTheme, getLevelColor, getStatusColor, DEFAULT_THEME, THEMES } from '../../../src/theme';
+// Import from the LogsDX React client package
+// Import theme utilities directly from the core package
+import { getTheme, DEFAULT_THEME, THEMES } from '../../../src/theme';
+
+// Import the log processing utilities
+const processJsonLog = (logString, themeName, theme) => {
+  try {
+    // Parse the log
+    const parsedLog = parseJsonLog(logString);
+
+    // Get the color
+    const color = getLogColor(parsedLog, themeName, theme);
+
+    // Determine if it should be bold
+    const isBold = shouldBeBold(parsedLog, theme);
+
+    // Format the log
+    const formattedLog = formatLog(parsedLog);
+
+    // Return the processed log
+    return {
+      parsedLog,
+      formattedLog,
+      style: {
+        color,
+        fontWeight: isBold ? 'bold' : 'normal'
+      }
+    };
+  } catch (error) {
+    return {
+      parsedLog: { raw: logString },
+      formattedLog: logString,
+      style: {}
+    };
+  }
+};
+
+// Helper functions
+function parseJsonLog(logString) {
+  try {
+    // Parse the JSON string
+    const log = JSON.parse(logString);
+
+    // Extract common fields
+    const {
+      timestamp,
+      level = 'info',
+      message = '',
+      status = null,
+      ...rest
+    } = log;
+
+    return {
+      raw: logString,
+      timestamp,
+      level,
+      message,
+      status,
+      metadata: rest
+    };
+  } catch (error) {
+    // Return a basic object if parsing fails
+    return {
+      raw: logString,
+      timestamp: new Date().toISOString(),
+      level: 'error',
+      message: `Failed to parse log: ${logString}`,
+      status: 'error',
+      metadata: { parseError: error.message }
+    };
+  }
+}
+
+function formatLog(parsedLog) {
+  const { timestamp, level, message, status } = parsedLog;
+
+  // Format the timestamp if it exists
+  const formattedTime = timestamp ? `${timestamp} ` : '';
+
+  // Format the level
+  const formattedLevel = level ? `[${level.toUpperCase()}] ` : '';
+
+  // Format the status if it exists
+  const formattedStatus = status ? ` (${status})` : '';
+
+  // Combine all parts
+  return `${formattedTime}${formattedLevel}${message}${formattedStatus}`;
+}
+
+function getLogColor(parsedLog, themeName, theme) {
+  const { level, status } = parsedLog;
+
+  // Use status color if available, otherwise use level color
+  if (status && theme.status && theme.status[status]) {
+    return theme.status[status].color;
+  }
+
+  return theme.levels[level]?.color || theme.levels.info.color;
+}
+
+function shouldBeBold(parsedLog, theme) {
+  const { level } = parsedLog;
+  return theme.levels[level]?.bold || false;
+}
 
 // Enhanced log processor with theme support
 const LogEnhancer = {
@@ -15,24 +117,16 @@ const LogEnhancer = {
   // Process a log line with theme-based styling
   process: (log) => {
     try {
-      // Parse the log as JSON
-      const parsedLog = JSON.parse(log);
-
-      // Extract level and status from the parsed log
-      const level = parsedLog.level || 'info';
-      const status = parsedLog.status || null;
-
-      // Get color from theme
+      // Get the theme
       const theme = getTheme(LogEnhancer.themeName);
-      const color = status ? getStatusColor(status, LogEnhancer.themeName) : getLevelColor(level, LogEnhancer.themeName);
 
-      // Format the log for display
-      const formattedLog = `${parsedLog.timestamp} [${level.toUpperCase()}] ${parsedLog.message} ${status ? `(${status})` : ''}`;
+      // Process the log using the LogsDX React client
+      const { formattedLog, style } = processJsonLog(log, LogEnhancer.themeName, theme);
 
-      // Apply styling
-      return <span style={{ color, fontWeight: theme.levels[level]?.bold ? 'bold' : 'normal' }}>{formattedLog}</span>;
+      // Return the styled log
+      return <span style={style}>{formattedLog}</span>;
     } catch (error) {
-      // If parsing fails, just return the raw log
+      console.error('Error processing log:', error);
       return <span>{log}</span>;
     }
   }
@@ -69,9 +163,31 @@ function App() {
       try {
         const response = await fetch('/api/logs');
         if (response.ok) {
-          const data = await response.json();
-          if (data.logs && Array.isArray(data.logs)) {
-            setLogs(prev => [...prev, ...data.logs.filter(log => log.trim())]);
+          const text = await response.text();
+          try {
+            // Try to parse as JSON first
+            const data = JSON.parse(text);
+            if (data.logs && Array.isArray(data.logs)) {
+              // Filter out empty logs and add only new logs
+              const newLogs = data.logs.filter(log => log.trim());
+              setLogs(prev => {
+                // Only add logs that aren't already in the list
+                const existingLogs = new Set(prev);
+                const uniqueNewLogs = newLogs.filter(log => !existingLogs.has(log));
+                return [...prev, ...uniqueNewLogs];
+              });
+            }
+          } catch (parseError) {
+            // If JSON parsing fails, try to split by newlines
+            const logLines = text.split('\n').filter(line => line.trim());
+            if (logLines.length > 0) {
+              setLogs(prev => {
+                // Only add logs that aren't already in the list
+                const existingLogs = new Set(prev);
+                const uniqueNewLogs = logLines.filter(log => !existingLogs.has(log));
+                return [...prev, ...uniqueNewLogs];
+              });
+            }
           }
         }
       } catch (error) {

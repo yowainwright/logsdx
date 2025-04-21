@@ -9,6 +9,9 @@ import {
   getTheme,
 } from "./styles";
 
+// Re-export from core theme for compatibility
+import { DEFAULT_THEME } from "../../../src/theme";
+
 export {
   loadConfig,
   loadThemeFromFile,
@@ -19,4 +22,5 @@ export {
   styleManager,
   setTheme,
   getTheme,
+  DEFAULT_THEME,
 };

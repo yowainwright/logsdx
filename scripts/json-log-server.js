@@ -1,6 +1,6 @@
-const express = require('express');
-const { spawn } = require('child_process');
-const cors = require('cors');
+import express from 'express';
+import { spawn } from 'child_process';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
@@ -20,7 +20,7 @@ const logGenerator = spawn('sh', ['/app/generate-json-logs.sh']);
 logGenerator.stdout.on('data', (data) => {
   const logLines = data.toString().split('\n').filter(line => line.trim());
   logs = [...logs, ...logLines].slice(-MAX_LOGS); // Keep only the last MAX_LOGS
-  console.log('New log:', logLines[0]);
+  // Log processing complete
 });
 
 logGenerator.stderr.on('data', (data) => {
@@ -28,13 +28,14 @@ logGenerator.stderr.on('data', (data) => {
 });
 
 // API endpoint to get logs
-app.get('/logs', (req, res) => {
-  res.send(logs.join('\n'));
+app.get('/logs', (_, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify({ logs }));
 });
 
 // Start the server
 app.listen(port, '0.0.0.0', () => {
-  console.log(`JSON log server listening at http://0.0.0.0:${port}`);
+  // Server started successfully
 });
 
 // Handle process termination

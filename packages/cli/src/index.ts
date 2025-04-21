@@ -2,14 +2,68 @@
 
 import { Command } from "commander";
 import fs from "fs";
-import {
-  styleManager,
-  setTheme,
-  loadConfig,
-} from "../../packages/themes/asci/src";
-import { logger } from "../../src/utils/logger";
-import type { LogLevel, CliOptions } from "../../src/types";
-import { getParser, getRegisteredParsers } from "../../src/parsers/registry";
+// Create a simple style manager for the CLI
+const styleManager = {
+  styleLine: (line: string, parsed: any, parserName: string) => {
+    // Simple styling for the CLI
+    return line;
+  }
+};
+
+// Simple theme management
+let currentTheme = 'dracula';
+function setTheme(theme: string) {
+  currentTheme = theme;
+}
+
+// Simple config loading
+function loadConfig() {
+  return { theme: 'dracula', customThemes: {} };
+}
+
+// Simple logger
+const logger = {
+  info: (message: string, ...args: any[]) => console.log(message, ...args),
+  error: (message: string, ...args: any[]) => console.error(message, ...args),
+  debug: (message: string, ...args: any[]) => console.debug(message, ...args),
+  withConfig: (config: any) => logger
+};
+
+// Types
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+interface CliOptions {
+  quiet?: boolean;
+  debug?: boolean;
+  level?: string;
+  parser?: string;
+  rules?: string;
+  output?: string;
+  listParsers?: boolean;
+  theme?: string;
+  listThemes?: boolean;
+}
+
+// Simple parser registry
+const parserRegistry: Record<string, any> = {
+  default: async () => (line: string) => ({}),
+  json: async () => (line: string) => {
+    try {
+      return JSON.parse(line);
+    } catch {
+      return {};
+    }
+  }
+};
+
+// Get a parser by name
+async function getParser(name: string, options?: any) {
+  return parserRegistry[name] || parserRegistry.default;
+}
+
+// Get all registered parser names
+function getRegisteredParsers() {
+  return Object.keys(parserRegistry);
+}
 
 const program = new Command();
 

@@ -5,7 +5,7 @@
  * into React applications.
  */
 
-import { getTheme, getLevelColor, getStatusColor, DEFAULT_THEME, THEMES } from 'logsdx';
+import { getTheme, DEFAULT_THEME, THEMES } from '@logsdx/theme-asci';
 
 /**
  * Parse a JSON log string and extract relevant information
@@ -76,11 +76,14 @@ export function formatLog(parsedLog: any) {
  */
 export function getLogColor(parsedLog: any, themeName: string) {
   const { level, status } = parsedLog;
+  const theme = getTheme(themeName);
 
   // Use status color if available, otherwise use level color
-  return status
-    ? getStatusColor(status, themeName)
-    : getLevelColor(level, themeName);
+  if (status && theme.status && theme.status[status]) {
+    return theme.status[status].color;
+  }
+
+  return theme.levels[level]?.color || theme.levels.info.color;
 }
 
 /**
@@ -126,7 +129,7 @@ export function processJsonLog(logString: string, themeName: string, theme: any)
 }
 
 // Re-export theme utilities from LogsDX
-export { getTheme, getLevelColor, getStatusColor, DEFAULT_THEME, THEMES };
+export { getTheme, DEFAULT_THEME, THEMES };
 
 // Export hooks
 export { useSchemaValidation } from './hooks/useSchemaValidation';
