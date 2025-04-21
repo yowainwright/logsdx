@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check if there are any changed files that would affect packages
+CHANGED_FILES=$(git diff --cached --name-only)
+PACKAGE_CHANGES=false
+
+# Check for changes in package directories
+if echo "$CHANGED_FILES" | grep -q "^src/" || \
+   echo "$CHANGED_FILES" | grep -q "^packages/" || \
+   echo "$CHANGED_FILES" | grep -q "^clients/" || \
+   echo "$CHANGED_FILES" | grep -q "^plugins/"; then
+  PACKAGE_CHANGES=true
+fi
+
+# If there are package changes but no changeset files, suggest creating one
+if [ "$PACKAGE_CHANGES" = true ] && ! echo "$CHANGED_FILES" | grep -q "^.changeset/"; then
+  echo "📦 Package changes detected but no changeset found."
+  echo "Consider running one of these commands before committing:"
+  echo "  bun run changeset:patch  - for backwards-compatible bug fixes"
+  echo "  bun run changeset:minor  - for backwards-compatible new features"
+  echo "  bun run changeset:major  - for breaking changes"
+  echo ""
+  echo "You can continue with your commit, but version changes won't be tracked."
+  echo "Press Ctrl+C to cancel commit and create a changeset, or Enter to continue."
+  read -r
+fi

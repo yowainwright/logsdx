@@ -1,6 +1,6 @@
 {
   "name": "@logsdx/parser-json",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -22,6 +22,18 @@
   "devDependencies": {
   },
   "peerDependencies": {
-    "logsdx": "workspace:*"
+    "logsdx": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yowainwright/logsdx.git",
+    "directory": "packages/parsers/json"
+  },
+  "homepage": "https://github.com/yowainwright/logsdx#readme",
+  "bugs": {
+    "url": "https://github.com/yowainwright/logsdx/issues"
   }
 }
