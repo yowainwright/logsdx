@@ -33,10 +33,10 @@ export function useSchemaValidation(schema: unknown) {
     // If basic validation passes and we're in development, do thorough validation
     if (process.env.NODE_ENV === 'development') {
       const worker = getWorker();
-      
+
       if (worker) {
         const validationId = Date.now().toString();
-        
+
         const handleMessage = (event: MessageEvent) => {
           if (event.data.id === validationId) {
             const { result } = event.data;
@@ -69,7 +69,8 @@ export function useSchemaValidation(schema: unknown) {
   return validationState;
 }
 
-// Usage example:
+// Usage example (commented out to avoid JSX syntax issues):
+/*
 export function LogViewer({ schema }: { schema: unknown }) {
   const { isValidating, isValid, errors } = useSchemaValidation(schema);
 
@@ -94,3 +95,4 @@ export function LogViewer({ schema }: { schema: unknown }) {
 
   // Render log viewer with validated schema...
 }
+*/

@@ -17,7 +17,7 @@
     "build": "bun build src/index.ts --outdir=dist"
   },
   "dependencies": {
-    "@logsdx/parser-core": "workspace:*"
+    "@logsdx/parser-core": "^0.1.0"
   },
   "devDependencies": {
   },

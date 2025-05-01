@@ -9,8 +9,8 @@ import {
   getTheme,
 } from "./styles";
 
-// Re-export from core theme for compatibility
-import { DEFAULT_THEME } from "../../../src/theme";
+// Define default theme
+const DEFAULT_THEME = "dracula";
 
 export {
   loadConfig,

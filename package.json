@@ -13,6 +13,7 @@
     }
   },
   "workspaces": [
+    ".",
     "packages/*",
     "packages/clients/*",
     "packages/plugins/*",
@@ -22,7 +23,7 @@
     "packages/parsers/regex"
   ],
   "scripts": {
-    "build": "mise run build",
+    "build": "bun run build:packages",
     "build:packages": "bun run build:root && bun run build:plugins && bun run build:themes && bun run build:clients && bun run build:cli && bun run build:parsers",
     "build:parsers": "bun run build:parser-core && bun run build:parser-json && bun run build:parser-regex",
     "build:parser-core": "bun build packages/parsers/core/src/index.ts --outdir=packages/parsers/core/dist",
@@ -33,11 +34,12 @@
     "build:themes": "bun build packages/themes/*/src/index.ts --outdir=packages/themes/*/dist",
     "build:clients": "bun build packages/clients/*/src/index.ts --outdir=packages/clients/*/dist",
     "build:cli": "bun build packages/cli/src/index.ts --outdir=packages/cli/dist",
-    "dev": "mise run dev",
-    "test": "mise run test",
-    "lint": "mise run lint",
-    "format": "mise run format",
-    "check": "mise run check",
+    "dev": "bun --watch run build",
+    "test": "bun test",
+    "lint": "bun run tsc --noEmit",
+    "format": "bun run prettier --write .",
+    "check": "bun run lint && bun run test",
+    "verify-workspaces": "bun scripts/verify-workspaces.ts",
     "changeset": "changeset",
     "changeset:patch": "node scripts/auto-changeset.js patch",
     "changeset:minor": "node scripts/auto-changeset.js minor",
@@ -57,9 +59,10 @@
     "@logsdx/parser-regex": "^0.1.0"
   },
   "devDependencies": {
-    "turbo": "^1.12.4",
     "@changesets/cli": "^2.27.1",
-    "typescript": "^5.0.0",
-    "husky": "^9.0.11"
+    "husky": "^9.1.7",
+    "tsconfig-paths": "^4.2.0",
+    "turbo": "^1.12.4",
+    "typescript": "^5.0.0"
   }
 }

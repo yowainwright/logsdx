@@ -5,7 +5,28 @@
  * into React applications.
  */
 
-import { getTheme, DEFAULT_THEME, THEMES } from '@logsdx/theme-asci';
+// Define theme constants
+const DEFAULT_THEME = "dracula";
+const THEMES = {
+  dracula: {
+    levels: {
+      error: { color: "#ff5555", bold: true },
+      warn: { color: "#f1fa8c" },
+      info: { color: "#8be9fd" },
+      debug: { color: "#6272a4" }
+    },
+    status: {
+      success: { color: "#50fa7b" },
+      error: { color: "#ff5555" },
+      pending: { color: "#f1fa8c" }
+    }
+  }
+};
+
+// Simple theme getter
+function getTheme(themeName = DEFAULT_THEME) {
+  return THEMES[themeName] || THEMES[DEFAULT_THEME];
+}
 
 /**
  * Parse a JSON log string and extract relevant information

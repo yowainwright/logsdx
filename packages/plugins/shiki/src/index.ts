@@ -1,5 +1,5 @@
-import { createHighlighter } from "shiki";
-import type { LogEnhancerPlugin, LineParseResult } from "../types";
+import { getHighlighter } from "shiki";
+import type { LogEnhancerPlugin, LineParseResult } from "logsdx";
 import type { ReactElement } from "react";
 
 export type ShikiProps = {
@@ -18,7 +18,7 @@ export function createShikiPlugin(
 ): LogEnhancerPlugin<ReactElement<ShikiProps>> {
   const theme = options.theme ?? "github-dark";
   const defaultLang = options.lang ?? "typescript";
-  let highlighter: Awaited<ReturnType<typeof createHighlighter>>;
+  let highlighter: Awaited<ReturnType<typeof getHighlighter>>;
 
   return {
     enhanceLine: (
@@ -47,7 +47,7 @@ export function createShikiPlugin(
       } as ReactElement<ShikiProps>;
     },
     init: async () => {
-      highlighter = await createHighlighter({
+      highlighter = await getHighlighter({
         themes: [theme],
         langs: [defaultLang],
       });

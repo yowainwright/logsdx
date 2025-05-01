@@ -21,10 +21,6 @@ if [ "$PACKAGE_CHANGES" = true ] && ! echo "$CHANGED_FILES" | grep -q "^.changes
   echo "  bun run changeset:major  - for breaking changes"
   echo ""
   echo "You can continue with your commit, but version changes won't be tracked."
-  echo "Press Ctrl+C to cancel commit and create a changeset, or Enter to continue."
-  read -r _
-  # Always exit with success code to allow the commit to proceed
-  exit 0
 fi
 
 # Always exit with success code

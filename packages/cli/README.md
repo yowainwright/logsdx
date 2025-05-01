@@ -1,6 +1,6 @@
-# LogsDX CLI
+# `@logsdx/cli`
 
-The LogsDX CLI is a command-line interface for processing and formatting logs with syntax highlighting and level-based styling.
+The LogsDX CLI is a command-line interface for processing and formatting logs in a termainal with schema based syntax highlighting.
 
 ## Features
 
@@ -18,12 +18,6 @@ The LogsDX CLI is a command-line interface for processing and formatting logs wi
 ```bash
 # Using npm
 npm install -g logsdx
-
-# Using yarn
-yarn global add logsdx
-
-# Using bun
-bun install -g logsdx
 ```
 
 ## Usage

@@ -1,11 +1,44 @@
 /**
  * LogsDX HTML Client
- * 
+ *
  * This package provides HTML/JavaScript utilities for integrating LogsDX
  * into web applications without a framework.
  */
 
-import { getTheme, getLevelColor, getStatusColor, DEFAULT_THEME, THEMES } from 'logsdx';
+// Define theme constants
+const DEFAULT_THEME = "dracula";
+const THEMES = {
+  dracula: {
+    levels: {
+      error: { color: "#ff5555", bold: true },
+      warn: { color: "#f1fa8c" },
+      info: { color: "#8be9fd" },
+      debug: { color: "#6272a4" }
+    },
+    status: {
+      success: { color: "#50fa7b" },
+      error: { color: "#ff5555" },
+      pending: { color: "#f1fa8c" }
+    }
+  }
+};
+
+// Simple theme getter
+function getTheme(themeName = DEFAULT_THEME) {
+  return THEMES[themeName] || THEMES[DEFAULT_THEME];
+}
+
+// Get level color
+function getLevelColor(level, themeName = DEFAULT_THEME) {
+  const theme = getTheme(themeName);
+  return theme.levels[level]?.color || theme.levels.info.color;
+}
+
+// Get status color
+function getStatusColor(status, themeName = DEFAULT_THEME) {
+  const theme = getTheme(themeName);
+  return theme.status[status]?.color || theme.status.pending.color;
+}
 
 /**
  * Parse a JSON log string and extract relevant information
@@ -16,7 +49,7 @@ export function parseJsonLog(logString: string) {
   try {
     // Parse the JSON string
     const log = JSON.parse(logString);
-    
+
     // Extract common fields
     const {
       timestamp,
@@ -25,7 +58,7 @@ export function parseJsonLog(logString: string) {
       status = null,
       ...rest
     } = log;
-    
+
     return {
       raw: logString,
       timestamp,
@@ -54,16 +87,16 @@ export function parseJsonLog(logString: string) {
  */
 export function formatLog(parsedLog: any) {
   const { timestamp, level, message, status } = parsedLog;
-  
+
   // Format the timestamp if it exists
   const formattedTime = timestamp ? `${timestamp} ` : '';
-  
+
   // Format the level
   const formattedLevel = level ? `[${level.toUpperCase()}] ` : '';
-  
+
   // Format the status if it exists
   const formattedStatus = status ? ` (${status})` : '';
-  
+
   // Combine all parts
   return `${formattedTime}${formattedLevel}${message}${formattedStatus}`;
 }
@@ -76,10 +109,10 @@ export function formatLog(parsedLog: any) {
  */
 export function getLogColor(parsedLog: any, themeName: string) {
   const { level, status } = parsedLog;
-  
+
   // Use status color if available, otherwise use level color
-  return status 
-    ? getStatusColor(status, themeName) 
+  return status
+    ? getStatusColor(status, themeName)
     : getLevelColor(level, themeName);
 }
 
@@ -92,26 +125,26 @@ export function getLogColor(parsedLog: any, themeName: string) {
 export function createLogElement(logString: string, themeName = DEFAULT_THEME) {
   // Parse the log
   const parsedLog = parseJsonLog(logString);
-  
+
   // Get the theme
   const theme = getTheme(themeName);
-  
+
   // Get the color
   const color = getLogColor(parsedLog, themeName);
-  
+
   // Format the log
   const formattedLog = formatLog(parsedLog);
-  
+
   // Create the element
   const element = document.createElement('div');
   element.textContent = formattedLog;
   element.style.color = color;
-  
+
   // Apply bold if needed
   if (theme.levels[parsedLog.level]?.bold) {
     element.style.fontWeight = 'bold';
   }
-  
+
   return element;
 }
 
@@ -129,7 +162,7 @@ export function initLogViewer(container: HTMLElement, themeName = DEFAULT_THEME)
       // Auto-scroll to bottom
       container.scrollTop = container.scrollHeight;
     },
-    
+
     setTheme(newThemeName: string) {
       themeName = newThemeName;
       // Clear and re-render all logs with new theme
@@ -137,7 +170,7 @@ export function initLogViewer(container: HTMLElement, themeName = DEFAULT_THEME)
       // and re-render them with the new theme
       container.innerHTML = '';
     },
-    
+
     clear() {
       container.innerHTML = '';
     }

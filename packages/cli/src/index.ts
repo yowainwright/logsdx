@@ -1,68 +1,43 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
+import winston from "winston";
 import fs from "fs";
-// Create a simple style manager for the CLI
-const styleManager = {
-  styleLine: (line: string, parsed: any, parserName: string) => {
-    // Simple styling for the CLI
+import { ParsedLine, CliOptions, StyleManager, Config, OutputStreamType, LogLevel } from "@/cli/types";
+
+const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.timestamp(),
+    winston.format.printf(({ level, message, timestamp }) => {
+      return `${timestamp} ${level}: ${message}`;
+    })
+  ),
+  transports: [
+    new winston.transports.Console({
+      level: 'info'
+    })
+  ]
+});
+
+const styleManager: StyleManager = {
+  styleLine: (line: string, parsed: ParsedLine, parserName: string) => {
     return line;
   }
 };
 
-// Simple theme management
-let currentTheme = 'dracula';
-function setTheme(theme: string) {
-  currentTheme = theme;
+function loadConfig(): Config {
+  return { theme: 'default', customThemes: {} };
 }
 
-// Simple config loading
-function loadConfig() {
-  return { theme: 'dracula', customThemes: {} };
-}
-
-// Simple logger
-const logger = {
-  info: (message: string, ...args: any[]) => console.log(message, ...args),
-  error: (message: string, ...args: any[]) => console.error(message, ...args),
-  debug: (message: string, ...args: any[]) => console.debug(message, ...args),
-  withConfig: (config: any) => logger
-};
-
-// Types
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-interface CliOptions {
-  quiet?: boolean;
-  debug?: boolean;
-  level?: string;
-  parser?: string;
-  rules?: string;
-  output?: string;
-  listParsers?: boolean;
-  theme?: string;
-  listThemes?: boolean;
-}
-
-// Simple parser registry
-const parserRegistry: Record<string, any> = {
-  default: async () => (line: string) => ({}),
-  json: async () => (line: string) => {
-    try {
-      return JSON.parse(line);
-    } catch {
-      return {};
-    }
-  }
-};
-
-// Get a parser by name
-async function getParser(name: string, options?: any) {
-  return parserRegistry[name] || parserRegistry.default;
-}
-
-// Get all registered parser names
-function getRegisteredParsers() {
-  return Object.keys(parserRegistry);
+function shouldRender(level: LogLevel, minLevel: string = 'info'): boolean {
+  const levels: Record<LogLevel, number> = {
+    error: 3,
+    warn: 2,
+    info: 1,
+    debug: 0
+  };
+  return levels[level] >= levels[minLevel as LogLevel];
 }
 
 const program = new Command();
@@ -70,9 +45,7 @@ const program = new Command();
 program
   .name("logsdx")
   .description("A powerful log parsing and formatting tool")
-  .version("0.0.1");
-
-program
+  .version("0.0.1")
   .option("-q, --quiet", "Suppress all output except errors")
   .option("-d, --debug", "Enable debug mode")
   .option("-l, --level <level>", "Minimum log level to display", "info")
@@ -80,205 +53,126 @@ program
   .option("-r, --rules <file>", "Path to custom rules file")
   .option("-o, --output <file>", "Path to output file")
   .option("--list-parsers", "List available parsers")
-  .option(
-    "-t, --theme <theme>",
-    "Theme to use (default, dark, light, minimal, or custom theme name)",
-  )
+  .option("-t, --theme <theme>", "Theme to use")
   .option("--list-themes", "List available themes")
-  .argument("[input]", "Input file to process (defaults to stdin)")
-  .action(async (input: string, options: CliOptions) => {
-    try {
-      // Handle list parsers command
-      if (options.listParsers) {
-        const parsers = getRegisteredParsers();
-        logger.info("Available parsers:");
-        parsers.forEach((parser) => logger.info(`  - ${parser}`));
-        process.exit(0);
-      }
-
-      // Handle list themes command
-      if (options.listThemes) {
-        const config = loadConfig();
-        const themes = config ? Object.keys(config.customThemes || {}) : [];
-        logger.info("Available themes:");
-        logger.info("Built-in themes:");
-        logger.info("  - default");
-        logger.info("  - dark");
-        logger.info("  - light");
-        logger.info("  - minimal");
-        if (themes.length > 0) {
-          logger.info("Custom themes:");
-          themes.forEach((theme) => logger.info(`  - ${theme}`));
-        }
-        process.exit(0);
-      }
-
-      // Set up debug logging
-      if (options.debug) {
-        logger
-          .withConfig({ level: "debug", prefix: "CLI" })
-          .debug("Debug mode enabled");
-      }
-
-      // Load and apply theme
-      const config = loadConfig();
-      if (options.theme) {
-        if (options.debug) {
-          logger
-            .withConfig({ level: "debug", prefix: "CLI" })
-            .debug(`Using theme: ${options.theme}`);
-        }
-        setTheme(options.theme);
-      } else if (config?.theme) {
-        if (options.debug) {
-          logger
-            .withConfig({ level: "debug", prefix: "CLI" })
-            .debug(`Using theme from config: ${config.theme}`);
-        }
-        setTheme(config.theme);
-      }
-
-      // Validate log level
-      if (
-        options.level &&
-        !["debug", "info", "warn", "error"].includes(options.level)
-      ) {
-        throw new Error(`Invalid log level: ${options.level}`);
-      }
-
-      // Create input stream
-      const inputStream = input ? fs.createReadStream(input) : process.stdin;
-      if (input && options.debug) {
-        logger
-          .withConfig({ level: "debug", prefix: "CLI" })
-          .debug(`Input file set to: ${input}`);
-      }
-
-      // Create output stream
-      const outputStream = options.output
-        ? fs.createWriteStream(options.output)
-        : process.stdout;
-      if (options.output && options.debug) {
-        logger
-          .withConfig({ level: "debug", prefix: "CLI" })
-          .debug(`Output file set to: ${options.output}`);
-      }
-
-      // Get parser
-      const parser = await getParserForOptions(options);
-
-      // Process input
-      let buffer = "";
-      inputStream.on("data", (chunk: Buffer | string) => {
-        buffer += chunk.toString();
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-
-          const parsed = parser(line);
-
-          // Determine the level for filtering, even if parsing failed
-          const level = parsed?.level || "info"; // Default to 'info' if undefined
-
-          // Check if the line should be rendered based on level
-          if (shouldRender(level, options.level as LogLevel)) {
-            // Always call styleLine, passing the original line, parsed result (can be undefined), and parser name
-            const formattedLine = styleManager.styleLine(
-              line,
-              parsed,
-              options.parser || "default",
-            );
-
-            // Use process.stdout.write for stdout, write for file streams
-            if (outputStream === process.stdout) {
-              process.stdout.write(formattedLine + "\n");
-            } else {
-              (outputStream as fs.WriteStream).write(formattedLine + "\n");
-            }
-          }
-        }
-      });
-
-      inputStream.on("end", () => {
-        if (buffer.trim()) {
-          const parsed = parser(buffer);
-          const level = parsed?.level || "info";
-
-          if (shouldRender(level, options.level as LogLevel)) {
-            // Always call styleLine for the remaining buffer
-            const formattedLine = styleManager.styleLine(
-              buffer,
-              parsed,
-              options.parser || "default",
-            );
-
-            // Use process.stdout.write for stdout, write for file streams
-            if (outputStream === process.stdout) {
-              process.stdout.write(formattedLine + "\n");
-            } else {
-              (outputStream as fs.WriteStream).write(formattedLine + "\n");
-            }
-          }
-        }
-        if (options.output) {
-          (outputStream as fs.WriteStream).end();
-        }
-      });
-
-      inputStream.on("error", (error: Error) => {
-        logger.error("Error reading input:", error);
-        process.exit(1);
-      });
-    } catch (error) {
-      logger.error("Error:", error as Error);
-      process.exit(1);
+  .enablePositionalOptions()
+  .configureOutput({
+    writeOut: (str) => process.stdout.write(str),
+    writeErr: (str) => process.stderr.write(str),
+    outputError: (str, write) => write(str)
+  })
+  .action(async (options: CliOptions) => {
+    if (options.debug) {
+      logger.level = 'debug';
+      logger.debug("Debug mode enabled");
     }
+
+    if (options.quiet) {
+      logger.silent = true;
+    }
+
+    if (options.listParsers) {
+      const parsers = getRegisteredParsers();
+      logger.info("Available parsers:");
+      parsers.forEach((parser) => logger.info(`  - ${parser}`));
+      process.exit(0);
+    }
+
+    if (options.listThemes) {
+      const config = loadConfig();
+      const themes = config ? Object.keys(config.customThemes || {}) : [];
+      logger.info("Available themes:");
+      logger.info("Built-in themes:");
+      logger.info("  - default");
+      logger.info("  - dark");
+      logger.info("  - light");
+      logger.info("  - minimal");
+      logger.info("  - dracula");
+      if (themes.length > 0) {
+        logger.info("Custom themes:");
+        themes.forEach((theme) => logger.info(`  - ${theme}`));
+      }
+      process.exit(0);
+    }
+
+    const config = loadConfig();
+    if (options.theme) {
+      logger.debug(`Using theme: ${options.theme}`);
+      setTheme(options.theme);
+    } else if (config?.theme) {
+      logger.debug(`Using theme from config: ${config.theme}`);
+      setTheme(config.theme);
+    }
+
+    if (options.level && !["debug", "info", "warn", "error"].includes(options.level)) {
+      throw new Error(`Invalid log level: ${options.level}`);
+    }
+
+    const parserFn = await getParser(options.parser || "default");
+    const parser = await parserFn();
+
+    const inputStream = process.stdin;
+    const outputStream: OutputStreamType = options.output ? fs.createWriteStream(options.output) : process.stdout;
+
+    let buffer = "";
+
+    inputStream.on("data", (chunk: Buffer) => {
+      buffer += chunk;
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        const parsed = parser(line);
+        const level = parsed?.level || "info";
+
+        if (shouldRender(level, options.level as LogLevel)) {
+          const formattedLine = styleManager.styleLine(line, parsed, options.parser || "default");
+
+          if (outputStream === process.stdout) {
+            process.stdout.write(formattedLine + "\n");
+          } else {
+            (outputStream as fs.WriteStream).write(formattedLine + "\n");
+          }
+        }
+      }
+    });
+
+    inputStream.on("end", () => {
+      if (buffer.trim()) {
+        const parsed = parser(buffer);
+        const level = parsed?.level || "info";
+
+        if (shouldRender(level, options.level as LogLevel)) {
+          const formattedLine = styleManager.styleLine(buffer, parsed, options.parser || "default");
+
+          if (outputStream === process.stdout) {
+            process.stdout.write(formattedLine + "\n");
+          } else {
+            (outputStream as fs.WriteStream).write(formattedLine + "\n");
+          }
+        }
+      }
+      if (options.output) {
+        (outputStream as fs.WriteStream).end();
+      }
+    });
+
+    inputStream.on("error", (error: Error) => {
+      logger.error("Error reading input:", error);
+      process.exit(1);
+    });
   });
 
-program.parse();
-
-// Helper function to get parser for options
-async function getParserForOptions(options: CliOptions) {
-  const parserName = options.parser || "default";
-
-  try {
-    if (options.debug) {
-      logger
-        .withConfig({ level: "debug", prefix: "CLI" })
-        .debug(`Using parser: ${parserName}`);
-    }
-
-    return await getParser(parserName, {
-      rulesFile: options.rules,
-    });
-  } catch (error) {
-    logger.error(`Error loading parser '${parserName}':`, error as Error);
-    logger.info(`Available parsers: ${getRegisteredParsers().join(", ")}`);
-    process.exit(1);
-  }
-}
-
-function shouldRender(
-  level: string | undefined,
-  minLevel: LogLevel | undefined,
-): boolean {
-  if (!minLevel || !level) return true;
-
-  // Define log level priorities
-  const levelPriorities: Record<string, number> = {
-    debug: 0,
-    info: 1,
-    warn: 2,
-    error: 3,
-    success: 1,
-    trace: 0,
+// Add autocomplete support
+program.complete = () => {
+  return {
+    // Provide completion suggestions
+    "--level": ["debug", "info", "warn", "error"],
+    "--theme": ["default", "dark", "light", "minimal", "dracula"],
+    "--parser": getRegisteredParsers()
   };
+};
 
-  const current = levelPriorities[level] ?? 0;
-  const min = levelPriorities[minLevel] ?? 0;
-  return current >= min;
-}
-
-export { program, getParserForOptions, shouldRender };
+program.parse();

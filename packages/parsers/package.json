@@ -21,6 +21,6 @@
   "devDependencies": {
   },
   "peerDependencies": {
-    "logsdx": "workspace:*"
+    "logsdx": "^0.1.0"
   }
 }
