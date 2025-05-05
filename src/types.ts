@@ -1,5 +1,4 @@
-import type { Theme } from "@/src/schema/types";
-
+type Theme = any;
 export interface LogsDXOptions {
   theme?: string | Theme;
   outputFormat?: "ansi" | "html";

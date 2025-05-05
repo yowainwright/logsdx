@@ -3,7 +3,10 @@
   "version": "0.1.1",
   "private": false,
   "scripts": {
-    "build": "bun build",
+    "build": "bun run build:cjs && bun run build:esm",
+    "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
+    "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
+    "build:types": "tsc --noEmit --skipLibCheck --emitDeclarationOnly --declaration --outDir dist",
     "test": "bun test",
     "lint": "eslint .",
     "format": "bun run prettier --write .",

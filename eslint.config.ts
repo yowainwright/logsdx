@@ -4,7 +4,13 @@ import tsParser from "@typescript-eslint/parser";
 export default [
   {
     files: ["**/*.ts"],
-    ignores: ["**/dist/**", "**/node_modules/**", "**/ops/**", "**/scripts/**"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/ops/**",
+      "**/scripts/**",
+      "**/*.test.ts",
+    ],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

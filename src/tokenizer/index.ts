@@ -295,23 +295,23 @@ export function tokenize(line: string, theme?: Theme): TokenList {
       // Add any additional metadata from the token
       if (token.value) {
         if (token.value.style) {
-          newToken.metadata.style = token.value.style;
+          (newToken.metadata as any).style = token.value.style;
         }
 
         if (token.value.pattern) {
-          newToken.metadata.pattern = token.value.pattern;
+          (newToken.metadata as any).pattern = token.value.pattern;
         }
 
         if (token.value.name) {
-          newToken.metadata.name = token.value.name;
+          (newToken.metadata as any).name = token.value.name;
         }
 
         if (token.value.index !== undefined) {
-          newToken.metadata.index = token.value.index;
+          (newToken.metadata as any).index = token.value.index;
         }
 
         if (token.value.trimmed) {
-          newToken.metadata.trimmed = token.value.trimmed;
+          (newToken.metadata as any).trimmed = token.value.trimmed;
         }
       }
 
@@ -384,7 +384,7 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
       theme.schema?.matchPatterns
     ) {
       const pattern = Array.isArray(theme.schema.matchPatterns)
-        ? theme.schema.matchPatterns.find((p) => p.name === metadata.name)
+        ? theme.schema.matchPatterns.find((p: any) => p.name === metadata.name)
         : undefined;
 
       if (pattern && pattern.options) {

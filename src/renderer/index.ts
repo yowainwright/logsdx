@@ -84,8 +84,8 @@ export function tokensToString(tokens: TokenList): string {
         result = applyDim(result);
       }
 
-      if (style.backgroundColor) {
-        result = applyBackgroundColor(result, style.backgroundColor);
+      if ((style as any).backgroundColor) {
+        result = applyBackgroundColor(result, (style as any).backgroundColor);
       }
 
       return result;
