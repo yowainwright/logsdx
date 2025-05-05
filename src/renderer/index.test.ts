@@ -1,15 +1,15 @@
 import { expect, test, describe } from "bun:test";
-import { 
-  renderLine, 
-  tokensToString, 
-  tokensToHtml, 
+import {
+  renderLine,
+  tokensToString,
+  tokensToHtml,
   tokensToClassNames,
   applyColor,
   applyBold,
   applyItalic,
   applyUnderline,
   applyDim,
-  applyBackgroundColor
+  applyBackgroundColor,
 } from "@/src/renderer/index";
 import { TokenList } from "@/src/schema/types";
 
@@ -25,7 +25,10 @@ describe("Renderer", () => {
     });
 
     test("renders a line with HTML CSS format", () => {
-      const result = renderLine("test line", undefined, { outputFormat: "html", htmlStyleFormat: "css" });
+      const result = renderLine("test line", undefined, {
+        outputFormat: "html",
+        htmlStyleFormat: "css",
+      });
       // Check for HTML span tags and the content
       expect(result).toContain("<span");
       expect(result).toContain("style=");
@@ -33,7 +36,10 @@ describe("Renderer", () => {
     });
 
     test("renders a line with HTML className format", () => {
-      const result = renderLine("test line", undefined, { outputFormat: "html", htmlStyleFormat: "className" });
+      const result = renderLine("test line", undefined, {
+        outputFormat: "html",
+        htmlStyleFormat: "className",
+      });
       // Check for HTML span tags with class names
       expect(result).toContain("<span");
       expect(result).toContain("class=");
@@ -46,7 +52,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test" },
         { content: " " },
-        { content: "line" }
+        { content: "line" },
       ];
       const result = tokensToString(tokens);
       expect(result).toBe("test line");
@@ -56,7 +62,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test", metadata: { matchType: "word" } },
         { content: "  ", metadata: { matchType: "whitespace" } },
-        { content: "line", metadata: { matchType: "word" } }
+        { content: "line", metadata: { matchType: "word" } },
       ];
       const result = tokensToString(tokens);
       expect(result).toBe("test  line");
@@ -66,7 +72,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test", metadata: { matchType: "word" } },
         { content: "\n", metadata: { matchType: "newline" } },
-        { content: "line", metadata: { matchType: "word" } }
+        { content: "line", metadata: { matchType: "word" } },
       ];
       const result = tokensToString(tokens);
       expect(result).toBe("test\nline");
@@ -74,12 +80,12 @@ describe("Renderer", () => {
 
     test("applies color styling to tokens", () => {
       const tokens: TokenList = [
-        { 
-          content: "error", 
-          metadata: { 
-            style: { color: "red" } 
-          } 
-        }
+        {
+          content: "error",
+          metadata: {
+            style: { color: "red" },
+          },
+        },
       ];
       const result = tokensToString(tokens);
       expect(result).toContain("error");
@@ -90,15 +96,15 @@ describe("Renderer", () => {
 
     test("applies multiple style codes to tokens", () => {
       const tokens: TokenList = [
-        { 
-          content: "important", 
-          metadata: { 
-            style: { 
-              color: "red", 
-              styleCodes: ["bold", "underline"] 
-            } 
-          } 
-        }
+        {
+          content: "important",
+          metadata: {
+            style: {
+              color: "red",
+              styleCodes: ["bold", "underline"],
+            },
+          },
+        },
       ];
       const result = tokensToString(tokens);
       expect(result).toContain("important");
@@ -110,12 +116,12 @@ describe("Renderer", () => {
   describe("tokensToHtml", () => {
     test("converts tokens to HTML with inline styles", () => {
       const tokens: TokenList = [
-        { 
-          content: "error", 
-          metadata: { 
-            style: { color: "red", styleCodes: ["bold"] } 
-          } 
-        }
+        {
+          content: "error",
+          metadata: {
+            style: { color: "red", styleCodes: ["bold"] },
+          },
+        },
       ];
       const result = tokensToHtml(tokens);
       expect(result).toContain("<span style=");
@@ -128,7 +134,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test", metadata: { matchType: "word" } },
         { content: "  ", metadata: { matchType: "whitespace" } },
-        { content: "line", metadata: { matchType: "word" } }
+        { content: "line", metadata: { matchType: "word" } },
       ];
       const result = tokensToHtml(tokens);
       expect(result).toContain("test");
@@ -140,7 +146,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test", metadata: { matchType: "word" } },
         { content: "\n", metadata: { matchType: "newline" } },
-        { content: "line", metadata: { matchType: "word" } }
+        { content: "line", metadata: { matchType: "word" } },
       ];
       const result = tokensToHtml(tokens);
       expect(result).toContain("test");
@@ -149,9 +155,7 @@ describe("Renderer", () => {
     });
 
     test("escapes HTML special characters", () => {
-      const tokens: TokenList = [
-        { content: "<div>test</div>" }
-      ];
+      const tokens: TokenList = [{ content: "<div>test</div>" }];
       const result = tokensToHtml(tokens);
       expect(result).toContain("&lt;div&gt;test&lt;/div&gt;");
       expect(result).not.toContain("<div>");
@@ -161,12 +165,12 @@ describe("Renderer", () => {
   describe("tokensToClassNames", () => {
     test("converts tokens to HTML with class names", () => {
       const tokens: TokenList = [
-        { 
-          content: "error", 
-          metadata: { 
-            style: { color: "red", styleCodes: ["bold"] } 
-          } 
-        }
+        {
+          content: "error",
+          metadata: {
+            style: { color: "red", styleCodes: ["bold"] },
+          },
+        },
       ];
       const result = tokensToClassNames(tokens);
       expect(result).toContain("<span class=");
@@ -178,7 +182,7 @@ describe("Renderer", () => {
       const tokens: TokenList = [
         { content: "test", metadata: { matchType: "word" } },
         { content: "  ", metadata: { matchType: "whitespace" } },
-        { content: "line", metadata: { matchType: "word" } }
+        { content: "line", metadata: { matchType: "word" } },
       ];
       const result = tokensToClassNames(tokens);
       expect(result).toContain("test");

@@ -1,8 +1,8 @@
-import { TokenList } from '@/src/schema/types';
-import { Theme } from '@/src/types';
-import { tokenize, applyTheme } from '@/src/tokenizer';
-import { TEXT_COLORS, BACKGROUND_COLORS, STYLE_CODES } from './constants';
-import type { RenderOptions } from './types';
+import { TokenList } from "@/src/schema/types";
+import { Theme } from "@/src/types";
+import { tokenize, applyTheme } from "@/src/tokenizer";
+import { TEXT_COLORS, BACKGROUND_COLORS, STYLE_CODES } from "./constants";
+import type { RenderOptions } from "./types";
 
 /**
  * Render a line with the specified options
@@ -11,16 +11,23 @@ import type { RenderOptions } from './types';
  * @param options - Rendering options
  * @returns The rendered line
  */
-export function renderLine(line: string, theme?: Theme, options: RenderOptions = {}): string {
+export function renderLine(
+  line: string,
+  theme?: Theme,
+  options: RenderOptions = {}
+): string {
   // First tokenize the line
   const tokens = tokenize(line, theme);
-  
+
   // Then apply the theme to get styled tokens
-  const styledTokens = applyTheme(tokens, theme || { name: 'default', schema: { defaultStyle: { color: 'white' } } });
-  
+  const styledTokens = applyTheme(
+    tokens,
+    theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
+  );
+
   // Now render the styled tokens based on output format
-  if (options.outputFormat === 'html') {
-    if (options.htmlStyleFormat === 'className') {
+  if (options.outputFormat === "html") {
+    if (options.htmlStyleFormat === "className") {
       return tokensToClassNames(styledTokens);
     } else {
       return tokensToHtml(styledTokens);
@@ -37,48 +44,53 @@ export function renderLine(line: string, theme?: Theme, options: RenderOptions =
  * @returns A string with ANSI escape codes for styling
  */
 export function tokensToString(tokens: TokenList): string {
-  return tokens.map(token => {
-    // For whitespace and newlines, preserve them exactly as is without styling
-    if (token.metadata?.matchType === 'whitespace' || token.metadata?.matchType === 'newline') {
-      return token.content;
-    }
-    
-    const style = token.metadata?.style;
-    if (!style) {
-      return token.content;
-    }
-    
-    let result = token.content;
-    
-    if (style.color) {
-      result = applyColor(result, style.color);
-    }
-    
-    const hasStyleCode = (code: string) => 
-      Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
-    
-    if (hasStyleCode('bold')) {
-      result = applyBold(result);
-    }
-    
-    if (hasStyleCode('italic')) {
-      result = applyItalic(result);
-    }
-    
-    if (hasStyleCode('underline')) {
-      result = applyUnderline(result);
-    }
-    
-    if (hasStyleCode('dim')) {
-      result = applyDim(result);
-    }
-    
-    if (style.backgroundColor) {
-      result = applyBackgroundColor(result, style.backgroundColor);
-    }
-    
-    return result;
-  }).join('');
+  return tokens
+    .map((token) => {
+      // For whitespace and newlines, preserve them exactly as is without styling
+      if (
+        token.metadata?.matchType === "whitespace" ||
+        token.metadata?.matchType === "newline"
+      ) {
+        return token.content;
+      }
+
+      const style = token.metadata?.style;
+      if (!style) {
+        return token.content;
+      }
+
+      let result = token.content;
+
+      if (style.color) {
+        result = applyColor(result, style.color);
+      }
+
+      const hasStyleCode = (code: string) =>
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+
+      if (hasStyleCode("bold")) {
+        result = applyBold(result);
+      }
+
+      if (hasStyleCode("italic")) {
+        result = applyItalic(result);
+      }
+
+      if (hasStyleCode("underline")) {
+        result = applyUnderline(result);
+      }
+
+      if (hasStyleCode("dim")) {
+        result = applyDim(result);
+      }
+
+      if (style.backgroundColor) {
+        result = applyBackgroundColor(result, style.backgroundColor);
+      }
+
+      return result;
+    })
+    .join("");
 }
 
 /**
@@ -87,52 +99,54 @@ export function tokensToString(tokens: TokenList): string {
  * @returns HTML string with inline CSS styles
  */
 export function tokensToHtml(tokens: TokenList): string {
-  return tokens.map(token => {
-    if (token.metadata?.matchType === 'whitespace') {
-      return token.content
-        .replace(/ {2,}/g, match => '&nbsp;'.repeat(match.length))
-        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    }
-    
-    if (token.metadata?.matchType === 'newline') {
-      return '<br>';
-    }
-    
-    const style = token.metadata?.style;
-    if (!style) {
-      return escapeHtml(token.content);
-    }
-    
-    const css = [];
-    
-    if (style.color) {
-      const colorDef = TEXT_COLORS[style.color];
-      css.push(`color: ${colorDef?.hex || style.color}`);
-    }
-    
-    const hasStyleCode = (code: string) => 
-      Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
-    
-    if (hasStyleCode('bold')) {
-      css.push('font-weight: bold');
-    }
-    
-    if (hasStyleCode('italic')) {
-      css.push('font-style: italic');
-    }
-    
-    if (hasStyleCode('underline')) {
-      css.push('text-decoration: underline');
-    }
-    
-    if (hasStyleCode('dim')) {
-      css.push('opacity: 0.8');
-    }
-    
-    return css.length > 0
-      ? `<span style="${css.join('; ')}">${escapeHtml(token.content)}</span>`
-      : escapeHtml(token.content);
-  }).join('');
+  return tokens
+    .map((token) => {
+      if (token.metadata?.matchType === "whitespace") {
+        return token.content
+          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+      }
+
+      if (token.metadata?.matchType === "newline") {
+        return "<br>";
+      }
+
+      const style = token.metadata?.style;
+      if (!style) {
+        return escapeHtml(token.content);
+      }
+
+      const css = [];
+
+      if (style.color) {
+        const colorDef = TEXT_COLORS[style.color];
+        css.push(`color: ${colorDef?.hex || style.color}`);
+      }
+
+      const hasStyleCode = (code: string) =>
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+
+      if (hasStyleCode("bold")) {
+        css.push("font-weight: bold");
+      }
+
+      if (hasStyleCode("italic")) {
+        css.push("font-style: italic");
+      }
+
+      if (hasStyleCode("underline")) {
+        css.push("text-decoration: underline");
+      }
+
+      if (hasStyleCode("dim")) {
+        css.push("opacity: 0.8");
+      }
+
+      return css.length > 0
+        ? `<span style="${css.join("; ")}">${escapeHtml(token.content)}</span>`
+        : escapeHtml(token.content);
+    })
+    .join("");
 }
 
 /**
@@ -141,55 +155,57 @@ export function tokensToHtml(tokens: TokenList): string {
  * @returns HTML with CSS class names for styling
  */
 export function tokensToClassNames(tokens: TokenList): string {
-  return tokens.map(token => {
-    if (token.metadata?.matchType === 'whitespace') {
-      return token.content
-        .replace(/ {2,}/g, match => '&nbsp;'.repeat(match.length))
-        .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
-    }
-    
-    if (token.metadata?.matchType === 'newline') {
-      return '<br>';
-    }
-    
-    const style = token.metadata?.style;
-    if (!style) {
-      return escapeHtml(token.content);
-    }
-    
-    const classes = [];
-    
-    if (style.color) {
-      const colorDef = TEXT_COLORS[style.color];
-      if (colorDef?.className) {
-        classes.push(colorDef.className);
+  return tokens
+    .map((token) => {
+      if (token.metadata?.matchType === "whitespace") {
+        return token.content
+          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
       }
-    }
-    
-    const hasStyleCode = (code: string) => 
-      Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
-    
-    if (hasStyleCode('bold')) {
-      classes.push('logsdx-bold');
-    }
-    
-    if (hasStyleCode('italic')) {
-      classes.push('logsdx-italic');
-    }
-    
-    if (hasStyleCode('underline')) {
-      classes.push('logsdx-underline');
-    }
-    
-    if (hasStyleCode('dim')) {
-      classes.push('logsdx-dim');
-    }
-    
-    const escapedContent = escapeHtml(token.content);
-    return classes.length > 0 
-      ? `<span class="${classes.join(' ')}">${escapedContent}</span>` 
-      : escapedContent;
-  }).join('');
+
+      if (token.metadata?.matchType === "newline") {
+        return "<br>";
+      }
+
+      const style = token.metadata?.style;
+      if (!style) {
+        return escapeHtml(token.content);
+      }
+
+      const classes = [];
+
+      if (style.color) {
+        const colorDef = TEXT_COLORS[style.color];
+        if (colorDef?.className) {
+          classes.push(colorDef.className);
+        }
+      }
+
+      const hasStyleCode = (code: string) =>
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+
+      if (hasStyleCode("bold")) {
+        classes.push("logsdx-bold");
+      }
+
+      if (hasStyleCode("italic")) {
+        classes.push("logsdx-italic");
+      }
+
+      if (hasStyleCode("underline")) {
+        classes.push("logsdx-underline");
+      }
+
+      if (hasStyleCode("dim")) {
+        classes.push("logsdx-dim");
+      }
+
+      const escapedContent = escapeHtml(token.content);
+      return classes.length > 0
+        ? `<span class="${classes.join(" ")}">${escapedContent}</span>`
+        : escapedContent;
+    })
+    .join("");
 }
 
 /**
@@ -197,11 +213,11 @@ export function tokensToClassNames(tokens: TokenList): string {
  */
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 /**
@@ -324,11 +340,15 @@ export function bgRGB(r: number, g: number, b: number): string {
  * @param options - Rendering options
  * @returns The rendered lines
  */
-export function renderLines(lines: string[], theme?: Theme, options: RenderOptions = {}): string[] {
-  return lines.map(line => renderLine(line, theme, options));
+export function renderLines(
+  lines: string[],
+  theme?: Theme,
+  options: RenderOptions = {}
+): string[] {
+  return lines.map((line) => renderLine(line, theme, options));
 }
 
 export default {
   renderLine,
-  renderLines
+  renderLines,
 };

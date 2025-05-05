@@ -1,13 +1,22 @@
-
-import { renderLine } from '@/src/renderer';
-import { getTheme, getAllThemes, getThemeNames } from '@/src/themes';
-import { validateTheme, validateThemeSafe } from '@/src/schema/validator';
-import { tokenize, applyTheme } from '@/src/tokenizer';
-import type { TokenList } from '@/src/schema/types';
-import type { RenderOptions } from '@/src/renderer/types';
-import type { LineParser, ParsedLine, StyleOptions, Theme, LogsDXOptions } from '@/src/types';
+import { renderLine } from "@/src/renderer";
+import { getTheme, getAllThemes, getThemeNames } from "@/src/themes";
+import { validateTheme, validateThemeSafe } from "@/src/schema/validator";
+import { tokenize, applyTheme } from "@/src/tokenizer";
+import type { TokenList } from "@/src/schema/types";
+import type { RenderOptions } from "@/src/renderer/types";
+import type {
+  LineParser,
+  ParsedLine,
+  StyleOptions,
+  Theme,
+  LogsDXOptions,
+} from "@/src/types";
 // Add these imports for the rendering functions
-import { tokensToString, tokensToHtml, tokensToClassNames } from '@/src/renderer';
+import {
+  tokensToString,
+  tokensToHtml,
+  tokensToClassNames,
+} from "@/src/renderer";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -20,22 +29,22 @@ export class LogsDX {
    */
   private constructor(options = {}) {
     this.options = {
-      theme: 'oh-my-zsh',
-      outputFormat: 'ansi',
-      htmlStyleFormat: 'css',
+      theme: "oh-my-zsh",
+      outputFormat: "ansi",
+      htmlStyleFormat: "css",
       debug: false,
       customRules: {},
-      ...options
+      ...options,
     };
 
     this.currentTheme = getTheme(this.options.theme);
-    
-    if (this.options.theme !== 'oh-my-zsh') {
+
+    if (this.options.theme !== "oh-my-zsh") {
       try {
         validateTheme(this.currentTheme);
       } catch (error) {
         if (this.options.debug) {
-          console.warn('Invalid custom theme:', error);
+          console.warn("Invalid custom theme:", error);
         }
         this.currentTheme = getTheme(this.options.theme);
       }
@@ -54,9 +63,9 @@ export class LogsDX {
       // Update existing instance with new options
       LogsDX.instance.options = {
         ...LogsDX.instance.options,
-        ...options
+        ...options,
       };
-      
+
       // If theme changed, update the current theme
       if (options.theme) {
         LogsDX.instance.currentTheme = getTheme(options.theme);
@@ -78,18 +87,18 @@ export class LogsDX {
     const renderOptions: RenderOptions = {
       theme: this.currentTheme,
       outputFormat: this.options.outputFormat,
-      htmlStyleFormat: this.options.htmlStyleFormat
+      htmlStyleFormat: this.options.htmlStyleFormat,
     };
 
     // First tokenize the line
     const tokens = tokenize(line, this.currentTheme);
-    
+
     // Then apply the theme to get styled tokens
     const styledTokens = applyTheme(tokens, this.currentTheme);
-    
+
     // Now render the styled tokens based on output format
-    if (renderOptions.outputFormat === 'html') {
-      if (renderOptions.htmlStyleFormat === 'className') {
+    if (renderOptions.outputFormat === "html") {
+      if (renderOptions.htmlStyleFormat === "className") {
         return tokensToClassNames(styledTokens);
       } else {
         return tokensToHtml(styledTokens);
@@ -106,7 +115,7 @@ export class LogsDX {
    * @returns Array of styled log lines
    */
   processLines(lines: string[]): string[] {
-    return lines.map(line => this.processLine(line));
+    return lines.map((line) => this.processLine(line));
   }
 
   /**
@@ -115,9 +124,9 @@ export class LogsDX {
    * @returns The styled log content
    */
   processLog(logContent: string): string {
-    const lines = logContent.split('\n');
+    const lines = logContent.split("\n");
     const processedLines = this.processLines(lines);
-    return processedLines.join('\n');
+    return processedLines.join("\n");
   }
 
   /**
@@ -136,7 +145,7 @@ export class LogsDX {
    */
   setTheme(theme: string | Theme): boolean {
     try {
-      if (typeof theme === 'string') {
+      if (typeof theme === "string") {
         this.options.theme = theme;
         this.currentTheme = getTheme(theme);
         return true;
@@ -147,7 +156,7 @@ export class LogsDX {
       }
     } catch (error) {
       if (this.options.debug) {
-        console.warn('Invalid theme:', error);
+        console.warn("Invalid theme:", error);
       }
       return false;
     }
@@ -181,7 +190,7 @@ export class LogsDX {
    * Set the output format
    * @param format The output format to use ('ansi' or 'html')
    */
-  setOutputFormat(format: 'ansi' | 'html'): void {
+  setOutputFormat(format: "ansi" | "html"): void {
     this.options.outputFormat = format;
   }
 
@@ -189,7 +198,7 @@ export class LogsDX {
    * Set the HTML style format
    * @param format The HTML style format to use ('css' or 'className')
    */
-  setHtmlStyleFormat(format: 'css' | 'className'): void {
+  setHtmlStyleFormat(format: "css" | "className"): void {
     this.options.htmlStyleFormat = format;
   }
 
@@ -197,7 +206,7 @@ export class LogsDX {
    * Get the current output format
    * @returns The current output format
    */
-  getCurrentOutputFormat(): 'ansi' | 'html' {
+  getCurrentOutputFormat(): "ansi" | "html" {
     return this.options.outputFormat;
   }
 
@@ -205,7 +214,7 @@ export class LogsDX {
    * Get the current HTML style format
    * @returns The current HTML style format
    */
-  getCurrentHtmlStyleFormat(): 'css' | 'className' {
+  getCurrentHtmlStyleFormat(): "css" | "className" {
     return this.options.htmlStyleFormat;
   }
 }
@@ -216,7 +225,13 @@ export function getLogsDX(options?: LogsDXOptions): LogsDX {
 
 export type { Theme, StyleOptions, TokenList, LineParser, ParsedLine };
 
-export { getTheme, getAllThemes, getThemeNames, validateTheme, validateThemeSafe };
+export {
+  getTheme,
+  getAllThemes,
+  getThemeNames,
+  validateTheme,
+  validateThemeSafe,
+};
 
 export { tokenize, applyTheme };
 

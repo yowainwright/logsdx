@@ -142,10 +142,10 @@ import { LogsDX, getTheme, getAllThemes, getThemeNames } from "logsdx";
 
 // Get LogsDX instance
 const logsDX = LogsDX.getInstance({
-  theme: 'oh-my-zsh',
-  outputFormat: 'ansi', // or 'html'
-  htmlStyleFormat: 'css', // or 'className'
-  debug: false
+  theme: "oh-my-zsh",
+  outputFormat: "ansi", // or 'html'
+  htmlStyleFormat: "css", // or 'className'
+  debug: false,
 });
 
 // Process a single line
@@ -157,7 +157,7 @@ const styledLog = logsDX.processLog("INFO: Line 1\nERROR: Line 2");
 // Get available themes
 const themeNames = getThemeNames();
 const themes = getAllThemes();
-const myTheme = getTheme('oh-my-zsh');
+const myTheme = getTheme("oh-my-zsh");
 ```
 
 ### Themes
@@ -166,20 +166,20 @@ LogsDX comes with built-in themes and supports custom themes:
 
 ```tsx
 // Using a built-in theme
-const logsDX = LogsDX.getInstance({ theme: 'oh-my-zsh' });
+const logsDX = LogsDX.getInstance({ theme: "oh-my-zsh" });
 
 // Using a custom theme
 const logsDX = LogsDX.getInstance({
   theme: {
-    name: 'my-custom-theme',
+    name: "my-custom-theme",
     styles: {
-      error: { color: 'red', bold: true },
-      warning: { color: 'yellow' },
-      info: { color: 'blue' },
+      error: { color: "red", bold: true },
+      warning: { color: "yellow" },
+      info: { color: "blue" },
       // Add more style definitions
     },
     // Add pattern definitions
-  }
+  },
 });
 ```
 

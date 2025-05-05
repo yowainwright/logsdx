@@ -62,7 +62,7 @@ describe("LogsDX", () => {
       const instance = LogsDX.getInstance();
       const line = "test line";
       const result = instance.processLine(line);
-      
+
       // Just verify it returns a string
       expect(typeof result).toBe("string");
     });
@@ -72,7 +72,7 @@ describe("LogsDX", () => {
       instance.setOutputFormat("html");
       const result = instance.processLine("error: test");
       expect(result).toContain("<span");
-      
+
       // The HTML output contains each character in its own span
       // So we need to check for the presence of the characters, not the whole word
       expect(result).toContain(">e<");
@@ -87,7 +87,7 @@ describe("LogsDX", () => {
       const instance = LogsDX.getInstance();
       const lines = ["line 1", "line 2"];
       const result = instance.processLines(lines);
-      
+
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(2);
     });
@@ -98,7 +98,7 @@ describe("LogsDX", () => {
       const instance = LogsDX.getInstance();
       const log = "line 1\nline 2";
       const result = instance.processLog(log);
-      
+
       expect(typeof result).toBe("string");
     });
   });
@@ -109,9 +109,9 @@ describe("LogsDX", () => {
       const tokens = instance.tokenizeLine("test line");
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
-      
+
       // The entire string should be tokenized
-      const totalContent = tokens.map(t => t.content).join('');
+      const totalContent = tokens.map((t) => t.content).join("");
       expect(totalContent).toBe("test line");
     });
   });
@@ -130,8 +130,8 @@ describe("LogsDX", () => {
       const customTheme = {
         name: "custom-theme",
         schema: {
-          defaultStyle: { color: "white" }
-        }
+          defaultStyle: { color: "white" },
+        },
       };
       const result = instance.setTheme(customTheme);
       expect(result).toBe(true);
@@ -140,9 +140,8 @@ describe("LogsDX", () => {
 
     test("returns false for invalid theme", () => {
       const instance = LogsDX.getInstance({ debug: true });
-      // @ts-ignore - Intentionally passing invalid theme
-      const result = instance.setTheme({ invalid: "theme" });
-      expect(result).toBe(false);
+      // @ts-expect-error - Testing invalid theme object
+      expect(instance.setTheme({ invalid: "theme" })).toBe(false);
       expect(consoleWarnings.length).toBeGreaterThan(0);
     });
   });
@@ -177,7 +176,7 @@ describe("LogsDX", () => {
     test("updates output format", () => {
       const instance = LogsDX.getInstance();
       instance.setOutputFormat("html");
-      
+
       // Test that HTML format is applied
       const result = instance.processLine("test");
       expect(result).toContain("<span");
@@ -187,12 +186,12 @@ describe("LogsDX", () => {
   describe("setHtmlStyleFormat", () => {
     test("updates HTML style format", () => {
       const instance = LogsDX.getInstance({ outputFormat: "html" });
-      
+
       // Test with CSS format
       instance.setHtmlStyleFormat("css");
       let result = instance.processLine("test");
       expect(result).toContain("style=");
-      
+
       // Test with className format
       instance.setHtmlStyleFormat("className");
       result = instance.processLine("test");
@@ -204,14 +203,14 @@ describe("LogsDX", () => {
 describe("ANSI theming integration", () => {
   // Save original console methods
   const originalConsoleWarn = console.warn;
-  
+
   beforeEach(() => {
     // Reset the instance before each test to ensure clean state
     LogsDX.resetInstance();
     // Silence warnings during these tests
     console.warn = () => {};
   });
-  
+
   afterEach(() => {
     // Restore console.warn
     console.warn = originalConsoleWarn;
@@ -219,63 +218,63 @@ describe("ANSI theming integration", () => {
 
   test("applies theme colors to ANSI output", () => {
     // Create a fresh instance with explicit ANSI output format
-    const instance = LogsDX.getInstance({ 
+    const instance = LogsDX.getInstance({
       theme: "oh-my-zsh",
-      outputFormat: "ansi" // Explicitly set output format to ansi
+      outputFormat: "ansi", // Explicitly set output format to ansi
     });
-    
+
     // Verify the output format is set correctly
     expect(instance.getCurrentOutputFormat()).toBe("ansi");
-    
+
     // Process lines with different log levels
     const errorLine = instance.processLine("ERROR: This is an error message");
     const warnLine = instance.processLine("WARN: This is a warning message");
     const infoLine = instance.processLine("INFO: This is an info message");
-    
+
     // Strip ANSI codes and check the plain text content
     expect(stripAnsi(errorLine)).toBe("ERROR: This is an error message");
     expect(stripAnsi(warnLine)).toBe("WARN: This is a warning message");
     expect(stripAnsi(infoLine)).toBe("INFO: This is an info message");
-    
+
     // Test that different themes produce different output
     LogsDX.resetInstance();
-    const dracula = LogsDX.getInstance({ 
+    const dracula = LogsDX.getInstance({
       theme: "dracula",
-      outputFormat: "ansi" // Explicitly set output format to ansi
+      outputFormat: "ansi", // Explicitly set output format to ansi
     });
     const draculaError = dracula.processLine("ERROR: This is an error message");
-    
+
     // The original text should be preserved
     expect(stripAnsi(draculaError)).toBe("ERROR: This is an error message");
   });
-  
+
   // Helper function to strip ANSI escape codes for testing
   function stripAnsi(str: string): string {
-    return str.replace(/\x1B\[\d+m/g, '');
+    return str.replace(/\x1B\[\d+m/g, "");
   }
 
   test("applies style codes like bold and italic", () => {
     // Create a fresh instance with explicit ANSI output format and a custom theme
-    const instance = LogsDX.getInstance({ 
+    const instance = LogsDX.getInstance({
       theme: {
         name: "test-theme",
         schema: {
           matchWords: {
-            "ERROR": { color: "red", styleCodes: ["bold"] }
+            ERROR: { color: "red", styleCodes: ["bold"] },
           },
-          defaultStyle: { color: "white" }
-        }
+          defaultStyle: { color: "white" },
+        },
       },
-      outputFormat: 'ansi'
+      outputFormat: "ansi",
     });
-    
+
     // Process a line with a keyword that should have styling
     const errorLine = instance.processLine("ERROR: Critical failure");
-    
+
     // Strip ANSI codes and check the plain text content
     const plainText = stripAnsi(errorLine);
     expect(plainText).toBe("ERROR: Critical failure");
-    
+
     // Verify the output format is set correctly
     expect(instance.getCurrentOutputFormat()).toBe("ansi");
   });

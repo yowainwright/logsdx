@@ -6,4 +6,4 @@ export type CliOptions = {
   debug?: boolean;
   quiet?: boolean;
   listThemes?: boolean;
-}
+};

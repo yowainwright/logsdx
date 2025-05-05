@@ -15,9 +15,9 @@ describe("Tokenizer", () => {
         name: "Test Theme",
         schema: {
           matchWords: {
-            "error": { color: "red" }
-          }
-        }
+            error: { color: "red" },
+          },
+        },
       };
       const lexer = createLexer(theme);
       expect(lexer).toBeDefined();
@@ -28,48 +28,48 @@ describe("Tokenizer", () => {
     test("tokenizes a simple string", () => {
       const line = "This is a test";
       const tokens = tokenize(line);
-      
+
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
-      
+
       // The entire string should be tokenized
-      const totalContent = tokens.map(t => t.content).join('');
+      const totalContent = tokens.map((t) => t.content).join("");
       expect(totalContent).toBe(line);
     });
 
     test("tokenizes with default rules", () => {
       const line = "2023-01-01T12:00:00Z ERROR: Something went wrong";
       const tokens = tokenize(line);
-      
+
       // The default tokenizer might not identify timestamps and log levels
       // Let's just check that the tokens contain the expected content
-      const content = tokens.map(t => t.content).join('');
+      const content = tokens.map((t) => t.content).join("");
       expect(content).toBe(line);
-      
+
       // Check that we have multiple tokens
       expect(tokens.length).toBeGreaterThan(1);
-      
+
       // Check that at least one token contains "ERROR"
-      const hasError = tokens.some(t => t.content.includes("ERROR"));
+      const hasError = tokens.some((t) => t.content.includes("ERROR"));
       expect(hasError).toBe(true);
     });
 
     test("handles whitespace according to theme preferences", () => {
       const line = "test  with  spaces";
-      
+
       // Default (preserve whitespace)
       const tokensPreserve = tokenize(line);
-      const contentPreserve = tokensPreserve.map(t => t.content).join('');
+      const contentPreserve = tokensPreserve.map((t) => t.content).join("");
       expect(contentPreserve).toBe(line);
-      
+
       // Test with a theme that has whitespace trimming enabled
       const themeTrim: Theme = {
         name: "Trim Whitespace",
         schema: {
-          whiteSpace: 'trim'
-        }
+          whiteSpace: "trim",
+        },
       };
-      
+
       // Just verify that tokenization works with this theme
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
@@ -78,22 +78,20 @@ describe("Tokenizer", () => {
 
     test("handles newlines according to theme preferences", () => {
       const line = "line1\nline2";
-      
+
       // Default (preserve newlines)
       const tokensPreserve = tokenize(line);
-      const hasNewline = tokensPreserve.some(t => 
-        t.content === '\n'
-      );
+      const hasNewline = tokensPreserve.some((t) => t.content === "\n");
       expect(hasNewline).toBe(true);
-      
+
       // Test with a theme that has newline trimming enabled
       const themeTrim: Theme = {
         name: "Trim Newlines",
         schema: {
-          newLine: 'trim'
-        }
+          newLine: "trim",
+        },
       };
-      
+
       // Just verify that tokenization works with this theme
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
@@ -106,23 +104,25 @@ describe("Tokenizer", () => {
         name: "Word Theme",
         schema: {
           matchWords: {
-            "test": { color: "green" }
-          }
-        }
+            test: { color: "green" },
+          },
+        },
       };
-      
+
       // Create a token that should match the word
-      const tokens: TokenList = [{
-        content: "test",
-        metadata: {
-          matchType: 'word',
-          pattern: 'test'
-        }
-      }];
-      
+      const tokens: TokenList = [
+        {
+          content: "test",
+          metadata: {
+            matchType: "word",
+            pattern: "test",
+          },
+        },
+      ];
+
       // Apply the theme to the tokens
       const styledTokens = applyTheme(tokens, theme);
-      
+
       // Check if the token has the style we expect
       expect(styledTokens[0].metadata?.style?.color).toBe("green");
     });
@@ -135,11 +135,11 @@ describe("Tokenizer", () => {
           metadata: {
             matchType: "regex",
             matchPattern: "\\d+",
-            name: "digit"
-          }
-        }
+            name: "digit",
+          },
+        },
       ];
-      
+
       // Create a theme
       const theme: Theme = {
         name: "Simple Pattern Theme",
@@ -148,15 +148,15 @@ describe("Tokenizer", () => {
             {
               name: "digit",
               pattern: "\\d+",
-              options: { color: "blue" }
-            }
-          ]
-        }
+              options: { color: "blue" },
+            },
+          ],
+        },
       };
-      
+
       // Apply the theme to the tokens
       const styledTokens = applyTheme(tokens, theme);
-      
+
       // Check if the token has the style we expect
       expect(styledTokens[0].metadata?.style?.color).toBe("blue");
     });
@@ -164,10 +164,10 @@ describe("Tokenizer", () => {
     test("handles invalid regex patterns gracefully", () => {
       // Save original console.warn
       const originalWarn = console.warn;
-      
+
       // Temporarily silence console.warn
       console.warn = () => {};
-      
+
       try {
         const theme: Theme = {
           name: "Invalid Pattern Theme",
@@ -176,12 +176,12 @@ describe("Tokenizer", () => {
               {
                 name: "invalid",
                 pattern: "\\", // Invalid regex
-                options: { color: "red" }
-              }
-            ]
-          }
+                options: { color: "red" },
+              },
+            ],
+          },
         };
-        
+
         // Should not throw an error
         const line = "Test line";
         const tokens = tokenize(line, theme);
@@ -195,29 +195,29 @@ describe("Tokenizer", () => {
     test("handles tokenization errors gracefully", () => {
       // Save original console.warn
       const originalWarn = console.warn;
-      
+
       // Temporarily silence console.warn
       console.warn = () => {};
-      
+
       try {
         // Create a theme with an intentionally problematic configuration
         const problematicTheme: Theme = {
           name: "Problematic Theme",
           schema: {
-            // @ts-ignore - Intentionally creating an invalid configuration
-            matchPatterns: "not-an-array"
-          }
+            // @ts-expect-error - Intentionally creating an invalid configuration
+            matchPatterns: "not-an-array",
+          },
         };
-        
+
         // This should not throw an error despite the invalid configuration
         const line = "Test line";
         const tokens = tokenize(line, problematicTheme);
-        
+
         // Should still return some tokens
         expect(tokens.length).toBeGreaterThan(0);
-        
+
         // The entire content should still be present
-        const content = tokens.map(t => t.content).join('');
+        const content = tokens.map((t) => t.content).join("");
         expect(content).toBe(line);
       } finally {
         // Restore console.warn
@@ -230,19 +230,19 @@ describe("Tokenizer", () => {
       const problematicTheme: Theme = {
         name: "Problematic Theme",
         schema: {
-          // @ts-ignore - Intentionally creating an invalid schema
-          matchPatterns: "not-an-array"
-        }
+          // @ts-expect-error - Intentionally creating an invalid schema
+          matchPatterns: "not-an-array",
+        },
       };
-      
+
       try {
         const line = "Test line";
         const tokens = tokenize(line, problematicTheme);
-        
+
         // Should return a single token with the entire line
         expect(tokens.length).toBe(1);
         expect(tokens[0].content).toBe(line);
-        expect(tokens[0].metadata?.matchType).toBe('default');
+        expect(tokens[0].metadata?.matchType).toBe("default");
       } catch (error) {
         fail("Should not throw an error, but return a fallback token");
       }
@@ -257,33 +257,33 @@ describe("Tokenizer", () => {
           content: "error",
           metadata: {
             matchType: "word",
-            pattern: "error"
-          }
+            pattern: "error",
+          },
         },
         {
           content: " message",
           metadata: {
             matchType: "default",
-            matchPattern: "default"
-          }
-        }
+            matchPattern: "default",
+          },
+        },
       ];
-      
+
       const theme: Theme = {
         name: "Test Theme",
         schema: {
           matchWords: {
-            "error": { color: "red" }
+            error: { color: "red" },
           },
-          defaultStyle: { color: "white" }
-        }
+          defaultStyle: { color: "white" },
+        },
       };
-      
+
       const styledTokens = applyTheme(tokens, theme);
-      
+
       // Check if the first token has red color
       expect(styledTokens[0].metadata?.style?.color).toBe("red");
-      
+
       // Check if the second token has white color
       expect(styledTokens[1].metadata?.style?.color).toBe("white");
     });
@@ -295,11 +295,11 @@ describe("Tokenizer", () => {
           metadata: {
             matchType: "regex",
             matchPattern: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
-            name: "ipAddress"
-          }
-        }
+            name: "ipAddress",
+          },
+        },
       ];
-      
+
       const theme: Theme = {
         name: "Test Theme",
         schema: {
@@ -307,12 +307,12 @@ describe("Tokenizer", () => {
             {
               name: "ipAddress",
               pattern: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
-              options: { color: "blue" }
-            }
-          ]
-        }
+              options: { color: "blue" },
+            },
+          ],
+        },
       };
-      
+
       const styledTokens = applyTheme(tokens, theme);
       expect(styledTokens[0].metadata?.style).toEqual({ color: "blue" });
     });
@@ -324,11 +324,11 @@ describe("Tokenizer", () => {
           metadata: {
             matchType: "regex",
             matchPattern: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
-            index: 0
-          }
-        }
+            index: 0,
+          },
+        },
       ];
-      
+
       const theme: Theme = {
         name: "Test Theme",
         schema: {
@@ -336,12 +336,12 @@ describe("Tokenizer", () => {
             {
               name: "ipAddress",
               pattern: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
-              options: { color: "blue" }
-            }
-          ]
-        }
+              options: { color: "blue" },
+            },
+          ],
+        },
       };
-      
+
       const styledTokens = applyTheme(tokens, theme);
       expect(styledTokens[0].metadata?.style).toEqual({ color: "blue" });
     });
@@ -352,18 +352,18 @@ describe("Tokenizer", () => {
           content: "some text",
           metadata: {
             matchType: "default",
-            matchPattern: "default"
-          }
-        }
+            matchPattern: "default",
+          },
+        },
       ];
-      
+
       const theme: Theme = {
         name: "Test Theme",
         schema: {
-          defaultStyle: { color: "white" }
-        }
+          defaultStyle: { color: "white" },
+        },
       };
-      
+
       const styledTokens = applyTheme(tokens, theme);
       expect(styledTokens[0].metadata?.style).toEqual({ color: "white" });
     });

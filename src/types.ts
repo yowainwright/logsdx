@@ -1,9 +1,9 @@
-import type { Theme } from '@/src/schema/types';
+import type { Theme } from "@/src/schema/types";
 
 export interface LogsDXOptions {
   theme?: string | Theme;
-  outputFormat?: 'ansi' | 'html';
-  htmlStyleFormat?: 'css' | 'className';
+  outputFormat?: "ansi" | "html";
+  htmlStyleFormat?: "css" | "className";
   debug?: boolean;
   customRules?: Record<string, any>;
 }
@@ -15,7 +15,7 @@ export interface StyleOptions {
   css?: string;
 }
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface ParsedLine {
   raw?: string;

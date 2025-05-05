@@ -1,5 +1,5 @@
-import type { Theme } from '@/src/types';
-import { THEMES, DEFAULT_THEME } from '@/src/themes/constants';
+import type { Theme } from "@/src/types";
+import { THEMES, DEFAULT_THEME } from "@/src/themes/constants";
 
 /**
  * Get a theme by name
@@ -7,7 +7,7 @@ import { THEMES, DEFAULT_THEME } from '@/src/themes/constants';
  * @returns The requested theme or default theme if not found
  */
 export function getTheme(themeName: string): Theme {
-  return THEMES[themeName] || THEMES[DEFAULT_THEME] as Theme;
+  return THEMES[themeName] || (THEMES[DEFAULT_THEME] as Theme);
 }
 
 /**

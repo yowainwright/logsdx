@@ -1,12 +1,12 @@
-import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
-import { 
-  tokenSchema, 
-  tokenListSchema, 
-  themePresetSchema, 
-} from '@/src/schema/index';
-import { JsonSchemaOptions } from '@/src/schema/types';
-import { Theme } from '@/src/types';
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+import {
+  tokenSchema,
+  tokenListSchema,
+  themePresetSchema,
+} from "@/src/schema/index";
+import { JsonSchemaOptions } from "@/src/schema/types";
+import { Theme } from "@/src/types";
 
 /**
  * Validates a token against the schema
@@ -22,10 +22,10 @@ export function validateToken(token: unknown): z.infer<typeof tokenSchema> {
  * @param token The token object to validate
  * @returns An object with success flag and either the validated data or error
  */
-export function validateTokenSafe(token: unknown): { 
-  success: boolean; 
-  data?: z.infer<typeof tokenSchema>; 
-  error?: z.ZodError 
+export function validateTokenSafe(token: unknown): {
+  success: boolean;
+  data?: z.infer<typeof tokenSchema>;
+  error?: z.ZodError;
 } {
   const result = tokenSchema.safeParse(token);
   if (result.success) {
@@ -40,7 +40,9 @@ export function validateTokenSafe(token: unknown): {
  * @param tokens The token list to validate
  * @returns The validated token list or throws an error
  */
-export function validateTokenList(tokens: unknown): z.infer<typeof tokenListSchema> {
+export function validateTokenList(
+  tokens: unknown
+): z.infer<typeof tokenListSchema> {
   return tokenListSchema.parse(tokens);
 }
 
@@ -49,10 +51,10 @@ export function validateTokenList(tokens: unknown): z.infer<typeof tokenListSche
  * @param tokens The token list to validate
  * @returns An object with success flag and either the validated data or error
  */
-export function validateTokenListSafe(tokens: unknown): { 
-  success: boolean; 
-  data?: z.infer<typeof tokenListSchema>; 
-  error?: z.ZodError 
+export function validateTokenListSafe(tokens: unknown): {
+  success: boolean;
+  data?: z.infer<typeof tokenListSchema>;
+  error?: z.ZodError;
 } {
   const result = tokenListSchema.safeParse(tokens);
   if (result.success) {
@@ -68,12 +70,10 @@ export function validateTokenListSafe(tokens: unknown): {
  */
 export function tokenSchemaToJsonSchema() {
   return zodToJsonSchema(tokenSchema, {
-    name: 'Token',
-    description: 'Schema for tokens in the LogsDX styling system'
+    name: "Token",
+    description: "Schema for tokens in the LogsDX styling system",
   } as JsonSchemaOptions);
 }
-
-
 
 /**
  * Validates a theme configuration
@@ -89,10 +89,10 @@ export function validateTheme(theme: unknown): Theme {
  * @param theme The theme configuration to validate
  * @returns An object with success flag and either the validated data or error
  */
-export function validateThemeSafe(theme: unknown): { 
-  success: boolean; 
-  data?: Theme; 
-  error?: z.ZodError 
+export function validateThemeSafe(theme: unknown): {
+  success: boolean;
+  data?: Theme;
+  error?: z.ZodError;
 } {
   const result = themePresetSchema.safeParse(theme);
   if (result.success) {
@@ -108,7 +108,7 @@ export function validateThemeSafe(theme: unknown): {
  */
 export function themeSchemaToJsonSchema() {
   return zodToJsonSchema(themePresetSchema, {
-    name: 'Theme',
-    description: 'Schema for themes in the LogsDX styling system'
+    name: "Theme",
+    description: "Schema for themes in the LogsDX styling system",
   } as JsonSchemaOptions);
 }
