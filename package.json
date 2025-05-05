@@ -11,19 +11,16 @@
     "lint": "eslint .",
     "format": "bun run prettier --write .",
     "check": "bun run lint && bun run test",
-    "prepare": "husky",
     "generate-css": "bun run scripts/generate-css.ts",
     "generate-schema": "bun run scripts/generate-schema.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
     "@types/node": "^22.15.3",
-    "@types/tokenizr": "^1.6.1",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "eslint": "^9.26.0",
-    "eslint-define-config": "^2.1.0",
-    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.0"
   },
