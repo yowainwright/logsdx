@@ -6,6 +6,8 @@ import { tokenize, applyTheme } from '@/src/tokenizer';
 import type { TokenList } from '@/src/schema/types';
 import type { RenderOptions } from '@/src/renderer/types';
 import type { LineParser, ParsedLine, StyleOptions, Theme, LogsDXOptions } from '@/src/types';
+// Add these imports for the rendering functions
+import { tokensToString, tokensToHtml, tokensToClassNames } from '@/src/renderer';
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -41,13 +43,24 @@ export class LogsDX {
   }
 
   /**
-   * Get the LogsDX instance
-   * @param options Configuration options (only used when creating a new instance)
-   * @returns The LogsDX instance
+   * Get a singleton instance of LogsDX
+   * @param options Configuration options
+   * @returns LogsDX instance
    */
-  public static getInstance(options?: LogsDXOptions): LogsDX {
+  static getInstance(options: LogsDXOptions = {}): LogsDX {
     if (!LogsDX.instance) {
       LogsDX.instance = new LogsDX(options);
+    } else if (Object.keys(options).length > 0) {
+      // Update existing instance with new options
+      LogsDX.instance.options = {
+        ...LogsDX.instance.options,
+        ...options
+      };
+      
+      // If theme changed, update the current theme
+      if (options.theme) {
+        LogsDX.instance.currentTheme = getTheme(options.theme);
+      }
     }
     return LogsDX.instance;
   }
@@ -63,18 +76,28 @@ export class LogsDX {
    */
   processLine(line: string): string {
     const renderOptions: RenderOptions = {
-      theme: this.currentTheme
+      theme: this.currentTheme,
+      outputFormat: this.options.outputFormat,
+      htmlStyleFormat: this.options.htmlStyleFormat
     };
 
-    if (this.options.outputFormat === 'html') {
-      renderOptions.outputFormat = this.options.outputFormat;
-      renderOptions.htmlStyleFormat = this.options.htmlStyleFormat;
-    }
-
+    // First tokenize the line
     const tokens = tokenize(line, this.currentTheme);
+    
+    // Then apply the theme to get styled tokens
     const styledTokens = applyTheme(tokens, this.currentTheme);
     
-    return renderLine(styledTokens.map(t => t.content).join(''), renderOptions);
+    // Now render the styled tokens based on output format
+    if (renderOptions.outputFormat === 'html') {
+      if (renderOptions.htmlStyleFormat === 'className') {
+        return tokensToClassNames(styledTokens);
+      } else {
+        return tokensToHtml(styledTokens);
+      }
+    } else {
+      // Default to ANSI output
+      return tokensToString(styledTokens);
+    }
   }
 
   /**
@@ -155,19 +178,35 @@ export class LogsDX {
   }
 
   /**
-   * Update output format
-   * @param format Output format ('ansi' or 'html')
+   * Set the output format
+   * @param format The output format to use ('ansi' or 'html')
    */
   setOutputFormat(format: 'ansi' | 'html'): void {
     this.options.outputFormat = format;
   }
 
   /**
-   * Update HTML style format
-   * @param format HTML style format ('css' or 'className')
+   * Set the HTML style format
+   * @param format The HTML style format to use ('css' or 'className')
    */
   setHtmlStyleFormat(format: 'css' | 'className'): void {
     this.options.htmlStyleFormat = format;
+  }
+
+  /**
+   * Get the current output format
+   * @returns The current output format
+   */
+  getCurrentOutputFormat(): 'ansi' | 'html' {
+    return this.options.outputFormat;
+  }
+
+  /**
+   * Get the current HTML style format
+   * @returns The current HTML style format
+   */
+  getCurrentHtmlStyleFormat(): 'css' | 'className' {
+    return this.options.htmlStyleFormat;
   }
 }
 

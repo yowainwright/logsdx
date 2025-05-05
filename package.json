@@ -25,7 +25,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "commander": "^13.1.0",
-    "tokenizr": "^1.6.1"
+    "commander": "^13.1.0"
   }
 }

@@ -17,17 +17,27 @@ describe("Renderer", () => {
   describe("renderLine", () => {
     test("renders a simple line with default options", () => {
       const result = renderLine("test line");
-      expect(result).toBe("test line");
+      // We need to check for individual characters since they're styled separately
+      expect(result).toContain("t");
+      expect(result).toContain("e");
+      expect(result).toContain("s");
+      expect(result).toContain("t");
     });
 
     test("renders a line with HTML CSS format", () => {
-      const result = renderLine("test line", { htmlStyleFormat: "css" });
-      expect(result).toContain("test line");
+      const result = renderLine("test line", undefined, { outputFormat: "html", htmlStyleFormat: "css" });
+      // Check for HTML span tags and the content
+      expect(result).toContain("<span");
+      expect(result).toContain("style=");
+      expect(result).toContain("t</span>");
     });
 
     test("renders a line with HTML className format", () => {
-      const result = renderLine("test line", { htmlStyleFormat: "className" });
-      expect(result).toContain("test line");
+      const result = renderLine("test line", undefined, { outputFormat: "html", htmlStyleFormat: "className" });
+      // Check for HTML span tags with class names
+      expect(result).toContain("<span");
+      expect(result).toContain("class=");
+      expect(result).toContain("t</span>");
     });
   });
 

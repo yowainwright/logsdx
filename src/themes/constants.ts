@@ -5,16 +5,16 @@ export const DEFAULT_THEME = 'oh-my-zsh';
 export const THEMES: Record<string, Theme> = {
   [DEFAULT_THEME]: {
     name: 'oh-my-zsh',
-    description: 'Theme inspired by oh-my-zsh default colors',
+    description: 'Theme inspired by Oh My Zsh terminal colors',
     schema: {
       defaultStyle: { color: 'white' },
       matchWords: {
-        'error': { color: 'red', styleCodes: ['bold'] },
-        'warn': { color: 'yellow' },
-        'warning': { color: 'yellow' },
-        'info': { color: 'cyan' },
-        'debug': { color: 'blue' },
-        'success': { color: 'green' },
+        'ERROR': { color: 'red', styleCodes: ['bold'] },
+        'WARN': { color: 'yellow', styleCodes: ['bold'] },
+        'WARNING': { color: 'yellow', styleCodes: ['bold'] },
+        'INFO': { color: 'blue', styleCodes: ['bold'] },
+        'DEBUG': { color: 'green' },
+        'SUCCESS': { color: 'green', styleCodes: ['bold'] },
         'true': { color: 'green' },
         'false': { color: 'red' },
         'null': { color: 'magenta', styleCodes: ['italic'] },
@@ -94,12 +94,12 @@ export const THEMES: Record<string, Theme> = {
     schema: {
       defaultStyle: { color: 'lightGray' },
       matchWords: {
-        'error': { color: 'red', styleCodes: ['bold'] },
-        'warn': { color: 'orange' },
-        'warning': { color: 'orange' },
-        'info': { color: 'cyan' },
-        'debug': { color: 'purple' },
-        'success': { color: 'green' },
+        'ERROR': { color: 'red', styleCodes: ['bold'] },
+        'WARN': { color: 'orange', styleCodes: ['bold'] },
+        'WARNING': { color: 'orange', styleCodes: ['bold'] },
+        'INFO': { color: 'cyan', styleCodes: ['bold'] },
+        'DEBUG': { color: 'purple' },
+        'SUCCESS': { color: 'green', styleCodes: ['bold'] },
         'true': { color: 'green' },
         'false': { color: 'pink' },
         'null': { color: 'purple', styleCodes: ['italic'] },

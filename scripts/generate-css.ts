@@ -9,7 +9,7 @@ import { COLORS, STYLE_CODES } from '../src/renderer/constants';
  * 
  * @returns A string containing CSS rules for all colors and styles
  */
-function generateCSS(): string {
+export function generateCSS(): string {
   let css = '/* LogsDX Generated CSS */\n\n';
   
   // Add color classes
@@ -86,5 +86,7 @@ async function main() {
   }
 }
 
-// Run the script
-main();
+// Only run the main function if this script is executed directly
+if (require.main === module) {
+  main();
+}
