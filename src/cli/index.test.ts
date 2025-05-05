@@ -1,14 +1,12 @@
 import { expect, test, describe, afterAll } from "bun:test";
 import type { LogLevel, ParsedLine } from "@/src/types";
 
-// Mock console.log
 const originalConsoleLog = console.log;
 let consoleLogCalls = 0;
 console.log = () => {
   consoleLogCalls++;
 };
 
-// Helper function to create a mock parser
 const createMockParser = () => {
   return (line: string): ParsedLine => {
     if (line.includes("ERROR")) return { level: "error" as LogLevel };
@@ -18,14 +16,12 @@ const createMockParser = () => {
   };
 };
 
-// Helper function to determine if a line should be rendered
 function shouldRender(
   level: string | undefined,
-  minLevel: LogLevel | undefined,
+  minLevel: LogLevel | undefined
 ): boolean {
   if (!minLevel || !level) return true;
 
-  // Define log level priorities
   const levelPriorities: Record<string, number> = {
     debug: 0,
     info: 1,
@@ -40,12 +36,11 @@ function shouldRender(
   return current >= min;
 }
 
-// Mock implementation of processArg
 function processArg(
   arg: string,
   index: number,
   options: any,
-  args: string[],
+  args: string[]
 ): number {
   if (arg === "--quiet") {
     options.flags = options.flags || new Set<string>();
@@ -74,12 +69,10 @@ function processArg(
     return 0;
   }
 
-  // Assume it's an input file
   options.inputFile = arg;
   return 0;
 }
 
-// Mock implementation of parseArgs
 function parseArgs(args: string[]): any {
   const options: any = {
     flags: new Set<string>(),
@@ -99,12 +92,11 @@ function parseArgs(args: string[]): any {
   return options;
 }
 
-// Mock implementation of handleLine
 function handleLine(
   parser: (line: string) => ParsedLine,
   line: string,
   options: any,
-  outputStream: any,
+  outputStream: any
 ): void {
   const parsed = parser(line);
   if (!parsed) return;
@@ -117,7 +109,6 @@ function handleLine(
     return;
   }
 
-  // In a real implementation, this would use styleLine
   const formattedLine = line;
 
   if (outputStream === process.stdout) {
@@ -127,7 +118,6 @@ function handleLine(
   }
 }
 
-// Reset mocks before each test
 const resetMocks = () => {
   consoleLogCalls = 0;
 };
@@ -305,7 +295,6 @@ describe("handleLine", () => {
   });
 });
 
-// Clean up after tests
 afterAll(() => {
   console.log = originalConsoleLog;
 });

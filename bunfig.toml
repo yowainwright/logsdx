@@ -1,4 +1,10 @@
-entrypoint = "src/cli.ts"
+[install]
+peer = true
 
-[resolve]
-paths = { "@src" = "src" }
+[install.scopes]
+logsdx = "https://registry.npmjs.org/"
+
+[build]
+sourcemap = "external"
+minify = true
+target = "node"

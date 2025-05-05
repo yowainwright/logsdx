@@ -1,31 +1,3 @@
-[tasks.lint]
-description = "Run ESLint"
-run = "bunx eslint . -c eslint.config.ts"
-
-[tasks.format]
-description = "Run Prettier"
-run = "bunx prettier --write ."
-
-[tasks.test]
-description = "Run tests"
-run = "bun test"
-
-[tasks.check]
-description = "Run all checks"
-run = """
-bun test
-bunx eslint . -c eslint.config.ts
-bunx prettier --check .
-"""
-
-[tasks.pre-commit]
-description = "Run pre-commit checks"
-run = """
-bun test
-bunx eslint . -c eslint.config.ts
-bunx prettier --check .
-"""
-
 [env]
 BUN_VERSION = "1.2.9"
 

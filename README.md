@@ -2,27 +2,23 @@
 
 # LogsDX
 
-A flexible log processing and visualization library that supports multiple output formats and, **most importantly**,
-
-## _`asci` syntax highlighting, theming, and extendability for all!_
-
-LogsDX aims to provide the ability create use and extend asci themes that can be used in terminal and clients.
+A flexible log visualization library that supports theming logs to be viewed in both a terminal and clients.
 
 ## Why
 
-After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a way to have the same visual athstetic of logs in both the terminal and clients seemed necessary.
+After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a way to have the same visual aesthetic of logs in both the terminal and clients seemed necessary.
 
 #### As of, 2025-04-13, these features are planned:
 
 - [x] basic theming and theme support for piping JSON logs in a terminal
 - [x] code functionality for non-specific logs in a terminal
 - [ ] full example and importability of non-specific logs in a terminal (in progress)
-- [x] code functionality for asci log theming in a react client
-- [ ] full example and importability of asci log theming in a react client (in progress)
+- [x] code functionality for ANSI log theming in a react client
+- [ ] full example and importability of ANSI log theming in a react client (in progress)
 - [ ] more composable way to import and treeshake features
 - [ ] documented working demo displaying the ability to add/use/create custom themes
 - [ ] documented working demo displaying the ability to add/use/create custom parsers
-- [ ] documented workign demo displaying the ability to add/use/create custom clients
+- [ ] documented working demo displaying the ability to add/use/create custom clients
 - [ ] clearly documented schemas for theming and parsing
 - [ ] clearly documented way to create and use custom clients
 - [ ] improve ways to use build artifacts—only client, only cli, etc
@@ -30,7 +26,7 @@ After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a
 ## Installation
 
 ```bash
-npm install logsx
+npm install logsdx
 ```
 
 ---
@@ -43,103 +39,93 @@ LogsDX provides a powerful command-line interface for processing and formatting 
 
 ```bash
 # Process a log file
-logsx input.log
+logsdx input.log
 
 # Process logs from stdin
-cat input.log | logsx
+cat input.log | logsdx
 
 # Save output to a file
-logsx input.log --output formatted.log
+logsdx input.log --output formatted.log
 ```
 
 ### Options
 
 ```bash
---quiet, -q           Suppress all output except errors
 --debug, -d           Enable debug mode
---level, -l <level>   Minimum log level to display (default: "info")
---parser, -p <parser> Parser to use for log parsing (default: "default")
---rules, -r <file>    Path to custom rules file
 --output, -o <file>   Path to output file
---list-parsers        List available parsers
+--theme, -t <theme>   Theme to use (default: "oh-my-zsh")
+--list-themes         List available themes
+--config, -c <file>   Path to config file
 ```
 
 ### Examples
 
-#### List Available Parsers
+#### List Available Themes
 
 ```bash
-logsx --list-parsers
+logsdx --list-themes
+```
+
+#### Using a Specific Theme
+
+```bash
+logsdx input.log --theme dark
 ```
 
 #### Parse JSON Logs
 
 ```bash
 # Parse a JSON log file
-logsx input.json --parser=json
+logsdx input.json --parser=json
 
 # Parse JSON logs from stdin
-echo '{"level":"info","message":"Test message","timestamp":"2023-01-01T00:00:00.000Z"}' | logsx --parser=json
-
-# Parse complex JSON logs
-echo '{"level":"error","message":"Database connection failed","timestamp":"2023-01-01T00:00:00.000Z","service":"api","user_id":123,"error_code":500}' | logsx --parser=json
+echo '{"level":"info","message":"Test message","timestamp":"2023-01-01T00:00:00.000Z"}' | logsdx --parser=json
 ```
 
 #### Parse with Custom Rules
 
 ```bash
 # Parse logs with custom regex rules
-logsx input.log --parser=regex --rules=rules.json
-
-# Example rules.json:
-[
-  {
-    "match": "\\[(.*?)\\]\\s+(.*)",
-    "extract": {
-      "level": "$1",
-      "message": "$2"
-    }
-  }
-]
+logsdx input.log --parser=regex --rules=rules.json
 ```
 
 #### Filter by Log Level
 
 ```bash
 # Show only warnings and errors
-logsx input.log --level=warn
+logsdx input.log --level=warn
 
 # Show only errors
-logsx input.log --level=error
+logsdx input.log --level=error
 ```
 
 #### Debug Mode
 
 ```bash
 # Enable debug mode for verbose output
-logsx input.log --debug
+logsdx input.log --debug
 ```
 
-## Client usage
+## Client Usage
 
-LogDX aims to provide the ability create asci themes that can be used in clients.
+LogsDX provides support for rendering styled logs in various client environments.
 
 ### React Component Usage
 
 ```tsx
-import { LogViewer } from "logsx";
+import { LogViewer } from "logsdx";
 
 function App() {
   return (
     <LogViewer
       log={logContent}
-      enhancer={enhancer}
-      showLineNumbers
       theme={{
         error: ["red"],
         warn: ["yellow"],
         info: ["blue"],
       }}
+      outputFormat="html"
+      htmlStyleFormat="css"
     />
   );
 }
@@ -147,98 +133,55 @@ function App() {
 
 ---
 
-## Plugins
+## API Reference
 
-### Using Plugins
+### Core API
 
 ```tsx
-import { createLogEnhancer } from "logsx";
-import { PrismPlugin } from "@logsx/prism";
-import { ShikiPlugin } from "@logsx/shiki";
+import { LogsDX, getTheme, getAllThemes, getThemeNames } from "logsdx";
 
-const enhancer = createLogEnhancer();
-enhancer.use(new PrismPlugin({ theme: "github-dark" }));
-enhancer.use(new ShikiPlugin({ theme: "github-dark" }));
+// Get LogsDX instance
+const logsDX = LogsDX.getInstance({
+  theme: "oh-my-zsh",
+  outputFormat: "ansi", // or 'html'
+  htmlStyleFormat: "css", // or 'className'
+  debug: false,
+});
+
+// Process a single line
+const styledLine = logsDX.processLine("INFO: Application started");
+
+// Process multiple lines
+const styledLog = logsDX.processLog("INFO: Line 1\nERROR: Line 2");
+
+// Get available themes
+const themeNames = getThemeNames();
+const themes = getAllThemes();
+const myTheme = getTheme("oh-my-zsh");
 ```
 
-### Creating Plugins
+### Themes
+
+LogsDX comes with built-in themes and supports custom themes:
 
 ```tsx
-import { LogEnhancerPlugin } from "logsx";
+// Using a built-in theme
+const logsDX = LogsDX.getInstance({ theme: "oh-my-zsh" });
 
-const MyPlugin: LogEnhancerPlugin = {
-  name: "my-plugin",
-  enhanceLine: (line, index) => `[${index}] ${line}`,
-  parseLevel: (line) => {
-    if (line.includes("ERROR")) return "error";
-    if (line.includes("WARN")) return "warn";
-    return "info";
+// Using a custom theme
+const logsDX = LogsDX.getInstance({
+  theme: {
+    name: "my-custom-theme",
+    styles: {
+      error: { color: "red", bold: true },
+      warning: { color: "yellow" },
+      info: { color: "blue" },
+      // Add more style definitions
+    },
+    // Add pattern definitions
   },
-};
-```
-
----
-
-## Clients
-
-### Using Clients
-
-```tsx
-import { LogEnhancer } from "logsx";
-import { InkClient } from "@logsx/ink";
-import { ReactClient } from "@logsx/react";
-
-const enhancer = new LogEnhancer({
-  clients: [new InkClient(), new ReactClient()],
 });
 ```
-
-### Creating Clients
-
-```tsx
-import { LogClient } from "logsx";
-
-const MyClient: LogClient = {
-  name: "my-client",
-  write: (line) => {
-    // Custom output logic
-    console.log(`[MyClient] ${line}`);
-  },
-};
-```
-
----
-
-## Parsers
-
-### Using Parsers
-
-```tsx
-import { LogEnhancer } from "logsx";
-import { JSONParser } from "@logsx/json";
-import { RegexParser } from "@logsx/regex";
-
-const enhancer = new LogEnhancer({
-  parsers: [new JSONParser(), new RegexParser()],
-});
-```
-
-### Creating Parsers
-
-```tsx
-import { LogParser } from "logsx";
-
-const MyParser: LogParser = {
-  name: "my-parser",
-  parse: (line) => {
-    // Custom parsing logic
-    const match = line.match(/\[(.*?)\]/);
-    return match ? { level: match[1] } : {};
-  },
-};
-```
-
----
 
 ---
 
@@ -260,10 +203,5 @@ bun install
 
 # Using mise for development tasks
 # brew install mise
-mise run check      # Run all checks (tests, lint, format)
-mise run pre-commit # Run pre-commit checks
-mise run lint       # Run ESLint
-mise run format     # Run Prettier
-mise run test       # Run tests
-mise run build      # Build the project
+mise install
 ```
