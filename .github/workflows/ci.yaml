@@ -42,6 +42,4 @@ jobs:
         with:
           name: dist
           path: |
-            packages/*/dist
-            packages/parsers/*/dist
             !**/node_modules/**:

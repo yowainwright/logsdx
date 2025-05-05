@@ -1,21 +1,34 @@
-import { defineConfig } from "eslint-define-config";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
-export default defineConfig({
-  root: true,
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint"],
-  ignorePatterns: ["**/dist/**", "**/node_modules/**"],
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project: ["tsconfig.json", "packages/*/tsconfig.json"],
+export default [
+  {
+    files: ["**/*.ts"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/ops/**",
+      "**/scripts/**",
+    ],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+        project: ["./tsconfig.json"],
       },
     },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended?.rules,
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+    },
   },
-  rules: {
-    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-  },
-});
+];

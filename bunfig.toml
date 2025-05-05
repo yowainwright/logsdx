@@ -1,0 +1,10 @@
+[install]
+peer = true
+
+[install.scopes]
+logsdx = "https://registry.npmjs.org/"
+
+[build]
+sourcemap = "external"
+minify = true
+target = "node"

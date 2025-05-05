@@ -1,68 +1,29 @@
 {
   "name": "logsdx",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "private": false,
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "workspaces": [
-    ".",
-    "packages/*",
-    "packages/clients/*",
-    "packages/plugins/*",
-    "packages/themes/*",
-    "packages/parsers/core",
-    "packages/parsers/json",
-    "packages/parsers/regex"
-  ],
   "scripts": {
-    "build": "bun run build:packages",
-    "build:packages": "bun run build:root && bun run build:plugins && bun run build:themes && bun run build:clients && bun run build:cli && bun run build:parsers",
-    "build:parsers": "bun run build:parser-core && bun run build:parser-json && bun run build:parser-regex",
-    "build:parser-core": "bun build packages/parsers/core/src/index.ts --outdir=packages/parsers/core/dist",
-    "build:parser-json": "bun build packages/parsers/json/src/index.ts --outdir=packages/parsers/json/dist",
-    "build:parser-regex": "bun build packages/parsers/regex/src/index.ts --outdir=packages/parsers/regex/dist",
-    "build:root": "bun build src/index.ts --outdir=dist",
-    "build:plugins": "bun build packages/plugins/*/src/index.ts --outdir=packages/plugins/*/dist",
-    "build:themes": "bun build packages/themes/*/src/index.ts --outdir=packages/themes/*/dist",
-    "build:clients": "bun build packages/clients/*/src/index.ts --outdir=packages/clients/*/dist",
-    "build:cli": "bun build packages/cli/src/index.ts --outdir=packages/cli/dist",
-    "dev": "bun --watch run build",
+    "build": "bun build",
     "test": "bun test",
-    "lint": "bun run tsc --noEmit",
+    "lint": "eslint .",
     "format": "bun run prettier --write .",
     "check": "bun run lint && bun run test",
-    "verify-workspaces": "bun scripts/verify-workspaces.ts",
-    "changeset": "changeset",
-    "changeset:patch": "node scripts/auto-changeset.js patch",
-    "changeset:minor": "node scripts/auto-changeset.js minor",
-    "changeset:major": "node scripts/auto-changeset.js major",
-    "version": "changeset version",
-    "publish": "changeset publish",
-    "prepare": "husky"
-  },
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "json5": "^2.2.3",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "zod": "^3.22.4",
-    "@logsdx/parser-core": "^0.1.0",
-    "@logsdx/parser-json": "^0.1.0",
-    "@logsdx/parser-regex": "^0.1.0"
+    "prepare": "husky",
+    "generate-css": "bun run scripts/generate-css.ts"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@types/bun": "^1.2.11",
+    "@types/node": "^22.15.3",
+    "@types/tokenizr": "^1.6.1",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "eslint": "^9.26.0",
+    "eslint-define-config": "^2.1.0",
     "husky": "^9.1.7",
     "tsconfig-paths": "^4.2.0",
-    "turbo": "^1.12.4",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "tokenizr": "^1.6.1"
   }
 }
