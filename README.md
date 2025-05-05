@@ -203,10 +203,5 @@ bun install
 
 # Using mise for development tasks
 # brew install mise
-mise run check      # Run all checks (tests, lint, format)
-mise run pre-commit # Run pre-commit checks
-mise run lint       # Run ESLint
-mise run format     # Run Prettier
-mise run test       # Run tests
-mise run build      # Build the project
+mise install
 ```

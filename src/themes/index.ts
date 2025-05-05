@@ -1,5 +1,5 @@
-import type { Theme } from './types';
-import { THEMES, DEFAULT_THEME } from './constants';
+import type { Theme } from '@/src/types';
+import { THEMES, DEFAULT_THEME } from '@/src/themes/constants';
 
 /**
  * Get a theme by name
@@ -31,8 +31,6 @@ export function getThemeNames(): string[] {
  * @param themeName Name of the theme to apply
  */
 export function applyTheme(themeName: string): void {
-  // This function would be implemented by the renderer
-  // It's a placeholder for now
   console.log(`Applied theme: ${themeName}`);
 }
 

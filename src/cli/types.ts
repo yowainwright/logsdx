@@ -4,5 +4,6 @@ export type CliOptions = {
   theme?: string;
   configPath?: string;
   debug?: boolean;
+  quiet?: boolean;
   listThemes?: boolean;
 }

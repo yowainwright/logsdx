@@ -1,4 +1,4 @@
-import { ColorDefinition } from './types';
+import { ColorDefinition } from '@/src/renderer/types';
 
 export const COLORS: Record<string, ColorDefinition> = {
   // Standard colors

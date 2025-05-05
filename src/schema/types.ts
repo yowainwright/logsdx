@@ -1,7 +1,5 @@
 import { z } from 'zod';
-import { styleOptionsSchema, tokenSchema, tokenListSchema } from './index';
-import { ThemePreset } from '../types';
-export type Theme = ThemePreset;
+import { styleOptionsSchema, tokenSchema, tokenListSchema } from '@/src/schema/index';
 
 export type StyleOptions = z.infer<typeof styleOptionsSchema>;
 export type Token = z.infer<typeof tokenSchema>;

@@ -1,15 +1,7 @@
-/**
- * Log Tokenizer
- * 
- * Tokenizes log lines for better display and analysis based on theme-defined patterns.
- */
-
-import { Token, TokenList } from '../schema/types';
-import { DEFAULT_RULES } from './constants';
-import type { Theme } from '../schema/types';
-
-// Define matcher types for internal use
-export type MatcherType = 'word' | 'regex' | 'prefix' | 'suffix' | 'contains' | 'special' | 'whitespace' | 'newline' | 'default';
+import { Token, TokenList } from '@/src/schema/types';
+import { Theme } from '@/src/types';
+import { DEFAULT_RULES } from '@/src/tokenizer/constants';
+import { MatcherType } from '@/src/tokenizer/types';
 
 /**
  * Simple token context for rule matching
@@ -140,51 +132,9 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
     });
   }
   
-  // Add startsWith matchers
-  if (theme.schema?.matchStartsWith) {
-    Object.keys(theme.schema.matchStartsWith).forEach(prefix => {
-      // Escape special regex characters in the prefix
-      const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      lexer.rule(new RegExp(`^${escapedPrefix}`), (ctx) => {
-        ctx.accept('startsWith', { 
-          pattern: prefix,
-          style: theme.schema?.matchStartsWith?.[prefix]
-        });
-      });
-    });
-  }
-  
-  // Add endsWith matchers
-  if (theme.schema?.matchEndsWith) {
-    Object.keys(theme.schema.matchEndsWith).forEach(suffix => {
-      // Escape special regex characters in the suffix
-      const escapedSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      lexer.rule(new RegExp(`${escapedSuffix}$`), (ctx) => {
-        ctx.accept('endsWith', { 
-          pattern: suffix,
-          style: theme.schema?.matchEndsWith?.[suffix]
-        });
-      });
-    });
-  }
-  
-  // Add contains matchers
-  if (theme.schema?.matchContains) {
-    Object.keys(theme.schema.matchContains).forEach(substring => {
-      // Escape special regex characters in the substring
-      const escapedSubstring = substring.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      lexer.rule(new RegExp(escapedSubstring), (ctx) => {
-        ctx.accept('contains', { 
-          pattern: substring,
-          style: theme.schema?.matchContains?.[substring]
-        });
-      });
-    });
-  }
-  
   // Add pattern matchers from the schema structure
   if (theme.schema?.matchPatterns) {
-    theme.schema.matchPatterns.forEach((patternObj, index) => {
+    theme.schema.matchPatterns.forEach((patternObj: any, index: number) => {
       try {
         const regex = new RegExp(patternObj.pattern);
         lexer.rule(regex, (ctx) => {
@@ -324,7 +274,7 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
         // Try to match by name first
         const patternName = token.metadata?.name;
         if (patternName) {
-          const pattern = theme.schema.matchPatterns.find(p => p.name === patternName);
+          const pattern = theme.schema.matchPatterns.find((p: any) => p.name === patternName);
           if (pattern) {
             styledToken.metadata = {
               ...styledToken.metadata,

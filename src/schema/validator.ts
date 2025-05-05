@@ -1,17 +1,12 @@
-/**
- * Validation utilities for LogsDX token schemas
- */
-
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { 
   tokenSchema, 
   tokenListSchema, 
-  styleOptionsSchema, 
   themePresetSchema, 
-  schemaConfigSchema 
-} from './index';
-import { JsonSchemaOptions, Theme } from './types';
+} from '@/src/schema/index';
+import { JsonSchemaOptions } from '@/src/schema/types';
+import { Theme } from '@/src/types';
 
 /**
  * Validates a token against the schema

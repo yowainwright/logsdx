@@ -1,16 +1,12 @@
 
-import { renderLine } from './renderer';
-import { getTheme, getAllThemes, getThemeNames } from './themes';
-import { validateTheme, validateThemeSafe } from './schema/validator';
-import { tokenize, applyTheme } from './tokenizer';
-import type { TokenList } from './schema/types';
-import type { StyleOptions, Theme, LogsDXOptions } from './types';
-import type { RenderOptions } from './renderer/types';
-import type { LineParser, ParsedLine } from './types';
+import { renderLine } from '@/src/renderer';
+import { getTheme, getAllThemes, getThemeNames } from '@/src/themes';
+import { validateTheme, validateThemeSafe } from '@/src/schema/validator';
+import { tokenize, applyTheme } from '@/src/tokenizer';
+import type { TokenList } from '@/src/schema/types';
+import type { RenderOptions } from '@/src/renderer/types';
+import type { LineParser, ParsedLine, StyleOptions, Theme, LogsDXOptions } from '@/src/types';
 
-/**
- * Main LogsDX class for log processing and styling
- */
 export class LogsDX {
   private static instance: LogsDX | null = null;
   private options: Required<LogsDXOptions>;
@@ -21,9 +17,8 @@ export class LogsDX {
    * @param options Configuration options
    */
   private constructor(options = {}) {
-    // Set default options
     this.options = {
-      theme: 'oh-my-zsh', // Default theme
+      theme: 'oh-my-zsh',
       outputFormat: 'ansi',
       htmlStyleFormat: 'css',
       debug: false,
@@ -31,10 +26,8 @@ export class LogsDX {
       ...options
     };
 
-    // Initialize theme
     this.currentTheme = getTheme(this.options.theme);
     
-    // Validate theme
     if (this.options.theme !== 'oh-my-zsh') {
       try {
         validateTheme(this.currentTheme);
@@ -42,7 +35,6 @@ export class LogsDX {
         if (this.options.debug) {
           console.warn('Invalid custom theme:', error);
         }
-        // Fall back to default theme
         this.currentTheme = getTheme(this.options.theme);
       }
     }
@@ -60,9 +52,6 @@ export class LogsDX {
     return LogsDX.instance;
   }
 
-  /**
-   * Reset the singleton instance (mainly for testing)
-   */
   public static resetInstance(): void {
     LogsDX.instance = null;
   }
@@ -73,7 +62,6 @@ export class LogsDX {
    * @returns The styled log line
    */
   processLine(line: string): string {
-    // Create render options
     const renderOptions: RenderOptions = {
       theme: this.currentTheme
     };
@@ -83,7 +71,6 @@ export class LogsDX {
       renderOptions.htmlStyleFormat = this.options.htmlStyleFormat;
     }
 
-    // Tokenize and render
     const tokens = tokenize(line, this.currentTheme);
     const styledTokens = applyTheme(tokens, this.currentTheme);
     
@@ -127,12 +114,10 @@ export class LogsDX {
   setTheme(theme: string | Theme): boolean {
     try {
       if (typeof theme === 'string') {
-        // Set theme by name
         this.options.theme = theme;
         this.currentTheme = getTheme(theme);
         return true;
       } else {
-        // Set custom theme
         const validatedTheme = validateTheme(theme);
         this.currentTheme = validatedTheme;
         return true;
@@ -186,23 +171,16 @@ export class LogsDX {
   }
 }
 
-// Create a convenience function to get the LogsDX instance
 export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }
 
-// Export types
 export type { Theme, StyleOptions, TokenList, LineParser, ParsedLine };
 
-// Export utility functions
 export { getTheme, getAllThemes, getThemeNames, validateTheme, validateThemeSafe };
 
-// Export tokenizer functions
 export { tokenize, applyTheme };
 
-// Export renderer functions
 export { renderLine };
 
-// Default export
 export default LogsDX;
-

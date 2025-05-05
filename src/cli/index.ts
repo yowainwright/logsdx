@@ -1,15 +1,12 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { LogsDX, getThemeNames } from "../index";
-import type { CliOptions } from "./types";
-import type { LogsDXOptions } from "../types";
+import { LogsDX, getThemeNames } from "@/src/index";
+import type { CliOptions } from "@/src/cli/types";
+import type { LogsDXOptions } from "@/src/types";
+import { version } from "../../package.json";
 
-/**
- * Load configuration from .logsdxrc file
- */
-function loadConfig(configPath?: string): LogsDXOptions {
-  // Default config
+export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {
     theme: 'oh-my-zsh',
     outputFormat: 'ansi',
@@ -18,7 +15,6 @@ function loadConfig(configPath?: string): LogsDXOptions {
   };
   
   try {
-    // Look for config in specified path or default locations
     const configLocations = [
       configPath,
       './.logsdxrc',
@@ -41,10 +37,8 @@ function loadConfig(configPath?: string): LogsDXOptions {
   return defaultConfig;
 }
 
-/**
- * Process CLI arguments
- */
-function parseArgs(args: string[]): CliOptions {
+
+export function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
     theme: undefined,
     debug: false
@@ -57,6 +51,8 @@ function parseArgs(args: string[]): CliOptions {
       options.theme = args[++i];
     } else if (arg === '--debug') {
       options.debug = true;
+    } else if (arg === '--quiet') {
+      options.quiet = true;
     } else if (arg === '--list-themes') {
       options.listThemes = true;
     } else if (arg === '--output' && i + 1 < args.length) {
@@ -71,16 +67,9 @@ function parseArgs(args: string[]): CliOptions {
   return options;
 }
 
-/**
- * Main CLI function
- */
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   const cliOptions = parseArgs(args);
-  
-  // Load config from file
   const config = loadConfig(cliOptions.configPath);
-  
-  // Create LogsDX instance with merged options
   const logsDX = LogsDX.getInstance({
     theme: cliOptions.theme || config.theme,
     debug: cliOptions.debug || config.debug,
@@ -88,19 +77,18 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     outputFormat: cliOptions.output === 'html' ? 'html' : 'ansi'
   });
   
-  // List available themes
   if (cliOptions.listThemes) {
-    console.log('Available themes:');
-    getThemeNames().forEach(theme => console.log(`- ${theme}`));
+    if (!cliOptions.quiet) {
+      console.log('Available themes:');
+      getThemeNames().forEach(theme => console.log(`- ${theme}`));
+    }
     return;
   }
   
-  // Process input
   const processLine = (line: string): string => {
     return logsDX.processLine(line);
   };
   
-  // Process input from file or stdin
   if (cliOptions.input) {
     try {
       const content = fs.readFileSync(cliOptions.input, 'utf8');
@@ -108,7 +96,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       
       if (cliOptions.output) {
         fs.writeFileSync(cliOptions.output, output);
-      } else {
+      } else if (!cliOptions.quiet) {
         console.log(output);
       }
     } catch (error) {
@@ -116,22 +104,19 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.exit(1);
     }
   } else {
-    // Process from stdin
     process.stdin.setEncoding('utf8');
     
     let buffer = '';
     
     process.stdin.on('data', (data: string) => {
       buffer += data;
-      
-      // Process complete lines
       const lines = buffer.split('\n');
       buffer = lines.pop() || '';
       
       lines.forEach(line => {
         if (line.trim()) {
           const output = processLine(line);
-          if (output) {
+          if (output && !cliOptions.quiet) {
             console.log(output);
           }
         }
@@ -141,7 +126,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     process.stdin.on('end', () => {
       if (buffer.trim()) {
         const output = processLine(buffer);
-        if (output) {
+        if (output && !cliOptions.quiet) {
           console.log(output);
         }
       }
@@ -154,13 +139,12 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   }
 }
 
-// Create a Command instance for better CLI handling
 const program = new Command();
 
 program
   .name('logsdx')
   .description('A powerful log processing and styling tool')
-  .version('0.1.0')
+  .version(version)
   .option('-t, --theme <theme>', 'Theme to use for styling')
   .option('-d, --debug', 'Enable debug mode')
   .option('-o, --output <file>', 'Output file path')
@@ -183,7 +167,6 @@ program
     });
   });
 
-// Run the CLI if this file is executed directly
 if (require.main === module) {
   program.parse();
 }

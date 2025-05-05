@@ -1,13 +1,9 @@
-/**
- * Options for rendering logs
- */
-
-import { Theme } from '../schema/types';
+import { Theme } from '@/src/types';
 
 export type RenderOptions = {
   theme?: Theme;
   outputFormat?: 'ansi' | 'html';
-  htmlStyleFormat?: 'css' | 'className'; // HTML output format (defaults to ANSI if not specified)
+  htmlStyleFormat?: 'css' | 'className';
 }
 
 export interface ColorDefinition {

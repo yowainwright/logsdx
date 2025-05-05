@@ -1,6 +1,6 @@
 {
   "name": "logsdx",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "private": false,
   "scripts": {
     "build": "bun build",
@@ -9,7 +9,8 @@
     "format": "bun run prettier --write .",
     "check": "bun run lint && bun run test",
     "prepare": "husky",
-    "generate-css": "bun run scripts/generate-css.ts"
+    "generate-css": "bun run scripts/generate-css.ts",
+    "generate-schema": "bun run scripts/generate-schema.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
@@ -24,6 +25,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "commander": "^13.1.0",
     "tokenizr": "^1.6.1"
   }
 }
