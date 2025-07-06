@@ -1,7 +1,7 @@
 import { TokenList } from "@/src/schema/types";
 import { Theme } from "@/src/types";
 import { tokenize, applyTheme } from "@/src/tokenizer";
-import { TEXT_COLORS, BACKGROUND_COLORS, STYLE_CODES } from "./constants";
+import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition } from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -49,8 +49,25 @@ export function tokensToString(tokens: TokenList): string {
       // For whitespace and newlines, preserve them exactly as is without styling
       if (
         token.metadata?.matchType === "whitespace" ||
-        token.metadata?.matchType === "newline"
+        token.metadata?.matchType === "newline" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab" ||
+        token.metadata?.matchType === "carriage-return"
       ) {
+        // Handle trimmed whitespace
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
+            // Convert multiple spaces to single space when trimmed
+            return " ";
+          }
+          if (token.metadata?.matchType === "space") {
+            // Keep single spaces even when trimming
+            return token.content;
+          }
+          // Other trimmed whitespace is ignored
+          return "";
+        }
         return token.content;
       }
 
@@ -101,14 +118,46 @@ export function tokensToString(tokens: TokenList): string {
 export function tokensToHtml(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      if (token.metadata?.matchType === "whitespace") {
+      // Enhanced whitespace handling for HTML
+      if (
+        token.metadata?.matchType === "whitespace" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab"
+      ) {
+        // Handle trimmed whitespace
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces") {
+            return "&nbsp;"; // Convert multiple spaces to single non-breaking space
+          }
+          if (token.metadata?.matchType === "space") {
+            return "&nbsp;"; // Convert space to non-breaking space
+          }
+          return ""; // Other trimmed whitespace is ignored
+        }
+        
+        // Normal whitespace handling
+        if (token.metadata?.matchType === "tab") {
+          return "&nbsp;".repeat(4 * token.content.length); // 4 spaces per tab
+        }
+        if (token.metadata?.matchType === "spaces") {
+          return "&nbsp;".repeat(token.content.length);
+        }
+        if (token.metadata?.matchType === "space") {
+          return "&nbsp;";
+        }
+        // Generic whitespace fallback
         return token.content
-          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
       }
 
       if (token.metadata?.matchType === "newline") {
         return "<br>";
+      }
+
+      if (token.metadata?.matchType === "carriage-return") {
+        return ""; // Ignore carriage returns in HTML
       }
 
       const style = token.metadata?.style;
@@ -119,7 +168,7 @@ export function tokensToHtml(tokens: TokenList): string {
       const css = [];
 
       if (style.color) {
-        const colorDef = TEXT_COLORS[style.color];
+        const colorDef = getColorDefinition(style.color);
         css.push(`color: ${colorDef?.hex || style.color}`);
       }
 
@@ -157,14 +206,46 @@ export function tokensToHtml(tokens: TokenList): string {
 export function tokensToClassNames(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      if (token.metadata?.matchType === "whitespace") {
+      // Enhanced whitespace handling for HTML with classes
+      if (
+        token.metadata?.matchType === "whitespace" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab"
+      ) {
+        // Handle trimmed whitespace
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces") {
+            return '&nbsp;'; // Convert multiple spaces to single non-breaking space
+          }
+          if (token.metadata?.matchType === "space") {
+            return '&nbsp;'; // Convert space to non-breaking space
+          }
+          return ""; // Other trimmed whitespace is ignored
+        }
+        
+        // Normal whitespace handling
+        if (token.metadata?.matchType === "tab") {
+          return "&nbsp;".repeat(4 * token.content.length); // 4 spaces per tab
+        }
+        if (token.metadata?.matchType === "spaces") {
+          return "&nbsp;".repeat(token.content.length);
+        }
+        if (token.metadata?.matchType === "space") {
+          return "&nbsp;";
+        }
+        // Generic whitespace fallback
         return token.content
-          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
       }
 
       if (token.metadata?.matchType === "newline") {
         return "<br>";
+      }
+
+      if (token.metadata?.matchType === "carriage-return") {
+        return ""; // Ignore carriage returns in HTML
       }
 
       const style = token.metadata?.style;
@@ -175,7 +256,7 @@ export function tokensToClassNames(tokens: TokenList): string {
       const classes = [];
 
       if (style.color) {
-        const colorDef = TEXT_COLORS[style.color];
+        const colorDef = getColorDefinition(style.color);
         if (colorDef?.className) {
           classes.push(colorDef.className);
         }
@@ -236,7 +317,7 @@ export function highlightLine(line: string): string {
  * @returns The colored text
  */
 export function applyColor(text: string, color: string): string {
-  const colorDef = TEXT_COLORS[color];
+  const colorDef = getColorDefinition(color);
   if (!colorDef) {
     return text; // Return unchanged if color not found
   }

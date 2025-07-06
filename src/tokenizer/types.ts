@@ -6,5 +6,9 @@ export type MatcherType =
   | "contains"
   | "special"
   | "whitespace"
+  | "space"
+  | "spaces"
+  | "tab"
   | "newline"
+  | "carriage-return"
   | "default";

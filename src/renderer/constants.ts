@@ -72,6 +72,75 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
   },
 };
 
+/**
+ * Get color definition with theme-aware fallback
+ * @param colorName - The color name from the theme
+ * @param theme - Optional theme for theme-specific colors
+ * @returns ColorDefinition or undefined if not found
+ */
+export function getColorDefinition(
+  colorName: string,
+  theme?: any
+): ColorDefinition | undefined {
+  // First check base colors
+  if (TEXT_COLORS[colorName]) {
+    return TEXT_COLORS[colorName];
+  }
+
+  // If theme has custom color definitions, check those
+  if (theme?.colorDefinitions?.[colorName]) {
+    return theme.colorDefinitions[colorName];
+  }
+
+  // If it's a hex color (starts with #), create a definition
+  if (colorName.startsWith('#')) {
+    return {
+      ansi: `\x1b[38;2;${hexToRgb(colorName).join(';')}m`,
+      hex: colorName,
+      className: `logsdx__color--custom-${colorName.slice(1)}`,
+    };
+  }
+
+  // Fallback to basic color mapping for unknown theme colors
+  const fallbackMap: Record<string, string> = {
+    lightGray: 'white',
+    darkGray: 'brightBlack', 
+    gray: 'brightBlack',
+    orange: 'yellow',
+    purple: 'magenta',
+    pink: 'brightMagenta',
+    lightGreen: 'brightGreen',
+    lightBlue: 'brightCyan',
+    forestGreen: 'green',
+    base00: 'black',
+    base0: 'white',
+    violet: 'magenta',
+  };
+
+  const fallbackColor = fallbackMap[colorName];
+  if (fallbackColor && TEXT_COLORS[fallbackColor]) {
+    return TEXT_COLORS[fallbackColor];
+  }
+
+  return undefined;
+}
+
+/**
+ * Convert hex color to RGB values
+ * @param hex - Hex color string (e.g., "#ff0000")
+ * @returns RGB array [r, g, b]
+ */
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16),
+      ]
+    : [0, 0, 0];
+}
+
 // Define ANSI color codes for background
 export const BACKGROUND_COLORS: Record<string, ColorDefinition> = {
   black: { ansi: "\x1b[40m", hex: "#000000", className: "logsdx__bg--black" },

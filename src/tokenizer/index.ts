@@ -1,6 +1,5 @@
 import { Token, TokenList } from "@/src/schema/types";
 import { Theme } from "@/src/types";
-import { DEFAULT_RULES } from "@/src/tokenizer/constants";
 import { MatcherType } from "@/src/tokenizer/types";
 
 /**
@@ -104,13 +103,35 @@ export class SimpleLexer {
 export function createLexer(theme?: Theme): SimpleLexer {
   const lexer = new SimpleLexer();
 
-  // Add basic rules for whitespace and newlines
-  lexer.rule(/\s+/, (ctx) => {
-    ctx.accept("whitespace");
+  // Add enhanced rules for whitespace and newlines
+  // Handle tabs specifically
+  lexer.rule(/\t+/, (ctx) => {
+    ctx.accept("tab");
   });
 
+  // Handle multiple spaces
+  lexer.rule(/ {2,}/, (ctx) => {
+    ctx.accept("spaces");
+  });
+
+  // Handle single spaces
+  lexer.rule(/ /, (ctx) => {
+    ctx.accept("space");
+  });
+
+  // Handle newlines
   lexer.rule(/\n/, (ctx) => {
     ctx.accept("newline");
+  });
+
+  // Handle carriage returns
+  lexer.rule(/\r/, (ctx) => {
+    ctx.accept("carriage-return");
+  });
+
+  // Handle other whitespace
+  lexer.rule(/\s/, (ctx) => {
+    ctx.accept("whitespace");
   });
 
   // Add default rules for common log patterns
@@ -129,22 +150,8 @@ export function createLexer(theme?: Theme): SimpleLexer {
   });
 
   // Add theme-specific rules if a theme is provided
-  if (theme?.schema?.matchPatterns) {
-    for (const pattern of theme.schema.matchPatterns) {
-      try {
-        // Validate the regex pattern before creating a rule
-        new RegExp(pattern.pattern);
-
-        lexer.rule(new RegExp(pattern.pattern, "g"), (ctx) => {
-          ctx.accept("pattern", {
-            name: pattern.name,
-            pattern: pattern.pattern,
-          });
-        });
-      } catch (error) {
-        // Skip invalid patterns
-      }
-    }
+  if (theme) {
+    addThemeRules(lexer, theme);
   }
 
   return lexer;
@@ -159,34 +166,6 @@ function escapeRegexPattern(pattern: string): string {
   return pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * Add default tokenization rules
- */
-function addDefaultRules(lexer: SimpleLexer): void {
-  // Add a rule for newlines
-  lexer.rule(/\n/, (ctx) => {
-    ctx.accept("newline");
-  });
-
-  // Add a rule for whitespace
-  lexer.rule(/\s+/, (ctx) => {
-    if (ctx.text !== "\n") {
-      // Don't match newlines as whitespace
-      ctx.accept("whitespace");
-    }
-  });
-
-  // Add the rest of the default rules
-  DEFAULT_RULES.forEach((rule) => {
-    lexer.rule(rule.pattern, (ctx) => {
-      if ("ignore" in rule && rule.ignore) {
-        ctx.ignore();
-      } else {
-        ctx.accept(rule.type || "default");
-      }
-    });
-  });
-}
 
 /**
  * Add theme-specific tokenization rules
@@ -194,12 +173,15 @@ function addDefaultRules(lexer: SimpleLexer): void {
 function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   // Handle whitespace according to theme preferences
   if (theme.schema?.whiteSpace === "trim") {
-    // Override the default whitespace rule
-    lexer.rule(/\s+/, (ctx) => {
-      if (ctx.text !== "\n") {
-        // Don't match newlines as whitespace
-        ctx.accept("whitespace", { trimmed: true });
-      }
+    // Override whitespace rules to trim
+    lexer.rule(/\t+/, (ctx) => {
+      ctx.ignore(); // Ignore tabs when trimming
+    });
+    lexer.rule(/ {2,}/, (ctx) => {
+      ctx.accept("spaces", { trimmed: true, originalLength: ctx.text.length });
+    });
+    lexer.rule(/ /, (ctx) => {
+      ctx.accept("space", { trimmed: true });
     });
   }
 
@@ -208,6 +190,9 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
     // Override the default newline rule
     lexer.rule(/\n/, (ctx) => {
       ctx.ignore(); // Completely ignore newlines
+    });
+    lexer.rule(/\r/, (ctx) => {
+      ctx.ignore(); // Ignore carriage returns too
     });
   }
 
