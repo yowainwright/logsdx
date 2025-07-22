@@ -1,7 +1,7 @@
 import { TokenList } from "@/src/schema/types";
 import { Theme } from "@/src/types";
 import { tokenize, applyTheme } from "@/src/tokenizer";
-import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition } from "./constants";
+import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -41,9 +41,12 @@ export function renderLine(
 /**
  * Convert tokens to a styled string
  * @param tokens - The tokens to convert
+ * @param forceColors - Force color output regardless of terminal detection
  * @returns A string with ANSI escape codes for styling
  */
-export function tokensToString(tokens: TokenList): string {
+export function tokensToString(tokens: TokenList, forceColors?: boolean): string {
+  const colorSupport = forceColors ?? supportsColors();
+  
   return tokens
     .map((token) => {
       // For whitespace and newlines, preserve them exactly as is without styling
@@ -72,7 +75,7 @@ export function tokensToString(tokens: TokenList): string {
       }
 
       const style = token.metadata?.style;
-      if (!style) {
+      if (!style || !colorSupport) {
         return token.content;
       }
 

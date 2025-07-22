@@ -1,5 +1,52 @@
 import { ColorDefinition } from "@/src/renderer/types";
 
+/**
+ * Check if the terminal supports colors
+ * @returns True if colors are supported
+ */
+export function supportsColors(): boolean {
+  // Check for explicit NO_COLOR environment variable
+  if (process.env.NO_COLOR) {
+    return false;
+  }
+
+  // Check for explicit FORCE_COLOR environment variable
+  if (process.env.FORCE_COLOR) {
+    return true;
+  }
+
+  // Check if we're in a TTY
+  if (!process.stdout.isTTY) {
+    return false;
+  }
+
+  // Check TERM environment variable
+  const term = process.env.TERM;
+  if (!term) {
+    return false;
+  }
+
+  // Basic color support detection
+  if (term === 'dumb') {
+    return false;
+  }
+
+  // Check for common color-supporting terminals
+  if (
+    term.includes('color') ||
+    term.includes('256') ||
+    term.includes('ansi') ||
+    term === 'xterm' ||
+    term === 'screen' ||
+    term === 'tmux' ||
+    process.env.COLORTERM
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 // Define ANSI color codes for text
 export const TEXT_COLORS: Record<string, ColorDefinition> = {
   black: {

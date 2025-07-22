@@ -87,11 +87,9 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens);
+      const result = tokensToString(tokens, true); // Force colors for testing
       expect(result).toContain("error");
-      // The implementation seems to be returning objects instead of ANSI strings
-      // Let's check that the result contains the content
-      expect(result).toMatch(/error/);
+      expect(result).toContain("\x1b[31m"); // Red color ANSI code
     });
 
     test("applies multiple style codes to tokens", () => {
@@ -106,7 +104,7 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens);
+      const result = tokensToString(tokens, true); // Force colors for testing
       expect(result).toContain("important");
       expect(result).toContain("\x1b[1m"); // Bold
       expect(result).toContain("\x1b[4m"); // Underline
