@@ -14,7 +14,13 @@ import { JsonSchemaOptions } from "../src/schema/types";
 
 async function main() {
   const args = process.argv.slice(2);
-  const outputDir = args[0] || "dist/schema";
+  const outputDir = args[0] || "dist/schemas";
+  
+  // Read package version
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(process.cwd(), "package.json"), "utf-8")
+  );
+  const version = packageJson.version;
 
   try {
     await fs.mkdir(outputDir, { recursive: true });
@@ -65,9 +71,18 @@ async function main() {
 
     for (const { schema, filename, options } of schemas) {
       const jsonSchema = zodToJsonSchema(schema, options as JsonSchemaOptions);
+      
+      // Add version and CDN info to schema
+      const enhancedSchema = {
+        ...jsonSchema,
+        $version: version,
+        $id: `https://unpkg.com/logsdx@${version}/dist/schemas/${filename}`,
+        $comment: `LogsDX v${version} - Available via CDN at https://unpkg.com/logsdx@latest/dist/schemas/${filename}`,
+      };
+      
       await fs.writeFile(
         path.join(outputDir, filename),
-        JSON.stringify(jsonSchema, null, 2),
+        JSON.stringify(enhancedSchema, null, 2),
         "utf-8"
       );
       console.log(`Schema generated at: ${path.join(outputDir, filename)}`);

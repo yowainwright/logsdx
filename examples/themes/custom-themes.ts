@@ -4,7 +4,7 @@
  * Examples showing how easy it is to create custom themes with LogsDX
  */
 
-import { LogsDX } from "../src";
+import { LogsDX } from "../../src";
 import {
   createTheme,
   createSimpleTheme,
@@ -12,7 +12,7 @@ import {
   getTheme,
   registerTheme,
   THEME_PRESETS,
-} from "../src/themes";
+} from "../../src/themes";
 
 // Example 1: Create a simple theme with just colors
 const neonTheme = createSimpleTheme("neon", {
@@ -174,7 +174,7 @@ const themes = [neonTheme, terminalTheme, apiTheme, simpleTheme];
 
 for (const theme of themes) {
   console.log(`\\n--- ${theme.name.toUpperCase()} THEME ---`);
-  const logsdx = new LogsDX({ theme: theme.name });
+  const logsdx = LogsDX.getInstance({ theme: theme.name });
   console.log(logsdx.processLine(sampleLog));
 }
 

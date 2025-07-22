@@ -16,6 +16,6 @@
       "@/src/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "examples/**/*.ts", "eslint.config.ts"],
-  "exclude": [".specstory/**", "**/*.test.ts", "dist/**", "eslint.config.ts"]
+  "include": ["src/**/*.ts", "eslint.config.ts"],
+  "exclude": [".specstory/**", "**/*.test.ts", "dist/**", "examples/**", "eslint.config.ts"]
 }
