@@ -20,7 +20,6 @@ export function generateCSS(): string {
       css += `  color: ${def.hex};\n`;
       css += `}\n\n`;
 
-      // Add background color variant
       css += `.${def.className.replace("--", "--bg-")} {\n`;
       css += `  background-color: ${def.hex};\n`;
       css += `}\n\n`;
@@ -86,7 +85,6 @@ async function main() {
   }
 }
 
-// Only run the main function if this script is executed directly
 if (require.main === module) {
   main();
 }

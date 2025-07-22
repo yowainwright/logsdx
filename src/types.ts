@@ -32,7 +32,7 @@ export interface LogsDXOptions {
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
   debug?: boolean;
-  customRules?: Record<string, any>;
+  customRules?: Record<string, unknown>;
 }
 
 export type LogLevel = "debug" | "info" | "warn" | "error";

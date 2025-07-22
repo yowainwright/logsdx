@@ -16,16 +16,13 @@ export function renderLine(
   theme?: Theme,
   options: RenderOptions = {}
 ): string {
-  // First tokenize the line
   const tokens = tokenize(line, theme);
 
-  // Then apply the theme to get styled tokens
   const styledTokens = applyTheme(
     tokens,
     theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
   );
 
-  // Now render the styled tokens based on output format
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
       return tokensToClassNames(styledTokens);
@@ -33,7 +30,6 @@ export function renderLine(
       return tokensToHtml(styledTokens);
     }
   } else {
-    // Default to ANSI output
     return tokensToString(styledTokens);
   }
 }
@@ -49,7 +45,6 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
   
   return tokens
     .map((token) => {
-      // For whitespace and newlines, preserve them exactly as is without styling
       if (
         token.metadata?.matchType === "whitespace" ||
         token.metadata?.matchType === "newline" ||
@@ -58,17 +53,13 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         token.metadata?.matchType === "tab" ||
         token.metadata?.matchType === "carriage-return"
       ) {
-        // Handle trimmed whitespace
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
-            // Convert multiple spaces to single space when trimmed
             return " ";
           }
           if (token.metadata?.matchType === "space") {
-            // Keep single spaces even when trimming
             return token.content;
           }
-          // Other trimmed whitespace is ignored
           return "";
         }
         return token.content;
@@ -104,8 +95,8 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         result = applyDim(result);
       }
 
-      if ((style as any).backgroundColor) {
-        result = applyBackgroundColor(result, (style as any).backgroundColor);
+      if ('backgroundColor' in style && typeof style.backgroundColor === 'string') {
+        result = applyBackgroundColor(result, style.backgroundColor);
       }
 
       return result;
@@ -121,27 +112,24 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
 export function tokensToHtml(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      // Enhanced whitespace handling for HTML
       if (
         token.metadata?.matchType === "whitespace" ||
         token.metadata?.matchType === "space" ||
         token.metadata?.matchType === "spaces" ||
         token.metadata?.matchType === "tab"
       ) {
-        // Handle trimmed whitespace
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces") {
-            return "&nbsp;"; // Convert multiple spaces to single non-breaking space
+            return "&nbsp;";
           }
           if (token.metadata?.matchType === "space") {
-            return "&nbsp;"; // Convert space to non-breaking space
+            return "&nbsp;";
           }
-          return ""; // Other trimmed whitespace is ignored
+          return "";
         }
         
-        // Normal whitespace handling
         if (token.metadata?.matchType === "tab") {
-          return "&nbsp;".repeat(4 * token.content.length); // 4 spaces per tab
+          return "&nbsp;".repeat(4 * token.content.length);
         }
         if (token.metadata?.matchType === "spaces") {
           return "&nbsp;".repeat(token.content.length);
@@ -149,7 +137,6 @@ export function tokensToHtml(tokens: TokenList): string {
         if (token.metadata?.matchType === "space") {
           return "&nbsp;";
         }
-        // Generic whitespace fallback
         return token.content
           .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -160,7 +147,7 @@ export function tokensToHtml(tokens: TokenList): string {
       }
 
       if (token.metadata?.matchType === "carriage-return") {
-        return ""; // Ignore carriage returns in HTML
+        return "";
       }
 
       const style = token.metadata?.style;
@@ -209,27 +196,24 @@ export function tokensToHtml(tokens: TokenList): string {
 export function tokensToClassNames(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      // Enhanced whitespace handling for HTML with classes
       if (
         token.metadata?.matchType === "whitespace" ||
         token.metadata?.matchType === "space" ||
         token.metadata?.matchType === "spaces" ||
         token.metadata?.matchType === "tab"
       ) {
-        // Handle trimmed whitespace
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces") {
-            return '&nbsp;'; // Convert multiple spaces to single non-breaking space
+            return '&nbsp;';
           }
           if (token.metadata?.matchType === "space") {
-            return '&nbsp;'; // Convert space to non-breaking space
+            return '&nbsp;';
           }
-          return ""; // Other trimmed whitespace is ignored
+          return "";
         }
         
-        // Normal whitespace handling
         if (token.metadata?.matchType === "tab") {
-          return "&nbsp;".repeat(4 * token.content.length); // 4 spaces per tab
+          return "&nbsp;".repeat(4 * token.content.length);
         }
         if (token.metadata?.matchType === "spaces") {
           return "&nbsp;".repeat(token.content.length);
@@ -237,7 +221,6 @@ export function tokensToClassNames(tokens: TokenList): string {
         if (token.metadata?.matchType === "space") {
           return "&nbsp;";
         }
-        // Generic whitespace fallback
         return token.content
           .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -248,7 +231,7 @@ export function tokensToClassNames(tokens: TokenList): string {
       }
 
       if (token.metadata?.matchType === "carriage-return") {
-        return ""; // Ignore carriage returns in HTML
+        return "";
       }
 
       const style = token.metadata?.style;
@@ -322,7 +305,7 @@ export function highlightLine(line: string): string {
 export function applyColor(text: string, color: string): string {
   const colorDef = getColorDefinition(color);
   if (!colorDef) {
-    return text; // Return unchanged if color not found
+    return text;
   }
   return `${colorDef.ansi}${text}${STYLE_CODES.resetColor}`;
 }
@@ -372,7 +355,7 @@ export function applyDim(text: string): string {
 export function applyBackgroundColor(text: string, color: string): string {
   const colorDef = BACKGROUND_COLORS[color];
   if (!colorDef) {
-    return text; // Return unchanged if color not found
+    return text;
   }
   return `${colorDef.ansi}${text}${STYLE_CODES.resetBackground}`;
 }

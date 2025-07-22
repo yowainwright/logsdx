@@ -11,7 +11,6 @@ import type {
   Theme,
   LogsDXOptions,
 } from "@/src/types";
-// Add these imports for the rendering functions
 import {
   tokensToString,
   tokensToHtml,

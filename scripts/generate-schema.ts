@@ -16,7 +16,6 @@ async function main() {
   const args = process.argv.slice(2);
   const outputDir = args[0] || "dist/schemas";
   
-  // Read package version
   const packageJson = JSON.parse(
     await fs.readFile(path.join(process.cwd(), "package.json"), "utf-8")
   );
@@ -72,7 +71,6 @@ async function main() {
     for (const { schema, filename, options } of schemas) {
       const jsonSchema = zodToJsonSchema(schema, options as JsonSchemaOptions);
       
-      // Add version and CDN info to schema
       const enhancedSchema = {
         ...jsonSchema,
         $version: version,

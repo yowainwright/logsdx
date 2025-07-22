@@ -8,7 +8,7 @@ import { MatcherType } from "@/src/tokenizer/types";
 export class TokenContext {
   constructor(public text: string, public type: string) {}
 
-  accept(type: string, value?: any): void {
+  accept(type: string, value?: unknown): void {
     this.type = type;
     this.value = value;
   }
@@ -17,7 +17,7 @@ export class TokenContext {
     this.ignored = true;
   }
 
-  value?: any;
+  value?: unknown;
   ignored?: boolean;
 }
 
@@ -41,7 +41,7 @@ export class SimpleLexer {
     this.position = 0;
   }
 
-  token(): { type: string; text: string; value?: any } | null {
+  token(): { type: string; text: string; value?: unknown } | null {
     if (this.position >= this.inputContent.length) {
       return null;
     }
@@ -82,7 +82,7 @@ export class SimpleLexer {
     };
   }
 
-  tokenize(input: string): Array<{ type: string; text: string; value?: any }> {
+  tokenize(input: string): Array<{ type: string; text: string; value?: unknown }> {
     this.input(input);
     const tokens = [];
     let token;
@@ -171,11 +171,9 @@ function escapeRegexPattern(pattern: string): string {
  * Add theme-specific tokenization rules
  */
 function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
-  // Handle whitespace according to theme preferences
   if (theme.schema?.whiteSpace === "trim") {
-    // Override whitespace rules to trim
     lexer.rule(/\t+/, (ctx) => {
-      ctx.ignore(); // Ignore tabs when trimming
+      ctx.ignore();
     });
     lexer.rule(/ {2,}/, (ctx) => {
       ctx.accept("spaces", { trimmed: true, originalLength: ctx.text.length });
@@ -185,23 +183,18 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
     });
   }
 
-  // Handle newlines according to theme preferences
   if (theme.schema?.newLine === "trim") {
-    // Override the default newline rule
     lexer.rule(/\n/, (ctx) => {
-      ctx.ignore(); // Completely ignore newlines
+      ctx.ignore();
     });
     lexer.rule(/\r/, (ctx) => {
-      ctx.ignore(); // Ignore carriage returns too
+      ctx.ignore();
     });
   }
 
-  // Add word matchers from the schema structure
   if (theme.schema?.matchWords) {
     Object.keys(theme.schema.matchWords).forEach((word) => {
-      // Escape special regex characters in the word
       const escapedWord = escapeRegexPattern(word);
-      // Always use case-insensitive matching for words
       lexer.rule(new RegExp(`\\b${escapedWord}\\b`, "i"), (ctx) => {
         ctx.accept("word", {
           matchType: "word",
@@ -212,13 +205,10 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
     });
   }
 
-  // Add pattern matchers from the schema structure
   if (theme.schema?.matchPatterns) {
-    // Check if matchPatterns is an array before using forEach
     if (Array.isArray(theme.schema.matchPatterns)) {
-      theme.schema.matchPatterns.forEach((patternObj: any, index: number) => {
+      theme.schema.matchPatterns.forEach((patternObj, index: number) => {
         try {
-          // Use the escaped pattern to create a safe regex
           const safePattern = patternObj.pattern;
           const regex = new RegExp(safePattern);
           lexer.rule(regex, (ctx) => {
@@ -273,30 +263,30 @@ export function tokenize(line: string, theme?: Theme): TokenList {
         content: token.text,
         metadata: {
           matchType: matchType,
-          matchPattern: token.value?.pattern || token.type,
+          matchPattern: (token.value && typeof token.value === 'object' && 'pattern' in token.value ? (token.value as Record<string, unknown>).pattern : token.type) as string,
         },
       };
 
-      // Add any additional metadata from the token
-      if (token.value) {
-        if (token.value.style) {
-          (newToken.metadata as any).style = token.value.style;
+      if (token.value && typeof token.value === 'object') {
+        const tokenValue = token.value as Record<string, unknown>;
+        if (tokenValue.style) {
+          (newToken.metadata as Record<string, unknown>).style = tokenValue.style;
         }
 
-        if (token.value.pattern) {
-          (newToken.metadata as any).pattern = token.value.pattern;
+        if (tokenValue.pattern) {
+          (newToken.metadata as Record<string, unknown>).pattern = tokenValue.pattern;
         }
 
-        if (token.value.name) {
-          (newToken.metadata as any).name = token.value.name;
+        if (tokenValue.name) {
+          (newToken.metadata as Record<string, unknown>).name = tokenValue.name;
         }
 
-        if (token.value.index !== undefined) {
-          (newToken.metadata as any).index = token.value.index;
+        if (tokenValue.index !== undefined) {
+          (newToken.metadata as Record<string, unknown>).index = tokenValue.index;
         }
 
-        if (token.value.trimmed) {
-          (newToken.metadata as any).trimmed = token.value.trimmed;
+        if (tokenValue.trimmed) {
+          (newToken.metadata as Record<string, unknown>).trimmed = tokenValue.trimmed;
         }
       }
 
@@ -307,7 +297,6 @@ export function tokenize(line: string, theme?: Theme): TokenList {
   } catch (error) {
     console.warn("Tokenization failed:", error);
 
-    // If tokenization fails, return the whole line as a single token
     return [
       {
         content: line,
@@ -348,6 +337,7 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
     if (
       metadata.matchType === "word" &&
       metadata.pattern &&
+      typeof metadata.pattern === 'string' &&
       theme.schema?.matchWords
     ) {
       const wordStyle = theme.schema.matchWords[metadata.pattern];
@@ -369,7 +359,7 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
       theme.schema?.matchPatterns
     ) {
       const pattern = Array.isArray(theme.schema.matchPatterns)
-        ? theme.schema.matchPatterns.find((p: any) => p.name === metadata.name)
+        ? theme.schema.matchPatterns.find((p) => p?.name === (metadata as Record<string, unknown>).name)
         : undefined;
 
       if (pattern && pattern.options) {
@@ -386,11 +376,11 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
     // Apply pattern matching by index
     if (
       metadata.matchType === "regex" &&
-      metadata.index !== undefined &&
+      typeof (metadata as Record<string, unknown>).index === 'number' &&
       theme.schema?.matchPatterns &&
       Array.isArray(theme.schema.matchPatterns)
     ) {
-      const pattern = theme.schema.matchPatterns[metadata.index];
+      const pattern = theme.schema.matchPatterns[(metadata as Record<string, unknown>).index as number];
       if (pattern && pattern.options) {
         return {
           ...token,

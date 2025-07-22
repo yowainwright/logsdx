@@ -1,37 +1,32 @@
 import { ColorDefinition } from "@/src/renderer/types";
+import { Theme } from "@/src/types";
 
 /**
  * Check if the terminal supports colors
  * @returns True if colors are supported
  */
 export function supportsColors(): boolean {
-  // Check for explicit NO_COLOR environment variable
   if (process.env.NO_COLOR) {
     return false;
   }
 
-  // Check for explicit FORCE_COLOR environment variable
   if (process.env.FORCE_COLOR) {
     return true;
   }
 
-  // Check if we're in a TTY
   if (!process.stdout.isTTY) {
     return false;
   }
 
-  // Check TERM environment variable
   const term = process.env.TERM;
   if (!term) {
     return false;
   }
 
-  // Basic color support detection
   if (term === 'dumb') {
     return false;
   }
 
-  // Check for common color-supporting terminals
   if (
     term.includes('color') ||
     term.includes('256') ||
@@ -127,7 +122,7 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
  */
 export function getColorDefinition(
   colorName: string,
-  theme?: any
+  theme?: Theme
 ): ColorDefinition | undefined {
   // First check base colors
   if (TEXT_COLORS[colorName]) {
@@ -135,8 +130,8 @@ export function getColorDefinition(
   }
 
   // If theme has custom color definitions, check those
-  if (theme?.colorDefinitions?.[colorName]) {
-    return theme.colorDefinitions[colorName];
+  if (theme && 'colorDefinitions' in theme && typeof theme.colorDefinitions === 'object' && theme.colorDefinitions && colorName in theme.colorDefinitions) {
+    return (theme.colorDefinitions as Record<string, ColorDefinition>)[colorName];
   }
 
   // If it's a hex color (starts with #), create a definition

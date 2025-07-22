@@ -39,7 +39,6 @@ export interface SimpleThemeConfig {
   newLine?: "preserve" | "trim";
 }
 
-// Built-in presets
 export const THEME_PRESETS: Record<string, ThemePreset> = {
   logLevels: {
     name: "Log Levels",
@@ -154,7 +153,6 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
  * Resolve a color reference to an actual color value
  */
 function resolveColor(colorRef: string, palette: ColorPalette): string {
-  // If it's a palette reference, resolve it
   if (palette[colorRef]) {
     return palette[colorRef]!;
   }

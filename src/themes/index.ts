@@ -43,7 +43,6 @@ export function resetToDefaultTheme(): void {
   applyTheme(DEFAULT_THEME);
 }
 
-// Export theme builder functions and types
 export {
   createTheme,
   createSimpleTheme,

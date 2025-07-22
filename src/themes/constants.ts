@@ -3,10 +3,8 @@ import { createTheme } from "@/src/themes/builder";
 
 export const DEFAULT_THEME = "oh-my-zsh";
 
-// Create themes using the new builder system
 export const THEMES: Record<string, Theme> = {};
 
-// Oh My Zsh Theme (Default)
 THEMES[DEFAULT_THEME] = createTheme({
   name: "oh-my-zsh",
   description: "Theme inspired by Oh My Zsh terminal colors",
@@ -24,7 +22,6 @@ THEMES[DEFAULT_THEME] = createTheme({
   },
 });
 
-// Dracula Theme
 THEMES.dracula = createTheme({
   name: "dracula",
   description: "Dark theme based on the popular Dracula color scheme",
@@ -42,7 +39,6 @@ THEMES.dracula = createTheme({
   },
 });
 
-// GitHub Light Theme
 THEMES["github-light"] = createTheme({
   name: "github-light",
   description: "Light theme inspired by GitHub's default color scheme",
@@ -60,7 +56,6 @@ THEMES["github-light"] = createTheme({
   },
 });
 
-// GitHub Dark Theme
 THEMES["github-dark"] = createTheme({
   name: "github-dark",
   description: "Dark theme inspired by GitHub's dark mode",
@@ -78,7 +73,6 @@ THEMES["github-dark"] = createTheme({
   },
 });
 
-// Solarized Light Theme
 THEMES["solarized-light"] = createTheme({
   name: "solarized-light",
   description: "Light theme based on the popular Solarized color scheme",
@@ -96,7 +90,6 @@ THEMES["solarized-light"] = createTheme({
   },
 });
 
-// Solarized Dark Theme
 THEMES["solarized-dark"] = createTheme({
   name: "solarized-dark",
   description: "Dark theme based on the popular Solarized color scheme",
