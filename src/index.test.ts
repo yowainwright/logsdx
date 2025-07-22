@@ -73,12 +73,11 @@ describe("LogsDX", () => {
       const result = instance.processLine("error: test");
       expect(result).toContain("<span");
 
-      // The HTML output contains each character in its own span
-      // So we need to check for the presence of the characters, not the whole word
-      expect(result).toContain(">e<");
-      expect(result).toContain(">r<");
-      expect(result).toContain(">o<");
-      expect(result).toContain(">r<");
+      // Check that the word "error" is properly styled as a complete word
+      expect(result).toContain("error");
+      // Check that individual characters are properly styled
+      expect(result).toContain(">t</span>");
+      expect(result).toContain(">e</span>");
     });
   });
 

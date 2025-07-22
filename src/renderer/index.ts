@@ -1,7 +1,7 @@
 import { TokenList } from "@/src/schema/types";
 import { Theme } from "@/src/types";
 import { tokenize, applyTheme } from "@/src/tokenizer";
-import { TEXT_COLORS, BACKGROUND_COLORS, STYLE_CODES } from "./constants";
+import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -16,16 +16,13 @@ export function renderLine(
   theme?: Theme,
   options: RenderOptions = {}
 ): string {
-  // First tokenize the line
   const tokens = tokenize(line, theme);
 
-  // Then apply the theme to get styled tokens
   const styledTokens = applyTheme(
     tokens,
     theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
   );
 
-  // Now render the styled tokens based on output format
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
       return tokensToClassNames(styledTokens);
@@ -33,7 +30,6 @@ export function renderLine(
       return tokensToHtml(styledTokens);
     }
   } else {
-    // Default to ANSI output
     return tokensToString(styledTokens);
   }
 }
@@ -41,21 +37,36 @@ export function renderLine(
 /**
  * Convert tokens to a styled string
  * @param tokens - The tokens to convert
+ * @param forceColors - Force color output regardless of terminal detection
  * @returns A string with ANSI escape codes for styling
  */
-export function tokensToString(tokens: TokenList): string {
+export function tokensToString(tokens: TokenList, forceColors?: boolean): string {
+  const colorSupport = forceColors ?? supportsColors();
+  
   return tokens
     .map((token) => {
-      // For whitespace and newlines, preserve them exactly as is without styling
       if (
         token.metadata?.matchType === "whitespace" ||
-        token.metadata?.matchType === "newline"
+        token.metadata?.matchType === "newline" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab" ||
+        token.metadata?.matchType === "carriage-return"
       ) {
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
+            return " ";
+          }
+          if (token.metadata?.matchType === "space") {
+            return token.content;
+          }
+          return "";
+        }
         return token.content;
       }
 
       const style = token.metadata?.style;
-      if (!style) {
+      if (!style || !colorSupport) {
         return token.content;
       }
 
@@ -84,8 +95,8 @@ export function tokensToString(tokens: TokenList): string {
         result = applyDim(result);
       }
 
-      if ((style as any).backgroundColor) {
-        result = applyBackgroundColor(result, (style as any).backgroundColor);
+      if ('backgroundColor' in style && typeof style.backgroundColor === 'string') {
+        result = applyBackgroundColor(result, style.backgroundColor);
       }
 
       return result;
@@ -101,14 +112,42 @@ export function tokensToString(tokens: TokenList): string {
 export function tokensToHtml(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      if (token.metadata?.matchType === "whitespace") {
+      if (
+        token.metadata?.matchType === "whitespace" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab"
+      ) {
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces") {
+            return "&nbsp;";
+          }
+          if (token.metadata?.matchType === "space") {
+            return "&nbsp;";
+          }
+          return "";
+        }
+        
+        if (token.metadata?.matchType === "tab") {
+          return "&nbsp;".repeat(4 * token.content.length);
+        }
+        if (token.metadata?.matchType === "spaces") {
+          return "&nbsp;".repeat(token.content.length);
+        }
+        if (token.metadata?.matchType === "space") {
+          return "&nbsp;";
+        }
         return token.content
-          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
       }
 
       if (token.metadata?.matchType === "newline") {
         return "<br>";
+      }
+
+      if (token.metadata?.matchType === "carriage-return") {
+        return "";
       }
 
       const style = token.metadata?.style;
@@ -119,7 +158,7 @@ export function tokensToHtml(tokens: TokenList): string {
       const css = [];
 
       if (style.color) {
-        const colorDef = TEXT_COLORS[style.color];
+        const colorDef = getColorDefinition(style.color);
         css.push(`color: ${colorDef?.hex || style.color}`);
       }
 
@@ -157,14 +196,42 @@ export function tokensToHtml(tokens: TokenList): string {
 export function tokensToClassNames(tokens: TokenList): string {
   return tokens
     .map((token) => {
-      if (token.metadata?.matchType === "whitespace") {
+      if (
+        token.metadata?.matchType === "whitespace" ||
+        token.metadata?.matchType === "space" ||
+        token.metadata?.matchType === "spaces" ||
+        token.metadata?.matchType === "tab"
+      ) {
+        if (token.metadata?.trimmed) {
+          if (token.metadata?.matchType === "spaces") {
+            return '&nbsp;';
+          }
+          if (token.metadata?.matchType === "space") {
+            return '&nbsp;';
+          }
+          return "";
+        }
+        
+        if (token.metadata?.matchType === "tab") {
+          return "&nbsp;".repeat(4 * token.content.length);
+        }
+        if (token.metadata?.matchType === "spaces") {
+          return "&nbsp;".repeat(token.content.length);
+        }
+        if (token.metadata?.matchType === "space") {
+          return "&nbsp;";
+        }
         return token.content
-          .replace(/ {2,}/g, (match) => "&nbsp;".repeat(match.length))
+          .replace(/ /g, "&nbsp;")
           .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
       }
 
       if (token.metadata?.matchType === "newline") {
         return "<br>";
+      }
+
+      if (token.metadata?.matchType === "carriage-return") {
+        return "";
       }
 
       const style = token.metadata?.style;
@@ -175,7 +242,7 @@ export function tokensToClassNames(tokens: TokenList): string {
       const classes = [];
 
       if (style.color) {
-        const colorDef = TEXT_COLORS[style.color];
+        const colorDef = getColorDefinition(style.color);
         if (colorDef?.className) {
           classes.push(colorDef.className);
         }
@@ -236,9 +303,9 @@ export function highlightLine(line: string): string {
  * @returns The colored text
  */
 export function applyColor(text: string, color: string): string {
-  const colorDef = TEXT_COLORS[color];
+  const colorDef = getColorDefinition(color);
   if (!colorDef) {
-    return text; // Return unchanged if color not found
+    return text;
   }
   return `${colorDef.ansi}${text}${STYLE_CODES.resetColor}`;
 }
@@ -288,7 +355,7 @@ export function applyDim(text: string): string {
 export function applyBackgroundColor(text: string, color: string): string {
   const colorDef = BACKGROUND_COLORS[color];
   if (!colorDef) {
-    return text; // Return unchanged if color not found
+    return text;
   }
   return `${colorDef.ansi}${text}${STYLE_CODES.resetBackground}`;
 }

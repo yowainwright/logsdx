@@ -1,0 +1,117 @@
+{
+  "$ref": "#/definitions/Theme",
+  "definitions": {
+    "Theme": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "defaultStyle": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string"
+                },
+                "styleCodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "htmlStyleFormat": {
+                  "type": "string",
+                  "enum": [
+                    "css",
+                    "className"
+                  ],
+                  "description": "HTML style format"
+                }
+              },
+              "required": [
+                "color"
+              ],
+              "additionalProperties": false
+            },
+            "matchWords": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+              }
+            },
+            "matchStartsWith": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+              }
+            },
+            "matchEndsWith": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+              }
+            },
+            "matchContains": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+              }
+            },
+            "matchPatterns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "type": "string"
+                  },
+                  "options": {
+                    "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                  }
+                },
+                "required": [
+                  "name",
+                  "pattern",
+                  "options"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "whiteSpace": {
+              "type": "string",
+              "enum": [
+                "preserve",
+                "trim"
+              ],
+              "default": "preserve"
+            },
+            "newLine": {
+              "type": "string",
+              "enum": [
+                "preserve",
+                "trim"
+              ],
+              "default": "preserve"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "name",
+        "schema"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

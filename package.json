@@ -2,29 +2,40 @@
   "name": "logsdx",
   "version": "0.1.1",
   "private": false,
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "build": "bun run build:cjs && bun run build:esm",
+    "build": "bun run build:cjs && bun run build:esm && bun run build:types && bun run generate-schema",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
     "build:types": "tsc --noEmit --skipLibCheck --emitDeclarationOnly --declaration --outDir dist",
     "test": "bun test",
+    "test:watch": "bun test --watch",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "bun run prettier --write .",
-    "check": "bun run lint && bun run test",
+    "format:check": "bun run prettier --check .",
+    "check": "bun run lint && bun run format:check && bun run test",
     "generate-css": "bun run scripts/generate-css.ts",
-    "generate-schema": "bun run scripts/generate-schema.ts"
+    "generate-schema": "bun run scripts/generate-schema.ts",
+    "demo": "bun run demo-dracula-consistency.js"
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
-    "@types/node": "^22.15.3",
+    "@types/node": "^24.0.0",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "eslint": "^9.26.0",
     "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "zod": "^3.25.74",
+    "zod-to-json-schema": "^3.24.6"
   },
   "dependencies": {
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "zod": "^3.25.74",
+    "zod-to-json-schema": "^3.24.6"
   }
 }

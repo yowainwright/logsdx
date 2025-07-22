@@ -2,26 +2,63 @@
 
 # LogsDX
 
-A flexible log visualization library that supports theming logs to be viewed in both a terminal and clients.
+**A schema-based styling layer that makes logs look identical between terminal and browser.**
 
-## Why
+LogsDX is not a logger replacement—it's a theming engine that applies consistent visual styling to logs across environments.
 
-After dealing with inferior logs in various clients—ci, ui cloud tools, etc, a way to have the same visual aesthetic of logs in both the terminal and clients seemed necessary.
+## The Problem
 
-#### As of, 2025-04-13, these features are planned:
+Logs look different everywhere:
+- Terminal logs use ANSI colors
+- Browser logs are plain text or basic HTML
+- CI/CD tools have their own styling
+- Each environment requires separate theming efforts
 
-- [x] basic theming and theme support for piping JSON logs in a terminal
-- [x] code functionality for non-specific logs in a terminal
-- [ ] full example and importability of non-specific logs in a terminal (in progress)
-- [x] code functionality for ANSI log theming in a react client
-- [ ] full example and importability of ANSI log theming in a react client (in progress)
-- [ ] more composable way to import and treeshake features
-- [ ] documented working demo displaying the ability to add/use/create custom themes
-- [ ] documented working demo displaying the ability to add/use/create custom parsers
-- [ ] documented working demo displaying the ability to add/use/create custom clients
-- [ ] clearly documented schemas for theming and parsing
-- [ ] clearly documented way to create and use custom clients
-- [ ] improve ways to use build artifacts—only client, only cli, etc
+## The LogsDX Solution
+
+**Write themes once, style logs everywhere.** LogsDX uses a unified schema to define log styling patterns that work identically in:
+
+- **Terminal** (ANSI escape codes)
+- **Browser** (HTML with CSS or CSS classes)  
+- **Any environment** (extensible rendering system)
+
+**Key concept:** LogsDX sits between your existing logger and the display layer, applying consistent theming without replacing your logging infrastructure.
+
+## Schema-Based Theming
+
+LogsDX themes are defined using a JSON schema that specifies:
+
+- **matchWords**: Style specific terms (e.g., "ERROR", "GET", "200")  
+- **matchPatterns**: Style regex patterns (e.g., URLs, IP addresses, timestamps)
+- **defaultStyle**: Fallback styling for unmatched content
+
+The same schema produces ANSI codes for terminal and HTML/CSS for browser, ensuring identical visual appearance.
+
+**Schema Validation**: Use our JSON schema at `https://raw.githubusercontent.com/your-org/logsdx/main/schema.json`
+
+## Integration Approach
+
+LogsDX works as a styling middleware:
+
+```
+Your Logger → LogsDX Styling → Output (Terminal/Browser)
+```
+
+**Terminal Integration:**
+```typescript
+import { LogsDX } from 'logsdx';
+const logsDX = LogsDX.getInstance({ theme: 'my-theme', outputFormat: 'ansi' });
+console.log(logsDX.processLine(logLine)); // ANSI-styled output
+```
+
+**Browser Integration:**
+```typescript  
+import { LogsDX } from 'logsdx';
+const logsDX = LogsDX.getInstance({ theme: 'my-theme', outputFormat: 'html' });
+return <div dangerouslySetInnerHTML={{__html: logsDX.processLine(logLine)}} />;
+```
+
+**Same theme, different formats, identical appearance.**
 
 ## Installation
 
@@ -205,3 +242,18 @@ bun install
 # brew install mise
 mise install
 ```
+
+<!--
+
+```css
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background: linear-gradient(135deg, #42d392, #647eff, #A463BF, #bf6399)
+```
+
+```html
+<span style="-webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background: linear-gradient(135deg, #42d392, #647eff, #A463BF, #bf6399);">Your Text Here</span>
+```
+-->

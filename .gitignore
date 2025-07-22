@@ -138,3 +138,6 @@ dist
 .vscode
 # SpecStory explanation file
 .specstory/.what-is-this.md
+.quokka
+.cursor
+.claude

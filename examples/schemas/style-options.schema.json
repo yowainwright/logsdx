@@ -1,0 +1,32 @@
+{
+  "$ref": "#/definitions/StyleOptions",
+  "definitions": {
+    "StyleOptions": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "type": "string"
+        },
+        "styleCodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "htmlStyleFormat": {
+          "type": "string",
+          "enum": [
+            "css",
+            "className"
+          ],
+          "description": "HTML style format"
+        }
+      },
+      "required": [
+        "color"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

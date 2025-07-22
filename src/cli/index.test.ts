@@ -1,5 +1,14 @@
 import { expect, test, describe, afterAll } from "bun:test";
 import type { LogLevel, ParsedLine } from "@/src/types";
+import { Writable } from "stream";
+
+interface CliOptions {
+  flags: Set<string>;
+  inputFile: string;
+  outputFile: string;
+  minLevel: string | undefined;
+  isDebug: boolean;
+}
 
 const originalConsoleLog = console.log;
 let consoleLogCalls = 0;
@@ -39,7 +48,7 @@ function shouldRender(
 function processArg(
   arg: string,
   index: number,
-  options: any,
+  options: CliOptions,
   args: string[]
 ): number {
   if (arg === "--quiet") {
@@ -73,8 +82,8 @@ function processArg(
   return 0;
 }
 
-function parseArgs(args: string[]): any {
-  const options: any = {
+function parseArgs(args: string[]): CliOptions {
+  const options: CliOptions = {
     flags: new Set<string>(),
     inputFile: "",
     outputFile: "",
@@ -85,7 +94,7 @@ function parseArgs(args: string[]): any {
   let i = 0;
   while (i < args.length) {
     const arg = args[i];
-    const skip = processArg(arg as any, i, options, args);
+    const skip = processArg(arg, i, options, args);
     i += skip + 1;
   }
 
@@ -95,8 +104,8 @@ function parseArgs(args: string[]): any {
 function handleLine(
   parser: (line: string) => ParsedLine,
   line: string,
-  options: any,
-  outputStream: any
+  options: CliOptions,
+  outputStream: NodeJS.WriteStream | Writable
 ): void {
   const parsed = parser(line);
   if (!parsed) return;
@@ -125,7 +134,7 @@ const resetMocks = () => {
 describe("processArg", () => {
   test("should add quiet flag to options", () => {
     resetMocks();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -140,7 +149,7 @@ describe("processArg", () => {
 
   test("should set isDebug to true", () => {
     resetMocks();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -155,7 +164,7 @@ describe("processArg", () => {
 
   test("should set outputFile", () => {
     resetMocks();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -171,7 +180,7 @@ describe("processArg", () => {
 
   test("should set minLevel", () => {
     resetMocks();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -186,7 +195,7 @@ describe("processArg", () => {
 
   test("should set inputFile", () => {
     resetMocks();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -249,7 +258,7 @@ describe("handleLine", () => {
   test("should process line and output to console when not quiet", () => {
     resetMocks();
     const mockParser = createMockParser();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
@@ -265,7 +274,7 @@ describe("handleLine", () => {
   test("should not output to console when quiet flag is set", () => {
     resetMocks();
     const mockParser = createMockParser();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(["quiet"]),
       inputFile: "",
       outputFile: "",
@@ -281,11 +290,11 @@ describe("handleLine", () => {
   test("should not output when level is below minLevel", () => {
     resetMocks();
     const mockParser = createMockParser();
-    const options: any = {
+    const options: CliOptions = {
       flags: new Set<string>(),
       inputFile: "",
       outputFile: "",
-      minLevel: "error" as LogLevel,
+      minLevel: "error",
       isDebug: false,
     };
 

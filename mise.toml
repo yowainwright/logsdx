@@ -3,4 +3,4 @@ BUN_VERSION = "1.2.9"
 
 [tools]
 bun = "1.2.9"
-node = "23"
+node = "24"

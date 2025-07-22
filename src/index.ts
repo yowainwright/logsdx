@@ -11,7 +11,6 @@ import type {
   Theme,
   LogsDXOptions,
 } from "@/src/types";
-// Add these imports for the rendering functions
 import {
   tokensToString,
   tokensToHtml,
@@ -37,16 +36,20 @@ export class LogsDX {
       ...options,
     };
 
-    this.currentTheme = getTheme(this.options.theme);
+    if (typeof this.options.theme === "string") {
+      this.currentTheme = getTheme(this.options.theme);
+    } else {
+      this.currentTheme = this.options.theme;
+    }
 
-    if (this.options.theme !== "oh-my-zsh") {
+    if (typeof this.options.theme !== "string" || this.options.theme !== "oh-my-zsh") {
       try {
         validateTheme(this.currentTheme);
       } catch (error) {
         if (this.options.debug) {
           console.warn("Invalid custom theme:", error);
         }
-        this.currentTheme = getTheme(this.options.theme);
+        this.currentTheme = getTheme("oh-my-zsh");
       }
     }
   }
@@ -68,7 +71,11 @@ export class LogsDX {
 
       // If theme changed, update the current theme
       if (options.theme) {
-        LogsDX.instance.currentTheme = getTheme(options.theme);
+        if (typeof options.theme === "string") {
+          LogsDX.instance.currentTheme = getTheme(options.theme);
+        } else {
+          LogsDX.instance.currentTheme = options.theme;
+        }
       }
     }
     return LogsDX.instance;

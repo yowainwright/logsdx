@@ -1,5 +1,7 @@
 import type { Theme } from "@/src/types";
 import { THEMES, DEFAULT_THEME } from "@/src/themes/constants";
+import { createTheme, createSimpleTheme, extendTheme, THEME_PRESETS } from "@/src/themes/builder";
+import type { ColorPalette, SimpleThemeConfig } from "@/src/themes/builder";
 
 /**
  * Get a theme by name
@@ -39,4 +41,21 @@ export function applyTheme(themeName: string): void {
  */
 export function resetToDefaultTheme(): void {
   applyTheme(DEFAULT_THEME);
+}
+
+export {
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  THEME_PRESETS,
+  type ColorPalette,
+  type SimpleThemeConfig,
+};
+
+/**
+ * Register a new theme
+ * @param theme Theme to register
+ */
+export function registerTheme(theme: Theme): void {
+  THEMES[theme.name] = theme;
 }

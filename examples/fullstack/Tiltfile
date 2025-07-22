@@ -1,0 +1,75 @@
+# Tiltfile for LogsDX Demo Environment
+# Demonstrates identical log styling between terminal and browser
+
+# Build the LogsDX library
+local_resource(
+    'build-logsdx',
+    cmd='bun run build',
+    deps=['src/', 'package.json', 'tsconfig.json'],
+    labels=['logsdx']
+)
+
+# Terminal demo - generates logs and shows styled output
+local_resource(
+    'terminal-demo',
+    cmd='bun run demo/terminal-demo.ts',
+    resource_deps=['build-logsdx'],
+    serve_cmd='while true; do bun run demo/terminal-demo.ts; sleep 2; done',
+    labels=['terminal'],
+    auto_init=False
+)
+
+# Mock log generator - creates realistic log streams
+local_resource(
+    'log-generator',
+    cmd='bun run demo/log-generator.ts',
+    resource_deps=['build-logsdx'],
+    serve_cmd='bun run demo/log-generator.ts --stream',
+    labels=['logs']
+)
+
+# Web demo server - shows browser styling
+docker_build(
+    'logsdx-web-demo',
+    context='.',
+    dockerfile='demo/Dockerfile',
+    only=['dist/', 'demo/web/', 'package.json']
+)
+
+k8s_yaml('demo/k8s/web-demo.yaml')
+
+k8s_resource(
+    'logsdx-web-demo',
+    port_forwards=['3000:3000'],
+    labels=['browser'],
+    resource_deps=['build-logsdx']
+)
+
+# Side-by-side comparison server
+local_resource(
+    'comparison-server',
+    cmd='bun run demo/comparison-server.ts',
+    resource_deps=['build-logsdx', 'log-generator'],
+    serve_cmd='bun run demo/comparison-server.ts',
+    port_forwards=['3001:3001'],
+    labels=['comparison']
+)
+
+print("""
+🚀 LogsDX Demo Environment
+
+Services:
+- Terminal Demo:     tilt trigger terminal-demo
+- Web Demo:          http://localhost:3000  
+- Comparison View:   http://localhost:3001
+- Log Generator:     Streams realistic logs
+
+Commands:
+- tilt up              # Start all services
+- tilt down            # Stop all services
+- tilt trigger         # Run terminal demo once
+
+The demo shows identical styling between:
+✓ Terminal (ANSI codes)
+✓ Browser (HTML/CSS)
+""")

@@ -15,7 +15,7 @@ export const tokenMetadataSchema = z
       .optional()
       .describe("Styling information for this token"),
   })
-  .catchall(z.any())
+  .catchall(z.unknown())
   .optional();
 
 export const patternMatchSchema = z.object({
