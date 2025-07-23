@@ -11,15 +11,23 @@ describe("Color Support Detection", () => {
 
   afterEach(() => {
     process.env = originalEnv;
+<<<<<<< HEAD
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY =
       originalStdout;
+=======
+    (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = originalStdout;
+>>>>>>> main
   });
 
   test("returns false when NO_COLOR is set", () => {
     process.env.NO_COLOR = "1";
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     process.env.TERM = "xterm-256color";
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     expect(supportsColors()).toBe(false);
   });
 
@@ -27,7 +35,11 @@ describe("Color Support Detection", () => {
     process.env.FORCE_COLOR = "1";
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = false;
     delete process.env.TERM;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     expect(supportsColors()).toBe(true);
   });
 
@@ -35,7 +47,11 @@ describe("Color Support Detection", () => {
     delete process.env.NO_COLOR;
     delete process.env.FORCE_COLOR;
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = false;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     expect(supportsColors()).toBe(false);
   });
 
@@ -44,7 +60,11 @@ describe("Color Support Detection", () => {
     delete process.env.FORCE_COLOR;
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     delete process.env.TERM;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     expect(supportsColors()).toBe(false);
   });
 
@@ -53,7 +73,11 @@ describe("Color Support Detection", () => {
     delete process.env.FORCE_COLOR;
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     process.env.TERM = "dumb";
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> main
     expect(supportsColors()).toBe(false);
   });
 
@@ -61,9 +85,15 @@ describe("Color Support Detection", () => {
     delete process.env.NO_COLOR;
     delete process.env.FORCE_COLOR;
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
+<<<<<<< HEAD
 
     const colorTerms = ["xterm-256color", "screen", "tmux", "xterm"];
 
+=======
+    
+    const colorTerms = ["xterm-256color", "screen", "tmux", "xterm"];
+    
+>>>>>>> main
     for (const term of colorTerms) {
       process.env.TERM = term;
       expect(supportsColors()).toBe(true);
@@ -76,7 +106,14 @@ describe("Color Support Detection", () => {
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     process.env.TERM = "unknown";
     process.env.COLORTERM = "truecolor";
+<<<<<<< HEAD
 
     expect(supportsColors()).toBe(true);
   });
 });
+=======
+    
+    expect(supportsColors()).toBe(true);
+  });
+});
+>>>>>>> main

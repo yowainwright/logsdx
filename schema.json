@@ -11,12 +11,18 @@
       "examples": ["my-custom-theme", "api-logs", "terminal-hacker"]
     },
     "description": {
+<<<<<<< HEAD
       "type": "string",
       "description": "Human-readable description of the theme",
       "examples": [
         "Theme optimized for API logs",
         "Dark theme with green terminal colors"
       ]
+=======
+      "type": "string", 
+      "description": "Human-readable description of the theme",
+      "examples": ["Theme optimized for API logs", "Dark theme with green terminal colors"]
+>>>>>>> main
     },
     "schema": {
       "type": "object",
@@ -34,6 +40,7 @@
               "$ref": "#/$defs/styleOptions"
             }
           },
+<<<<<<< HEAD
           "examples": [
             {
               "ERROR": { "color": "red", "styleCodes": ["bold"] },
@@ -44,6 +51,16 @@
         },
         "matchStartsWith": {
           "type": "object",
+=======
+          "examples": [{
+            "ERROR": { "color": "red", "styleCodes": ["bold"] },
+            "GET": { "color": "blue" },
+            "200": { "color": "green", "styleCodes": ["bold"] }
+          }]
+        },
+        "matchStartsWith": {
+          "type": "object", 
+>>>>>>> main
           "description": "Match content that starts with specific strings",
           "patternProperties": {
             "^.*$": {
@@ -53,7 +70,11 @@
         },
         "matchEndsWith": {
           "type": "object",
+<<<<<<< HEAD
           "description": "Match content that ends with specific strings",
+=======
+          "description": "Match content that ends with specific strings", 
+>>>>>>> main
           "patternProperties": {
             "^.*$": {
               "$ref": "#/$defs/styleOptions"
@@ -75,6 +96,7 @@
           "items": {
             "$ref": "#/$defs/patternMatch"
           },
+<<<<<<< HEAD
           "examples": [
             [
               {
@@ -89,6 +111,20 @@
               }
             ]
           ]
+=======
+          "examples": [[
+            {
+              "name": "url-path",
+              "pattern": "/[a-zA-Z0-9/_-]+",
+              "options": { "color": "blue", "styleCodes": ["italic"] }
+            },
+            {
+              "name": "ip-address", 
+              "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b",
+              "options": { "color": "cyan", "styleCodes": ["bold"] }
+            }
+          ]]
+>>>>>>> main
         },
         "whiteSpace": {
           "type": "string",
@@ -97,7 +133,11 @@
           "description": "How to handle whitespace in logs"
         },
         "newLine": {
+<<<<<<< HEAD
           "type": "string",
+=======
+          "type": "string", 
+>>>>>>> main
           "enum": ["preserve", "trim"],
           "default": "preserve",
           "description": "How to handle newlines in logs"
@@ -123,6 +163,7 @@
           "description": "Array of style modifiers to apply",
           "items": {
             "type": "string",
+<<<<<<< HEAD
             "enum": [
               "bold",
               "italic",
@@ -132,6 +173,9 @@
               "reverse",
               "strikethrough"
             ]
+=======
+            "enum": ["bold", "italic", "underline", "dim", "blink", "reverse", "strikethrough"]
+>>>>>>> main
           },
           "examples": [["bold"], ["italic", "underline"], ["bold", "dim"]]
         },
@@ -158,7 +202,11 @@
           "description": "Regular expression pattern to match",
           "examples": [
             "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+<<<<<<< HEAD
             "/[a-zA-Z0-9/_-]+",
+=======
+            "/[a-zA-Z0-9/_-]+", 
+>>>>>>> main
             "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"
           ]
         },
@@ -195,7 +243,11 @@
           },
           {
             "name": "ip-address",
+<<<<<<< HEAD
             "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b",
+=======
+            "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b", 
+>>>>>>> main
             "options": { "color": "#17a2b8", "styleCodes": ["bold"] }
           },
           {
@@ -209,4 +261,8 @@
       }
     }
   ]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

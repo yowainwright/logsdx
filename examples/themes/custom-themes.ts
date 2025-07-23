@@ -17,7 +17,11 @@ import {
 // Example 1: Create a simple theme with just colors
 const neonTheme = createSimpleTheme("neon", {
   primary: "#ff6b6b",
+<<<<<<< HEAD
   secondary: "#4ecdc4",
+=======
+  secondary: "#4ecdc4", 
+>>>>>>> main
   accent: "#45b7d1",
   error: "#ff5555",
   warning: "#ffb86c",
@@ -34,7 +38,11 @@ const terminalTheme = createTheme({
   description: "Green-on-black hacker terminal theme",
   colors: {
     primary: "#00ff00",
+<<<<<<< HEAD
     secondary: "#00cc00",
+=======
+    secondary: "#00cc00", 
+>>>>>>> main
     accent: "#ffffff",
     error: "#ff0000",
     warning: "#ffff00",
@@ -48,11 +56,19 @@ const terminalTheme = createTheme({
   presets: ["logLevels", "booleans", "numbers"],
   // Add custom words
   customWords: {
+<<<<<<< HEAD
     SYSTEM: "error",
     ACCESS: "success",
     DENIED: "error",
     GRANTED: "success",
     BREACH: { color: "error", styleCodes: ["bold", "blink"] },
+=======
+    "SYSTEM": "error",
+    "ACCESS": "success", 
+    "DENIED": "error",
+    "GRANTED": "success",
+    "BREACH": { color: "error", styleCodes: ["bold", "blink"] },
+>>>>>>> main
   },
   // Add custom patterns
   customPatterns: [
@@ -86,8 +102,13 @@ const darkDraculaTheme = extendTheme(getTheme("dracula"), {
   },
   // Add new custom words
   customWords: {
+<<<<<<< HEAD
     MIDNIGHT: "text",
     SHADOW: "muted",
+=======
+    "MIDNIGHT": "text",
+    "SHADOW": "muted",
+>>>>>>> main
   },
 });
 
@@ -97,7 +118,11 @@ const apiTheme = createTheme({
   description: "Theme optimized for API request/response logs",
   colors: {
     primary: "#007acc",
+<<<<<<< HEAD
     secondary: "#17a2b8",
+=======
+    secondary: "#17a2b8", 
+>>>>>>> main
     accent: "#ffc107",
     error: "#dc3545",
     warning: "#fd7e14",
@@ -109,6 +134,7 @@ const apiTheme = createTheme({
   },
   presets: ["logLevels", "strings", "numbers"],
   customWords: {
+<<<<<<< HEAD
     GET: "success",
     POST: "info",
     PUT: "warning",
@@ -118,6 +144,17 @@ const apiTheme = createTheme({
     OPTIONS: "muted",
     "200": "success",
     "201": "success",
+=======
+    "GET": "success",
+    "POST": "info", 
+    "PUT": "warning",
+    "DELETE": "error",
+    "PATCH": "secondary",
+    "HEAD": "muted",
+    "OPTIONS": "muted",
+    "200": "success",
+    "201": "success", 
+>>>>>>> main
     "400": "warning",
     "401": "error",
     "403": "error",
@@ -133,7 +170,11 @@ const apiTheme = createTheme({
     },
     {
       name: "json-key",
+<<<<<<< HEAD
       pattern: '"[a-zA-Z_][a-zA-Z0-9_]*"\\s*:',
+=======
+      pattern: "\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:",
+>>>>>>> main
       color: "primary",
     },
     {
@@ -147,7 +188,11 @@ const apiTheme = createTheme({
 // Example 5: Quick custom theme with minimal config
 const simpleTheme = createSimpleTheme("ocean", {
   primary: "#0077be",
+<<<<<<< HEAD
   error: "#e74c3c",
+=======
+  error: "#e74c3c", 
+>>>>>>> main
   success: "#27ae60",
   text: "#2c3e50",
 });
@@ -184,4 +229,14 @@ for (const [name, preset] of Object.entries(THEME_PRESETS)) {
   console.log(`- ${name}: ${preset.name}`);
 }
 
+<<<<<<< HEAD
 export { neonTheme, terminalTheme, darkDraculaTheme, apiTheme, simpleTheme };
+=======
+export {
+  neonTheme,
+  terminalTheme,
+  darkDraculaTheme,
+  apiTheme,
+  simpleTheme,
+};
+>>>>>>> main

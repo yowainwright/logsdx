@@ -27,11 +27,24 @@
                 },
                 "htmlStyleFormat": {
                   "type": "string",
+<<<<<<< HEAD
                   "enum": ["css", "className"],
                   "description": "HTML style format"
                 }
               },
               "required": ["color"],
+=======
+                  "enum": [
+                    "css",
+                    "className"
+                  ],
+                  "description": "HTML style format"
+                }
+              },
+              "required": [
+                "color"
+              ],
+>>>>>>> main
               "additionalProperties": false
             },
             "matchWords": {
@@ -73,27 +86,60 @@
                     "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
                   }
                 },
+<<<<<<< HEAD
                 "required": ["name", "pattern", "options"],
+=======
+                "required": [
+                  "name",
+                  "pattern",
+                  "options"
+                ],
+>>>>>>> main
                 "additionalProperties": false
               }
             },
             "whiteSpace": {
               "type": "string",
+<<<<<<< HEAD
               "enum": ["preserve", "trim"],
+=======
+              "enum": [
+                "preserve",
+                "trim"
+              ],
+>>>>>>> main
               "default": "preserve"
             },
             "newLine": {
               "type": "string",
+<<<<<<< HEAD
               "enum": ["preserve", "trim"],
+=======
+              "enum": [
+                "preserve",
+                "trim"
+              ],
+>>>>>>> main
               "default": "preserve"
             }
           },
           "additionalProperties": false
         }
       },
+<<<<<<< HEAD
       "required": ["name", "schema"],
+=======
+      "required": [
+        "name",
+        "schema"
+      ],
+>>>>>>> main
       "additionalProperties": false
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

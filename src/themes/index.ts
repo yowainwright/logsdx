@@ -33,21 +33,6 @@ export function getThemeNames(): string[] {
   return Object.keys(THEMES);
 }
 
-/**
- * Apply a theme by name
- * @param themeName Name of the theme to apply
- */
-export function applyTheme(themeName: string): void {
-  console.log(`Applied theme: ${themeName}`);
-}
-
-/**
- * Reset to the default theme
- */
-export function resetToDefaultTheme(): void {
-  applyTheme(DEFAULT_THEME);
-}
-
 export {
   createTheme,
   createSimpleTheme,
@@ -56,11 +41,3 @@ export {
   type ColorPalette,
   type SimpleThemeConfig,
 };
-
-/**
- * Register a new theme
- * @param theme Theme to register
- */
-export function registerTheme(theme: Theme): void {
-  THEMES[theme.name] = theme;
-}

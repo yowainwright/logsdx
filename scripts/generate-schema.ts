@@ -23,74 +23,61 @@ async function main() {
 
   try {
     await fs.mkdir(outputDir, { recursive: true });
+    console.log(`Creating schemas in ${outputDir}`);
 
     const schemas = [
       {
+        name: "token",
         schema: tokenSchema,
         filename: "token.schema.json",
-        options: {
-          name: "Token",
-          description: "Schema for tokens in the LogsDX styling system",
-        },
       },
       {
+        name: "token-list", 
         schema: tokenListSchema,
         filename: "token-list.schema.json",
-        options: {
-          name: "TokenList",
-          description: "Schema for token lists in the LogsDX styling system",
-        },
       },
       {
+        name: "theme",
         schema: themePresetSchema,
         filename: "theme.schema.json",
-        options: {
-          name: "Theme",
-          description: "Schema for themes in the LogsDX styling system",
-        },
       },
       {
+        name: "style-options",
         schema: styleOptionsSchema,
         filename: "style-options.schema.json",
-        options: {
-          name: "StyleOptions",
-          description: "Schema for style options in the LogsDX styling system",
-        },
       },
       {
+        name: "schema-config",
         schema: schemaConfigSchema,
         filename: "schema-config.schema.json",
-        options: {
-          name: "SchemaConfig",
-          description:
-            "Schema for theme configuration in the LogsDX styling system",
-        },
       },
     ];
 
-    for (const { schema, filename, options } of schemas) {
-      const jsonSchema = zodToJsonSchema(schema, options as JsonSchemaOptions);
+    for (const { name, schema, filename } of schemas) {
+      console.log(`Generating ${name} schema...`);
+      
+      const jsonSchema = zodToJsonSchema(schema, {
+        name,
+        $refStrategy: "relative",
+        definitionPath: "$defs",
+        definitions: {},
+      } as JsonSchemaOptions);
 
-      const enhancedSchema = {
-        ...jsonSchema,
-        $version: version,
-        $id: `https://unpkg.com/logsdx@${version}/dist/schemas/${filename}`,
-        $comment: `LogsDX v${version} - Available via CDN at https://unpkg.com/logsdx@latest/dist/schemas/${filename}`,
-      };
+      // Add version to the schema
+      jsonSchema.version = version;
 
-      await fs.writeFile(
-        path.join(outputDir, filename),
-        JSON.stringify(enhancedSchema, null, 2),
-        "utf-8",
-      );
-      console.log(`Schema generated at: ${path.join(outputDir, filename)}`);
+      const outputPath = path.join(outputDir, filename);
+      await fs.writeFile(outputPath, JSON.stringify(jsonSchema, null, 2));
+      console.log(`✓ ${filename}`);
     }
 
-    console.log("Schema generation completed successfully");
+    console.log(`\n✅ Successfully generated ${schemas.length} schema files`);
   } catch (error) {
-    console.error("Error generating schema files:", error);
+    console.error("Error generating schemas:", error);
     process.exit(1);
   }
 }
 
-main();
+if (import.meta.main) {
+  main();
+}

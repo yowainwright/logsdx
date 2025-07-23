@@ -25,11 +25,24 @@
                 },
                 "htmlStyleFormat": {
                   "type": "string",
+<<<<<<< HEAD
                   "enum": ["css", "className"],
                   "description": "HTML style format"
                 }
               },
               "required": ["color"],
+=======
+                  "enum": [
+                    "css",
+                    "className"
+                  ],
+                  "description": "HTML style format"
+                }
+              },
+              "required": [
+                "color"
+              ],
+>>>>>>> main
               "additionalProperties": false,
               "description": "Styling information for this token"
             }
@@ -38,9 +51,19 @@
           "description": "Additional token metadata including style information"
         }
       },
+<<<<<<< HEAD
       "required": ["content"],
+=======
+      "required": [
+        "content"
+      ],
+>>>>>>> main
       "additionalProperties": false
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main
