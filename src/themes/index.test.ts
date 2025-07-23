@@ -3,8 +3,7 @@ import {
   getTheme,
   getAllThemes,
   getThemeNames,
-  applyTheme,
-  resetToDefaultTheme,
+  registerTheme,
 } from "./index";
 import { THEMES, DEFAULT_THEME } from "./constants";
 
@@ -57,17 +56,59 @@ describe("Theme Management", () => {
     });
   });
 
-  describe("applyTheme", () => {
-    test("logs the applied theme name", () => {
-      applyTheme("dark-theme");
-      expect(consoleOutput).toEqual(["Applied theme: dark-theme"]);
-    });
-  });
+  describe("registerTheme", () => {
+    test("registers a new theme and makes it available", () => {
+      const testTheme = {
+        name: "test-theme",
+        description: "A test theme",
+        schema: {
+          defaultStyle: { color: "white" },
+          matchWords: {},
+          matchPatterns: [],
+          whiteSpace: "preserve" as const,
+          newLine: "preserve" as const
+        }
+      };
 
-  describe("resetToDefaultTheme", () => {
-    test("applies the default theme", () => {
-      resetToDefaultTheme();
-      expect(consoleOutput).toEqual([`Applied theme: ${DEFAULT_THEME}`]);
+      registerTheme(testTheme);
+      
+      // Verify theme was registered
+      expect(getTheme("test-theme")).toEqual(testTheme);
+      expect(getThemeNames()).toContain("test-theme");
+      expect(getAllThemes()["test-theme"]).toEqual(testTheme);
+    });
+
+    test("overwrites existing theme with same name", () => {
+      const firstTheme = {
+        name: "overwrite-test",
+        description: "First version",
+        schema: {
+          defaultStyle: { color: "red" },
+          matchWords: {},
+          matchPatterns: [],
+          whiteSpace: "preserve" as const,
+          newLine: "preserve" as const
+        }
+      };
+
+      const secondTheme = {
+        name: "overwrite-test", 
+        description: "Second version",
+        schema: {
+          defaultStyle: { color: "blue" },
+          matchWords: {},
+          matchPatterns: [],
+          whiteSpace: "preserve" as const,
+          newLine: "preserve" as const
+        }
+      };
+
+      registerTheme(firstTheme);
+      registerTheme(secondTheme);
+      
+      // Should have the second theme
+      expect(getTheme("overwrite-test")).toEqual(secondTheme);
+      expect(getTheme("overwrite-test").description).toBe("Second version");
     });
   });
 });

@@ -1,0 +1,16 @@
+{
+  "name": "logsdx-demo",
+  "version": "1.0.0",
+  "description": "LogsDX - Beautiful log styling for terminal and browser",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "logsdx": "latest"
+  },
+  "keywords": ["logs", "terminal", "styling", "ansi", "html"],
+  "author": "LogsDX",
+  "license": "MIT"
+}

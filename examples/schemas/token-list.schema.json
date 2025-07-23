@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/TokenList",
-  "definitions": {
-    "TokenList": {
+  "$ref": "$defs/token-list",
+  "$defs": {
+    "token-list": {
       "type": "array",
       "items": {
         "type": "object",
@@ -27,13 +27,6 @@
                   },
                   "htmlStyleFormat": {
                     "type": "string",
-<<<<<<< HEAD
-                    "enum": ["css", "className"],
-                    "description": "HTML style format"
-                  }
-                },
-                "required": ["color"],
-=======
                     "enum": [
                       "css",
                       "className"
@@ -44,7 +37,6 @@
                 "required": [
                   "color"
                 ],
->>>>>>> main
                 "additionalProperties": false,
                 "description": "Styling information for this token"
               }
@@ -53,20 +45,13 @@
             "description": "Additional token metadata including style information"
           }
         },
-<<<<<<< HEAD
-        "required": ["content"],
-=======
         "required": [
           "content"
         ],
->>>>>>> main
         "additionalProperties": false
       }
     }
   },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-<<<<<<< HEAD
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "0.1.1"
 }
-=======
-}
->>>>>>> main

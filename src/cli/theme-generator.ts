@@ -11,6 +11,7 @@ import {
   type ThemeGeneratorConfig,
 } from "../themes/generator";
 import { registerTheme } from "../themes";
+import type { Theme } from "../types";
 
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
@@ -272,7 +273,7 @@ async function collectCustomWords(): Promise<ThemeGeneratorConfig["customWords"]
   return words;
 }
 
-async function showThemePreview(theme, palette) {
+async function showThemePreview(theme: Theme, palette: ColorPalette) {
   console.log(chalk.bold("\n🎬 Theme Preview:\n"));
 
   const sampleLogs = [

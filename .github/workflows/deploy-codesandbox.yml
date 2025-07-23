@@ -1,0 +1,57 @@
+name: deploy codesandbox demo 🎨
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  deploy-demo:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install CodeSandbox CLI
+        run: bun add -g codesandbox
+
+      - name: Update demo package version
+        working-directory: examples/codesandbox
+        run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          
+          # Replace "latest" with the specific release version
+          sed -i "s/\"logsdx\": \"latest\"/\"logsdx\": \"${VERSION}\"/g" package.json
+          echo "Updated package.json to use version ${VERSION}"
+          cat package.json
+
+      - name: Deploy to CodeSandbox
+        working-directory: examples/codesandbox
+        env:
+          CODESANDBOX_TOKEN: ${{ secrets.CODESANDBOX_TOKEN }}
+        run: |
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          
+          # Deploy with a versioned name
+          codesandbox deploy --name "logsdx-demo-${VERSION}" .
+          
+          echo "Deployed demo to CodeSandbox as logsdx-demo-${VERSION}"

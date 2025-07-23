@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/Theme",
-  "definitions": {
-    "Theme": {
+  "$ref": "$defs/theme",
+  "$defs": {
+    "theme": {
       "type": "object",
       "properties": {
         "name": {
@@ -27,13 +27,6 @@
                 },
                 "htmlStyleFormat": {
                   "type": "string",
-<<<<<<< HEAD
-                  "enum": ["css", "className"],
-                  "description": "HTML style format"
-                }
-              },
-              "required": ["color"],
-=======
                   "enum": [
                     "css",
                     "className"
@@ -44,31 +37,30 @@
               "required": [
                 "color"
               ],
->>>>>>> main
               "additionalProperties": false
             },
             "matchWords": {
               "type": "object",
               "additionalProperties": {
-                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                "$ref": "2/defaultStyle"
               }
             },
             "matchStartsWith": {
               "type": "object",
               "additionalProperties": {
-                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                "$ref": "2/defaultStyle"
               }
             },
             "matchEndsWith": {
               "type": "object",
               "additionalProperties": {
-                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                "$ref": "2/defaultStyle"
               }
             },
             "matchContains": {
               "type": "object",
               "additionalProperties": {
-                "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                "$ref": "2/defaultStyle"
               }
             },
             "matchPatterns": {
@@ -83,63 +75,44 @@
                     "type": "string"
                   },
                   "options": {
-                    "$ref": "#/definitions/Theme/properties/schema/properties/defaultStyle"
+                    "$ref": "4/defaultStyle"
                   }
                 },
-<<<<<<< HEAD
-                "required": ["name", "pattern", "options"],
-=======
                 "required": [
                   "name",
                   "pattern",
                   "options"
                 ],
->>>>>>> main
                 "additionalProperties": false
               }
             },
             "whiteSpace": {
               "type": "string",
-<<<<<<< HEAD
-              "enum": ["preserve", "trim"],
-=======
               "enum": [
                 "preserve",
                 "trim"
               ],
->>>>>>> main
               "default": "preserve"
             },
             "newLine": {
               "type": "string",
-<<<<<<< HEAD
-              "enum": ["preserve", "trim"],
-=======
               "enum": [
                 "preserve",
                 "trim"
               ],
->>>>>>> main
               "default": "preserve"
             }
           },
           "additionalProperties": false
         }
       },
-<<<<<<< HEAD
-      "required": ["name", "schema"],
-=======
       "required": [
         "name",
         "schema"
       ],
->>>>>>> main
       "additionalProperties": false
     }
   },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-<<<<<<< HEAD
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "0.1.1"
 }
-=======
-}
->>>>>>> main

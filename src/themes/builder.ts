@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-import type {
-  Theme,
-  SchemaConfig,
-  StyleOptions,
-  PatternMatch,
-} from "@/src/types";
-=======
 import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "@/src/types";
->>>>>>> main
 
 export interface ColorPalette {
   primary?: string;
@@ -174,20 +165,12 @@ function resolveColor(colorRef: string, palette: ColorPalette): string {
  */
 function normalizeStyleOptions(
   options: string | StyleOptions,
-<<<<<<< HEAD
-  palette: ColorPalette,
-=======
   palette: ColorPalette
->>>>>>> main
 ): StyleOptions {
   if (typeof options === "string") {
     return { color: resolveColor(options, palette) };
   }
-<<<<<<< HEAD
-
-=======
   
->>>>>>> main
   return {
     ...options,
     color: resolveColor(options.color, palette),
@@ -200,14 +183,7 @@ function normalizeStyleOptions(
 export function createTheme(config: SimpleThemeConfig): Theme {
   const schema: SchemaConfig = {
     defaultStyle: {
-<<<<<<< HEAD
-      color: resolveColor(
-        config.defaultTextColor || config.colors.text || "white",
-        config.colors,
-      ),
-=======
       color: resolveColor(config.defaultTextColor || config.colors.text || "white", config.colors),
->>>>>>> main
     },
     matchWords: {},
     matchPatterns: [],
@@ -216,20 +192,8 @@ export function createTheme(config: SimpleThemeConfig): Theme {
   };
 
   // Add preset patterns and words
-<<<<<<< HEAD
-  const presets = config.presets || [
-    "logLevels",
-    "booleans",
-    "brackets",
-    "strings",
-    "numbers",
-    "dates",
-  ];
-
-=======
   const presets = config.presets || ["logLevels", "booleans", "brackets", "strings", "numbers", "dates"];
   
->>>>>>> main
   for (const presetName of presets) {
     const preset = THEME_PRESETS[presetName];
     if (!preset) continue;
@@ -290,11 +254,7 @@ export function createTheme(config: SimpleThemeConfig): Theme {
 export function createSimpleTheme(
   name: string,
   colors: ColorPalette,
-<<<<<<< HEAD
-  options: Partial<SimpleThemeConfig> = {},
-=======
   options: Partial<SimpleThemeConfig> = {}
->>>>>>> main
 ): Theme {
   return createTheme({
     name,
@@ -308,20 +268,11 @@ export function createSimpleTheme(
  */
 export function extendTheme(
   baseTheme: Theme,
-<<<<<<< HEAD
-  modifications: Partial<SimpleThemeConfig>,
-): Theme {
-  const config: SimpleThemeConfig = {
-    name: modifications.name || `${baseTheme.name}-extended`,
-    description:
-      modifications.description || `Extended version of ${baseTheme.name}`,
-=======
   modifications: Partial<SimpleThemeConfig>
 ): Theme {
   const config: SimpleThemeConfig = {
     name: modifications.name || `${baseTheme.name}-extended`,
     description: modifications.description || `Extended version of ${baseTheme.name}`,
->>>>>>> main
     colors: modifications.colors || {},
     presets: modifications.presets,
     customWords: modifications.customWords,
@@ -336,17 +287,10 @@ export function extendTheme(
     // Extract existing configuration from base theme
     const baseWords = baseTheme.schema.matchWords || {};
     const basePatterns = baseTheme.schema.matchPatterns || [];
-<<<<<<< HEAD
-
-    config.customWords = { ...baseWords, ...config.customWords };
-    config.customPatterns = [
-      ...basePatterns.map((p) => ({
-=======
     
     config.customWords = { ...baseWords, ...config.customWords };
     config.customPatterns = [
       ...basePatterns.map(p => ({
->>>>>>> main
         name: p.name,
         pattern: p.pattern,
         color: p.options.color,

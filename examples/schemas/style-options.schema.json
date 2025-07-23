@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/StyleOptions",
-  "definitions": {
-    "StyleOptions": {
+  "$ref": "$defs/style-options",
+  "$defs": {
+    "style-options": {
       "type": "object",
       "properties": {
         "color": {
@@ -15,13 +15,6 @@
         },
         "htmlStyleFormat": {
           "type": "string",
-<<<<<<< HEAD
-          "enum": ["css", "className"],
-          "description": "HTML style format"
-        }
-      },
-      "required": ["color"],
-=======
           "enum": [
             "css",
             "className"
@@ -32,13 +25,9 @@
       "required": [
         "color"
       ],
->>>>>>> main
       "additionalProperties": false
     }
   },
-  "$schema": "http://json-schema.org/draft-07/schema#"
-<<<<<<< HEAD
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "0.1.1"
 }
-=======
-}
->>>>>>> main

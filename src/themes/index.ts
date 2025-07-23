@@ -33,6 +33,14 @@ export function getThemeNames(): string[] {
   return Object.keys(THEMES);
 }
 
+/**
+ * Register a custom theme to make it available for use
+ * @param theme The theme to register
+ */
+export function registerTheme(theme: Theme): void {
+  THEMES[theme.name] = theme;
+}
+
 export {
   createTheme,
   createSimpleTheme,

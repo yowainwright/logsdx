@@ -3,6 +3,7 @@ import path from "path";
 import { ui } from "./ui";
 import { select, input, confirm } from "@inquirer/prompts";
 import { registerTheme, getAllThemes, getTheme } from "../themes";
+import type { Theme } from "../types";
 import { themePresetSchema } from "../schema";
 import chalk from "chalk";
 
@@ -154,7 +155,7 @@ export async function importTheme(filename?: string): Promise<void> {
   }
 }
 
-async function previewImportedTheme(theme) {
+async function previewImportedTheme(theme: Theme) {
   console.log(chalk.bold("\n🎬 Theme Preview:\n"));
 
   const sampleLogs = [
@@ -183,8 +184,8 @@ async function previewImportedTheme(theme) {
   if (theme.description) {
     console.log(`  Description: ${theme.description}`);
   }
-  if (theme.exportedAt) {
-    console.log(`  Exported: ${chalk.dim(new Date(theme.exportedAt).toLocaleString())}`);
+  if ('exportedAt' in theme && (theme as any).exportedAt) {
+    console.log(`  Exported: ${chalk.dim(new Date((theme as any).exportedAt).toLocaleString())}`);
   }
 
   const wordCount = Object.keys(theme.schema.matchWords || {}).length;
