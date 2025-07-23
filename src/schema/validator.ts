@@ -41,7 +41,7 @@ export function validateTokenSafe(token: unknown): {
  * @returns The validated token list or throws an error
  */
 export function validateTokenList(
-  tokens: unknown
+  tokens: unknown,
 ): z.infer<typeof tokenListSchema> {
   return tokenListSchema.parse(tokens);
 }

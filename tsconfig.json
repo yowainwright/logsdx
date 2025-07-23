@@ -3,9 +3,9 @@
     "baseUrl": ".",
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ESNext",
     "allowJs": false,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -16,6 +16,11 @@
       "@/src/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "eslint.config.ts", "examples/themes/custom-themes.ts", "examples/themes/schema-themes.ts"],
+  "include": [
+    "src/**/*.ts",
+    "eslint.config.ts",
+    "examples/themes/custom-themes.ts",
+    "examples/themes/schema-themes.ts"
+  ],
   "exclude": [".specstory/**", "**/*.test.ts", "dist/**", "eslint.config.ts"]
 }

@@ -1,7 +1,12 @@
 import { TokenList } from "@/src/schema/types";
 import { Theme } from "@/src/types";
 import { tokenize, applyTheme } from "@/src/tokenizer";
-import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
+import {
+  BACKGROUND_COLORS,
+  STYLE_CODES,
+  getColorDefinition,
+  supportsColors,
+} from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -14,13 +19,13 @@ import type { RenderOptions } from "./types";
 export function renderLine(
   line: string,
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
   const tokens = tokenize(line, theme);
 
   const styledTokens = applyTheme(
     tokens,
-    theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
+    theme || { name: "default", schema: { defaultStyle: { color: "white" } } },
   );
 
   if (options.outputFormat === "html") {
@@ -40,9 +45,12 @@ export function renderLine(
  * @param forceColors - Force color output regardless of terminal detection
  * @returns A string with ANSI escape codes for styling
  */
-export function tokensToString(tokens: TokenList, forceColors?: boolean): string {
+export function tokensToString(
+  tokens: TokenList,
+  forceColors?: boolean,
+): string {
   const colorSupport = forceColors ?? supportsColors();
-  
+
   return tokens
     .map((token) => {
       if (
@@ -54,7 +62,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         token.metadata?.matchType === "carriage-return"
       ) {
         if (token.metadata?.trimmed) {
-          if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
+          if (
+            token.metadata?.matchType === "spaces" &&
+            token.metadata?.originalLength
+          ) {
             return " ";
           }
           if (token.metadata?.matchType === "space") {
@@ -95,7 +106,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         result = applyDim(result);
       }
 
-      if ('backgroundColor' in style && typeof style.backgroundColor === 'string') {
+      if (
+        "backgroundColor" in style &&
+        typeof style.backgroundColor === "string"
+      ) {
         result = applyBackgroundColor(result, style.backgroundColor);
       }
 
@@ -127,7 +141,7 @@ export function tokensToHtml(tokens: TokenList): string {
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -204,14 +218,14 @@ export function tokensToClassNames(tokens: TokenList): string {
       ) {
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           if (token.metadata?.matchType === "space") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -410,7 +424,7 @@ export function bgRGB(r: number, g: number, b: number): string {
 export function renderLines(
   lines: string[],
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string[] {
   return lines.map((line) => renderLine(line, theme, options));
 }

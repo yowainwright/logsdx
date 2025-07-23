@@ -44,7 +44,7 @@ export const themePresetSchema = z.object({
 export const tokenSchema = z.object({
   content: z.string().describe("The actual text content of the token"),
   metadata: tokenMetadataSchema.describe(
-    "Additional token metadata including style information"
+    "Additional token metadata including style information",
   ),
 });
 

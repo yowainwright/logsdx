@@ -42,7 +42,10 @@ export class LogsDX {
       this.currentTheme = this.options.theme;
     }
 
-    if (typeof this.options.theme !== "string" || this.options.theme !== "oh-my-zsh") {
+    if (
+      typeof this.options.theme !== "string" ||
+      this.options.theme !== "oh-my-zsh"
+    ) {
       try {
         validateTheme(this.currentTheme);
       } catch (error) {

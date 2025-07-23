@@ -27,6 +27,8 @@ export interface Theme {
   schema: SchemaConfig;
 }
 
+export type ThemePreset = Theme;
+
 export interface LogsDXOptions {
   theme?: string | Theme;
   outputFormat?: "ansi" | "html";

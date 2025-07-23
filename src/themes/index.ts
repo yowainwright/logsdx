@@ -1,6 +1,11 @@
 import type { Theme } from "@/src/types";
 import { THEMES, DEFAULT_THEME } from "@/src/themes/constants";
-import { createTheme, createSimpleTheme, extendTheme, THEME_PRESETS } from "@/src/themes/builder";
+import {
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  THEME_PRESETS,
+} from "@/src/themes/builder";
 import type { ColorPalette, SimpleThemeConfig } from "@/src/themes/builder";
 
 /**

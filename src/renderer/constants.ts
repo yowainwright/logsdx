@@ -23,17 +23,17 @@ export function supportsColors(): boolean {
     return false;
   }
 
-  if (term === 'dumb') {
+  if (term === "dumb") {
     return false;
   }
 
   if (
-    term.includes('color') ||
-    term.includes('256') ||
-    term.includes('ansi') ||
-    term === 'xterm' ||
-    term === 'screen' ||
-    term === 'tmux' ||
+    term.includes("color") ||
+    term.includes("256") ||
+    term.includes("ansi") ||
+    term === "xterm" ||
+    term === "screen" ||
+    term === "tmux" ||
     process.env.COLORTERM
   ) {
     return true;
@@ -122,7 +122,7 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
  */
 export function getColorDefinition(
   colorName: string,
-  theme?: Theme
+  theme?: Theme,
 ): ColorDefinition | undefined {
   // First check base colors
   if (TEXT_COLORS[colorName]) {
@@ -130,14 +130,22 @@ export function getColorDefinition(
   }
 
   // If theme has custom color definitions, check those
-  if (theme && 'colorDefinitions' in theme && typeof theme.colorDefinitions === 'object' && theme.colorDefinitions && colorName in theme.colorDefinitions) {
-    return (theme.colorDefinitions as Record<string, ColorDefinition>)[colorName];
+  if (
+    theme &&
+    "colorDefinitions" in theme &&
+    typeof theme.colorDefinitions === "object" &&
+    theme.colorDefinitions &&
+    colorName in theme.colorDefinitions
+  ) {
+    return (theme.colorDefinitions as Record<string, ColorDefinition>)[
+      colorName
+    ];
   }
 
   // If it's a hex color (starts with #), create a definition
-  if (colorName.startsWith('#')) {
+  if (colorName.startsWith("#")) {
     return {
-      ansi: `\x1b[38;2;${hexToRgb(colorName).join(';')}m`,
+      ansi: `\x1b[38;2;${hexToRgb(colorName).join(";")}m`,
       hex: colorName,
       className: `logsdx__color--custom-${colorName.slice(1)}`,
     };
@@ -145,18 +153,18 @@ export function getColorDefinition(
 
   // Fallback to basic color mapping for unknown theme colors
   const fallbackMap: Record<string, string> = {
-    lightGray: 'white',
-    darkGray: 'brightBlack', 
-    gray: 'brightBlack',
-    orange: 'yellow',
-    purple: 'magenta',
-    pink: 'brightMagenta',
-    lightGreen: 'brightGreen',
-    lightBlue: 'brightCyan',
-    forestGreen: 'green',
-    base00: 'black',
-    base0: 'white',
-    violet: 'magenta',
+    lightGray: "white",
+    darkGray: "brightBlack",
+    gray: "brightBlack",
+    orange: "yellow",
+    purple: "magenta",
+    pink: "brightMagenta",
+    lightGreen: "brightGreen",
+    lightBlue: "brightCyan",
+    forestGreen: "green",
+    base00: "black",
+    base0: "white",
+    violet: "magenta",
   };
 
   const fallbackColor = fallbackMap[colorName];
