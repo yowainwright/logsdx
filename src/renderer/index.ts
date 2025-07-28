@@ -25,7 +25,10 @@ export function renderLine(
 
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
-      return tokensToClassNames(styledTokens);
+      return tokensToClassNames(styledTokens, {
+        classPrefix: options.classPrefix,
+        useBEM: options.useBEM
+      });
     } else {
       return tokensToHtml(styledTokens);
     }
@@ -191,9 +194,11 @@ export function tokensToHtml(tokens: TokenList): string {
 /**
  * Convert tokens to HTML with CSS class names
  * @param tokens - The tokens to convert
+ * @param options - Rendering options with classPrefix and useBEM
  * @returns HTML with CSS class names for styling
  */
-export function tokensToClassNames(tokens: TokenList): string {
+export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: string; useBEM?: boolean } = {}): string {
+  const { classPrefix = 'logsdx', useBEM = false } = options;
   return tokens
     .map((token) => {
       if (
@@ -245,6 +250,14 @@ export function tokensToClassNames(tokens: TokenList): string {
         const colorDef = getColorDefinition(style.color);
         if (colorDef?.className) {
           classes.push(colorDef.className);
+        } else {
+          // Generate class name from color
+          const colorClass = style.color.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+          if (useBEM) {
+            classes.push(`${classPrefix}__${colorClass}`);
+          } else {
+            classes.push(`${classPrefix}-${colorClass}`);
+          }
         }
       }
 
@@ -252,19 +265,35 @@ export function tokensToClassNames(tokens: TokenList): string {
         Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
-        classes.push("logsdx-bold");
+        if (useBEM) {
+          classes.push(`${classPrefix}--bold`);
+        } else {
+          classes.push(`${classPrefix}-bold`);
+        }
       }
 
       if (hasStyleCode("italic")) {
-        classes.push("logsdx-italic");
+        if (useBEM) {
+          classes.push(`${classPrefix}--italic`);
+        } else {
+          classes.push(`${classPrefix}-italic`);
+        }
       }
 
       if (hasStyleCode("underline")) {
-        classes.push("logsdx-underline");
+        if (useBEM) {
+          classes.push(`${classPrefix}--underline`);
+        } else {
+          classes.push(`${classPrefix}-underline`);
+        }
       }
 
       if (hasStyleCode("dim")) {
-        classes.push("logsdx-dim");
+        if (useBEM) {
+          classes.push(`${classPrefix}--dim`);
+        } else {
+          classes.push(`${classPrefix}-dim`);
+        }
       }
 
       const escapedContent = escapeHtml(token.content);
