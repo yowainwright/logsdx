@@ -11,9 +11,18 @@
       "examples": ["my-custom-theme", "api-logs", "terminal-hacker"]
     },
     "description": {
+<<<<<<< Updated upstream
       "type": "string", 
       "description": "Human-readable description of the theme",
       "examples": ["Theme optimized for API logs", "Dark theme with green terminal colors"]
+=======
+      "type": "string",
+      "description": "Human-readable description of the theme",
+      "examples": [
+        "Theme optimized for API logs",
+        "Dark theme with green terminal colors"
+      ]
+>>>>>>> Stashed changes
     },
     "schema": {
       "type": "object",
@@ -31,6 +40,7 @@
               "$ref": "#/$defs/styleOptions"
             }
           },
+<<<<<<< Updated upstream
           "examples": [{
             "ERROR": { "color": "red", "styleCodes": ["bold"] },
             "GET": { "color": "blue" },
@@ -39,6 +49,18 @@
         },
         "matchStartsWith": {
           "type": "object", 
+=======
+          "examples": [
+            {
+              "ERROR": { "color": "red", "styleCodes": ["bold"] },
+              "GET": { "color": "blue" },
+              "200": { "color": "green", "styleCodes": ["bold"] }
+            }
+          ]
+        },
+        "matchStartsWith": {
+          "type": "object",
+>>>>>>> Stashed changes
           "description": "Match content that starts with specific strings",
           "patternProperties": {
             "^.*$": {
@@ -48,7 +70,11 @@
         },
         "matchEndsWith": {
           "type": "object",
+<<<<<<< Updated upstream
           "description": "Match content that ends with specific strings", 
+=======
+          "description": "Match content that ends with specific strings",
+>>>>>>> Stashed changes
           "patternProperties": {
             "^.*$": {
               "$ref": "#/$defs/styleOptions"
@@ -70,6 +96,7 @@
           "items": {
             "$ref": "#/$defs/patternMatch"
           },
+<<<<<<< Updated upstream
           "examples": [[
             {
               "name": "url-path",
@@ -82,6 +109,22 @@
               "options": { "color": "cyan", "styleCodes": ["bold"] }
             }
           ]]
+=======
+          "examples": [
+            [
+              {
+                "name": "url-path",
+                "pattern": "/[a-zA-Z0-9/_-]+",
+                "options": { "color": "blue", "styleCodes": ["italic"] }
+              },
+              {
+                "name": "ip-address",
+                "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b",
+                "options": { "color": "cyan", "styleCodes": ["bold"] }
+              }
+            ]
+          ]
+>>>>>>> Stashed changes
         },
         "whiteSpace": {
           "type": "string",
@@ -90,7 +133,11 @@
           "description": "How to handle whitespace in logs"
         },
         "newLine": {
+<<<<<<< Updated upstream
           "type": "string", 
+=======
+          "type": "string",
+>>>>>>> Stashed changes
           "enum": ["preserve", "trim"],
           "default": "preserve",
           "description": "How to handle newlines in logs"
@@ -116,7 +163,19 @@
           "description": "Array of style modifiers to apply",
           "items": {
             "type": "string",
+<<<<<<< Updated upstream
             "enum": ["bold", "italic", "underline", "dim", "blink", "reverse", "strikethrough"]
+=======
+            "enum": [
+              "bold",
+              "italic",
+              "underline",
+              "dim",
+              "blink",
+              "reverse",
+              "strikethrough"
+            ]
+>>>>>>> Stashed changes
           },
           "examples": [["bold"], ["italic", "underline"], ["bold", "dim"]]
         },
@@ -143,7 +202,11 @@
           "description": "Regular expression pattern to match",
           "examples": [
             "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+<<<<<<< Updated upstream
             "/[a-zA-Z0-9/_-]+", 
+=======
+            "/[a-zA-Z0-9/_-]+",
+>>>>>>> Stashed changes
             "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"
           ]
         },
@@ -180,7 +243,11 @@
           },
           {
             "name": "ip-address",
+<<<<<<< Updated upstream
             "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b", 
+=======
+            "pattern": "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b",
+>>>>>>> Stashed changes
             "options": { "color": "#17a2b8", "styleCodes": ["bold"] }
           },
           {
@@ -194,4 +261,8 @@
       }
     }
   ]
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

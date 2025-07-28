@@ -2,6 +2,19 @@
   "name": "logsdx",
   "version": "0.1.1",
   "private": false,
+  "packageManager": "bun@1.2.9",
+  "workspaces": [
+    "app"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
     "dist/"
   ],
@@ -19,7 +32,11 @@
     "check": "bun run lint && bun run format:check && bun run test",
     "generate-css": "bun run scripts/generate-css.ts",
     "generate-schema": "bun run scripts/generate-schema.ts",
-    "demo": "bun run demo-dracula-consistency.js"
+    "demo": "bun run demo-dracula-consistency.js",
+    "turbo:build": "turbo run build",
+    "turbo:dev": "turbo run dev",
+    "app:dev": "turbo run dev --filter=@logsdx/app",
+    "app:build": "turbo run build --filter=@logsdx/app"
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
@@ -29,6 +46,7 @@
     "eslint": "^9.26.0",
     "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
+    "turbo": "^2.5.5",
     "typescript": "^5.0.0",
     "zod": "^3.25.74",
     "zod-to-json-schema": "^3.24.6"
