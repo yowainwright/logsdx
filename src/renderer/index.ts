@@ -444,6 +444,13 @@ export function renderLines(
   return lines.map((line) => renderLine(line, theme, options));
 }
 
+export {
+  renderLightBox,
+  renderLightBoxLine,
+  isLightTheme,
+  getThemeBackground
+} from './light-box'
+
 export default {
   renderLine,
   renderLines,

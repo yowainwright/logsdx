@@ -59,8 +59,6 @@
 }
 
 .terminal-preview {
-  background: #0d1117;
-  color: #c9d1d9;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.8;
@@ -88,18 +86,11 @@
 }
 
 .browser-preview {
-  background: white;
-  color: #24292f;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.8;
   white-space: pre;
   overflow-x: auto;
-}
-
-.dark .browser-preview {
-  background: #0d1117;
-  color: #c9d1d9;
 }
 
 /* Ensure ANSI color codes are properly displayed */
@@ -127,4 +118,28 @@
 .terminal-preview::-webkit-scrollbar-thumb:hover,
 .browser-preview::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.5);
+}
+
+/* Scrolling animation for log lines */
+@keyframes scroll-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  5% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  95% {
+    transform: translateY(-2000%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-2000%);
+    opacity: 0;
+  }
+}
+
+.animate-scroll-up {
+  animation: scroll-up linear infinite;
 }

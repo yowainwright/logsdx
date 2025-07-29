@@ -38,6 +38,7 @@ export const schemaConfigSchema = z.object({
 export const themePresetSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
+  mode: z.enum(["light", "dark", "auto"]).optional().describe("Theme mode: light for light backgrounds, dark for dark backgrounds, auto for system preference"),
   schema: schemaConfigSchema,
 });
 

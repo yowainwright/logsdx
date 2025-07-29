@@ -14,12 +14,17 @@ export function supportsColors(): boolean {
     return true;
   }
 
-  if (!process.stdout.isTTY) {
+  // Check if stdout exists and has isTTY (Node.js)
+  if (process.stdout && process.stdout.isTTY === false) {
     return false;
   }
 
   const term = process.env.TERM;
   if (!term) {
+    // If no TERM but we're in a known runtime that supports colors, assume true
+    if (typeof Bun !== 'undefined' || (globalThis as any).Deno !== undefined) {
+      return true;
+    }
     return false;
   }
 

@@ -15,7 +15,11 @@ import {
   tokensToString,
   tokensToHtml,
   tokensToClassNames,
+  renderLightBox,
+  renderLightBoxLine,
+  isLightTheme as isLightThemeRenderer,
 } from "@/src/renderer";
+import { isTerminalDark, adjustThemeForTerminal, getTerminalAdjustedTheme } from "@/src/terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -33,11 +37,24 @@ export class LogsDX {
       htmlStyleFormat: "css",
       debug: false,
       customRules: {},
+      autoAdjustTerminal: true,
       ...options,
     };
 
     if (typeof this.options.theme === "string") {
-      this.currentTheme = getTheme(this.options.theme);
+      // For terminal output, adjust theme if needed
+      if (this.options.outputFormat === "ansi" && 
+          this.options.autoAdjustTerminal !== false && 
+          typeof process !== "undefined") {
+        const adjustedThemeName = getTerminalAdjustedTheme(this.options.theme);
+        this.currentTheme = getTheme(adjustedThemeName);
+        
+        // Additional adjustment for terminal visibility
+        const terminalIsDark = isTerminalDark();
+        this.currentTheme = adjustThemeForTerminal(this.currentTheme, terminalIsDark);
+      } else {
+        this.currentTheme = getTheme(this.options.theme);
+      }
     } else {
       this.currentTheme = this.options.theme;
     }
@@ -242,6 +259,18 @@ export {
 
 export { tokenize, applyTheme };
 
-export { renderLine };
+export { renderLine, renderLightBox, renderLightBoxLine, isLightThemeRenderer as isLightThemeStyle };
+
+// Export adaptive theming utilities
+export {
+  detectColorScheme,
+  detectHighContrast,
+  detectReducedMotion,
+  getAdaptiveTheme,
+  AdaptiveLogger,
+  generateThemeProperties,
+  injectAdaptiveCSS,
+  THEME_VARIANTS
+} from './adaptive';
 
 export default LogsDX;

@@ -323,8 +323,16 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
   return tokens.map((token) => {
     const { metadata } = token;
 
-    // Skip tokens without metadata
+    // Apply default style to tokens without metadata
     if (!metadata) {
+      if (theme.schema?.defaultStyle) {
+        return {
+          ...token,
+          metadata: {
+            style: theme.schema.defaultStyle,
+          },
+        };
+      }
       return token;
     }
 

@@ -245,6 +245,7 @@ export function createTheme(config: SimpleThemeConfig): Theme {
   return {
     name: config.name,
     description: config.description,
+    mode: config.mode,
     schema,
   };
 }

@@ -69,7 +69,6 @@ export {
   generateUtilityClasses,
   generateThemeVariants,
   generateResponsiveCSS,
-  generateCompleteCSS,
   validateTheme,
   detectColorScheme,
   adjustThemeForAccessibility,
