@@ -1,5 +1,5 @@
-import { ColorDefinition } from "@/src/renderer/types";
-import { Theme } from "@/src/types";
+import { ColorDefinition } from "./types";
+import { Theme } from "../types";
 
 /**
  * Check if the terminal supports colors

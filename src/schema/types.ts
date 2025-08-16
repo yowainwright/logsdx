@@ -3,7 +3,7 @@ import {
   styleOptionsSchema,
   tokenSchema,
   tokenListSchema,
-} from "@/src/schema/index";
+} from "./index";
 
 export type StyleOptions = z.infer<typeof styleOptionsSchema>;
 export type Token = z.infer<typeof tokenSchema>;

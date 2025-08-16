@@ -1,7 +1,7 @@
 import { expect, test, describe } from "bun:test";
 import { tokenize, createLexer, applyTheme } from "./index";
-import { TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
+import { TokenList } from "../schema/types";
+import { Theme } from "../types";
 
 describe("Tokenizer", () => {
   describe("createLexer", () => {

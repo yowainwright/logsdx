@@ -256,8 +256,8 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
 
     const accessBox = boxen(
       `WCAG Level: ${result.level} ${result.level === 'AAA' ? '🏆' : result.level === 'AA' ? '✅' : result.level === 'A' ? '⚠️' : '❌'}\n` +
-      `Score: ${result.score}/100\n` +
-      (result.issues.length > 0 ? '\nIssues:\n' + result.issues.map(i => `• ${i.message}`).join('\n') : '\n✅ No issues found!'),
+      `Min Contrast Ratio: ${result.details.normalText.ratio.toFixed(2)}\n` +
+      (result.recommendations.length > 0 ? '\nRecommendations:\n' + result.recommendations.map(r => `• ${r}`).join('\n') : '\n✅ No issues found!'),
       {
         title: '♿ Accessibility Report',
         padding: 1,
@@ -267,7 +267,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     );
     console.log(accessBox);
 
-    if (result.issues.length > 0) {
+    if (result.recommendations.length > 0) {
       const { fixIssues } = await inquirer.prompt([{
         type: 'confirm',
         name: 'fixIssues',

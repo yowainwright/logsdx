@@ -1,6 +1,6 @@
-import { Token, TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
-import { MatcherType } from "@/src/tokenizer/types";
+import { Token, TokenList } from "../schema/types";
+import { Theme } from "../types";
+import { MatcherType } from "./types";
 
 /**
  * Simple token context for rule matching
@@ -166,6 +166,28 @@ function escapeRegexPattern(pattern: string): string {
   return pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Cache for compiled regex patterns to improve performance
+ */
+const patternCache = new Map<string, RegExp>();
+
+/**
+ * Get or create a cached regex pattern
+ */
+function getCachedPattern(pattern: string, flags?: string): RegExp {
+  const key = `${pattern}:${flags || ''}`;
+  if (!patternCache.has(key)) {
+    try {
+      patternCache.set(key, new RegExp(pattern, flags));
+    } catch (error) {
+      console.warn(`Invalid regex pattern: ${pattern}`);
+      // Return a pattern that matches nothing
+      patternCache.set(key, /(?!)/);
+    }
+  }
+  return patternCache.get(key)!;
+}
+
 
 /**
  * Add theme-specific tokenization rules
@@ -195,7 +217,8 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   if (theme.schema?.matchWords) {
     Object.keys(theme.schema.matchWords).forEach((word) => {
       const escapedWord = escapeRegexPattern(word);
-      lexer.rule(new RegExp(`\\b${escapedWord}\\b`, "i"), (ctx) => {
+      const pattern = getCachedPattern(`\\b${escapedWord}\\b`, "i");
+      lexer.rule(pattern, (ctx) => {
         ctx.accept("word", {
           matchType: "word",
           pattern: word,
@@ -208,21 +231,16 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   if (theme.schema?.matchPatterns) {
     if (Array.isArray(theme.schema.matchPatterns)) {
       theme.schema.matchPatterns.forEach((patternObj, index: number) => {
-        try {
-          const safePattern = patternObj.pattern;
-          const regex = new RegExp(safePattern);
-          lexer.rule(regex, (ctx) => {
-            ctx.accept("regex", {
-              matchType: "regex",
-              pattern: patternObj.pattern,
-              name: patternObj.name,
-              index,
-              style: patternObj.options,
-            });
+        const regex = getCachedPattern(patternObj.pattern);
+        lexer.rule(regex, (ctx) => {
+          ctx.accept("regex", {
+            matchType: "regex",
+            pattern: patternObj.pattern,
+            name: patternObj.name,
+            index,
+            style: patternObj.options,
           });
-        } catch (error) {
-          console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
-        }
+        });
       });
     } else {
       console.warn("matchPatterns is not an array in theme schema");

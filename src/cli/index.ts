@@ -1,9 +1,9 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { LogsDX, getThemeNames } from "@/src/index";
-import type { CliOptions } from "@/src/cli/types";
-import type { LogsDXOptions } from "@/src/types";
+import { LogsDX, getThemeNames } from "../index";
+import type { CliOptions } from "./types";
+import type { LogsDXOptions } from "../types";
 import { version } from "../../package.json";
 
 export function loadConfig(configPath?: string): LogsDXOptions {

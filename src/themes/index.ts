@@ -1,9 +1,10 @@
-import type { Theme } from "@/src/types";
-import { THEMES, DEFAULT_THEME } from "@/src/themes/constants";
+import type { Theme } from "../types";
+import { THEMES, DEFAULT_THEME } from "./constants";
 import { 
   createTheme, 
   createSimpleTheme, 
   extendTheme, 
+  ThemeBuilder,
   THEME_PRESETS,
   generateBEMClasses,
   generateTailwindTheme,
@@ -16,8 +17,8 @@ import {
   checkWCAGCompliance,
   createThemeMonitor,
   generateThemeReport
-} from "@/src/themes/builder";
-import type { ColorPalette, SimpleThemeConfig } from "@/src/themes/builder";
+} from "./builder";
+import type { ColorPalette, SimpleThemeConfig } from "./builder";
 
 /**
  * Get a theme by name
@@ -63,6 +64,7 @@ export {
   createTheme,
   createSimpleTheme,
   extendTheme,
+  ThemeBuilder,
   THEME_PRESETS,
   generateBEMClasses,
   generateTailwindTheme,

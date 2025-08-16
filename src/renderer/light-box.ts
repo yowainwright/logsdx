@@ -2,7 +2,7 @@
  * Light box rendering utilities for displaying light themes in dark terminals
  */
 
-import { Theme } from '@/src/types'
+import { Theme } from '../types'
 
 export interface LightBoxOptions {
   /** Width of the box (default: 80) */

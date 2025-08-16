@@ -1,6 +1,6 @@
-import { TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
-import { tokenize, applyTheme } from "@/src/tokenizer";
+import { TokenList } from "../schema/types";
+import { Theme } from "../types";
+import { tokenize, applyTheme } from "../tokenizer";
 import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
 import type { RenderOptions } from "./types";
 
@@ -80,7 +80,7 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         result = applyBold(result);
@@ -166,7 +166,7 @@ export function tokensToHtml(tokens: TokenList): string {
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         css.push("font-weight: bold");
@@ -262,7 +262,7 @@ export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: s
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         if (useBEM) {

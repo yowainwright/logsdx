@@ -1,5 +1,5 @@
-import { Theme } from "@/src/types";
-import { createTheme } from "@/src/themes/builder";
+import { Theme } from "../types";
+import { createTheme } from "./builder";
 
 export const DEFAULT_THEME = "oh-my-zsh";
 

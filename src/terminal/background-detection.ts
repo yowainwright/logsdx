@@ -139,3 +139,35 @@ export function getTerminalAdjustedTheme(themeName: string): string {
   
   return adjustmentMap[themeName] || themeName
 }
+
+/**
+ * Validates cross-environment consistency for a theme
+ */
+export function validateCrossEnvironmentConsistency(theme: any): {
+  isConsistent: boolean;
+  issues: string[];
+  recommendations: string[];
+} {
+  const issues: string[] = [];
+  const recommendations: string[] = [];
+
+  // Check if theme has mode specified
+  if (!theme.mode) {
+    issues.push('Theme mode not specified - may not adapt properly to different environments');
+    recommendations.push('Add mode: "light" | "dark" | "auto" to theme configuration');
+  }
+
+  // Check for very light colors in potential dark environments
+  if (theme.schema?.defaultStyle?.color) {
+    const color = theme.schema.defaultStyle.color;
+    if (color.match(/^#[fF]{6}$/) || color === 'white') {
+      recommendations.push('Consider using slightly off-white colors for better terminal compatibility');
+    }
+  }
+
+  return {
+    isConsistent: issues.length === 0,
+    issues,
+    recommendations
+  };
+}

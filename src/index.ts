@@ -1,16 +1,16 @@
-import { renderLine } from "@/src/renderer";
-import { getTheme, getAllThemes, getThemeNames } from "@/src/themes";
-import { validateTheme, validateThemeSafe } from "@/src/schema/validator";
-import { tokenize, applyTheme } from "@/src/tokenizer";
-import type { TokenList } from "@/src/schema/types";
-import type { RenderOptions } from "@/src/renderer/types";
+import { renderLine } from "./renderer";
+import { getTheme, getAllThemes, getThemeNames, ThemeBuilder } from "./themes";
+import { validateTheme, validateThemeSafe } from "./schema/validator";
+import { tokenize, applyTheme } from "./tokenizer";
+import type { TokenList } from "./schema/types";
+import type { RenderOptions } from "./renderer/types";
 import type {
   LineParser,
   ParsedLine,
   StyleOptions,
   Theme,
   LogsDXOptions,
-} from "@/src/types";
+} from "./types";
 import {
   tokensToString,
   tokensToHtml,
@@ -18,8 +18,8 @@ import {
   renderLightBox,
   renderLightBoxLine,
   isLightTheme as isLightThemeRenderer,
-} from "@/src/renderer";
-import { isTerminalDark, adjustThemeForTerminal, getTerminalAdjustedTheme } from "@/src/terminal/background-detection";
+} from "./renderer";
+import { isTerminalDark, adjustThemeForTerminal, getTerminalAdjustedTheme } from "./terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -255,6 +255,7 @@ export {
   getThemeNames,
   validateTheme,
   validateThemeSafe,
+  ThemeBuilder,
 };
 
 export { tokenize, applyTheme };

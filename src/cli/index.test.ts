@@ -1,5 +1,5 @@
 import { expect, test, describe, afterAll } from "bun:test";
-import type { LogLevel, ParsedLine } from "@/src/types";
+import type { LogLevel, ParsedLine } from "../types";
 import { Writable } from "stream";
 
 interface CliOptions {
@@ -114,7 +114,7 @@ function handleLine(
     return;
   }
 
-  if (options.minLevel && !shouldRender(parsed.level, options.minLevel)) {
+  if (options.minLevel && !shouldRender(parsed.level as LogLevel, options.minLevel as LogLevel)) {
     return;
   }
 

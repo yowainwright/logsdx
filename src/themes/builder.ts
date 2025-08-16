@@ -1,4 +1,4 @@
-import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "@/src/types";
+import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "../types";
 
 export interface ColorPalette {
   primary?: string;
@@ -235,7 +235,7 @@ export function createTheme(config: SimpleThemeConfig): Theme {
         pattern: pattern.pattern,
         options: {
           color: resolveColor(pattern.color, config.colors),
-          styleCodes: pattern.style || [],
+          styleCodes: (pattern.style || []) as ("bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough")[],
         },
       };
       schema.matchPatterns!.push(normalizedPattern);
@@ -263,6 +263,77 @@ export function createSimpleTheme(
     colors,
     ...options,
   });
+}
+
+/**
+ * Fluent theme builder for more complex theme creation
+ */
+export class ThemeBuilder {
+  private config: Partial<SimpleThemeConfig> = {};
+
+  constructor(name: string) {
+    this.config.name = name;
+  }
+
+  description(desc: string): ThemeBuilder {
+    this.config.description = desc;
+    return this;
+  }
+
+  mode(mode: "light" | "dark" | "auto"): ThemeBuilder {
+    this.config.mode = mode;
+    return this;
+  }
+
+  colors(palette: ColorPalette): ThemeBuilder {
+    this.config.colors = palette;
+    return this;
+  }
+
+  presets(presets: string[]): ThemeBuilder {
+    this.config.presets = presets;
+    return this;
+  }
+
+  customWords(words: Record<string, string | StyleOptions>): ThemeBuilder {
+    this.config.customWords = { ...this.config.customWords, ...words };
+    return this;
+  }
+
+  build(): Theme {
+    if (!this.config.name || !this.config.colors) {
+      throw new Error("Theme name and colors are required");
+    }
+    return createTheme(this.config as SimpleThemeConfig);
+  }
+
+  preview(): string {
+    if (!this.config.colors) {
+      return "No colors configured for preview";
+    }
+    
+    const sampleLog = `ERROR: Database connection failed
+WARN: Rate limit exceeded  
+INFO: User authenticated
+DEBUG: Processing request`;
+    
+    try {
+      const theme = this.build();
+      // Simple preview without full LogsDX instance
+      return sampleLog.split('\n').map(line => {
+        // Basic preview - just show the line with color indicators
+        const level = line.split(':')[0];
+        const color = this.config.colors![level.toLowerCase()] || this.config.colors!.text || 'default';
+        return `${line} [${color}]`;
+      }).join('\n');
+    } catch (error) {
+      return `Preview error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
+  }
+
+  static create(name: string): ThemeBuilder {
+    return new ThemeBuilder(name);
+  }
 }
 
 /**
@@ -767,7 +838,7 @@ export function adjustThemeForAccessibility(theme: Theme, targetContrast: number
   // Adjust word colors
   if (adjustedTheme.schema.matchWords) {
     Object.entries(adjustedTheme.schema.matchWords).forEach(([word, style]) => {
-      if (style.color) {
+      if (style && typeof style === 'object' && 'color' in style && typeof style.color === 'string') {
         const ratio = getContrastRatio(style.color, bgColor);
         if (ratio < targetContrast) {
           const analysis = analyzeColor(style.color);
@@ -807,8 +878,16 @@ export function checkWCAGCompliance(theme: Theme): {
     });
   }
 
-  const results = {
-    level: 'FAIL' as const,
+  const results: {
+    level: 'AAA' | 'AA' | 'A' | 'FAIL';
+    details: {
+      normalText: { ratio: number; passes: string[] };
+      largeText: { ratio: number; passes: string[] }; 
+      graphicalObjects: { ratio: number; passes: string[] };
+    };
+    recommendations: string[];
+  } = {
+    level: 'FAIL',
     details: {
       normalText: { ratio: 0, passes: [] as string[] },
       largeText: { ratio: 0, passes: [] as string[] },
@@ -876,7 +955,7 @@ export function createThemeMonitor(theme: Theme) {
       
       // Terminal checks
       const hasColorTerm = typeof process !== 'undefined' && 
-        (process.env.COLORTERM || process.env.TERM?.includes('color'));
+        Boolean(process.env.COLORTERM || process.env.TERM?.includes('color'));
       
       if (!hasColorTerm) {
         issues.push('Terminal may not support colors properly');
@@ -885,7 +964,7 @@ export function createThemeMonitor(theme: Theme) {
 
       // Browser checks  
       const hasCSSSupport = typeof window !== 'undefined' && 
-        window.CSS && window.CSS.supports;
+        Boolean(window.CSS && window.CSS.supports);
       
       if (typeof window !== 'undefined' && !hasCSSSupport) {
         issues.push('Browser may not support modern CSS features');
