@@ -5,6 +5,9 @@ import {
   createSimpleTheme,
   extendTheme,
   THEME_PRESETS,
+  ThemeBuilder,
+  checkWCAGCompliance,
+  adjustThemeForAccessibility,
 } from "@/src/themes/builder";
 import type { ColorPalette, SimpleThemeConfig } from "@/src/themes/builder";
 
@@ -46,6 +49,9 @@ export {
   createSimpleTheme,
   extendTheme,
   THEME_PRESETS,
+  ThemeBuilder,
+  checkWCAGCompliance,
+  adjustThemeForAccessibility,
   type ColorPalette,
   type SimpleThemeConfig,
 };

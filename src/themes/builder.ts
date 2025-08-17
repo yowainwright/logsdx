@@ -1,4 +1,5 @@
 import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "@/src/types";
+import { filterStyleCodes } from "@/src/types";
 
 export interface ColorPalette {
   primary?: string;
@@ -26,6 +27,7 @@ export interface SimpleThemeConfig {
   name: string;
   description?: string;
   colors: ColorPalette;
+  mode?: "light" | "dark" | "auto";
   presets?: string[];
   customWords?: Record<string, string | StyleOptions>;
   customPatterns?: Array<{
@@ -234,7 +236,7 @@ export function createTheme(config: SimpleThemeConfig): Theme {
         pattern: pattern.pattern,
         options: {
           color: resolveColor(pattern.color, config.colors),
-          styleCodes: pattern.style || [],
+          styleCodes: filterStyleCodes(pattern.style),
         },
       };
       schema.matchPatterns!.push(normalizedPattern);
@@ -302,4 +304,63 @@ export function extendTheme(
   }
 
   return createTheme(config);
+}
+/**
+
+ * Check WCAG compliance for a theme (stub implementation)
+ */
+export function checkWCAGCompliance(theme: Theme): {
+  level: "AAA" | "AA" | "A" | "FAIL";
+  recommendations: string[];
+  details: {
+    normalText: { ratio: number };
+  };
+} {
+  // TODO: Implement proper WCAG compliance checking
+  return {
+    level: "AA",
+    recommendations: [],
+    details: {
+      normalText: { ratio: 4.5 },
+    },
+  };
+}
+
+/**
+ * Adjust theme for accessibility (stub implementation)
+ */
+export function adjustThemeForAccessibility(theme: Theme, targetContrast?: number): Theme {
+  // TODO: Implement proper accessibility adjustments
+  return theme;
+}/**
+ * 
+Fluent theme builder class (stub implementation)
+ */
+export class ThemeBuilder {
+  private config: Partial<SimpleThemeConfig> = {};
+
+  constructor(name: string) {
+    this.config.name = name;
+  }
+
+  colors(palette: ColorPalette): ThemeBuilder {
+    this.config.colors = palette;
+    return this;
+  }
+
+  mode(mode: "light" | "dark" | "auto"): ThemeBuilder {
+    this.config.mode = mode;
+    return this;
+  }
+
+  build(): Theme {
+    if (!this.config.name || !this.config.colors) {
+      throw new Error("Theme name and colors are required");
+    }
+    return createTheme(this.config as SimpleThemeConfig);
+  }
+
+  static create(name: string): ThemeBuilder {
+    return new ThemeBuilder(name);
+  }
 }

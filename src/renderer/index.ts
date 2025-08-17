@@ -87,7 +87,7 @@ export function tokensToString(
         result = applyColor(result, style.color);
       }
 
-      const hasStyleCode = (code: string) =>
+      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
         Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
@@ -176,7 +176,7 @@ export function tokensToHtml(tokens: TokenList): string {
         css.push(`color: ${colorDef?.hex || style.color}`);
       }
 
-      const hasStyleCode = (code: string) =>
+      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
         Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
@@ -262,7 +262,7 @@ export function tokensToClassNames(tokens: TokenList): string {
         }
       }
 
-      const hasStyleCode = (code: string) =>
+      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
         Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
@@ -428,6 +428,9 @@ export function renderLines(
 ): string[] {
   return lines.map((line) => renderLine(line, theme, options));
 }
+
+// Export light box functions
+export { renderLightBox, renderLightBoxLine, isLightTheme } from "./light-box";
 
 export default {
   renderLine,

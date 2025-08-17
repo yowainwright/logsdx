@@ -1,15 +1,18 @@
+export type StyleCode = "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough";
+
 export interface StyleOptions {
   color: string;
-  styleCodes?: (
-    | "bold"
-    | "italic"
-    | "underline"
-    | "dim"
-    | "blink"
-    | "reverse"
-    | "strikethrough"
-  )[];
+  styleCodes?: StyleCode[];
   htmlStyleFormat?: "css" | "className";
+}
+
+/**
+ * Filter and validate style codes
+ */
+export function filterStyleCodes(codes: string[] | undefined): StyleCode[] {
+  if (!codes) return [];
+  const validCodes: StyleCode[] = ["bold", "italic", "underline", "dim", "blink", "reverse", "strikethrough"];
+  return codes.filter((code): code is StyleCode => validCodes.includes(code as StyleCode));
 }
 
 export interface PatternMatch {

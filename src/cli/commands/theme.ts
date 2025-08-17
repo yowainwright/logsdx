@@ -291,7 +291,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
         `Min Contrast Ratio: ${result.details.normalText.ratio.toFixed(2)}\n` +
         (result.recommendations.length > 0
           ? "\nRecommendations:\n" +
-            result.recommendations.map((r) => `• ${r}`).join("\n")
+            result.recommendations.map((r: string) => `• ${r}`).join("\n")
           : "\n✅ No issues found!"),
       {
         title: "♿ Accessibility Report",

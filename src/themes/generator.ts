@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { schemaConfigSchema, themePresetSchema } from "../schema";
 import type { ThemePreset, StyleOptions, PatternMatch } from "../types";
+import { filterStyleCodes } from "../types";
 
 export const colorPaletteSchema = z.object({
   name: z.string(),
@@ -474,7 +475,7 @@ export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
     for (const [word, config] of Object.entries(preset.matchWords)) {
       matchWords[word] = {
         color: palette.colors[config.colorRole] || palette.colors.text,
-        styleCodes: config.styleCodes,
+        styleCodes: filterStyleCodes(config.styleCodes),
       };
     }
 
@@ -484,7 +485,7 @@ export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
         pattern: pattern.pattern,
         options: {
           color: palette.colors[pattern.colorRole] || palette.colors.text,
-          styleCodes: pattern.styleCodes,
+          styleCodes: filterStyleCodes(pattern.styleCodes),
         },
       });
     }
@@ -494,7 +495,7 @@ export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
     for (const [word, wordConfig] of Object.entries(config.customWords)) {
       matchWords[word] = {
         color: palette.colors[wordConfig.colorRole] || palette.colors.text,
-        styleCodes: wordConfig.styleCodes,
+        styleCodes: filterStyleCodes(wordConfig.styleCodes),
       };
     }
   }
@@ -506,7 +507,7 @@ export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
         pattern: pattern.pattern,
         options: {
           color: palette.colors[pattern.colorRole] || palette.colors.text,
-          styleCodes: pattern.styleCodes,
+          styleCodes: filterStyleCodes(pattern.styleCodes),
         },
       });
     }
