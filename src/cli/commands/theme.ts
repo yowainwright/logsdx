@@ -134,10 +134,10 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     default: "dark",
   });
 
-  const basicInfo = { 
-    name: name.trim().toLowerCase().replace(/\s+/g, "-"), 
-    description, 
-    mode 
+  const basicInfo = {
+    name: name.trim().toLowerCase().replace(/\s+/g, "-"),
+    description,
+    mode,
   };
 
   // Color selection
