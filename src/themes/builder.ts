@@ -318,7 +318,7 @@ INFO: User authenticated
 DEBUG: Processing request`;
     
     try {
-      const theme = this.build();
+      const _theme = this.build();
       // Simple preview without full LogsDX instance
       return sampleLog.split('\n').map(line => {
         // Basic preview - just show the line with color indicators
@@ -618,6 +618,7 @@ interface ColorAnalysis {
 /**
  * Convert hex color to RGB
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
@@ -630,6 +631,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 /**
  * Convert RGB to HSL
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
   r /= 255;
   g /= 255;
@@ -659,6 +661,7 @@ function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: n
 /**
  * Calculate relative luminance of a color
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getLuminance(r: number, g: number, b: number): number {
   const [rs, gs, bs] = [r, g, b].map(c => {
     c = c / 255;

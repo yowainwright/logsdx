@@ -179,7 +179,7 @@ function getCachedPattern(pattern: string, flags?: string): RegExp {
   if (!patternCache.has(key)) {
     try {
       patternCache.set(key, new RegExp(pattern, flags));
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Invalid regex pattern: ${pattern}`);
       // Return a pattern that matches nothing
       patternCache.set(key, /(?!)/);

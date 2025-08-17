@@ -8,7 +8,6 @@ import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
 import { 
   createTheme, 
-  validateTheme, 
   checkWCAGCompliance,
   adjustThemeForAccessibility,
   SimpleThemeConfig
@@ -16,7 +15,7 @@ import {
 import { registerTheme, getTheme, getThemeNames } from '../../themes';
 import { getLogsDX } from '../../index';
 import { Theme } from '../../types';
-import { renderLightBox } from '../../renderer/light-box';
+// import { renderLightBox } from '../../renderer/light-box';
 
 // Sample logs for preview
 const SAMPLE_LOGS = [

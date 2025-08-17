@@ -3,7 +3,7 @@
  * Automatically adapt themes based on system preferences and environment
  */
 
-import { Theme, LogsDXOptions } from '../types'
+import { LogsDXOptions } from '../types'
 import { getLogsDX } from '../index'
 import { getAllThemes } from '../themes'
 
@@ -32,7 +32,7 @@ export function detectColorScheme(): 'light' | 'dark' | 'no-preference' {
     // Check terminal indicators
     if (process.env.COLORFGBG) {
       // Format: "foreground;background"
-      const [fg, bg] = process.env.COLORFGBG.split(';').map(Number)
+      const [_fg, bg] = process.env.COLORFGBG.split(';').map(Number)
       // Dark background typically has low values (0-7)
       return bg <= 7 ? 'dark' : 'light'
     }
