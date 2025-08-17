@@ -1,6 +1,14 @@
 export interface StyleOptions {
   color: string;
-  styleCodes?: string[];
+  styleCodes?: (
+    | "bold"
+    | "italic"
+    | "underline"
+    | "dim"
+    | "blink"
+    | "reverse"
+    | "strikethrough"
+  )[];
   htmlStyleFormat?: "css" | "className";
 }
 
@@ -24,6 +32,7 @@ export interface SchemaConfig {
 export interface Theme {
   name: string;
   description?: string;
+  mode?: "light" | "dark" | "auto";
   schema: SchemaConfig;
 }
 
@@ -35,6 +44,7 @@ export interface LogsDXOptions {
   htmlStyleFormat?: "css" | "className";
   debug?: boolean;
   customRules?: Record<string, unknown>;
+  autoAdjustTerminal?: boolean; // Automatically adjust themes for terminal visibility
 }
 
 export type LogLevel = "debug" | "info" | "warn" | "error";

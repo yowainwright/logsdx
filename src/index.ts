@@ -1,21 +1,29 @@
-import { renderLine } from "@/src/renderer";
-import { getTheme, getAllThemes, getThemeNames } from "@/src/themes";
-import { validateTheme, validateThemeSafe } from "@/src/schema/validator";
-import { tokenize, applyTheme } from "@/src/tokenizer";
-import type { TokenList } from "@/src/schema/types";
-import type { RenderOptions } from "@/src/renderer/types";
+import { renderLine } from "./renderer";
+import { getTheme, getAllThemes, getThemeNames, ThemeBuilder } from "./themes";
+import { validateTheme, validateThemeSafe } from "./schema/validator";
+import { tokenize, applyTheme } from "./tokenizer";
+import type { TokenList } from "./schema/types";
+import type { RenderOptions } from "./renderer/types";
 import type {
   LineParser,
   ParsedLine,
   StyleOptions,
   Theme,
   LogsDXOptions,
-} from "@/src/types";
+} from "./types";
 import {
   tokensToString,
   tokensToHtml,
   tokensToClassNames,
-} from "@/src/renderer";
+  renderLightBox,
+  renderLightBoxLine,
+  isLightTheme as isLightThemeRenderer,
+} from "./renderer";
+import {
+  isTerminalDark,
+  adjustThemeForTerminal,
+  getTerminalAdjustedTheme,
+} from "./terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -33,11 +41,29 @@ export class LogsDX {
       htmlStyleFormat: "css",
       debug: false,
       customRules: {},
+      autoAdjustTerminal: true,
       ...options,
     };
 
     if (typeof this.options.theme === "string") {
-      this.currentTheme = getTheme(this.options.theme);
+      // For terminal output, adjust theme if needed
+      if (
+        this.options.outputFormat === "ansi" &&
+        this.options.autoAdjustTerminal !== false &&
+        typeof process !== "undefined"
+      ) {
+        const adjustedThemeName = getTerminalAdjustedTheme(this.options.theme);
+        this.currentTheme = getTheme(adjustedThemeName);
+
+        // Additional adjustment for terminal visibility
+        const terminalIsDark = isTerminalDark();
+        this.currentTheme = adjustThemeForTerminal(
+          this.currentTheme,
+          terminalIsDark,
+        );
+      } else {
+        this.currentTheme = getTheme(this.options.theme);
+      }
     } else {
       this.currentTheme = this.options.theme;
     }
@@ -241,10 +267,28 @@ export {
   getThemeNames,
   validateTheme,
   validateThemeSafe,
+  ThemeBuilder,
 };
 
 export { tokenize, applyTheme };
 
-export { renderLine };
+export {
+  renderLine,
+  renderLightBox,
+  renderLightBoxLine,
+  isLightThemeRenderer as isLightThemeStyle,
+};
+
+// Export adaptive theming utilities
+export {
+  detectColorScheme,
+  detectHighContrast,
+  detectReducedMotion,
+  getAdaptiveTheme,
+  AdaptiveLogger,
+  generateThemeProperties,
+  injectAdaptiveCSS,
+  THEME_VARIANTS,
+} from "./adaptive";
 
 export default LogsDX;

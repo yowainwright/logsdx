@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { schemaConfigSchema, themePresetSchema } from "@/src/schema";
-import type { ThemePreset } from "@/src/types";
+import { schemaConfigSchema, themePresetSchema } from "../schema";
+import type { ThemePreset, StyleOptions, PatternMatch } from "../types";
 
 export const colorPaletteSchema = z.object({
   name: z.string(),
@@ -467,12 +467,8 @@ export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
     return preset;
   });
 
-  const matchWords: Record<string, { color: string; styleCodes?: string[] }> = {};
-  const matchPatterns: Array<{
-    name: string;
-    pattern: string;
-    options: { color: string; styleCodes?: string[] };
-  }> = [];
+  const matchWords: Record<string, StyleOptions> = {};
+  const matchPatterns: PatternMatch[] = [];
 
   for (const preset of patternPresets) {
     for (const [word, config] of Object.entries(preset.matchWords)) {

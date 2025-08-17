@@ -286,7 +286,7 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
     "192.168.1.100 - Processing request in 15ms",
   ];
 
-  const { LogsDX } = await import("@/src/index");
+  const { LogsDX } = await import("../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({
     theme: theme.name,

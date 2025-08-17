@@ -10,8 +10,8 @@ import {
   applyUnderline,
   applyDim,
   applyBackgroundColor,
-} from "@/src/renderer/index";
-import { TokenList } from "@/src/schema/types";
+} from "./index";
+import { TokenList } from "../schema/types";
 
 describe("Renderer", () => {
   describe("renderLine", () => {

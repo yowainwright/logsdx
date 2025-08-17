@@ -168,7 +168,7 @@ async function previewImportedTheme(theme: Theme) {
   ];
 
   // Temporarily register the theme for preview
-  const { LogsDX } = await import("@/src/index");
+  const { LogsDX } = await import("../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({
     theme: theme.name,

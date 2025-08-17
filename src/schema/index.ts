@@ -1,8 +1,32 @@
 import { z } from "zod";
 
 export const styleOptionsSchema = z.object({
-  color: z.string(),
-  styleCodes: z.array(z.string()).optional(),
+  color: z
+    .string()
+    .min(1, "Color cannot be empty")
+    .refine(
+      (color) => {
+        // Basic color validation - hex, rgb, named colors, or semantic references
+        return /^(#[0-9a-fA-F]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|\w+)/.test(color);
+      },
+      {
+        message:
+          "Invalid color format. Use hex (#ff0000), rgb(), hsl(), or named colors",
+      },
+    ),
+  styleCodes: z
+    .array(
+      z.enum([
+        "bold",
+        "italic",
+        "underline",
+        "dim",
+        "blink",
+        "reverse",
+        "strikethrough",
+      ]),
+    )
+    .optional(),
   htmlStyleFormat: z
     .enum(["css", "className"])
     .optional()
@@ -38,6 +62,12 @@ export const schemaConfigSchema = z.object({
 export const themePresetSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
+  mode: z
+    .enum(["light", "dark", "auto"])
+    .optional()
+    .describe(
+      "Theme mode: light for light backgrounds, dark for dark backgrounds, auto for system preference",
+    ),
   schema: schemaConfigSchema,
 });
 

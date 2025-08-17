@@ -1,9 +1,220 @@
-import { expect, test, describe } from "bun:test";
+import { expect, test, describe, afterAll } from "bun:test";
 import { parseArgs, loadConfig } from "./index";
 import { cliOptionsSchema, commanderOptionsSchema } from "./types";
+import type { LogLevel, ParsedLine } from "../types";
+import { Writable } from "stream";
 import fs from "fs";
 import os from "os";
 import path from "path";
+
+interface CliOptions {
+  flags: Set<string>;
+  inputFile: string;
+  outputFile: string;
+  minLevel: string | undefined;
+  isDebug: boolean;
+}
+const originalConsoleLog = console.log;
+let consoleLogCalls = 0;
+console.log = () => {
+  consoleLogCalls++;
+};
+
+const createMockParser = () => {
+  return (line: string): ParsedLine => {
+    if (line.includes("ERROR")) return { level: "error" as LogLevel };
+    if (line.includes("WARN")) return { level: "warn" as LogLevel };
+    if (line.includes("INFO")) return { level: "info" as LogLevel };
+    return { level: undefined };
+  };
+};
+
+function shouldRender(
+  level: string | undefined,
+  minLevel: LogLevel | undefined,
+): boolean {
+  if (!minLevel || !level) return true;
+
+  const levelPriorities: Record<string, number> = {
+    debug: 0,
+    info: 1,
+    warn: 2,
+    error: 3,
+    success: 1,
+    trace: 0,
+  };
+
+  const current = levelPriorities[level] ?? 0;
+  const min = levelPriorities[minLevel] ?? 0;
+  return current >= min;
+}
+
+function processArg(
+  arg: string,
+  index: number,
+  options: CliOptions,
+  args: string[],
+): number {
+  if (arg === "--quiet") {
+    options.flags = options.flags || new Set<string>();
+    options.flags.add("quiet");
+    return 0;
+  }
+
+  if (arg === "--debug") {
+    options.isDebug = true;
+    return 0;
+  }
+
+  if (arg === "--output") {
+    if (index + 1 < args.length) {
+      options.outputFile = args[index + 1];
+      return 1;
+    }
+    return 0;
+  }
+
+  if (arg.startsWith("--level=")) {
+    const parts = arg.split("=");
+    if (parts.length > 1) {
+      options.minLevel = parts[1] as string;
+    }
+    return 0;
+  }
+
+  options.inputFile = arg;
+  return 0;
+}
+
+function parseArgs(args: string[]): CliOptions {
+  const options: CliOptions = {
+    flags: new Set<string>(),
+    inputFile: "",
+    outputFile: "",
+    minLevel: undefined,
+    isDebug: false,
+  };
+
+  let i = 0;
+  while (i < args.length) {
+    const arg = args[i];
+    const skip = processArg(arg, i, options, args);
+    i += skip + 1;
+  }
+
+  return options;
+}
+
+function handleLine(
+  parser: (line: string) => ParsedLine,
+  line: string,
+  options: CliOptions,
+  outputStream: NodeJS.WriteStream | Writable,
+): void {
+  const parsed = parser(line);
+  if (!parsed) return;
+
+  if (options.flags && options.flags.has("quiet")) {
+    return;
+  }
+
+  if (
+    options.minLevel &&
+    !shouldRender(parsed.level as LogLevel, options.minLevel as LogLevel)
+  ) {
+    return;
+  }
+
+  const formattedLine = line;
+
+  if (outputStream === process.stdout) {
+    console.log(formattedLine);
+  } else {
+    outputStream.write(formattedLine + "\n");
+  }
+}
+
+const resetMocks = () => {
+  consoleLogCalls = 0;
+};
+
+describe("processArg", () => {
+  test("should add quiet flag to options", () => {
+    resetMocks();
+    const options: CliOptions = {
+      flags: new Set<string>(),
+      inputFile: "",
+      outputFile: "",
+      minLevel: undefined,
+      isDebug: false,
+    };
+
+    processArg("--quiet", 0, options, ["--quiet"]);
+
+    expect(options.flags.has("quiet")).toBe(true);
+  });
+
+  test("should set isDebug to true", () => {
+    resetMocks();
+    const options: CliOptions = {
+      flags: new Set<string>(),
+      inputFile: "",
+      outputFile: "",
+      minLevel: undefined,
+      isDebug: false,
+    };
+
+    processArg("--debug", 0, options, ["--debug"]);
+
+    expect(options.isDebug).toBe(true);
+  });
+
+  test("should set outputFile", () => {
+    resetMocks();
+    const options: CliOptions = {
+      flags: new Set<string>(),
+      inputFile: "",
+      outputFile: "",
+      minLevel: undefined,
+      isDebug: false,
+    };
+
+    const result = processArg("--output", 0, options, ["--output", "test.log"]);
+
+    expect(options.outputFile).toBe("test.log");
+    expect(result).toBe(1);
+  });
+
+  test("should set minLevel", () => {
+    resetMocks();
+    const options: CliOptions = {
+      flags: new Set<string>(),
+      inputFile: "",
+      outputFile: "",
+      minLevel: undefined,
+      isDebug: false,
+    };
+
+    processArg("--level=warn", 0, options, ["--level=warn"]);
+
+    expect(options.minLevel).toBe("warn");
+  });
+
+  test("should set inputFile", () => {
+    resetMocks();
+    const options: CliOptions = {
+      flags: new Set<string>(),
+      inputFile: "",
+      outputFile: "",
+      minLevel: undefined,
+      isDebug: false,
+    };
+
+    processArg("input.log", 0, options, ["input.log"]);
+
+    expect(options.inputFile).toBe("input.log");
+  });
+});
 
 describe("parseArgs", () => {
   test("should parse basic theme argument", () => {

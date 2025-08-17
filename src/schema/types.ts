@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  styleOptionsSchema,
-  tokenSchema,
-  tokenListSchema,
-} from "@/src/schema/index";
+import { styleOptionsSchema, tokenSchema, tokenListSchema } from "./index";
 
 export type StyleOptions = z.infer<typeof styleOptionsSchema>;
 export type Token = z.infer<typeof tokenSchema>;

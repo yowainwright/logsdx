@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "style": "warn"
+  },
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/coverage/**"
+  ]
+}

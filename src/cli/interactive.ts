@@ -1,5 +1,5 @@
 import { select, confirm } from "@inquirer/prompts";
-import { LogsDX, getThemeNames, getTheme } from "@/src/index";
+import { LogsDX, getThemeNames, getTheme } from "../index";
 import { ui } from "./ui";
 import chalk from "chalk";
 import { z } from "zod";
@@ -41,7 +41,7 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
 
   // Theme selection
   const themeNames = getThemeNames();
-  const themeChoices: ThemeChoice[] = themeNames.map((name) => ({
+  const themeChoices: ThemeChoice[] = themeNames.map((name: string) => ({
     name: chalk.cyan(name),
     value: name,
     description: getTheme(name)?.description || "No description available",
@@ -138,7 +138,7 @@ export async function selectThemeInteractively(): Promise<string> {
 
   return await select({
     message: "🎨 Select a theme:",
-    choices: themeNames.map((name) => ({
+    choices: themeNames.map((name: string) => ({
       name: chalk.cyan(name),
       value: name,
     })),
@@ -154,7 +154,7 @@ export function showThemeList(): void {
     outputFormat: "ansi",
   });
 
-  themeNames.forEach((themeName, index) => {
+  themeNames.forEach((themeName: string, index: number) => {
     const theme = getTheme(themeName);
     const sample = `${index + 1}. ${themeName}`;
     const styledSample = logsDX.processLine(

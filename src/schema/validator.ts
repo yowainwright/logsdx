@@ -1,12 +1,8 @@
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import {
-  tokenSchema,
-  tokenListSchema,
-  themePresetSchema,
-} from "@/src/schema/index";
-import { JsonSchemaOptions } from "@/src/schema/types";
-import { Theme } from "@/src/types";
+import { tokenSchema, tokenListSchema, themePresetSchema } from "./index";
+import { JsonSchemaOptions } from "./types";
+import { Theme } from "../types";
 
 /**
  * Validates a token against the schema
@@ -76,12 +72,25 @@ export function tokenSchemaToJsonSchema() {
 }
 
 /**
- * Validates a theme configuration
+ * Validates a theme configuration with enhanced error messages
  * @param theme The theme configuration to validate
  * @returns The validated theme configuration or throws an error
  */
 export function validateTheme(theme: unknown): Theme {
-  return themePresetSchema.parse(theme) as Theme;
+  try {
+    return themePresetSchema.parse(theme) as Theme;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const enhancedError = new Error(
+        `Theme validation failed: ${error.issues
+          .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+          .join(", ")}`,
+      );
+      enhancedError.cause = error;
+      throw enhancedError;
+    }
+    throw error;
+  }
 }
 
 /**

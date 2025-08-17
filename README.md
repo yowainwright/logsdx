@@ -173,6 +173,33 @@ function App() {
 
 ---
 
+## Light/Dark Mode & Accessibility
+
+LogsDX provides comprehensive tools to ensure your themes work perfectly in both light and dark environments with full accessibility compliance. The system automatically detects browser/terminal color preferences, validates WCAG contrast ratios using industry-standard tools (tinycolor2), and generates CSS for multiple output formats including BEM, Tailwind, and utility classes.
+
+```typescript
+import {
+  detectColorScheme,
+  validateTheme,
+  checkWCAGCompliance,
+  adjustThemeForAccessibility,
+  generateBEMClasses,
+  generateTailwindTheme,
+  generateCompleteCSS,
+} from "logsdx";
+
+// Auto-detect system preference and validate accessibility
+const colorScheme = detectColorScheme(); // 'light' | 'dark' | 'auto'
+const validation = validateTheme(theme);
+const wcag = checkWCAGCompliance(theme); // Returns AAA/AA/A/FAIL level
+
+// Auto-fix accessibility issues and generate CSS
+const fixedTheme = adjustThemeForAccessibility(theme, 4.5);
+const { bem, utilities, tailwind } = generateCompleteCSS(fixedTheme);
+```
+
+---
+
 ## API Reference
 
 ### Core API
