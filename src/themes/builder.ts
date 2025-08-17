@@ -421,7 +421,7 @@ export function generateBEMClasses(theme: Theme, block: string = 'logsdx'): stri
   
   // Extract colors from word matches
   if (theme.schema.matchWords) {
-    Object.entries(theme.schema.matchWords).forEach(([word, style]) => {
+    Object.entries(theme.schema.matchWords).forEach(([_word, style]) => {
       if (style.color) {
         colorElements.add(style.color);
       }
@@ -599,7 +599,7 @@ export function generateResponsiveCSS(theme: Theme, block: string = 'logsdx'): s
 }
 
 // Import existing color libraries 
-const tinycolor = require('tinycolor2');
+import tinycolor from 'tinycolor2';
 
 /**
  * Color utilities for validation and detection using industry-standard libraries
@@ -837,7 +837,7 @@ export function adjustThemeForAccessibility(theme: Theme, targetContrast: number
 
   // Adjust word colors
   if (adjustedTheme.schema.matchWords) {
-    Object.entries(adjustedTheme.schema.matchWords).forEach(([word, style]) => {
+    Object.entries(adjustedTheme.schema.matchWords).forEach(([_word, style]) => {
       if (style && typeof style === 'object' && 'color' in style && typeof style.color === 'string') {
         const ratio = getContrastRatio(style.color, bgColor);
         if (ratio < targetContrast) {

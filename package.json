@@ -58,6 +58,7 @@
     "@types/bun": "latest",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.10.2",
+    "@types/tinycolor2": "^1.4.6",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.19.0",
     "@typescript-eslint/parser": "^8.19.0",
@@ -78,6 +79,8 @@
   "dependencies": {
     "ansi-styles": "^6.2.1",
     "chalk": "^5.4.1",
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "jiti": "^2.5.1",
+    "tinycolor2": "^1.6.0"
   }
 }
