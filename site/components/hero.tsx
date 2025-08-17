@@ -114,12 +114,12 @@ export function Hero() {
       {/* Main content */}
       <div className="container mx-auto px-4 text-center relative z-20">
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-6 text-6xl font-bold tracking-tight">
+          <h1 className="mb-6 text-[6rem] font-bold tracking-tight">
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               logsDx
             </span>
           </h1>
-          <p className="mb-8 text-xl text-slate-600 dark:text-slate-400">
+          <p className="mb-8 text-[2rem] leading-[1.25] text-slate-600 dark:text-slate-400">
             Schema-based styling layer that makes logs look identical between terminal and browser environments
           </p>
           <div className="flex flex-wrap justify-center gap-4">

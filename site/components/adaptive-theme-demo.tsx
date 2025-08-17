@@ -7,19 +7,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const THEME_PAIRS = {
   'GitHub': { light: 'github-light', dark: 'github-dark' },
   'Solarized': { light: 'solarized-light', dark: 'solarized-dark' },
-  'Classic': { light: 'oh-my-zsh', dark: 'dracula' }
+  'Dracula': { light: 'github-light', dark: 'dracula' },
+  'Nord': { light: 'solarized-light', dark: 'nord' },
+  'Monokai': { light: 'github-light', dark: 'monokai' },
+  'Terminal Classic': { light: 'solarized-light', dark: 'oh-my-zsh' },
+  'High Contrast': { light: 'github-light', dark: 'dracula' },
+  'Minimal': { light: 'solarized-light', dark: 'github-dark' }
 }
 
 // Enhanced sample logs with more realistic examples
 const sampleLogs = [
   'INFO: Application started successfully on port 3000',
   'WARN: Memory usage at 85% - consider scaling',
-  'ERROR: Database connection failed: ECONNREFUSED',
-  'DEBUG: Processing user request id=abc123 method=POST',
+  'ERROR: Database connection failed: ECONNREFUSED localhost:5432',
+  'DEBUG: Processing user request id=abc123 method=POST /api/users',
   'SUCCESS: All tests passed ✓ (127 tests, 0 failures)',
   '[2024-01-15 10:23:45.123] GET /api/users 200 OK (123ms)',
-  '{"level":"error","message":"Authentication failed","user":"john.doe","timestamp":"2024-01-15T10:23:45Z"}',
-  'PERFORMANCE: Cache hit ratio: 92.5% | Memory: 256MB | CPU: 45%'
+  '{"level":"error","message":"Authentication failed","user":"john.doe@example.com","timestamp":"2024-01-15T10:23:45Z","trace_id":"abc-123-def"}',
+  'PERFORMANCE: Cache hit ratio: 92.5% | Memory: 256MB | CPU: 45% | Requests/sec: 1,247',
+  'TRACE: SQL Query executed: SELECT * FROM users WHERE active = true LIMIT 100',
+  'FATAL: System shutdown initiated - critical error in payment processor',
+  'INFO: Scheduled backup completed successfully (2.3GB compressed)',
+  'WARN: Rate limit exceeded for IP 192.168.1.100 - throttling requests'
 ]
 
 interface ProcessedLog {
@@ -35,7 +44,7 @@ interface ThemeColors {
 }
 
 export function AdaptiveThemeDemo() {
-  const [selectedPair, setSelectedPair] = useState('GitHub')
+  const [selectedPair, setSelectedPair] = useState('Dracula')
   const [isDark, setIsDark] = useState(false)
   const [autoDetect, setAutoDetect] = useState(true)
   const [logs, setLogs] = useState<ProcessedLog[]>([])
@@ -114,17 +123,19 @@ export function AdaptiveThemeDemo() {
           textColor = theme.schema.defaultStyle.color
         }
         
-        // Set background based on theme mode and common patterns
+        // Set background based on theme mode and specific theme patterns
         if (mode === 'light') {
           backgroundColor = themeName.includes('github') ? '#ffffff' :
-                          themeName.includes('solarized') ? '#fdf6e3' : '#f8f8f8'
+                          themeName.includes('solarized') ? '#fdf6e3' : 
+                          themeName.includes('oh-my-zsh') ? '#f8f8f8' : '#ffffff'
           textColor = textColor === '#ffffff' ? '#000000' : textColor
         } else {
           backgroundColor = themeName.includes('github') ? '#0d1117' :
                           themeName.includes('solarized') ? '#002b36' :
                           themeName.includes('dracula') ? '#282a36' :
                           themeName.includes('nord') ? '#2e3440' :
-                          themeName.includes('monokai') ? '#272822' : '#1a1a1a'
+                          themeName.includes('monokai') ? '#272822' :
+                          themeName.includes('oh-my-zsh') ? '#2c3e50' : '#1a1a1a'
         }
       }
       
