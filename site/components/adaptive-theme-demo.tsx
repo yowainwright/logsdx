@@ -77,7 +77,7 @@ export function AdaptiveThemeDemo() {
   useEffect(() => {
     const updateSystemPreferences = () => {
       setSystemPreferences({
-        colorScheme: detectColorScheme(),
+        colorScheme: detectColorScheme() as "light" | "dark" | "no-preference",
         highContrast: detectHighContrast(),
         reducedMotion: detectReducedMotion(),
       });
@@ -130,8 +130,8 @@ export function AdaptiveThemeDemo() {
       }
 
       // Try to get colors from the theme configuration
-      if (allThemes[themeName]) {
-        const theme = allThemes[themeName];
+      if (allThemes[themeName as keyof typeof allThemes]) {
+        const theme = allThemes[themeName as keyof typeof allThemes];
         // Check if theme has color information in schema
         if (theme.schema?.defaultStyle?.color) {
           textColor = theme.schema.defaultStyle.color;
@@ -179,8 +179,8 @@ export function AdaptiveThemeDemo() {
       if (terminalLogger && browserLogger) {
         const processedLogs = sampleLogs.map((log) => ({
           original: log,
-          ansi: terminalLogger.processLine(log), // This is actually HTML formatted for terminal display
-          html: browserLogger.processLine(log), // This is HTML formatted for browser display
+          ansi: (terminalLogger as any).processLine(log), // This is actually HTML formatted for terminal display
+          html: (browserLogger as any).processLine(log), // This is HTML formatted for browser display
         }));
 
         setLogs(processedLogs);
