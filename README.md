@@ -9,6 +9,7 @@ LogsDX is not a logger replacement—it's a theming engine that applies consiste
 ## The Problem
 
 Logs look different everywhere:
+
 - Terminal logs use ANSI colors
 - Browser logs are plain text or basic HTML
 - CI/CD tools have their own styling
@@ -19,7 +20,7 @@ Logs look different everywhere:
 **Write themes once, style logs everywhere.** LogsDX uses a unified schema to define log styling patterns that work identically in:
 
 - **Terminal** (ANSI escape codes)
-- **Browser** (HTML with CSS or CSS classes)  
+- **Browser** (HTML with CSS or CSS classes)
 - **Any environment** (extensible rendering system)
 
 **Key concept:** LogsDX sits between your existing logger and the display layer, applying consistent theming without replacing your logging infrastructure.
@@ -28,7 +29,7 @@ Logs look different everywhere:
 
 LogsDX themes are defined using a JSON schema that specifies:
 
-- **matchWords**: Style specific terms (e.g., "ERROR", "GET", "200")  
+- **matchWords**: Style specific terms (e.g., "ERROR", "GET", "200")
 - **matchPatterns**: Style regex patterns (e.g., URLs, IP addresses, timestamps)
 - **defaultStyle**: Fallback styling for unmatched content
 
@@ -45,14 +46,16 @@ Your Logger → LogsDX Styling → Output (Terminal/Browser)
 ```
 
 **Terminal Integration:**
+
 ```typescript
-import { LogsDX } from 'logsdx';
-const logsDX = LogsDX.getInstance({ theme: 'my-theme', outputFormat: 'ansi' });
+import { LogsDX } from "logsdx";
+const logsDX = LogsDX.getInstance({ theme: "my-theme", outputFormat: "ansi" });
 console.log(logsDX.processLine(logLine)); // ANSI-styled output
 ```
 
 **Browser Integration:**
-```typescript  
+
+```typescript
 import { LogsDX } from 'logsdx';
 const logsDX = LogsDX.getInstance({ theme: 'my-theme', outputFormat: 'html' });
 return <div dangerouslySetInnerHTML={{__html: logsDX.processLine(logLine)}} />;
@@ -166,6 +169,33 @@ function App() {
     />
   );
 }
+```
+
+---
+
+## Light/Dark Mode & Accessibility
+
+LogsDX provides comprehensive tools to ensure your themes work perfectly in both light and dark environments with full accessibility compliance. The system automatically detects browser/terminal color preferences, validates WCAG contrast ratios using industry-standard tools (tinycolor2), and generates CSS for multiple output formats including BEM, Tailwind, and utility classes.
+
+```typescript
+import {
+  detectColorScheme,
+  validateTheme,
+  checkWCAGCompliance,
+  adjustThemeForAccessibility,
+  generateBEMClasses,
+  generateTailwindTheme,
+  generateCompleteCSS,
+} from "logsdx";
+
+// Auto-detect system preference and validate accessibility
+const colorScheme = detectColorScheme(); // 'light' | 'dark' | 'auto'
+const validation = validateTheme(theme);
+const wcag = checkWCAGCompliance(theme); // Returns AAA/AA/A/FAIL level
+
+// Auto-fix accessibility issues and generate CSS
+const fixedTheme = adjustThemeForAccessibility(theme, 4.5);
+const { bem, utilities, tailwind } = generateCompleteCSS(fixedTheme);
 ```
 
 ---

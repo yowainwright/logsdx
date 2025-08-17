@@ -1,0 +1,84 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install workspace dependencies
+        run: bun install
+
+      - name: Build main package
+        run: bun run build
+
+      - name: Verify main package build
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Error: Main package build failed - dist directory not found"
+            echo "Expected dist directory to be created by 'bun run build'"
+            exit 1
+          fi
+          echo "✅ Main package build successful - dist directory exists"
+
+      - name: Install site dependencies
+        working-directory: ./site
+        run: bun install
+
+      - name: Build with Next.js
+        working-directory: ./site
+        run: bun run build
+
+      - name: Verify site build output
+        run: |
+          if [ ! -d "site/out" ]; then
+            echo "❌ Error: Site build failed - site/out directory not found"
+            echo "Expected site/out directory to be created by Next.js static export"
+            echo "Check Next.js configuration and build process"
+            exit 1
+          fi
+          if [ ! "$(ls -A site/out)" ]; then
+            echo "❌ Error: Site build output is empty"
+            echo "site/out directory exists but contains no files"
+            exit 1
+          fi
+          echo "✅ Site build successful - site/out directory exists and contains files"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site/out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

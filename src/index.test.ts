@@ -249,7 +249,8 @@ describe("ANSI theming integration", () => {
 
   // Helper function to strip ANSI escape codes for testing
   function stripAnsi(str: string): string {
-    return str.replace(/\x1B\[\d+m/g, "");
+    // More comprehensive ANSI escape sequence removal
+    return str.replace(/\x1B\[[0-9;]*[mGKHF]/g, "");
   }
 
   test("applies style codes like bold and italic", () => {

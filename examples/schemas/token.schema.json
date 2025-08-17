@@ -25,16 +25,11 @@
                 },
                 "htmlStyleFormat": {
                   "type": "string",
-                  "enum": [
-                    "css",
-                    "className"
-                  ],
+                  "enum": ["css", "className"],
                   "description": "HTML style format"
                 }
               },
-              "required": [
-                "color"
-              ],
+              "required": ["color"],
               "additionalProperties": false,
               "description": "Styling information for this token"
             }
@@ -43,9 +38,7 @@
           "description": "Additional token metadata including style information"
         }
       },
-      "required": [
-        "content"
-      ],
+      "required": ["content"],
       "additionalProperties": false
     }
   },

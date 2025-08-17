@@ -1,9 +1,9 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { LogsDX, getThemeNames } from "@/src/index";
-import type { CliOptions } from "@/src/cli/types";
-import type { LogsDXOptions } from "@/src/types";
+import { LogsDX, getThemeNames } from "../index";
+import type { CliOptions } from "./types";
+import type { LogsDXOptions } from "../types";
 import { version } from "../../package.json";
 
 export function loadConfig(configPath?: string): LogsDXOptions {
@@ -67,7 +67,7 @@ export function parseArgs(args: string[]): CliOptions {
 }
 
 export async function main(
-  args: string[] = process.argv.slice(2)
+  args: string[] = process.argv.slice(2),
 ): Promise<void> {
   const cliOptions = parseArgs(args);
   const config = loadConfig(cliOptions.configPath);
@@ -153,7 +153,7 @@ program
   .option("--list-themes", "List available themes")
   .argument(
     "[input]",
-    "Input file (optional, reads from stdin if not provided)"
+    "Input file (optional, reads from stdin if not provided)",
   )
   .action((input, options) => {
     const args = [];

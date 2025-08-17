@@ -1,7 +1,12 @@
-import { TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
-import { tokenize, applyTheme } from "@/src/tokenizer";
-import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
+import { TokenList } from "../schema/types";
+import { Theme } from "../types";
+import { tokenize, applyTheme } from "../tokenizer";
+import {
+  BACKGROUND_COLORS,
+  STYLE_CODES,
+  getColorDefinition,
+  supportsColors,
+} from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -14,18 +19,21 @@ import type { RenderOptions } from "./types";
 export function renderLine(
   line: string,
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
   const tokens = tokenize(line, theme);
 
   const styledTokens = applyTheme(
     tokens,
-    theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
+    theme || { name: "default", schema: { defaultStyle: { color: "white" } } },
   );
 
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
-      return tokensToClassNames(styledTokens);
+      return tokensToClassNames(styledTokens, {
+        classPrefix: options.classPrefix,
+        useBEM: options.useBEM,
+      });
     } else {
       return tokensToHtml(styledTokens);
     }
@@ -40,9 +48,12 @@ export function renderLine(
  * @param forceColors - Force color output regardless of terminal detection
  * @returns A string with ANSI escape codes for styling
  */
-export function tokensToString(tokens: TokenList, forceColors?: boolean): string {
+export function tokensToString(
+  tokens: TokenList,
+  forceColors?: boolean,
+): string {
   const colorSupport = forceColors ?? supportsColors();
-  
+
   return tokens
     .map((token) => {
       if (
@@ -54,7 +65,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         token.metadata?.matchType === "carriage-return"
       ) {
         if (token.metadata?.trimmed) {
-          if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
+          if (
+            token.metadata?.matchType === "spaces" &&
+            token.metadata?.originalLength
+          ) {
             return " ";
           }
           if (token.metadata?.matchType === "space") {
@@ -77,7 +91,8 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         result = applyBold(result);
@@ -95,7 +110,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         result = applyDim(result);
       }
 
-      if ('backgroundColor' in style && typeof style.backgroundColor === 'string') {
+      if (
+        "backgroundColor" in style &&
+        typeof style.backgroundColor === "string"
+      ) {
         result = applyBackgroundColor(result, style.backgroundColor);
       }
 
@@ -127,7 +145,7 @@ export function tokensToHtml(tokens: TokenList): string {
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -163,7 +181,8 @@ export function tokensToHtml(tokens: TokenList): string {
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         css.push("font-weight: bold");
@@ -191,9 +210,14 @@ export function tokensToHtml(tokens: TokenList): string {
 /**
  * Convert tokens to HTML with CSS class names
  * @param tokens - The tokens to convert
+ * @param options - Rendering options with classPrefix and useBEM
  * @returns HTML with CSS class names for styling
  */
-export function tokensToClassNames(tokens: TokenList): string {
+export function tokensToClassNames(
+  tokens: TokenList,
+  options: { classPrefix?: string; useBEM?: boolean } = {},
+): string {
+  const { classPrefix = "logsdx", useBEM = false } = options;
   return tokens
     .map((token) => {
       if (
@@ -204,14 +228,14 @@ export function tokensToClassNames(tokens: TokenList): string {
       ) {
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           if (token.metadata?.matchType === "space") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -245,26 +269,53 @@ export function tokensToClassNames(tokens: TokenList): string {
         const colorDef = getColorDefinition(style.color);
         if (colorDef?.className) {
           classes.push(colorDef.className);
+        } else {
+          // Generate class name from color
+          const colorClass = style.color
+            .replace(/[^a-zA-Z0-9-]/g, "-")
+            .toLowerCase();
+          if (useBEM) {
+            classes.push(`${classPrefix}__${colorClass}`);
+          } else {
+            classes.push(`${classPrefix}-${colorClass}`);
+          }
         }
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
-        classes.push("logsdx-bold");
+        if (useBEM) {
+          classes.push(`${classPrefix}--bold`);
+        } else {
+          classes.push(`${classPrefix}-bold`);
+        }
       }
 
       if (hasStyleCode("italic")) {
-        classes.push("logsdx-italic");
+        if (useBEM) {
+          classes.push(`${classPrefix}--italic`);
+        } else {
+          classes.push(`${classPrefix}-italic`);
+        }
       }
 
       if (hasStyleCode("underline")) {
-        classes.push("logsdx-underline");
+        if (useBEM) {
+          classes.push(`${classPrefix}--underline`);
+        } else {
+          classes.push(`${classPrefix}-underline`);
+        }
       }
 
       if (hasStyleCode("dim")) {
-        classes.push("logsdx-dim");
+        if (useBEM) {
+          classes.push(`${classPrefix}--dim`);
+        } else {
+          classes.push(`${classPrefix}-dim`);
+        }
       }
 
       const escapedContent = escapeHtml(token.content);
@@ -410,10 +461,17 @@ export function bgRGB(r: number, g: number, b: number): string {
 export function renderLines(
   lines: string[],
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string[] {
   return lines.map((line) => renderLine(line, theme, options));
 }
+
+export {
+  renderLightBox,
+  renderLightBoxLine,
+  isLightTheme,
+  getThemeBackground,
+} from "./light-box";
 
 export default {
   renderLine,

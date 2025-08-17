@@ -8,7 +8,7 @@ import {
   validateThemeSafe,
   tokenSchemaToJsonSchema,
   themeSchemaToJsonSchema,
-} from "@/src/schema/validator";
+} from "./validator";
 import { z } from "zod";
 
 describe("Schema Validator", () => {
@@ -113,8 +113,8 @@ describe("Schema Validator", () => {
         schema: {
           defaultStyle: { color: "white" },
           matchWords: { error: { color: "red" } },
-          whiteSpace: "preserve",
-          newLine: "preserve",
+          whiteSpace: "preserve" as const,
+          newLine: "preserve" as const,
         },
       };
 
@@ -140,8 +140,8 @@ describe("Schema Validator", () => {
         schema: {
           defaultStyle: { color: "white" },
           matchWords: { error: { color: "red" } },
-          whiteSpace: "preserve",
-          newLine: "preserve",
+          whiteSpace: "preserve" as const,
+          newLine: "preserve" as const,
         },
       };
 
