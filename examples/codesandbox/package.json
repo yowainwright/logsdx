@@ -10,7 +10,13 @@
   "dependencies": {
     "logsdx": "latest"
   },
-  "keywords": ["logs", "terminal", "styling", "ansi", "html"],
+  "keywords": [
+    "logs",
+    "terminal",
+    "styling",
+    "ansi",
+    "html"
+  ],
   "author": "LogsDX",
   "license": "MIT"
 }

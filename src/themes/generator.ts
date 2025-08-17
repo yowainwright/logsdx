@@ -30,20 +30,45 @@ export type ColorPalette = z.infer<typeof colorPaletteSchema>;
 export const patternPresetSchema = z.object({
   name: z.string(),
   description: z.string(),
-  category: z.enum(["api", "system", "application", "security", "database", "generic"]),
+  category: z.enum([
+    "api",
+    "system",
+    "application",
+    "security",
+    "database",
+    "generic",
+  ]),
   patterns: z.array(
     z.object({
       name: z.string(),
       pattern: z.string(),
       description: z.string(),
-      colorRole: z.enum(["primary", "secondary", "success", "warning", "error", "info", "muted", "accent"]),
+      colorRole: z.enum([
+        "primary",
+        "secondary",
+        "success",
+        "warning",
+        "error",
+        "info",
+        "muted",
+        "accent",
+      ]),
       styleCodes: z.array(z.string()).optional(),
     }),
   ),
   matchWords: z.record(
     z.string(),
     z.object({
-      colorRole: z.enum(["primary", "secondary", "success", "warning", "error", "info", "muted", "accent"]),
+      colorRole: z.enum([
+        "primary",
+        "secondary",
+        "success",
+        "warning",
+        "error",
+        "info",
+        "muted",
+        "accent",
+      ]),
       styleCodes: z.array(z.string()).optional(),
     }),
   ),
@@ -55,13 +80,24 @@ export const themeGeneratorConfigSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   colorPalette: z.string().describe("Color palette name to use"),
-  patternPresets: z.array(z.string()).describe("Pattern preset names to combine"),
+  patternPresets: z
+    .array(z.string())
+    .describe("Pattern preset names to combine"),
   customPatterns: z
     .array(
       z.object({
         name: z.string(),
         pattern: z.string(),
-        colorRole: z.enum(["primary", "secondary", "success", "warning", "error", "info", "muted", "accent"]),
+        colorRole: z.enum([
+          "primary",
+          "secondary",
+          "success",
+          "warning",
+          "error",
+          "info",
+          "muted",
+          "accent",
+        ]),
         styleCodes: z.array(z.string()).optional(),
       }),
     )
@@ -70,7 +106,16 @@ export const themeGeneratorConfigSchema = z.object({
     .record(
       z.string(),
       z.object({
-        colorRole: z.enum(["primary", "secondary", "success", "warning", "error", "info", "muted", "accent"]),
+        colorRole: z.enum([
+          "primary",
+          "secondary",
+          "success",
+          "warning",
+          "error",
+          "info",
+          "muted",
+          "accent",
+        ]),
         styleCodes: z.array(z.string()).optional(),
       }),
     )
@@ -289,7 +334,8 @@ export const PATTERN_PRESETS: PatternPreset[] = [
     patterns: [
       {
         name: "timestamp-iso",
-        pattern: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|[+-]\\d{2}:\\d{2})?",
+        pattern:
+          "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|[+-]\\d{2}:\\d{2})?",
         description: "ISO timestamp format",
         colorRole: "muted",
         styleCodes: ["dim"],
@@ -410,7 +456,8 @@ export const PATTERN_PRESETS: PatternPreset[] = [
       },
       {
         name: "table-name",
-        pattern: "\\b(?:SELECT|INSERT|UPDATE|DELETE)\\s+(?:FROM|INTO)?\\s*([a-zA-Z_][a-zA-Z0-9_]*)",
+        pattern:
+          "\\b(?:SELECT|INSERT|UPDATE|DELETE)\\s+(?:FROM|INTO)?\\s*([a-zA-Z_][a-zA-Z0-9_]*)",
         description: "Database table names",
         colorRole: "primary",
         styleCodes: ["italic"],
@@ -447,7 +494,9 @@ export function listColorPalettes(): ColorPalette[] {
   return [...COLOR_PALETTES];
 }
 
-export function listPatternPresets(category?: PatternPreset["category"]): PatternPreset[] {
+export function listPatternPresets(
+  category?: PatternPreset["category"],
+): PatternPreset[] {
   if (category) {
     return PATTERN_PRESETS.filter((preset) => preset.category === category);
   }

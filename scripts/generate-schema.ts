@@ -32,7 +32,7 @@ async function main() {
         filename: "token.schema.json",
       },
       {
-        name: "token-list", 
+        name: "token-list",
         schema: tokenListSchema,
         filename: "token-list.schema.json",
       },
@@ -55,7 +55,7 @@ async function main() {
 
     for (const { name, schema, filename } of schemas) {
       console.log(`Generating ${name} schema...`);
-      
+
       const jsonSchema = zodToJsonSchema(schema, {
         name,
         $refStrategy: "relative",

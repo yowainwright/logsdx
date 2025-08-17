@@ -3,11 +3,13 @@
 ## Option 1: Using CodeSandbox CLI
 
 1. **Install CodeSandbox CLI** (already done):
+
    ```bash
    bun add -g codesandbox
    ```
 
 2. **Deploy from this directory**:
+
    ```bash
    cd examples/codesandbox
    codesandbox .
@@ -15,7 +17,7 @@
 
 3. **The CLI will**:
    - Upload the demo files
-   - Install dependencies 
+   - Install dependencies
    - Create a public CodeSandbox URL
    - Return the URL for sharing
 
@@ -25,7 +27,7 @@
 2. Create a new Node.js sandbox
 3. Upload these files:
    - `package.json`
-   - `index.js` 
+   - `index.js`
    - `README.md`
 4. The sandbox will auto-install dependencies and run
 
@@ -52,8 +54,9 @@ Make sure to update `package.json` dependencies for production:
 ## Expected Output
 
 The demo will show:
+
 - All 6 built-in themes applied to sample logs
-- Different log types (API logs, system logs) with different themes  
+- Different log types (API logs, system logs) with different themes
 - HTML output examples for web usage
 - Colorized terminal output with ANSI codes
 

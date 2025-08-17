@@ -1,10 +1,5 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
-import {
-  getTheme,
-  getAllThemes,
-  getThemeNames,
-  registerTheme,
-} from "./index";
+import { getTheme, getAllThemes, getThemeNames, registerTheme } from "./index";
 import { THEMES, DEFAULT_THEME } from "./constants";
 
 describe("Theme Management", () => {
@@ -66,12 +61,12 @@ describe("Theme Management", () => {
           matchWords: {},
           matchPatterns: [],
           whiteSpace: "preserve" as const,
-          newLine: "preserve" as const
-        }
+          newLine: "preserve" as const,
+        },
       };
 
       registerTheme(testTheme);
-      
+
       // Verify theme was registered
       expect(getTheme("test-theme")).toEqual(testTheme);
       expect(getThemeNames()).toContain("test-theme");
@@ -87,25 +82,25 @@ describe("Theme Management", () => {
           matchWords: {},
           matchPatterns: [],
           whiteSpace: "preserve" as const,
-          newLine: "preserve" as const
-        }
+          newLine: "preserve" as const,
+        },
       };
 
       const secondTheme = {
-        name: "overwrite-test", 
+        name: "overwrite-test",
         description: "Second version",
         schema: {
           defaultStyle: { color: "blue" },
           matchWords: {},
           matchPatterns: [],
           whiteSpace: "preserve" as const,
-          newLine: "preserve" as const
-        }
+          newLine: "preserve" as const,
+        },
       };
 
       registerTheme(firstTheme);
       registerTheme(secondTheme);
-      
+
       // Should have the second theme
       expect(getTheme("overwrite-test")).toEqual(secondTheme);
       expect(getTheme("overwrite-test").description).toBe("Second version");

@@ -132,7 +132,7 @@ const apiTheme = createTheme({
     },
     {
       name: "json-key",
-      pattern: "\"[a-zA-Z_][a-zA-Z0-9_]*\"\\s*:",
+      pattern: '"[a-zA-Z_][a-zA-Z0-9_]*"\\s*:',
       color: "primary",
     },
     {
@@ -176,10 +176,4 @@ for (const [name, preset] of Object.entries(THEME_PRESETS)) {
   console.log(`- ${name}: ${preset.name}`);
 }
 
-export {
-  neonTheme,
-  terminalTheme,
-  darkDraculaTheme,
-  apiTheme,
-  simpleTheme,
-};
+export { neonTheme, terminalTheme, darkDraculaTheme, apiTheme, simpleTheme };

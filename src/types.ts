@@ -1,4 +1,11 @@
-export type StyleCode = "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough";
+export type StyleCode =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "dim"
+  | "blink"
+  | "reverse"
+  | "strikethrough";
 
 export interface StyleOptions {
   color: string;
@@ -11,8 +18,18 @@ export interface StyleOptions {
  */
 export function filterStyleCodes(codes: string[] | undefined): StyleCode[] {
   if (!codes) return [];
-  const validCodes: StyleCode[] = ["bold", "italic", "underline", "dim", "blink", "reverse", "strikethrough"];
-  return codes.filter((code): code is StyleCode => validCodes.includes(code as StyleCode));
+  const validCodes: StyleCode[] = [
+    "bold",
+    "italic",
+    "underline",
+    "dim",
+    "blink",
+    "reverse",
+    "strikethrough",
+  ];
+  return codes.filter((code): code is StyleCode =>
+    validCodes.includes(code as StyleCode),
+  );
 }
 
 export interface PatternMatch {

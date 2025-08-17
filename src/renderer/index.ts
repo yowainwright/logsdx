@@ -87,8 +87,16 @@ export function tokensToString(
         result = applyColor(result, style.color);
       }
 
-      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
         result = applyBold(result);
@@ -176,8 +184,16 @@ export function tokensToHtml(tokens: TokenList): string {
         css.push(`color: ${colorDef?.hex || style.color}`);
       }
 
-      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
         css.push("font-weight: bold");
@@ -262,8 +278,16 @@ export function tokensToClassNames(tokens: TokenList): string {
         }
       }
 
-      const hasStyleCode = (code: "bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough") =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
         classes.push("logsdx-bold");

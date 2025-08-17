@@ -210,8 +210,7 @@ export function useAdaptiveLogger(
 
   const [logger, setLogger] = (window as any).React.useState(
     () => new AdaptiveLogger(baseTheme, options),
-  )
-  (window as any).React.useEffect(() => {
+  )(window as any).React.useEffect(() => {
     const adaptive = new AdaptiveLogger(baseTheme, options);
     setLogger(adaptive);
 

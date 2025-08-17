@@ -18,16 +18,11 @@
             },
             "htmlStyleFormat": {
               "type": "string",
-              "enum": [
-                "css",
-                "className"
-              ],
+              "enum": ["css", "className"],
               "description": "HTML style format"
             }
           },
-          "required": [
-            "color"
-          ],
+          "required": ["color"],
           "additionalProperties": false
         },
         "matchWords": {
@@ -69,28 +64,18 @@
                 "$ref": "4/defaultStyle"
               }
             },
-            "required": [
-              "name",
-              "pattern",
-              "options"
-            ],
+            "required": ["name", "pattern", "options"],
             "additionalProperties": false
           }
         },
         "whiteSpace": {
           "type": "string",
-          "enum": [
-            "preserve",
-            "trim"
-          ],
+          "enum": ["preserve", "trim"],
           "default": "preserve"
         },
         "newLine": {
           "type": "string",
-          "enum": [
-            "preserve",
-            "trim"
-          ],
+          "enum": ["preserve", "trim"],
           "default": "preserve"
         }
       },

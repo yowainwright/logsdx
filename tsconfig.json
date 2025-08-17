@@ -18,9 +18,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "eslint.config.ts",
     "examples/themes/custom-themes.ts",
     "examples/themes/schema-themes.ts"
   ],
-  "exclude": [".specstory/**", "**/*.test.ts", "dist/**", "eslint.config.ts"]
+  "exclude": [".specstory/**", "**/*.test.ts", "dist/**"]
 }

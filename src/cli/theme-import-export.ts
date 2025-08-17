@@ -51,7 +51,9 @@ export async function exportTheme(themeName?: string): Promise<void> {
     };
 
     fs.writeFileSync(filename, JSON.stringify(exportData, null, 2));
-    ui.showSuccess(`Theme "${themeToExport}" exported to ${chalk.cyan(filename)}`);
+    ui.showSuccess(
+      `Theme "${themeToExport}" exported to ${chalk.cyan(filename)}`,
+    );
 
     const showPreview = await confirm({
       message: "Show file preview?",
@@ -143,9 +145,15 @@ export async function importTheme(filename?: string): Promise<void> {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message.includes("JSON")) {
-        ui.showError("Invalid JSON file", "Make sure the file contains valid JSON");
+        ui.showError(
+          "Invalid JSON file",
+          "Make sure the file contains valid JSON",
+        );
       } else if (error.message.includes("validation")) {
-        ui.showError("Invalid theme format", "The file doesn't contain a valid LogsDX theme");
+        ui.showError(
+          "Invalid theme format",
+          "The file doesn't contain a valid LogsDX theme",
+        );
       } else {
         ui.showError(`Import failed: ${error.message}`);
       }
@@ -184,13 +192,17 @@ async function previewImportedTheme(theme: Theme) {
   if (theme.description) {
     console.log(`  Description: ${theme.description}`);
   }
-  if ('exportedAt' in theme && (theme as any).exportedAt) {
-    console.log(`  Exported: ${chalk.dim(new Date((theme as any).exportedAt).toLocaleString())}`);
+  if ("exportedAt" in theme && (theme as any).exportedAt) {
+    console.log(
+      `  Exported: ${chalk.dim(new Date((theme as any).exportedAt).toLocaleString())}`,
+    );
   }
 
   const wordCount = Object.keys(theme.schema.matchWords || {}).length;
   const patternCount = (theme.schema.matchPatterns || []).length;
-  console.log(`  Patterns: ${chalk.yellow(patternCount)}, Words: ${chalk.yellow(wordCount)}`);
+  console.log(
+    `  Patterns: ${chalk.yellow(patternCount)}, Words: ${chalk.yellow(wordCount)}`,
+  );
 }
 
 export function listThemeFiles(directory = "."): void {
@@ -202,7 +214,9 @@ export function listThemeFiles(directory = "."): void {
 
     if (files.length === 0) {
       ui.showInfo("No theme files found in current directory");
-      console.log(chalk.dim("Theme files should have the extension .theme.json"));
+      console.log(
+        chalk.dim("Theme files should have the extension .theme.json"),
+      );
       return;
     }
 
@@ -219,7 +233,9 @@ export function listThemeFiles(directory = "."): void {
           console.log(`   Description: ${themeData.description}`);
         }
         if (themeData.exportedAt) {
-          console.log(`   Exported: ${chalk.dim(new Date(themeData.exportedAt).toLocaleString())}`);
+          console.log(
+            `   Exported: ${chalk.dim(new Date(themeData.exportedAt).toLocaleString())}`,
+          );
         }
         console.log(`   File: ${chalk.dim(file)}`);
         console.log();
@@ -231,7 +247,9 @@ export function listThemeFiles(directory = "."): void {
       }
     });
 
-    console.log(chalk.yellow("💡 Use --import-theme <filename> to import a theme"));
+    console.log(
+      chalk.yellow("💡 Use --import-theme <filename> to import a theme"),
+    );
   } catch (error) {
     ui.showError(
       `Failed to list theme files: ${error instanceof Error ? error.message : String(error)}`,

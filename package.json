@@ -12,8 +12,8 @@
     "build:types": "tsc --noEmit --skipLibCheck --emitDeclarationOnly --declaration --outDir dist",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
     "format": "bun run prettier --write .",
     "format:check": "bun run prettier --check .",
     "check": "bun run lint && bun run format:check && bun run test",
@@ -26,14 +26,10 @@
     "@types/cli-progress": "^3.11.6",
     "@types/figlet": "^1.7.0",
     "@types/node": "^24.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
-    "eslint": "^9.26.0",
+    "oxlint": "^0.15.0",
     "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.0",
-    "zod": "^3.25.74",
-    "zod-to-json-schema": "^3.24.6"
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.7.1",

@@ -17,7 +17,11 @@ import {
   listColorPalettesCommand,
   listPatternPresetsCommand,
 } from "./theme-generator";
-import { exportTheme, importTheme, listThemeFiles } from "./theme-import-export";
+import {
+  exportTheme,
+  importTheme,
+  listThemeFiles,
+} from "./theme-import-export";
 
 export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {
@@ -260,7 +264,10 @@ export async function main(
     try {
       await runThemeGenerator();
     } catch (error) {
-      if (error instanceof Error && error.message.includes("User force closed")) {
+      if (
+        error instanceof Error &&
+        error.message.includes("User force closed")
+      ) {
         ui.showInfo("👋 Theme generation cancelled");
         return;
       }

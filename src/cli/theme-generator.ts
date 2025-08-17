@@ -45,7 +45,9 @@ export async function runThemeGenerator(): Promise<void> {
       name: `${chalk.bold(palette.name)} - ${palette.description}`,
       value: palette.name,
       description: `Contrast: ${palette.accessibility.contrastRatio.toFixed(1)}, ${
-        palette.accessibility.colorBlindSafe ? "Color-blind safe" : "Not color-blind safe"
+        palette.accessibility.colorBlindSafe
+          ? "Color-blind safe"
+          : "Not color-blind safe"
       }, ${palette.accessibility.darkMode ? "Dark mode" : "Light mode"}`,
     })),
   });
@@ -62,24 +64,32 @@ export async function runThemeGenerator(): Promise<void> {
 
   const selectedPresets = await checkbox({
     message: "📋 Select pattern presets to include:",
-    choices: Object.entries(presetsByCategory).flatMap(([category, categoryPresets]) => [
-      {
-        name: chalk.bold.yellow(`── ${category.toUpperCase()} ──`),
-        value: `__category_${category}`,
-        disabled: true,
-      },
-      ...categoryPresets.map((preset) => ({
-        name: `  ${preset.name} - ${preset.description}`,
-        value: preset.name,
-      })),
-    ]),
+    choices: Object.entries(presetsByCategory).flatMap(
+      ([category, categoryPresets]) => [
+        {
+          name: chalk.bold.yellow(`── ${category.toUpperCase()} ──`),
+          value: `__category_${category}`,
+          disabled: true,
+        },
+        ...categoryPresets.map((preset) => ({
+          name: `  ${preset.name} - ${preset.description}`,
+          value: preset.name,
+        })),
+      ],
+    ),
     validate: (choices) => {
-      const validChoices = choices.filter((choice) => !String(choice).startsWith("__category_"));
-      return validChoices.length > 0 ? true : "Please select at least one pattern preset";
+      const validChoices = choices.filter(
+        (choice) => !String(choice).startsWith("__category_"),
+      );
+      return validChoices.length > 0
+        ? true
+        : "Please select at least one pattern preset";
     },
   });
 
-  const filteredPresets = selectedPresets.filter((preset) => !preset.startsWith("__category_"));
+  const filteredPresets = selectedPresets.filter(
+    (preset) => !preset.startsWith("__category_"),
+  );
 
   const addCustomPatterns = await confirm({
     message: "➕ Add custom patterns?",
@@ -160,7 +170,9 @@ export async function runThemeGenerator(): Promise<void> {
   }
 }
 
-async function collectCustomPatterns(): Promise<ThemeGeneratorConfig["customPatterns"]> {
+async function collectCustomPatterns(): Promise<
+  ThemeGeneratorConfig["customPatterns"]
+> {
   const patterns: NonNullable<ThemeGeneratorConfig["customPatterns"]> = [];
 
   while (true) {
@@ -224,7 +236,9 @@ async function collectCustomPatterns(): Promise<ThemeGeneratorConfig["customPatt
   return patterns;
 }
 
-async function collectCustomWords(): Promise<ThemeGeneratorConfig["customWords"]> {
+async function collectCustomWords(): Promise<
+  ThemeGeneratorConfig["customWords"]
+> {
   const words: NonNullable<ThemeGeneratorConfig["customWords"]> = {};
 
   while (true) {
@@ -300,10 +314,14 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
   console.log(chalk.bold("\n📊 Color Palette Details:"));
   console.log(`  Name: ${chalk.cyan(palette.name)}`);
   console.log(`  Description: ${palette.description}`);
-  console.log(`  Contrast Ratio: ${chalk.yellow(palette.accessibility.contrastRatio.toFixed(1))}`);
+  console.log(
+    `  Contrast Ratio: ${chalk.yellow(palette.accessibility.contrastRatio.toFixed(1))}`,
+  );
   console.log(
     `  Color-blind Safe: ${
-      palette.accessibility.colorBlindSafe ? chalk.green("Yes") : chalk.red("No")
+      palette.accessibility.colorBlindSafe
+        ? chalk.green("Yes")
+        : chalk.red("No")
     }`,
   );
   console.log(
@@ -331,7 +349,11 @@ export function listColorPalettesCommand(): void {
     console.log();
   });
 
-  console.log(chalk.yellow("💡 Use --generate-theme to create a theme with these palettes"));
+  console.log(
+    chalk.yellow(
+      "💡 Use --generate-theme to create a theme with these palettes",
+    ),
+  );
 }
 
 export function listPatternPresetsCommand(): void {
@@ -352,9 +374,15 @@ export function listPatternPresetsCommand(): void {
     categoryPresets.forEach((preset) => {
       console.log(chalk.bold.cyan(`  ${preset.name}`));
       console.log(`    ${preset.description}`);
-      console.log(`    ${chalk.dim(`${preset.patterns.length} patterns, ${Object.keys(preset.matchWords).length} word matches`)}`);
+      console.log(
+        `    ${chalk.dim(`${preset.patterns.length} patterns, ${Object.keys(preset.matchWords).length} word matches`)}`,
+      );
     });
   });
 
-  console.log(chalk.yellow("\n💡 Use --generate-theme to create a theme with these presets"));
+  console.log(
+    chalk.yellow(
+      "\n💡 Use --generate-theme to create a theme with these presets",
+    ),
+  );
 }

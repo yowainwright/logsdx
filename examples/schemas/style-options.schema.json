@@ -15,16 +15,11 @@
         },
         "htmlStyleFormat": {
           "type": "string",
-          "enum": [
-            "css",
-            "className"
-          ],
+          "enum": ["css", "className"],
           "description": "HTML style format"
         }
       },
-      "required": [
-        "color"
-      ],
+      "required": ["color"],
       "additionalProperties": false
     }
   },

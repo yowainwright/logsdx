@@ -185,7 +185,9 @@ describe("Theme Generation", () => {
       patternPresets: ["log-levels"],
     };
 
-    expect(() => generateTheme(config)).toThrow("Color palette 'non-existent-palette' not found");
+    expect(() => generateTheme(config)).toThrow(
+      "Color palette 'non-existent-palette' not found",
+    );
   });
 
   test("generateTheme should throw for invalid preset", () => {
@@ -195,7 +197,9 @@ describe("Theme Generation", () => {
       patternPresets: ["non-existent-preset"],
     };
 
-    expect(() => generateTheme(config)).toThrow("Pattern preset 'non-existent-preset' not found");
+    expect(() => generateTheme(config)).toThrow(
+      "Pattern preset 'non-existent-preset' not found",
+    );
   });
 
   test("generateTheme should include custom patterns", () => {
@@ -213,7 +217,9 @@ describe("Theme Generation", () => {
     };
 
     const theme = generateTheme(config);
-    const customPattern = theme.schema.matchPatterns?.find((p) => p.name === "custom-pattern");
+    const customPattern = theme.schema.matchPatterns?.find(
+      (p) => p.name === "custom-pattern",
+    );
     expect(customPattern).toBeDefined();
     expect(customPattern?.pattern).toBe("\\bCUSTOM\\b");
   });
@@ -251,8 +257,12 @@ describe("Theme Generation", () => {
     expect(theme.schema.matchWords?.GET).toBeDefined(); // from http-api
 
     // Should have patterns from both presets
-    const timestampPattern = theme.schema.matchPatterns?.find((p) => p.name === "timestamp-iso");
-    const urlPattern = theme.schema.matchPatterns?.find((p) => p.name === "url-path");
+    const timestampPattern = theme.schema.matchPatterns?.find(
+      (p) => p.name === "timestamp-iso",
+    );
+    const urlPattern = theme.schema.matchPatterns?.find(
+      (p) => p.name === "url-path",
+    );
     expect(timestampPattern).toBeDefined();
     expect(urlPattern).toBeDefined();
   });
@@ -268,8 +278,12 @@ describe("Theme Generation", () => {
     const draculaPalette = getColorPalette("dracula")!;
 
     expect(theme.schema.defaultStyle?.color).toBe(draculaPalette.colors.text);
-    expect(theme.schema.matchWords?.ERROR?.color).toBe(draculaPalette.colors.error);
-    expect(theme.schema.matchWords?.INFO?.color).toBe(draculaPalette.colors.primary);
+    expect(theme.schema.matchWords?.ERROR?.color).toBe(
+      draculaPalette.colors.error,
+    );
+    expect(theme.schema.matchWords?.INFO?.color).toBe(
+      draculaPalette.colors.primary,
+    );
   });
 });
 
@@ -292,7 +306,14 @@ describe("Built-in Content Validation", () => {
   });
 
   test("all pattern presets should have valid categories", () => {
-    const validCategories = ["api", "system", "application", "security", "database", "generic"];
+    const validCategories = [
+      "api",
+      "system",
+      "application",
+      "security",
+      "database",
+      "generic",
+    ];
     PATTERN_PRESETS.forEach((preset) => {
       expect(validCategories).toContain(preset.category);
     });

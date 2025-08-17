@@ -24,11 +24,11 @@ jobs:
       - name: Run tests
         run: bun test
 
-      - name: Run linting
+      - name: Run linting (OxLint)
         run: bun run lint
 
-      - name: Run formatting check
-        run: bun run format --check
+      - name: Run formatting check (Prettier)
+        run: bun run format:check
 
       - name: Build packages
         run: bun run build
