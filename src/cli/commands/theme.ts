@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import inquirer from "inquirer";
+import { input, select, checkbox, confirm } from "@inquirer/prompts";
 import chalk from "chalk";
 import ora from "ora";
 import boxen from "boxen";
@@ -108,50 +108,46 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   }
 
   // Basic info
-  const basicInfo = await inquirer.prompt([
-    {
-      type: "input",
-      name: "name",
-      message: "Theme name:",
-      validate: (input: string) => {
-        if (!input.trim()) return "Theme name is required";
-        if (getTheme(input)) return "A theme with this name already exists";
-        return true;
-      },
-      filter: (input: string) =>
-        input.trim().toLowerCase().replace(/\s+/g, "-"),
+  const name = await input({
+    message: "Theme name:",
+    validate: (inputValue: string) => {
+      if (!inputValue.trim()) return "Theme name is required";
+      if (getTheme(inputValue)) return "A theme with this name already exists";
+      return true;
     },
-    {
-      type: "input",
-      name: "description",
-      message: "Theme description:",
-      default: "",
-    },
-    {
-      type: "list",
-      name: "mode",
-      message: "Theme mode:",
-      choices: [
-        { name: "🌙 Dark (for dark terminals)", value: "dark" },
-        { name: "☀️  Light (for light terminals)", value: "light" },
-        { name: "🔄 Auto (system preference)", value: "auto" },
-      ],
-      default: "dark",
-    },
-  ]);
+    transformer: (inputValue: string) =>
+      inputValue.trim().toLowerCase().replace(/\s+/g, "-"),
+  });
+
+  const description = await input({
+    message: "Theme description:",
+    default: "",
+  });
+
+  const mode = await select({
+    message: "Theme mode:",
+    choices: [
+      { name: "🌙 Dark (for dark terminals)", value: "dark" },
+      { name: "☀️  Light (for light terminals)", value: "light" },
+      { name: "🔄 Auto (system preference)", value: "auto" },
+    ],
+    default: "dark",
+  });
+
+  const basicInfo = { 
+    name: name.trim().toLowerCase().replace(/\s+/g, "-"), 
+    description, 
+    mode 
+  };
 
   // Color selection
-  const { preset } = await inquirer.prompt([
-    {
-      type: "list",
-      name: "preset",
-      message: "Choose a color preset:",
-      choices: Object.keys(COLOR_PRESETS).map((name) => ({
-        name: name === "Custom" ? "🎨 Custom (define your own)" : `🎨 ${name}`,
-        value: name,
-      })),
-    },
-  ]);
+  const preset = await select({
+    message: "Choose a color preset:",
+    choices: Object.keys(COLOR_PRESETS).map((name) => ({
+      name: name === "Custom" ? "🎨 Custom (define your own)" : `🎨 ${name}`,
+      value: name,
+    })),
+  });
 
   let colors = COLOR_PRESETS[preset as keyof typeof COLOR_PRESETS];
 
@@ -160,98 +156,87 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     await new Promise((r) => setTimeout(r, 500));
     spinner.stop();
 
-    colors = await inquirer.prompt([
-      {
-        type: "input",
-        name: "primary",
-        message: "Primary color (hex):",
-        default: "#ffffff",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#ffffff")(input || "#ffffff"),
-      },
-      {
-        type: "input",
-        name: "error",
-        message: "Error color (hex):",
-        default: "#ff4444",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#ff4444")(input || "#ff4444"),
-      },
-      {
-        type: "input",
-        name: "warning",
-        message: "Warning color (hex):",
-        default: "#ff9900",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#ff9900")(input || "#ff9900"),
-      },
-      {
-        type: "input",
-        name: "success",
-        message: "Success color (hex):",
-        default: "#00cc66",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#00cc66")(input || "#00cc66"),
-      },
-      {
-        type: "input",
-        name: "info",
-        message: "Info color (hex):",
-        default: "#00aaff",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#00aaff")(input || "#00aaff"),
-      },
-      {
-        type: "input",
-        name: "muted",
-        message: "Muted color (hex):",
-        default: "#666666",
-        validate: (input: string) =>
-          /^#[0-9A-Fa-f]{6}$/.test(input) || "Invalid hex color",
-        transformer: (input: string) =>
-          chalk.hex(input || "#666666")(input || "#666666"),
-      },
-    ]);
+    const primary = await input({
+      message: "Primary color (hex):",
+      default: "#ffffff",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#ffffff")(inputValue || "#ffffff"),
+    });
+
+    const error = await input({
+      message: "Error color (hex):",
+      default: "#ff4444",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#ff4444")(inputValue || "#ff4444"),
+    });
+
+    const warning = await input({
+      message: "Warning color (hex):",
+      default: "#ff9900",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#ff9900")(inputValue || "#ff9900"),
+    });
+
+    const success = await input({
+      message: "Success color (hex):",
+      default: "#00cc66",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#00cc66")(inputValue || "#00cc66"),
+    });
+
+    const info = await input({
+      message: "Info color (hex):",
+      default: "#00aaff",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#00aaff")(inputValue || "#00aaff"),
+    });
+
+    const muted = await input({
+      message: "Muted color (hex):",
+      default: "#666666",
+      validate: (inputValue: string) =>
+        /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
+      transformer: (inputValue: string) =>
+        chalk.hex(inputValue || "#666666")(inputValue || "#666666"),
+    });
+
+    colors = { primary, error, warning, success, info, muted };
   }
 
   // Feature presets
-  const { presets } = await inquirer.prompt([
-    {
-      type: "checkbox",
-      name: "presets",
-      message: "Select features to highlight:",
-      choices: [
-        {
-          name: "📊 Log levels (ERROR, WARN, INFO)",
-          value: "logLevels",
-          checked: true,
-        },
-        {
-          name: "🔢 Numbers and numeric values",
-          value: "numbers",
-          checked: true,
-        },
-        { name: "📅 Dates and timestamps", value: "dates", checked: true },
-        { name: "✅ Boolean values", value: "booleans", checked: true },
-        {
-          name: "🔤 Brackets and punctuation",
-          value: "brackets",
-          checked: true,
-        },
-        { name: "💬 Quoted strings", value: "strings", checked: false },
-      ],
-    },
-  ]);
+  const presets = await checkbox({
+    message: "Select features to highlight:",
+    choices: [
+      {
+        name: "📊 Log levels (ERROR, WARN, INFO)",
+        value: "logLevels",
+        checked: true,
+      },
+      {
+        name: "🔢 Numbers and numeric values",
+        value: "numbers",
+        checked: true,
+      },
+      { name: "📅 Dates and timestamps", value: "dates", checked: true },
+      { name: "✅ Boolean values", value: "booleans", checked: true },
+      {
+        name: "🔤 Brackets and punctuation",
+        value: "brackets",
+        checked: true,
+      },
+      { name: "💬 Quoted strings", value: "strings", checked: false },
+    ],
+  });
 
   // Create theme
   const spinner = ora("Creating theme...").start();
@@ -272,14 +257,10 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   renderPreview(theme, `✨ ${theme.name} Preview`);
 
   // Accessibility check
-  const { checkAccessibility } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "checkAccessibility",
-      message: "Check accessibility compliance?",
-      default: true,
-    },
-  ]);
+  const checkAccessibility = await confirm({
+    message: "Check accessibility compliance?",
+    default: true,
+  });
 
   if (checkAccessibility) {
     const accessSpinner = ora("Checking accessibility...").start();
@@ -308,14 +289,10 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     console.log(accessBox);
 
     if (result.recommendations.length > 0) {
-      const { fixIssues } = await inquirer.prompt([
-        {
-          type: "confirm",
-          name: "fixIssues",
-          message: "Auto-fix accessibility issues?",
-          default: true,
-        },
-      ]);
+      const fixIssues = await confirm({
+        message: "Auto-fix accessibility issues?",
+        default: true,
+      });
 
       if (fixIssues) {
         const fixSpinner = ora("Fixing accessibility issues...").start();
@@ -327,20 +304,16 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   }
 
   // Save options
-  const { saveOption } = await inquirer.prompt([
-    {
-      type: "list",
-      name: "saveOption",
-      message: "How would you like to save the theme?",
-      choices: [
-        { name: "💾 Export as JSON file", value: "json" },
-        { name: "📝 Export as TypeScript file", value: "typescript" },
-        { name: "📋 Copy to clipboard", value: "clipboard" },
-        { name: "🚀 Register for immediate use", value: "register" },
-        { name: "❌ Don't save", value: "none" },
-      ],
-    },
-  ]);
+  const saveOption = await select({
+    message: "How would you like to save the theme?",
+    choices: [
+      { name: "💾 Export as JSON file", value: "json" },
+      { name: "📝 Export as TypeScript file", value: "typescript" },
+      { name: "📋 Copy to clipboard", value: "clipboard" },
+      { name: "🚀 Register for immediate use", value: "register" },
+      { name: "❌ Don't save", value: "none" },
+    ],
+  });
 
   if (saveOption !== "none") {
     await saveTheme(theme, saveOption);
@@ -375,14 +348,10 @@ async function saveTheme(theme: Theme, saveOption: string) {
   }
 
   if (saveOption === "json") {
-    const { filepath } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "filepath",
-        message: "Save as:",
-        default: `./themes/${theme.name}.json`,
-      },
-    ]);
+    const filepath = await input({
+      message: "Save as:",
+      default: `./themes/${theme.name}.json`,
+    });
 
     const dir = dirname(filepath);
     if (!existsSync(dir)) {
@@ -392,14 +361,10 @@ async function saveTheme(theme: Theme, saveOption: string) {
     writeFileSync(filepath, JSON.stringify(themeData, null, 2));
     console.log(chalk.green(`✅ Saved to ${filepath}`));
   } else if (saveOption === "typescript") {
-    const { filepath } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "filepath",
-        message: "Save as:",
-        default: `./themes/${theme.name}.ts`,
-      },
-    ]);
+    const filepath = await input({
+      message: "Save as:",
+      default: `./themes/${theme.name}.ts`,
+    });
 
     const dir = dirname(filepath);
     if (!existsSync(dir)) {
