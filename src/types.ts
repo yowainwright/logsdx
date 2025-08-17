@@ -1,6 +1,14 @@
 export interface StyleOptions {
   color: string;
-  styleCodes?: ("bold" | "italic" | "underline" | "dim" | "blink" | "reverse" | "strikethrough")[];
+  styleCodes?: (
+    | "bold"
+    | "italic"
+    | "underline"
+    | "dim"
+    | "blink"
+    | "reverse"
+    | "strikethrough"
+  )[];
   htmlStyleFormat?: "css" | "className";
 }
 

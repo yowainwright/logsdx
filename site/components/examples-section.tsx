@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export function ExamplesSection() {
   return (
@@ -6,10 +6,12 @@ export function ExamplesSection() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-12 text-center text-4xl font-bold">Examples</h2>
-          
+
           <div className="space-y-12">
             <div>
-              <h3 className="mb-4 text-2xl font-semibold">With Popular Loggers</h3>
+              <h3 className="mb-4 text-2xl font-semibold">
+                With Popular Loggers
+              </h3>
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <h4 className="mb-2 font-medium">Winston</h4>
@@ -26,7 +28,7 @@ const logger = winston.createLogger({
 })`}</pre>
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="mb-2 font-medium">Pino</h4>
                   <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
@@ -51,7 +53,9 @@ const logger = pino({
             </div>
 
             <div>
-              <h3 className="mb-4 text-2xl font-semibold">Advanced Theme Configuration</h3>
+              <h3 className="mb-4 text-2xl font-semibold">
+                Advanced Theme Configuration
+              </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
                 <pre>{`import { createTheme } from 'logsdx'
 
@@ -86,7 +90,9 @@ const advancedTheme = createTheme({
             </div>
 
             <div>
-              <h3 className="mb-4 text-2xl font-semibold">Browser Console Integration</h3>
+              <h3 className="mb-4 text-2xl font-semibold">
+                Browser Console Integration
+              </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
                 <pre>{`import { style, themes } from 'logsdx'
 
@@ -111,5 +117,5 @@ console.log('Error: Connection timeout')`}</pre>
         </div>
       </div>
     </section>
-  )
+  );
 }

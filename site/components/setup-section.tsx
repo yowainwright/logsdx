@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export function SetupSection() {
   return (
@@ -6,7 +6,7 @@ export function SetupSection() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl">
           <h2 className="mb-8 text-center text-4xl font-bold">Quick Setup</h2>
-          
+
           <div className="space-y-8">
             <div>
               <h3 className="mb-4 text-2xl font-semibold">1. Install</h3>
@@ -34,7 +34,9 @@ document.body.innerHTML = styledLog.html`}</pre>
             </div>
 
             <div>
-              <h3 className="mb-4 text-2xl font-semibold">3. Create Custom Themes</h3>
+              <h3 className="mb-4 text-2xl font-semibold">
+                3. Create Custom Themes
+              </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
                 <pre>{`import { createTheme } from 'logsdx'
 
@@ -54,5 +56,5 @@ const myTheme = createTheme({
         </div>
       </div>
     </section>
-  )
+  );
 }

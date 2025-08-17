@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { getLogsDX } from "logsdx"
+import React, { useEffect, useState } from "react";
+import { getLogsDX } from "logsdx";
 // @ts-ignore
-import AnsiToHtml from "ansi-to-html"
+import AnsiToHtml from "ansi-to-html";
 
 const sampleLogs = [
   "[2024-01-15 10:23:45] INFO: Server started on port 3000",
@@ -16,43 +16,49 @@ const sampleLogs = [
   "Cache hit ratio: 92.5% | Requests: 10,543 | Hits: 9,752",
   "🚀 Deployment completed to production environment",
   "DEBUG: SQL Query: SELECT * FROM users WHERE active = true",
-]
+];
 
 export function Hero() {
-  const [terminalOutput, setTerminalOutput] = useState<string[]>([])
-  const [browserOutput, setBrowserOutput] = useState<string[]>([])
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [browserOutput, setBrowserOutput] = useState<string[]>([]);
 
   useEffect(() => {
     try {
-      const terminalLogger = getLogsDX({ theme: "dracula", outputFormat: "ansi" })
-      const browserLogger = getLogsDX({ theme: "dracula", outputFormat: "html" })
-      const convert = new AnsiToHtml({ fg: '#c9d1d9', bg: '#0d1117' })
+      const terminalLogger = getLogsDX({
+        theme: "dracula",
+        outputFormat: "ansi",
+      });
+      const browserLogger = getLogsDX({
+        theme: "dracula",
+        outputFormat: "html",
+      });
+      const convert = new AnsiToHtml({ fg: "#c9d1d9", bg: "#0d1117" });
 
-      const terminalLogs = sampleLogs.map(log => {
+      const terminalLogs = sampleLogs.map((log) => {
         try {
           // @ts-ignore
-          const ansiLog = terminalLogger.processLine(log)
+          const ansiLog = terminalLogger.processLine(log);
           // Convert ANSI codes to HTML for display
-          return convert.toHtml(ansiLog)
+          return convert.toHtml(ansiLog);
         } catch {
-          return log
+          return log;
         }
-      })
-      setTerminalOutput(terminalLogs)
+      });
+      setTerminalOutput(terminalLogs);
 
-      const browserLogs = sampleLogs.map(log => {
+      const browserLogs = sampleLogs.map((log) => {
         try {
           // @ts-ignore
-          return browserLogger.processLine(log)
+          return browserLogger.processLine(log);
         } catch {
-          return log
+          return log;
         }
-      })
-      setBrowserOutput(browserLogs)
+      });
+      setBrowserOutput(browserLogs);
     } catch (error) {
-      console.error("Error loading logs:", error)
+      console.error("Error loading logs:", error);
     }
-  }, [])
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-24">
@@ -60,24 +66,26 @@ export function Hero() {
       <div className="absolute inset-0 flex">
         {/* Terminal Preview */}
         <div className="w-1/2 relative">
-          <div 
+          <div
             className="absolute inset-0"
-            style={{ backgroundColor: 'rgba(40, 42, 54, 0.15)' }} // Dracula terminal bg with opacity
+            style={{ backgroundColor: "rgba(40, 42, 54, 0.15)" }} // Dracula terminal bg with opacity
           >
             <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/20 to-transparent z-10 flex items-center justify-center">
-              <span className="text-lg font-medium text-white/40 uppercase tracking-wider">Terminal</span>
+              <span className="text-lg font-medium text-white/40 uppercase tracking-wider">
+                Terminal
+              </span>
             </div>
             <div className="pt-20 px-8 space-y-2 font-mono text-xs">
               {terminalOutput.concat(terminalOutput).map((line, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="animate-scroll-up px-2 py-1 rounded opacity-30"
-                  style={{ 
+                  style={{
                     animationDelay: `${(i % 10) * 0.5}s`,
                     animationDuration: `${15 + (i % 10) * 0.2}s`,
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)'
+                    backgroundColor: "rgba(0, 0, 0, 0.2)",
                   }}
-                  dangerouslySetInnerHTML={{ __html: line }} 
+                  dangerouslySetInnerHTML={{ __html: line }}
                 />
               ))}
             </div>
@@ -86,24 +94,26 @@ export function Hero() {
 
         {/* Browser Preview */}
         <div className="w-1/2 relative">
-          <div 
+          <div
             className="absolute inset-0"
-            style={{ backgroundColor: 'rgba(40, 42, 54, 0.15)' }} // Dracula browser bg with opacity
+            style={{ backgroundColor: "rgba(40, 42, 54, 0.15)" }} // Dracula browser bg with opacity
           >
             <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/20 to-transparent z-10 flex items-center justify-center">
-              <span className="text-lg font-medium text-white/40 uppercase tracking-wider">Browser</span>
+              <span className="text-lg font-medium text-white/40 uppercase tracking-wider">
+                Browser
+              </span>
             </div>
             <div className="pt-20 px-8 space-y-2 font-mono text-xs">
               {browserOutput.concat(browserOutput).map((line, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="animate-scroll-up px-2 py-1 rounded opacity-30"
-                  style={{ 
+                  style={{
                     animationDelay: `${(i % 10) * 0.5}s`,
                     animationDuration: `${15 + (i % 10) * 0.2}s`,
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)'
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
                   }}
-                  dangerouslySetInnerHTML={{ __html: line }} 
+                  dangerouslySetInnerHTML={{ __html: line }}
                 />
               ))}
             </div>
@@ -120,7 +130,8 @@ export function Hero() {
             </span>
           </h1>
           <p className="mb-8 text-[2rem] leading-[1.25] text-slate-600 dark:text-slate-400">
-            Schema-based styling layer that makes logs look identical between terminal and browser environments
+            Schema-based styling layer that makes logs look identical between
+            terminal and browser environments
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -139,5 +150,5 @@ export function Hero() {
         </div>
       </div>
     </section>
-  )
+  );
 }

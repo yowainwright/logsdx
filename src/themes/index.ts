@@ -1,9 +1,9 @@
 import type { Theme } from "../types";
 import { THEMES, DEFAULT_THEME } from "./constants";
-import { 
-  createTheme, 
-  createSimpleTheme, 
-  extendTheme, 
+import {
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
   ThemeBuilder,
   THEME_PRESETS,
   generateBEMClasses,
@@ -16,7 +16,7 @@ import {
   adjustThemeForAccessibility,
   checkWCAGCompliance,
   createThemeMonitor,
-  generateThemeReport
+  generateThemeReport,
 } from "./builder";
 import type { ColorPalette, SimpleThemeConfig } from "./builder";
 
@@ -96,14 +96,14 @@ export function registerTheme(theme: Theme): void {
  * @returns Complete CSS theme package
  */
 export function generateCompleteCSS(
-  theme: Theme, 
-  options: { 
-    block?: string; 
-    prefix?: string; 
-    includeBEM?: boolean; 
-    includeUtilities?: boolean; 
+  theme: Theme,
+  options: {
+    block?: string;
+    prefix?: string;
+    includeBEM?: boolean;
+    includeUtilities?: boolean;
     includeResponsive?: boolean;
-  } = {}
+  } = {},
 ): {
   bem: string;
   utilities: string;
@@ -111,26 +111,30 @@ export function generateCompleteCSS(
   tailwind: Record<string, any>;
   complete: string;
 } {
-  const { 
-    block = 'logsdx', 
-    prefix = 'logsdx', 
-    includeBEM = true, 
-    includeUtilities = true, 
-    includeResponsive = true 
+  const {
+    block = "logsdx",
+    prefix = "logsdx",
+    includeBEM = true,
+    includeUtilities = true,
+    includeResponsive = true,
   } = options;
 
-  const bem = includeBEM ? generateBEMClasses(theme, block) : '';
-  const utilities = includeUtilities ? generateUtilityClasses(theme, prefix) : '';
-  const responsive = includeResponsive ? generateResponsiveCSS(theme, block) : '';
+  const bem = includeBEM ? generateBEMClasses(theme, block) : "";
+  const utilities = includeUtilities
+    ? generateUtilityClasses(theme, prefix)
+    : "";
+  const responsive = includeResponsive
+    ? generateResponsiveCSS(theme, block)
+    : "";
   const tailwind = generateTailwindTheme(theme);
 
-  const complete = [bem, utilities, responsive].filter(Boolean).join('\n\n');
+  const complete = [bem, utilities, responsive].filter(Boolean).join("\n\n");
 
   return {
     bem,
     utilities,
     responsive,
     tailwind,
-    complete
+    complete,
   };
 }

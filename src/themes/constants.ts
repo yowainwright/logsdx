@@ -11,7 +11,7 @@ THEMES[DEFAULT_THEME] = createTheme({
   mode: "dark",
   colors: {
     primary: "#f1c40f",
-    secondary: "#1abc9c", 
+    secondary: "#1abc9c",
     accent: "#f39c12",
     error: "#e74c3c",
     warning: "#f39c12",

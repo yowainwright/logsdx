@@ -19,7 +19,11 @@ import {
   renderLightBoxLine,
   isLightTheme as isLightThemeRenderer,
 } from "./renderer";
-import { isTerminalDark, adjustThemeForTerminal, getTerminalAdjustedTheme } from "./terminal/background-detection";
+import {
+  isTerminalDark,
+  adjustThemeForTerminal,
+  getTerminalAdjustedTheme,
+} from "./terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -43,15 +47,20 @@ export class LogsDX {
 
     if (typeof this.options.theme === "string") {
       // For terminal output, adjust theme if needed
-      if (this.options.outputFormat === "ansi" && 
-          this.options.autoAdjustTerminal !== false && 
-          typeof process !== "undefined") {
+      if (
+        this.options.outputFormat === "ansi" &&
+        this.options.autoAdjustTerminal !== false &&
+        typeof process !== "undefined"
+      ) {
         const adjustedThemeName = getTerminalAdjustedTheme(this.options.theme);
         this.currentTheme = getTheme(adjustedThemeName);
-        
+
         // Additional adjustment for terminal visibility
         const terminalIsDark = isTerminalDark();
-        this.currentTheme = adjustThemeForTerminal(this.currentTheme, terminalIsDark);
+        this.currentTheme = adjustThemeForTerminal(
+          this.currentTheme,
+          terminalIsDark,
+        );
       } else {
         this.currentTheme = getTheme(this.options.theme);
       }
@@ -59,7 +68,10 @@ export class LogsDX {
       this.currentTheme = this.options.theme;
     }
 
-    if (typeof this.options.theme !== "string" || this.options.theme !== "oh-my-zsh") {
+    if (
+      typeof this.options.theme !== "string" ||
+      this.options.theme !== "oh-my-zsh"
+    ) {
       try {
         validateTheme(this.currentTheme);
       } catch (error) {
@@ -260,7 +272,12 @@ export {
 
 export { tokenize, applyTheme };
 
-export { renderLine, renderLightBox, renderLightBoxLine, isLightThemeRenderer as isLightThemeStyle };
+export {
+  renderLine,
+  renderLightBox,
+  renderLightBoxLine,
+  isLightThemeRenderer as isLightThemeStyle,
+};
 
 // Export adaptive theming utilities
 export {
@@ -271,7 +288,7 @@ export {
   AdaptiveLogger,
   generateThemeProperties,
   injectAdaptiveCSS,
-  THEME_VARIANTS
-} from './adaptive';
+  THEME_VARIANTS,
+} from "./adaptive";
 
 export default LogsDX;

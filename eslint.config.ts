@@ -35,11 +35,7 @@ export default [
   // Configuration for files outside the main TypeScript project
   {
     files: ["examples/**/*.ts", "tests/**/*.ts", "site/**/*.ts"],
-    ignores: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.next/**",
-    ],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/.next/**"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

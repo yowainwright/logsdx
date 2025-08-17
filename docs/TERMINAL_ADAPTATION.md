@@ -18,14 +18,14 @@ LogsDX includes automatic terminal background detection that:
 
 ```typescript
 // Automatic adjustment (default behavior)
-const logger = getLogsDX({ theme: 'github-light' })
+const logger = getLogsDX({ theme: "github-light" });
 // In dark terminal: automatically uses github-dark
 
 // Disable auto-adjustment if needed
-const logger = getLogsDX({ 
-  theme: 'github-light',
-  autoAdjustTerminal: false 
-})
+const logger = getLogsDX({
+  theme: "github-light",
+  autoAdjustTerminal: false,
+});
 ```
 
 ## Terminal Detection
@@ -39,24 +39,26 @@ LogsDX detects dark terminals by checking:
 
 ## Theme Mappings
 
-| Requested Theme | Dark Terminal | Light Terminal |
-|----------------|---------------|----------------|
-| github-light   | github-dark   | github-light   |
-| solarized-light| solarized-dark| solarized-light|
-| github-dark    | github-dark   | github-dark    |
-| solarized-dark | solarized-dark| solarized-dark |
-| dracula        | dracula       | dracula        |
-| oh-my-zsh      | oh-my-zsh     | oh-my-zsh      |
+| Requested Theme | Dark Terminal  | Light Terminal  |
+| --------------- | -------------- | --------------- |
+| github-light    | github-dark    | github-light    |
+| solarized-light | solarized-dark | solarized-light |
+| github-dark     | github-dark    | github-dark     |
+| solarized-dark  | solarized-dark | solarized-dark  |
+| dracula         | dracula        | dracula         |
+| oh-my-zsh       | oh-my-zsh      | oh-my-zsh       |
 
 ## Examples
 
 ### Before (No Adaptation)
+
 ```
 # github-light in dark terminal
 [Nearly invisible dark text on dark background]
 ```
 
 ### After (With Adaptation)
+
 ```
 # github-light → github-dark (auto-adjusted)
 [Clearly visible light text on dark background]
@@ -67,7 +69,7 @@ LogsDX detects dark terminals by checking:
 ```typescript
 interface LogsDXOptions {
   // Enable/disable automatic terminal adaptation
-  autoAdjustTerminal?: boolean // default: true
+  autoAdjustTerminal?: boolean; // default: true
 }
 ```
 
@@ -80,6 +82,7 @@ bun run scripts/test-terminal-adaptation.ts
 ```
 
 This will show:
+
 - Your terminal environment variables
 - The original vs adjusted theme
 - Side-by-side comparison of outputs
@@ -97,12 +100,12 @@ If you prefer manual control:
 
 ```typescript
 // Detect terminal yourself
-const isDarkTerminal = process.env.COLORFGBG?.includes('0;')
+const isDarkTerminal = process.env.COLORFGBG?.includes("0;");
 
 // Choose theme accordingly
-const themeName = isDarkTerminal ? 'github-dark' : 'github-light'
-const logger = getLogsDX({ 
+const themeName = isDarkTerminal ? "github-dark" : "github-light";
+const logger = getLogsDX({
   theme: themeName,
-  autoAdjustTerminal: false 
-})
+  autoAdjustTerminal: false,
+});
 ```

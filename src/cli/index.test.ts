@@ -27,7 +27,7 @@ const createMockParser = () => {
 
 function shouldRender(
   level: string | undefined,
-  minLevel: LogLevel | undefined
+  minLevel: LogLevel | undefined,
 ): boolean {
   if (!minLevel || !level) return true;
 
@@ -49,7 +49,7 @@ function processArg(
   arg: string,
   index: number,
   options: CliOptions,
-  args: string[]
+  args: string[],
 ): number {
   if (arg === "--quiet") {
     options.flags = options.flags || new Set<string>();
@@ -105,7 +105,7 @@ function handleLine(
   parser: (line: string) => ParsedLine,
   line: string,
   options: CliOptions,
-  outputStream: NodeJS.WriteStream | Writable
+  outputStream: NodeJS.WriteStream | Writable,
 ): void {
   const parsed = parser(line);
   if (!parsed) return;
@@ -114,7 +114,10 @@ function handleLine(
     return;
   }
 
-  if (options.minLevel && !shouldRender(parsed.level as LogLevel, options.minLevel as LogLevel)) {
+  if (
+    options.minLevel &&
+    !shouldRender(parsed.level as LogLevel, options.minLevel as LogLevel)
+  ) {
     return;
   }
 

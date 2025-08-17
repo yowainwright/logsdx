@@ -1,42 +1,42 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ThemePreviewCard } from "@/components/theme-preview-card"
-import { Hero } from "@/components/hero"
-import { ThemeShowcase } from "@/components/theme-showcase"
-import { ProblemSection } from "@/components/problem-section"
-import { SetupSection } from "@/components/setup-section"
-import { ExamplesSection } from "@/components/examples-section"
-import { AdaptiveThemeDemo } from "@/components/adaptive-theme-demo"
+import { useState, useEffect } from "react";
+import { ThemePreviewCard } from "@/components/theme-preview-card";
+import { Hero } from "@/components/hero";
+import { ThemeShowcase } from "@/components/theme-showcase";
+import { ProblemSection } from "@/components/problem-section";
+import { SetupSection } from "@/components/setup-section";
+import { ExamplesSection } from "@/components/examples-section";
+import { AdaptiveThemeDemo } from "@/components/adaptive-theme-demo";
 // import { CustomThemeExamples } from "@/components/custom-theme-examples"
 
 export default function Home() {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return null
+    return null;
   }
 
   // Get all available themes dynamically from logsDx
   const themes = [
     "oh-my-zsh",
-    "dracula", 
+    "dracula",
     "github-light",
     "github-dark",
     "solarized-light",
     "solarized-dark",
     "nord",
     "monokai",
-  ]
+  ];
 
   return (
     <main className="min-h-screen">
       {/* New Theme Showcase with Headline Overlay */}
-      <ThemeShowcase 
+      <ThemeShowcase
         themes={themes}
         dimOpacity={0.35}
         speed="medium"
@@ -50,7 +50,8 @@ export default function Home() {
             </span>
           </h1>
           <p className="mb-8 text-xl text-slate-600 dark:text-slate-400">
-            Schema-based styling layer that makes logs look identical between terminal and browser environments
+            Schema-based styling layer that makes logs look identical between
+            terminal and browser environments
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -75,7 +76,8 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">Adaptive Theming</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Themes that automatically adapt to system preferences and user settings
+              Themes that automatically adapt to system preferences and user
+              settings
             </p>
           </div>
           <div className="flex justify-center">
@@ -89,5 +91,5 @@ export default function Home() {
       <SetupSection />
       <ExamplesSection />
     </main>
-  )
+  );
 }

@@ -59,7 +59,9 @@
 }
 
 .terminal-preview {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
   font-size: 12px;
   line-height: 1.8;
   white-space: pre;
@@ -82,11 +84,15 @@
   height: 0.75rem;
   border-radius: 50%;
   background: #ef4444;
-  box-shadow: 1.25rem 0 0 #f59e0b, 2.5rem 0 0 #10b981;
+  box-shadow:
+    1.25rem 0 0 #f59e0b,
+    2.5rem 0 0 #10b981;
 }
 
 .browser-preview {
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
   font-size: 12px;
   line-height: 1.8;
   white-space: pre;

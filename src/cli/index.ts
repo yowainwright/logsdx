@@ -67,7 +67,7 @@ export function parseArgs(args: string[]): CliOptions {
 }
 
 export async function main(
-  args: string[] = process.argv.slice(2)
+  args: string[] = process.argv.slice(2),
 ): Promise<void> {
   const cliOptions = parseArgs(args);
   const config = loadConfig(cliOptions.configPath);
@@ -153,7 +153,7 @@ program
   .option("--list-themes", "List available themes")
   .argument(
     "[input]",
-    "Input file (optional, reads from stdin if not provided)"
+    "Input file (optional, reads from stdin if not provided)",
   )
   .action((input, options) => {
     const args = [];

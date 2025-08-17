@@ -1,7 +1,12 @@
 import { TokenList } from "../schema/types";
 import { Theme } from "../types";
 import { tokenize, applyTheme } from "../tokenizer";
-import { BACKGROUND_COLORS, STYLE_CODES, getColorDefinition, supportsColors } from "./constants";
+import {
+  BACKGROUND_COLORS,
+  STYLE_CODES,
+  getColorDefinition,
+  supportsColors,
+} from "./constants";
 import type { RenderOptions } from "./types";
 
 /**
@@ -14,20 +19,20 @@ import type { RenderOptions } from "./types";
 export function renderLine(
   line: string,
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
   const tokens = tokenize(line, theme);
 
   const styledTokens = applyTheme(
     tokens,
-    theme || { name: "default", schema: { defaultStyle: { color: "white" } } }
+    theme || { name: "default", schema: { defaultStyle: { color: "white" } } },
   );
 
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
       return tokensToClassNames(styledTokens, {
         classPrefix: options.classPrefix,
-        useBEM: options.useBEM
+        useBEM: options.useBEM,
       });
     } else {
       return tokensToHtml(styledTokens);
@@ -43,9 +48,12 @@ export function renderLine(
  * @param forceColors - Force color output regardless of terminal detection
  * @returns A string with ANSI escape codes for styling
  */
-export function tokensToString(tokens: TokenList, forceColors?: boolean): string {
+export function tokensToString(
+  tokens: TokenList,
+  forceColors?: boolean,
+): string {
   const colorSupport = forceColors ?? supportsColors();
-  
+
   return tokens
     .map((token) => {
       if (
@@ -57,7 +65,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         token.metadata?.matchType === "carriage-return"
       ) {
         if (token.metadata?.trimmed) {
-          if (token.metadata?.matchType === "spaces" && token.metadata?.originalLength) {
+          if (
+            token.metadata?.matchType === "spaces" &&
+            token.metadata?.originalLength
+          ) {
             return " ";
           }
           if (token.metadata?.matchType === "space") {
@@ -80,7 +91,8 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         result = applyBold(result);
@@ -98,7 +110,10 @@ export function tokensToString(tokens: TokenList, forceColors?: boolean): string
         result = applyDim(result);
       }
 
-      if ('backgroundColor' in style && typeof style.backgroundColor === 'string') {
+      if (
+        "backgroundColor" in style &&
+        typeof style.backgroundColor === "string"
+      ) {
         result = applyBackgroundColor(result, style.backgroundColor);
       }
 
@@ -130,7 +145,7 @@ export function tokensToHtml(tokens: TokenList): string {
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -166,7 +181,8 @@ export function tokensToHtml(tokens: TokenList): string {
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         css.push("font-weight: bold");
@@ -197,8 +213,11 @@ export function tokensToHtml(tokens: TokenList): string {
  * @param options - Rendering options with classPrefix and useBEM
  * @returns HTML with CSS class names for styling
  */
-export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: string; useBEM?: boolean } = {}): string {
-  const { classPrefix = 'logsdx', useBEM = false } = options;
+export function tokensToClassNames(
+  tokens: TokenList,
+  options: { classPrefix?: string; useBEM?: boolean } = {},
+): string {
+  const { classPrefix = "logsdx", useBEM = false } = options;
   return tokens
     .map((token) => {
       if (
@@ -209,14 +228,14 @@ export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: s
       ) {
         if (token.metadata?.trimmed) {
           if (token.metadata?.matchType === "spaces") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           if (token.metadata?.matchType === "space") {
-            return '&nbsp;';
+            return "&nbsp;";
           }
           return "";
         }
-        
+
         if (token.metadata?.matchType === "tab") {
           return "&nbsp;".repeat(4 * token.content.length);
         }
@@ -252,7 +271,9 @@ export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: s
           classes.push(colorDef.className);
         } else {
           // Generate class name from color
-          const colorClass = style.color.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+          const colorClass = style.color
+            .replace(/[^a-zA-Z0-9-]/g, "-")
+            .toLowerCase();
           if (useBEM) {
             classes.push(`${classPrefix}__${colorClass}`);
           } else {
@@ -262,7 +283,8 @@ export function tokensToClassNames(tokens: TokenList, options: { classPrefix?: s
       }
 
       const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) && style.styleCodes.includes(code as any);
+        Array.isArray(style.styleCodes) &&
+        style.styleCodes.includes(code as any);
 
       if (hasStyleCode("bold")) {
         if (useBEM) {
@@ -439,7 +461,7 @@ export function bgRGB(r: number, g: number, b: number): string {
 export function renderLines(
   lines: string[],
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string[] {
   return lines.map((line) => renderLine(line, theme, options));
 }
@@ -448,8 +470,8 @@ export {
   renderLightBox,
   renderLightBoxLine,
   isLightTheme,
-  getThemeBackground
-} from './light-box'
+  getThemeBackground,
+} from "./light-box";
 
 export default {
   renderLine,

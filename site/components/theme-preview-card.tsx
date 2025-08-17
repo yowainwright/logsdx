@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from "react"
-import { getLogsDX, getAllThemes } from "logsdx"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useEffect, useState } from "react";
+import { getLogsDX, getAllThemes } from "logsdx";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 // @ts-ignore
-import AnsiToHtml from "ansi-to-html"
+import AnsiToHtml from "ansi-to-html";
 
 interface ThemePreviewCardProps {
-  themeName: string
+  themeName: string;
 }
 
 // More diverse log examples to showcase theme capabilities
@@ -22,132 +28,149 @@ const sampleLogs = [
   "Cache hit ratio: 92.5% | Requests: 10,543 | Hits: 9,752",
   "🚀 Deployment completed to production environment",
   "DEBUG: SQL Query: SELECT * FROM users WHERE active = true",
-]
+];
 
 // Theme background configurations
-const themeBackgrounds: Record<string, { terminal: string; browser: string; text: string; border: string }> = {
-  'oh-my-zsh': {
-    terminal: '#2c3e50',
-    browser: '#2c3e50',
-    text: '#ecf0f1',
-    border: '#34495e'
+const themeBackgrounds: Record<
+  string,
+  { terminal: string; browser: string; text: string; border: string }
+> = {
+  "oh-my-zsh": {
+    terminal: "#2c3e50",
+    browser: "#2c3e50",
+    text: "#ecf0f1",
+    border: "#34495e",
   },
-  'dracula': {
-    terminal: '#282a36',
-    browser: '#282a36', 
-    text: '#f8f8f2',
-    border: '#44475a'
+  dracula: {
+    terminal: "#282a36",
+    browser: "#282a36",
+    text: "#f8f8f2",
+    border: "#44475a",
   },
-  'github-light': {
-    terminal: '#ffffff',
-    browser: '#ffffff',
-    text: '#1f2328',
-    border: '#d1d9e0'
+  "github-light": {
+    terminal: "#ffffff",
+    browser: "#ffffff",
+    text: "#1f2328",
+    border: "#d1d9e0",
   },
-  'github-dark': {
-    terminal: '#0d1117',
-    browser: '#0d1117',
-    text: '#e6edf3',
-    border: '#30363d'
+  "github-dark": {
+    terminal: "#0d1117",
+    browser: "#0d1117",
+    text: "#e6edf3",
+    border: "#30363d",
   },
-  'solarized-light': {
-    terminal: '#fdf6e3',
-    browser: '#fdf6e3',
-    text: '#657b83',
-    border: '#eee8d5'
+  "solarized-light": {
+    terminal: "#fdf6e3",
+    browser: "#fdf6e3",
+    text: "#657b83",
+    border: "#eee8d5",
   },
-  'solarized-dark': {
-    terminal: '#002b36',
-    browser: '#002b36',
-    text: '#839496',
-    border: '#073642'
-  }
-}
+  "solarized-dark": {
+    terminal: "#002b36",
+    browser: "#002b36",
+    text: "#839496",
+    border: "#073642",
+  },
+};
 
-const getThemeBackground = (themeName: string, type: 'terminal' | 'browser') => {
-  return themeBackgrounds[themeName]?.[type] || (type === 'terminal' ? '#1a1a1a' : '#ffffff')
-}
+const getThemeBackground = (
+  themeName: string,
+  type: "terminal" | "browser",
+) => {
+  return (
+    themeBackgrounds[themeName]?.[type] ||
+    (type === "terminal" ? "#1a1a1a" : "#ffffff")
+  );
+};
 
 const getThemeTextColor = (themeName: string) => {
-  return themeBackgrounds[themeName]?.text || '#000000'
-}
+  return themeBackgrounds[themeName]?.text || "#000000";
+};
 
 const getThemeBorderColor = (themeName: string) => {
-  return themeBackgrounds[themeName]?.border || '#e5e5e5'
-}
+  return themeBackgrounds[themeName]?.border || "#e5e5e5";
+};
 
 export function ThemePreviewCard({ themeName }: ThemePreviewCardProps) {
-  const [terminalOutput, setTerminalOutput] = useState<string[]>([])
-  const [browserOutput, setBrowserOutput] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [browserOutput, setBrowserOutput] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true)
-    
+    setIsLoading(true);
+
     try {
       // Get all themes
-      const themes = getAllThemes()
-      const theme = themes[themeName as keyof typeof themes]
-      
+      const themes = getAllThemes();
+      const theme = themes[themeName as keyof typeof themes];
+
       if (!theme) {
-        console.error(`Theme "${themeName}" not found`)
-        setIsLoading(false)
-        return
+        console.error(`Theme "${themeName}" not found`);
+        setIsLoading(false);
+        return;
       }
 
       // Create logsDx instances for terminal and browser
-      const terminalLogger = getLogsDX({ theme: themeName, outputFormat: "ansi" })
-      const browserLogger = getLogsDX({ theme: themeName, outputFormat: "html" })
-      const convert = new AnsiToHtml({ fg: '#c9d1d9', bg: '#0d1117' })
+      const terminalLogger = getLogsDX({
+        theme: themeName,
+        outputFormat: "ansi",
+      });
+      const browserLogger = getLogsDX({
+        theme: themeName,
+        outputFormat: "html",
+      });
+      const convert = new AnsiToHtml({ fg: "#c9d1d9", bg: "#0d1117" });
 
       // Generate terminal output
-      const terminalLogs = sampleLogs.map(log => {
+      const terminalLogs = sampleLogs.map((log) => {
         try {
           // @ts-ignore
-          const ansiLog = terminalLogger.processLine(log)
+          const ansiLog = terminalLogger.processLine(log);
           // Convert ANSI codes to HTML for display
-          return convert.toHtml(ansiLog)
+          return convert.toHtml(ansiLog);
         } catch (e) {
-          console.error(`Error styling log for terminal: ${e}`)
-          return log
+          console.error(`Error styling log for terminal: ${e}`);
+          return log;
         }
-      })
-      setTerminalOutput(terminalLogs)
+      });
+      setTerminalOutput(terminalLogs);
 
       // Generate browser output
-      const browserLogs = sampleLogs.map(log => {
+      const browserLogs = sampleLogs.map((log) => {
         try {
           // @ts-ignore
-          return browserLogger.processLine(log)
+          return browserLogger.processLine(log);
         } catch (e) {
-          console.error(`Error styling log for browser: ${e}`)
-          return log
+          console.error(`Error styling log for browser: ${e}`);
+          return log;
         }
-      })
-      setBrowserOutput(browserLogs)
+      });
+      setBrowserOutput(browserLogs);
     } catch (error) {
-      console.error(`Error loading theme ${themeName}:`, error)
+      console.error(`Error loading theme ${themeName}:`, error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [themeName])
+  }, [themeName]);
 
   const formatThemeName = (name: string) => {
     return name
       .split("-")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
-  }
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   if (isLoading) {
     return (
       <Card className="overflow-hidden">
         <CardHeader>
-          <CardTitle className="text-lg">{formatThemeName(themeName)}</CardTitle>
+          <CardTitle className="text-lg">
+            {formatThemeName(themeName)}
+          </CardTitle>
           <CardDescription>Loading theme...</CardDescription>
         </CardHeader>
       </Card>
-    )
+    );
   }
 
   return (
@@ -159,27 +182,29 @@ export function ThemePreviewCard({ themeName }: ThemePreviewCardProps) {
       <CardContent className="space-y-4">
         {/* Terminal Preview */}
         <div className="relative overflow-hidden">
-          <div 
+          <div
             className="terminal-preview rounded-md border border-slate-700 p-4 font-mono text-xs relative"
-            style={{ 
-              backgroundColor: getThemeBackground(themeName, 'terminal'),
-              color: getThemeTextColor(themeName)
+            style={{
+              backgroundColor: getThemeBackground(themeName, "terminal"),
+              color: getThemeTextColor(themeName),
             }}
           >
             <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/20 to-transparent z-10 flex items-center justify-center">
-              <span className="text-sm font-medium text-white/60 uppercase tracking-wider">Terminal</span>
+              <span className="text-sm font-medium text-white/60 uppercase tracking-wider">
+                Terminal
+              </span>
             </div>
             <div className="pt-8 space-y-1 overflow-hidden h-64 relative">
               {terminalOutput.map((line, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="animate-scroll-up px-2 py-0.5 rounded"
-                  style={{ 
+                  style={{
                     animationDelay: `${i * 0.5}s`,
                     animationDuration: `${10 + i * 0.2}s`,
-                    backgroundColor: 'rgba(0,0,0,0.2)'
+                    backgroundColor: "rgba(0,0,0,0.2)",
                   }}
-                  dangerouslySetInnerHTML={{ __html: line }} 
+                  dangerouslySetInnerHTML={{ __html: line }}
                 />
               ))}
             </div>
@@ -188,28 +213,30 @@ export function ThemePreviewCard({ themeName }: ThemePreviewCardProps) {
 
         {/* Browser Preview */}
         <div className="relative overflow-hidden">
-          <div 
+          <div
             className="browser-preview rounded-md border p-4 font-mono text-xs relative"
-            style={{ 
-              backgroundColor: getThemeBackground(themeName, 'browser'),
+            style={{
+              backgroundColor: getThemeBackground(themeName, "browser"),
               color: getThemeTextColor(themeName),
-              borderColor: getThemeBorderColor(themeName)
+              borderColor: getThemeBorderColor(themeName),
             }}
           >
             <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/10 to-transparent z-10 flex items-center justify-center">
-              <span className="text-sm font-medium opacity-60 uppercase tracking-wider">Browser</span>
+              <span className="text-sm font-medium opacity-60 uppercase tracking-wider">
+                Browser
+              </span>
             </div>
             <div className="pt-8 space-y-1 overflow-hidden h-64 relative">
               {browserOutput.map((line, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="animate-scroll-up px-2 py-0.5 rounded"
-                  style={{ 
+                  style={{
                     animationDelay: `${i * 0.5}s`,
                     animationDuration: `${10 + i * 0.2}s`,
-                    backgroundColor: 'rgba(0,0,0,0.05)'
+                    backgroundColor: "rgba(0,0,0,0.05)",
                   }}
-                  dangerouslySetInnerHTML={{ __html: line }} 
+                  dangerouslySetInnerHTML={{ __html: line }}
                 />
               ))}
             </div>
@@ -217,5 +244,5 @@ export function ThemePreviewCard({ themeName }: ThemePreviewCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

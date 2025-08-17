@@ -21,18 +21,18 @@ LogsDX supports creating themes that automatically adapt to user preferences and
 LogsDX can automatically detect and respond to system color preferences:
 
 ```typescript
-import { getLogsDX } from 'logsdx'
+import { getLogsDX } from "logsdx";
 
 // Automatically use light/dark variant based on system preference
 const logger = getLogsDX({
-  theme: 'auto', // Will use github-light or github-dark based on system
-  autoDetect: true
-})
+  theme: "auto", // Will use github-light or github-dark based on system
+  autoDetect: true,
+});
 
 // Or manually check preference
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-const themeName = prefersDark ? 'github-dark' : 'github-light'
-const logger = getLogsDX({ theme: themeName })
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const themeName = prefersDark ? "github-dark" : "github-light";
+const logger = getLogsDX({ theme: themeName });
 ```
 
 ## Creating Theme Variants
@@ -42,43 +42,43 @@ const logger = getLogsDX({ theme: themeName })
 Create light and dark variants of your theme:
 
 ```typescript
-import { createTheme } from 'logsdx'
+import { createTheme } from "logsdx";
 
 // Light variant
 const myThemeLight = createTheme({
-  name: 'my-theme-light',
-  description: 'Light variant of my custom theme',
-  mode: 'light',
+  name: "my-theme-light",
+  description: "Light variant of my custom theme",
+  mode: "light",
   colors: {
-    primary: '#0969da',
-    secondary: '#8250df',
-    background: '#ffffff',
-    text: '#1f2328',
-    error: '#d1242f',
-    warning: '#9a6700',
-    success: '#1a7f37',
-    info: '#0969da',
-    muted: '#656d76'
-  }
-})
+    primary: "#0969da",
+    secondary: "#8250df",
+    background: "#ffffff",
+    text: "#1f2328",
+    error: "#d1242f",
+    warning: "#9a6700",
+    success: "#1a7f37",
+    info: "#0969da",
+    muted: "#656d76",
+  },
+});
 
 // Dark variant
 const myThemeDark = createTheme({
-  name: 'my-theme-dark',
-  description: 'Dark variant of my custom theme',
-  mode: 'dark',
+  name: "my-theme-dark",
+  description: "Dark variant of my custom theme",
+  mode: "dark",
   colors: {
-    primary: '#58a6ff',
-    secondary: '#bc8cff',
-    background: '#0d1117',
-    text: '#e6edf3',
-    error: '#ff7b72',
-    warning: '#d29922',
-    success: '#3fb950',
-    info: '#58a6ff',
-    muted: '#8b949e'
-  }
-})
+    primary: "#58a6ff",
+    secondary: "#bc8cff",
+    background: "#0d1117",
+    text: "#e6edf3",
+    error: "#ff7b72",
+    warning: "#d29922",
+    success: "#3fb950",
+    info: "#58a6ff",
+    muted: "#8b949e",
+  },
+});
 ```
 
 ### Method 2: Adaptive Theme Class
@@ -87,33 +87,34 @@ Create a theme that adapts dynamically:
 
 ```typescript
 class AdaptiveTheme {
-  private lightTheme: Theme
-  private darkTheme: Theme
-  
+  private lightTheme: Theme;
+  private darkTheme: Theme;
+
   constructor(lightTheme: Theme, darkTheme: Theme) {
-    this.lightTheme = lightTheme
-    this.darkTheme = darkTheme
+    this.lightTheme = lightTheme;
+    this.darkTheme = darkTheme;
   }
-  
+
   getCurrentTheme(): Theme {
-    if (typeof window !== 'undefined') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      return isDark ? this.darkTheme : this.lightTheme
+    if (typeof window !== "undefined") {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      return isDark ? this.darkTheme : this.lightTheme;
     }
-    
+
     // For Node.js, check environment variables
-    const isDark = process.env.THEME_MODE === 'dark' || 
-                   process.env.TERM_PROGRAM === 'iTerm.app'
-    return isDark ? this.darkTheme : this.lightTheme
+    const isDark =
+      process.env.THEME_MODE === "dark" ||
+      process.env.TERM_PROGRAM === "iTerm.app";
+    return isDark ? this.darkTheme : this.lightTheme;
   }
-  
+
   // Listen for theme changes
   watchChanges(callback: (theme: Theme) => void) {
-    if (typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.addEventListener('change', (e) => {
-        callback(e.matches ? this.darkTheme : this.lightTheme)
-      })
+    if (typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      mediaQuery.addEventListener("change", (e) => {
+        callback(e.matches ? this.darkTheme : this.lightTheme);
+      });
     }
   }
 }
@@ -124,65 +125,65 @@ class AdaptiveTheme {
 ### React Hook Example
 
 ```typescript
-import { useState, useEffect } from 'react'
-import { getLogsDX, Theme } from 'logsdx'
+import { useState, useEffect } from "react";
+import { getLogsDX, Theme } from "logsdx";
 
 export function useAdaptiveLogger(lightTheme: string, darkTheme: string) {
   const [logger, setLogger] = useState(() => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    return getLogsDX({ theme: isDark ? darkTheme : lightTheme })
-  })
-  
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return getLogsDX({ theme: isDark ? darkTheme : lightTheme });
+  });
+
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
     const handleChange = (e: MediaQueryListEvent) => {
-      const themeName = e.matches ? darkTheme : lightTheme
-      setLogger(getLogsDX({ theme: themeName }))
-    }
-    
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [lightTheme, darkTheme])
-  
-  return logger
+      const themeName = e.matches ? darkTheme : lightTheme;
+      setLogger(getLogsDX({ theme: themeName }));
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [lightTheme, darkTheme]);
+
+  return logger;
 }
 
 // Usage
 function MyComponent() {
-  const logger = useAdaptiveLogger('github-light', 'github-dark')
-  
+  const logger = useAdaptiveLogger("github-light", "github-dark");
+
   // Logger automatically switches between themes
-  logger.processLine('INFO: Adaptive theming active')
+  logger.processLine("INFO: Adaptive theming active");
 }
 ```
 
 ### Vue Composable Example
 
 ```typescript
-import { ref, onMounted, onUnmounted } from 'vue'
-import { getLogsDX } from 'logsdx'
+import { ref, onMounted, onUnmounted } from "vue";
+import { getLogsDX } from "logsdx";
 
 export function useAdaptiveLogger(lightTheme: string, darkTheme: string) {
-  const logger = ref(null)
-  
+  const logger = ref(null);
+
   const updateLogger = () => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    logger.value = getLogsDX({ theme: isDark ? darkTheme : lightTheme })
-  }
-  
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    logger.value = getLogsDX({ theme: isDark ? darkTheme : lightTheme });
+  };
+
   onMounted(() => {
-    updateLogger()
-    
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', updateLogger)
-    
+    updateLogger();
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", updateLogger);
+
     onUnmounted(() => {
-      mediaQuery.removeEventListener('change', updateLogger)
-    })
-  })
-  
-  return logger
+      mediaQuery.removeEventListener("change", updateLogger);
+    });
+  });
+
+  return logger;
 }
 ```
 
@@ -191,53 +192,63 @@ export function useAdaptiveLogger(lightTheme: string, darkTheme: string) {
 For browser environments, use CSS custom properties for dynamic theming:
 
 ```typescript
-import { getLogsDX, getAllThemes } from 'logsdx'
+import { getLogsDX, getAllThemes } from "logsdx";
 
 // Generate CSS variables from theme
 function generateThemeCSS(themeName: string): string {
-  const themes = getAllThemes()
-  const theme = themes[themeName]
-  
-  if (!theme || !theme.colorPalette) return ''
-  
-  const css = [`[data-theme="${themeName}"] {`]
-  
+  const themes = getAllThemes();
+  const theme = themes[themeName];
+
+  if (!theme || !theme.colorPalette) return "";
+
+  const css = [`[data-theme="${themeName}"] {`];
+
   // Add color variables
   Object.entries(theme.colorPalette).forEach(([key, value]) => {
-    css.push(`  --logsdx-${key}: ${value};`)
-  })
-  
+    css.push(`  --logsdx-${key}: ${value};`);
+  });
+
   // Add semantic variables
-  css.push(`  --logsdx-bg: var(--logsdx-background, ${theme.colorPalette.background || '#ffffff'});`)
-  css.push(`  --logsdx-fg: var(--logsdx-text, ${theme.colorPalette.text || '#000000'});`)
-  
-  css.push('}')
-  
-  return css.join('\n')
+  css.push(
+    `  --logsdx-bg: var(--logsdx-background, ${theme.colorPalette.background || "#ffffff"});`,
+  );
+  css.push(
+    `  --logsdx-fg: var(--logsdx-text, ${theme.colorPalette.text || "#000000"});`,
+  );
+
+  css.push("}");
+
+  return css.join("\n");
 }
 
 // Apply to document
 function applyThemeCSS() {
-  const style = document.createElement('style')
-  style.id = 'logsdx-theme-vars'
-  
+  const style = document.createElement("style");
+  style.id = "logsdx-theme-vars";
+
   // Generate CSS for all themes
-  const themes = ['github-light', 'github-dark', 'dracula', 'solarized-light', 'solarized-dark']
-  const css = themes.map(generateThemeCSS).join('\n\n')
-  
+  const themes = [
+    "github-light",
+    "github-dark",
+    "dracula",
+    "solarized-light",
+    "solarized-dark",
+  ];
+  const css = themes.map(generateThemeCSS).join("\n\n");
+
   // Add media queries
   const adaptiveCSS = `
     @media (prefers-color-scheme: light) {
-      :root { ${generateThemeCSS('github-light')} }
+      :root { ${generateThemeCSS("github-light")} }
     }
     
     @media (prefers-color-scheme: dark) {
-      :root { ${generateThemeCSS('github-dark')} }
+      :root { ${generateThemeCSS("github-dark")} }
     }
-  `
-  
-  style.textContent = css + adaptiveCSS
-  document.head.appendChild(style)
+  `;
+
+  style.textContent = css + adaptiveCSS;
+  document.head.appendChild(style);
 }
 ```
 
@@ -256,24 +267,28 @@ function createHighContrastTheme(baseTheme: Theme): Theme {
       primary: increaseContrast(baseTheme.colorPalette.primary),
       secondary: increaseContrast(baseTheme.colorPalette.secondary),
       // Use pure black/white for maximum contrast
-      background: baseTheme.mode === 'dark' ? '#000000' : '#ffffff',
-      text: baseTheme.mode === 'dark' ? '#ffffff' : '#000000'
-    }
-  }
+      background: baseTheme.mode === "dark" ? "#000000" : "#ffffff",
+      text: baseTheme.mode === "dark" ? "#ffffff" : "#000000",
+    },
+  };
 }
 
 // Detect high contrast preference
-const prefersHighContrast = window.matchMedia('(prefers-contrast: high)').matches
+const prefersHighContrast = window.matchMedia(
+  "(prefers-contrast: high)",
+).matches;
 ```
 
 ### Reduced Motion
 
 ```typescript
 // Detect reduced motion preference
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
 
 // Apply to animations
-const animationDuration = prefersReducedMotion ? '0s' : '0.3s'
+const animationDuration = prefersReducedMotion ? "0s" : "0.3s";
 ```
 
 ## Examples
@@ -287,66 +302,66 @@ class ThemeManager {
   private themes: Map<string, Theme> = new Map()
   private currentTheme: string
   private listeners: ((theme: string) => void)[] = []
-  
+
   constructor() {
     // Register default theme pairs
     this.registerThemePair('github', 'github-light', 'github-dark')
     this.registerThemePair('solarized', 'solarized-light', 'solarized-dark')
-    
+
     // Detect initial theme
     this.currentTheme = this.detectTheme()
-    
+
     // Watch for changes
     this.watchSystemChanges()
   }
-  
+
   registerThemePair(name: string, lightTheme: string, darkTheme: string) {
     this.themes.set(`${name}-light`, lightTheme)
     this.themes.set(`${name}-dark`, darkTheme)
   }
-  
+
   detectTheme(): string {
     // Check user preference first
     const saved = localStorage.getItem('logsdx-theme')
     if (saved) return saved
-    
+
     // Then check system preference
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const isHighContrast = window.matchMedia('(prefers-contrast: high)').matches
-    
+
     if (isHighContrast) {
       return isDark ? 'high-contrast-dark' : 'high-contrast-light'
     }
-    
+
     return isDark ? 'github-dark' : 'github-light'
   }
-  
+
   watchSystemChanges() {
     // Watch color scheme changes
     window.matchMedia('(prefers-color-scheme: dark)')
       .addEventListener('change', () => {
         this.updateTheme(this.detectTheme())
       })
-    
+
     // Watch contrast changes
     window.matchMedia('(prefers-contrast: high)')
       .addEventListener('change', () => {
         this.updateTheme(this.detectTheme())
       })
   }
-  
+
   updateTheme(theme: string) {
     this.currentTheme = theme
     document.documentElement.setAttribute('data-theme', theme)
-    
+
     // Notify listeners
     this.listeners.forEach(listener => listener(theme))
   }
-  
+
   getLogger() {
     return getLogsDX({ theme: this.currentTheme })
   }
-  
+
   onChange(listener: (theme: string) => void) {
     this.listeners.push(listener)
     return () => {
@@ -362,13 +377,13 @@ const logger = themeManager.getLogger()
 // React component
 function App() {
   const [logger, setLogger] = useState(themeManager.getLogger())
-  
+
   useEffect(() => {
     return themeManager.onChange(() => {
       setLogger(themeManager.getLogger())
     })
   }, [])
-  
+
   return <div>{/* Your app */}</div>
 }
 ```
@@ -379,24 +394,25 @@ function App() {
 // For Node.js/Terminal environments
 function getTerminalTheme(): string {
   // Check terminal color capability
-  const colorSupport = process.stdout.isTTY && 
-    (process.env.COLORTERM === 'truecolor' || 
-     process.env.TERM_PROGRAM === 'vscode')
-  
+  const colorSupport =
+    process.stdout.isTTY &&
+    (process.env.COLORTERM === "truecolor" ||
+      process.env.TERM_PROGRAM === "vscode");
+
   if (!colorSupport) {
-    return 'no-color' // Minimal theme without colors
+    return "no-color"; // Minimal theme without colors
   }
-  
+
   // Check terminal background
-  const isDarkTerminal = 
-    process.env.COLORFGBG?.includes('0;15') || // Dark background
-    process.env.TERM_PROGRAM === 'iTerm.app' ||
-    process.env.TERMINAL_EMULATOR === 'JetBrains-JediTerm'
-  
-  return isDarkTerminal ? 'dracula' : 'github-light'
+  const isDarkTerminal =
+    process.env.COLORFGBG?.includes("0;15") || // Dark background
+    process.env.TERM_PROGRAM === "iTerm.app" ||
+    process.env.TERMINAL_EMULATOR === "JetBrains-JediTerm";
+
+  return isDarkTerminal ? "dracula" : "github-light";
 }
 
-const logger = getLogsDX({ theme: getTerminalTheme() })
+const logger = getLogsDX({ theme: getTerminalTheme() });
 ```
 
 ## Best Practices
@@ -413,24 +429,24 @@ const logger = getLogsDX({ theme: getTerminalTheme() })
 ```typescript
 interface AdaptiveThemeConfig {
   // Base theme name
-  name: string
-  
+  name: string;
+
   // Theme variants
   variants: {
-    light: Theme
-    dark: Theme
-    highContrastLight?: Theme
-    highContrastDark?: Theme
-  }
-  
+    light: Theme;
+    dark: Theme;
+    highContrastLight?: Theme;
+    highContrastDark?: Theme;
+  };
+
   // Auto-detection settings
   autoDetect: {
-    colorScheme: boolean
-    contrast: boolean
-    terminal: boolean
-  }
-  
+    colorScheme: boolean;
+    contrast: boolean;
+    terminal: boolean;
+  };
+
   // Fallback theme
-  fallback: 'light' | 'dark'
+  fallback: "light" | "dark";
 }
 ```

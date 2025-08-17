@@ -15,28 +15,28 @@ const apiLogsTheme = createTheme({
   name: "api-logs",
   description: "Theme optimized for API request/response logs",
   colors: {
-    primary: "#007acc",     // Blue for GET requests
-    secondary: "#28a745",   // Green for success
-    accent: "#ffc107",      // Yellow for warnings
-    error: "#dc3545",       // Red for errors
-    warning: "#fd7e14",     // Orange for warnings
-    info: "#17a2b8",        // Cyan for info
-    success: "#28a745",     // Green for success
-    debug: "#6f42c1",       // Purple for debug
-    text: "#212529",        // Dark gray for text
-    muted: "#6c757d",       // Gray for muted
+    primary: "#007acc", // Blue for GET requests
+    secondary: "#28a745", // Green for success
+    accent: "#ffc107", // Yellow for warnings
+    error: "#dc3545", // Red for errors
+    warning: "#fd7e14", // Orange for warnings
+    info: "#17a2b8", // Cyan for info
+    success: "#28a745", // Green for success
+    debug: "#6f42c1", // Purple for debug
+    text: "#212529", // Dark gray for text
+    muted: "#6c757d", // Gray for muted
   },
   // Use specific presets
   presets: ["logLevels", "numbers", "dates"],
   // Define custom words for HTTP methods and status codes
   customWords: {
-    "GET": "primary",
-    "POST": "info", 
-    "PUT": "warning",
-    "DELETE": "error",
-    "PATCH": "secondary",
-    "HEAD": "muted",
-    "OPTIONS": "muted",
+    GET: "primary",
+    POST: "info",
+    PUT: "warning",
+    DELETE: "error",
+    PATCH: "secondary",
+    HEAD: "muted",
+    OPTIONS: "muted",
     "200": { color: "success", styleCodes: ["bold"] },
     "201": { color: "success", styleCodes: ["bold"] },
     "400": { color: "warning", styleCodes: ["bold"] },
@@ -51,61 +51,65 @@ const apiLogsTheme = createTheme({
       name: "url-path",
       pattern: "/[a-zA-Z0-9/_-]+",
       color: "secondary",
-      style: ["italic"]
+      style: ["italic"],
     },
     {
-      name: "ip-address", 
+      name: "ip-address",
       pattern: "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b",
       color: "info",
-      style: ["bold"]
+      style: ["bold"],
     },
     {
       name: "response-time",
       pattern: "\\d+ms",
       color: "accent",
-    }
-  ]
+    },
+  ],
 });
 
 // Example 2: Terminal Hacker Theme
-const terminalHackerTheme = createSimpleTheme("terminal-hacker", {
-  primary: "#00ff00",      // Bright green
-  secondary: "#00cc00",    // Medium green
-  accent: "#ffffff",       // White
-  error: "#ff0000",        // Red
-  warning: "#ffff00",      // Yellow
-  info: "#00ffff",         // Cyan
-  success: "#00ff00",      // Green
-  debug: "#00aa00",        // Dark green
-  text: "#00ff00",         // Green text
-  muted: "#008800",        // Darker green
-}, {
-  customWords: {
-    "SYSTEM": { color: "error", styleCodes: ["bold", "underline"] },
-    "ACCESS": { color: "success", styleCodes: ["bold"] },
-    "DENIED": { color: "error", styleCodes: ["bold"] },
-    "GRANTED": { color: "success", styleCodes: ["bold"] },
-    "BREACH": { color: "error", styleCodes: ["bold"] },
-    "SECURE": { color: "success", styleCodes: ["bold"] }
+const terminalHackerTheme = createSimpleTheme(
+  "terminal-hacker",
+  {
+    primary: "#00ff00", // Bright green
+    secondary: "#00cc00", // Medium green
+    accent: "#ffffff", // White
+    error: "#ff0000", // Red
+    warning: "#ffff00", // Yellow
+    info: "#00ffff", // Cyan
+    success: "#00ff00", // Green
+    debug: "#00aa00", // Dark green
+    text: "#00ff00", // Green text
+    muted: "#008800", // Darker green
   },
-  customPatterns: [
-    {
-      name: "user-id",
-      pattern: "user:[a-zA-Z0-9]+",
-      color: "warning"
+  {
+    customWords: {
+      SYSTEM: { color: "error", styleCodes: ["bold", "underline"] },
+      ACCESS: { color: "success", styleCodes: ["bold"] },
+      DENIED: { color: "error", styleCodes: ["bold"] },
+      GRANTED: { color: "success", styleCodes: ["bold"] },
+      BREACH: { color: "error", styleCodes: ["bold"] },
+      SECURE: { color: "success", styleCodes: ["bold"] },
     },
-    {
-      name: "hex-hash",
-      pattern: "0x[a-fA-F0-9]+",
-      color: "accent"
-    }
-  ]
-});
+    customPatterns: [
+      {
+        name: "user-id",
+        pattern: "user:[a-zA-Z0-9]+",
+        color: "warning",
+      },
+      {
+        name: "hex-hash",
+        pattern: "0x[a-fA-F0-9]+",
+        color: "accent",
+      },
+    ],
+  },
+);
 
 // Example 3: Minimal theme with just colors
 const minimalTheme = createSimpleTheme("minimal", {
   error: "#e74c3c",
-  warning: "#f39c12", 
+  warning: "#f39c12",
   info: "#3498db",
   success: "#27ae60",
   text: "#2c3e50",
@@ -120,16 +124,18 @@ const sampleLogs = [
   "2024-01-15T10:30:44.789Z [WARN] DELETE /api/posts/456 429 12ms - Rate limit exceeded",
   "2024-01-15T10:30:45.012Z [DEBUG] Processing request from 192.168.1.100",
   "SYSTEM ACCESS GRANTED for user:admin123 with token 0xabc123def",
-  "SYSTEM BREACH DENIED from 203.0.113.42 - SECURE protocol active"
+  "SYSTEM BREACH DENIED from 203.0.113.42 - SECURE protocol active",
 ];
 
 // Demonstrate API Logs Theme
 console.log("1. API LOGS THEME (Terminal Output):");
-console.log("Theme matches HTTP methods, status codes, URLs, IPs, and response times\\n");
+console.log(
+  "Theme matches HTTP methods, status codes, URLs, IPs, and response times\\n",
+);
 
-const apiLogsDX = LogsDX.getInstance({ 
-  theme: apiLogsTheme.name, 
-  outputFormat: "ansi" 
+const apiLogsDX = LogsDX.getInstance({
+  theme: apiLogsTheme.name,
+  outputFormat: "ansi",
 });
 
 // Register the custom theme
@@ -138,7 +144,7 @@ registerTheme(apiLogsTheme);
 registerTheme(terminalHackerTheme);
 registerTheme(minimalTheme);
 
-sampleLogs.slice(0, 4).forEach(log => {
+sampleLogs.slice(0, 4).forEach((log) => {
   console.log(apiLogsDX.processLine(log));
 });
 
@@ -146,14 +152,16 @@ console.log("\\n" + "=".repeat(60) + "\\n");
 
 // Demonstrate Terminal Hacker Theme
 console.log("2. TERMINAL HACKER THEME (Terminal Output):");
-console.log("Theme matches system messages, access control, user IDs, and hex values\\n");
+console.log(
+  "Theme matches system messages, access control, user IDs, and hex values\\n",
+);
 
-const hackerLogsDX = LogsDX.getInstance({ 
+const hackerLogsDX = LogsDX.getInstance({
   theme: terminalHackerTheme.name,
-  outputFormat: "ansi" 
+  outputFormat: "ansi",
 });
 
-sampleLogs.slice(4).forEach(log => {
+sampleLogs.slice(4).forEach((log) => {
   console.log(hackerLogsDX.processLine(log));
 });
 
@@ -163,20 +171,20 @@ console.log("\\n" + "=".repeat(60) + "\\n");
 console.log("3. BROWSER HTML OUTPUT (same themes, different format):");
 console.log("Same themes produce HTML instead of ANSI codes\\n");
 
-const browserApiLogsDX = LogsDX.getInstance({ 
+const browserApiLogsDX = LogsDX.getInstance({
   theme: apiLogsTheme.name,
   outputFormat: "html",
-  htmlStyleFormat: "css"
+  htmlStyleFormat: "css",
 });
 
 console.log("HTML with inline CSS:");
 console.log(browserApiLogsDX.processLine(sampleLogs[0]));
 console.log("\\n");
 
-const browserClassLogsDX = LogsDX.getInstance({ 
+const browserClassLogsDX = LogsDX.getInstance({
   theme: apiLogsTheme.name,
-  outputFormat: "html", 
-  htmlStyleFormat: "className"
+  outputFormat: "html",
+  htmlStyleFormat: "className",
 });
 
 console.log("HTML with CSS classes:");

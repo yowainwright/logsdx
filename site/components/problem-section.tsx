@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 export function ProblemSection() {
   return (
@@ -8,10 +8,13 @@ export function ProblemSection() {
           <h2 className="mb-8 text-4xl font-bold">The Problem logsDx Solves</h2>
           <div className="space-y-6 text-lg text-slate-600 dark:text-slate-400">
             <p>
-              Have you ever built a beautiful logging system for your terminal, only to have it look completely different in the browser console?
+              Have you ever built a beautiful logging system for your terminal,
+              only to have it look completely different in the browser console?
             </p>
             <p>
-              Traditional logging libraries force you to choose between terminal-specific ANSI codes or browser-specific CSS styling. This leads to:
+              Traditional logging libraries force you to choose between
+              terminal-specific ANSI codes or browser-specific CSS styling. This
+              leads to:
             </p>
             <ul className="mx-auto max-w-xl space-y-3 text-left">
               <li className="flex items-start">
@@ -24,15 +27,18 @@ export function ProblemSection() {
               </li>
               <li className="flex items-start">
                 <span className="mr-2 text-red-500">×</span>
-                <span>Lost context when switching between terminal and browser logs</span>
+                <span>
+                  Lost context when switching between terminal and browser logs
+                </span>
               </li>
             </ul>
             <p className="mt-8 font-semibold">
-              logsDx provides a unified theming engine that automatically translates your styling between ANSI and HTML/CSS formats.
+              logsDx provides a unified theming engine that automatically
+              translates your styling between ANSI and HTML/CSS formats.
             </p>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
