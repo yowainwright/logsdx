@@ -4,20 +4,7 @@ import figlet from "figlet";
 import gradient from "gradient-string";
 import ora, { type Ora } from "ora";
 import { SingleBar, Presets } from "cli-progress";
-
-interface SpinnerLike {
-  start(): this;
-  succeed(message?: string): this;
-  fail(message?: string): this;
-  stop(): this;
-  text?: string;
-}
-
-interface ProgressBarLike {
-  start(total: number, startValue: number): void;
-  update(current: number): void;
-  stop(): void;
-}
+import { SpinnerLike, ProgressBarLike } from "./types";
 
 export class CliUI {
   private spinner?: Ora;

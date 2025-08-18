@@ -18,18 +18,19 @@ export function SetupSection() {
             <div>
               <h3 className="mb-4 text-2xl font-semibold">2. Import and Use</h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { style, themes } from 'logsdx'
+                <pre>{`import { getLogsDX } from 'logsdx'
 
 // Use a built-in theme
-const styledLog = style('Hello World', { 
-  theme: themes.dracula 
-})
+const logger = getLogsDX('dracula')
 
 // Terminal output (ANSI)
-console.log(styledLog.ansi)
+console.log(logger.processLine('ERROR: Hello World'))
 
 // Browser output (HTML)
-document.body.innerHTML = styledLog.html`}</pre>
+const htmlLogger = getLogsDX('dracula', {
+  outputFormat: 'html'
+})
+const safeHTML = htmlLogger.processLine('ERROR: Hello World')`}</pre>
               </div>
             </div>
 
@@ -38,18 +39,22 @@ document.body.innerHTML = styledLog.html`}</pre>
                 3. Create Custom Themes
               </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { createTheme } from 'logsdx'
+                <pre>{`import { createTheme, registerTheme, getLogsDX } from 'logsdx'
 
 const myTheme = createTheme({
   name: 'my-theme',
-  colorPalette: {
+  colors: {
     primary: '#3b82f6',
     success: '#10b981',
     warning: '#f59e0b',
     error: '#ef4444',
   },
-  presets: ['logLevels', 'booleans'],
-})`}</pre>
+  presets: ['logLevels', 'timestamps'],
+})
+
+// Register and use the theme
+registerTheme(myTheme)
+const logger = getLogsDX('my-theme')`}</pre>
               </div>
             </div>
           </div>

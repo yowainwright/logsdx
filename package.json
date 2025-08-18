@@ -2,9 +2,19 @@
   "name": "logsdx",
   "version": "0.1.1",
   "private": false,
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "packageManager": "bun@1.2.9",
+  "workspaces": [
+    "site"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "files": [
     "dist/"
   ],
@@ -22,7 +32,24 @@
     "check": "bun run lint && bun run format:check && bun run test",
     "generate-css": "bun run scripts/generate-css.ts",
     "generate-schema": "bun run scripts/generate-schema.ts",
-    "demo": "bun run demo-dracula-consistency.js"
+    "demo": "bun run demo-dracula-consistency.js",
+    "turbo:build": "turbo run build",
+    "turbo:dev": "turbo run dev",
+    "site:dev": "cd site && bun run dev",
+    "site:build": "cd site && bun run build",
+    "site:start": "cd site && bun run start",
+    "dev": "cd site && bun run dev",
+    "dev:site": "cd site && bun run dev",
+    "build:site": "cd site && bun run build",
+    "create-theme": "bun run src/cli/index.ts theme create"
+  },
+  "homepage": "https://jeffry.in/logsdx",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yowainwright/logsdx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yowainwright/logsdx/issues"
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
@@ -30,8 +57,10 @@
     "@types/figlet": "^1.7.0",
     "@types/node": "^24.0.0",
     "oxlint": "^0.15.0",
+    "pino": "^9.9.0",
     "prettier": "^3.5.3",
     "tsconfig-paths": "^4.2.0",
+    "turbo": "^2.5.6",
     "typescript": "^5.0.0"
   },
   "dependencies": {

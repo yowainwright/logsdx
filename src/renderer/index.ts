@@ -456,6 +456,20 @@ export function renderLines(
 // Export light box functions
 export { renderLightBox, renderLightBoxLine, isLightTheme } from "./light-box";
 
+// Export background detection functions
+export {
+  detectBackground,
+  detectTerminalBackground,
+  detectBrowserBackground,
+  detectSystemBackground,
+  isDarkBackground,
+  isLightBackground,
+  getRecommendedThemeMode,
+  watchBackgroundChanges,
+  type BackgroundInfo,
+  type ColorScheme,
+} from "./detect-background";
+
 export default {
   renderLine,
   renderLines,

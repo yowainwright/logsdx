@@ -18,12 +18,9 @@ import {
   renderLightBox,
   renderLightBoxLine,
   isLightTheme as isLightThemeRenderer,
+  isDarkBackground,
+  getRecommendedThemeMode,
 } from "./renderer";
-import {
-  isTerminalDark,
-  adjustThemeForTerminal,
-  getTerminalAdjustedTheme,
-} from "./terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
@@ -46,23 +43,36 @@ export class LogsDX {
     };
 
     if (typeof this.options.theme === "string") {
-      // For terminal output, adjust theme if needed
+      this.currentTheme = getTheme(this.options.theme);
+
       if (
         this.options.outputFormat === "ansi" &&
         this.options.autoAdjustTerminal !== false &&
         typeof process !== "undefined"
       ) {
-        const adjustedThemeName = getTerminalAdjustedTheme(this.options.theme);
-        this.currentTheme = getTheme(adjustedThemeName);
+        const recommendedMode = getRecommendedThemeMode();
+        const currentThemeMode = this.currentTheme.mode || "dark";
 
-        // Additional adjustment for terminal visibility
-        const terminalIsDark = isTerminalDark();
-        this.currentTheme = adjustThemeForTerminal(
-          this.currentTheme,
-          terminalIsDark,
-        );
-      } else {
-        this.currentTheme = getTheme(this.options.theme);
+        if (currentThemeMode !== recommendedMode) {
+          const themeName = this.options.theme;
+          let alternateThemeName: string;
+
+          if (themeName.includes("-dark")) {
+            alternateThemeName = themeName.replace("-dark", "-light");
+          } else if (themeName.includes("-light")) {
+            alternateThemeName = themeName.replace("-light", "-dark");
+          } else {
+            alternateThemeName =
+              recommendedMode === "dark"
+                ? `${themeName}-dark`
+                : `${themeName}-light`;
+          }
+
+          const alternateTheme = getAllThemes()[alternateThemeName];
+          if (alternateTheme) {
+            this.currentTheme = alternateTheme;
+          }
+        }
       }
     } else {
       this.currentTheme = this.options.theme;
@@ -278,6 +288,19 @@ export {
   renderLightBoxLine,
   isLightThemeRenderer as isLightThemeStyle,
 };
+
+export {
+  detectBackground,
+  detectTerminalBackground,
+  detectBrowserBackground,
+  detectSystemBackground,
+  isDarkBackground,
+  isLightBackground,
+  getRecommendedThemeMode,
+  watchBackgroundChanges,
+  type BackgroundInfo,
+  type ColorScheme,
+} from "./renderer";
 
 // Export adaptive theming utilities
 export {

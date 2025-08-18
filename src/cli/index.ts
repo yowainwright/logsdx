@@ -6,7 +6,6 @@ import {
   type CliOptions,
   type CommanderOptions,
   cliOptionsSchema,
-  commanderOptionsSchema,
 } from "@/src/cli/types";
 import type { LogsDXOptions } from "@/src/types";
 import { version } from "../../package.json";
@@ -16,12 +15,8 @@ import {
   runThemeGenerator,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "./theme-generator";
-import {
-  exportTheme,
-  importTheme,
-  listThemeFiles,
-} from "./theme-import-export";
+} from "./theme/generator";
+import { exportTheme, importTheme, listThemeFiles } from "./theme/transporter";
 
 export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {
@@ -192,7 +187,7 @@ export async function main(
   input: string | undefined,
   rawOptions: CommanderOptions,
 ): Promise<void> {
-  const validatedOptions = commanderOptionsSchema.parse(rawOptions);
+  const validatedOptions = cliOptionsSchema.parse(rawOptions);
 
   const options: CliOptions = cliOptionsSchema.parse({
     input,

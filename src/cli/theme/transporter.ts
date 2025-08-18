@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { ui } from "./ui";
+import { ui } from "../ui";
 import { select, input, confirm } from "@inquirer/prompts";
-import { registerTheme, getAllThemes, getTheme } from "../themes";
-import type { Theme } from "../types";
-import { themePresetSchema } from "../schema";
+import { registerTheme, getAllThemes, getTheme } from "../../themes";
+import type { Theme } from "../../types";
+import { themePresetSchema } from "../../schema";
 import chalk from "chalk";
 
 export async function exportTheme(themeName?: string): Promise<void> {
@@ -71,6 +71,71 @@ export async function exportTheme(themeName?: string): Promise<void> {
       `Failed to export theme: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+}
+
+export function exportThemeToFile(
+  theme: Theme,
+  filePath: string,
+  format: "json" | "typescript" = "json",
+): void {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  if (format === "typescript") {
+    const tsContent = `import type { Theme } from "logsdx";
+
+export const theme: Theme = ${JSON.stringify(theme, null, 2)};
+
+export default theme;
+`;
+    fs.writeFileSync(filePath, tsContent);
+  } else {
+    fs.writeFileSync(filePath, JSON.stringify(theme, null, 2));
+  }
+}
+
+export function importThemeFromFile(filePath: string): Theme {
+  const fileContent = fs.readFileSync(filePath, "utf8");
+
+  if (filePath.endsWith(".ts") || filePath.endsWith(".js")) {
+    // Try to extract JSON object from TypeScript/JavaScript file
+    // Look for patterns like: export const theme = {...} or export default {...}
+    const patterns = [
+      /export\s+const\s+\w+\s*:\s*\w+\s*=\s*(\{[\s\S]*?\})\s*;?\s*$/m,
+      /export\s+default\s+(\{[\s\S]*?\})\s*;?\s*$/m,
+      /=\s*(\{[\s\S]*?\})\s*;?\s*export\s+default/m,
+    ];
+
+    for (const pattern of patterns) {
+      const match = fileContent.match(pattern);
+      if (match) {
+        try {
+          // Clean up the JSON string
+          const jsonStr = match[1]
+            .replace(/^\s+/gm, "") // Remove leading whitespace
+            .replace(/\s+$/gm, "") // Remove trailing whitespace
+            .trim();
+          return JSON.parse(jsonStr);
+        } catch {
+          // If JSON.parse fails, try eval as fallback
+          try {
+            return eval(`(${match[1]})`);
+          } catch {
+            continue;
+          }
+        }
+      }
+    }
+    throw new Error("Could not parse TypeScript/JavaScript theme file");
+  }
+
+  const parsed = JSON.parse(fileContent);
+  if (!parsed.name || !parsed.schema) {
+    throw new Error("Invalid theme: missing required fields");
+  }
+  return parsed;
 }
 
 export async function importTheme(filename?: string): Promise<void> {
@@ -176,7 +241,7 @@ async function previewImportedTheme(theme: Theme) {
   ];
 
   // Temporarily register the theme for preview
-  const { LogsDX } = await import("../index");
+  const { LogsDX } = await import("../../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({
     theme: theme.name,
@@ -205,7 +270,41 @@ async function previewImportedTheme(theme: Theme) {
   );
 }
 
-export function listThemeFiles(directory = "."): void {
+export function getThemeFiles(directory = "."): string[] {
+  try {
+    if (!fs.existsSync(directory)) {
+      return [];
+    }
+
+    const files: string[] = [];
+
+    function scanDir(dir: string) {
+      const items = fs.readdirSync(dir, { withFileTypes: true });
+      for (const item of items) {
+        const fullPath = path.join(dir, item.name);
+        if (item.isDirectory()) {
+          scanDir(fullPath);
+        } else if (
+          item.name.endsWith(".theme.json") ||
+          item.name.endsWith(".theme.ts") ||
+          (item.name.includes("theme") &&
+            (item.name.endsWith(".json") || item.name.endsWith(".ts")))
+        ) {
+          files.push(fullPath);
+        }
+      }
+    }
+
+    scanDir(directory);
+    return files;
+  } catch {
+    return [];
+  }
+}
+
+export { getThemeFiles as listThemeFiles };
+
+export function listThemeFilesCommand(directory = "."): void {
   try {
     const files = fs
       .readdirSync(directory)

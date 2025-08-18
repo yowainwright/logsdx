@@ -17,13 +17,13 @@ export function ExamplesSection() {
                   <h4 className="mb-2 font-medium">Winston</h4>
                   <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
                     <pre>{`import winston from 'winston'
-import { style, themes } from 'logsdx'
+import { getLogsDX } from 'logsdx'
+
+const logsDX = getLogsDX('dracula')
 
 const logger = winston.createLogger({
   format: winston.format.printf(info => {
-    return style(info.message, { 
-      theme: themes.dracula 
-    }).ansi
+    return logsDX.processLine(info.message)
   })
 })`}</pre>
                   </div>
@@ -33,16 +33,16 @@ const logger = winston.createLogger({
                   <h4 className="mb-2 font-medium">Pino</h4>
                   <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
                     <pre>{`import pino from 'pino'
-import { style, themes } from 'logsdx'
+import { getLogsDX } from 'logsdx'
+
+const logsDX = getLogsDX('dracula')
 
 const logger = pino({
   transport: {
     target: 'pino-pretty',
     options: {
       customPrettifiers: {
-        log: msg => style(msg, { 
-          theme: themes.dracula 
-        }).ansi
+        log: msg => logsDX.processLine(msg)
       }
     }
   }
@@ -57,35 +57,41 @@ const logger = pino({
                 Advanced Theme Configuration
               </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { createTheme } from 'logsdx'
+                <pre>{`// Using createTheme helper
+import { createTheme } from 'logsdx'
 
-const advancedTheme = createTheme({
-  name: 'custom-advanced',
-  colorPalette: {
+const simpleTheme = createTheme({
+  name: 'my-custom',
+  colors: {
     primary: '#3b82f6',
-    secondary: '#8b5cf6',
-    success: '#10b981',
-    warning: '#f59e0b',
     error: '#ef4444',
+    warning: '#f59e0b',
+    success: '#10b981',
     info: '#06b6d4',
+    muted: '#6b7280'
   },
-  customWords: {
-    'CRITICAL': { color: '#dc2626', background: '#fef2f2', bold: true },
-    'TODO': { color: '#7c3aed', underline: true },
-    'DEPRECATED': { color: '#6b7280', strikethrough: true },
-  },
-  patterns: [
-    {
-      regex: /\\b(GET|POST|PUT|DELETE)\\b/g,
-      style: { color: '#3b82f6', bold: true }
+  presets: ['logLevels', 'timestamps', 'numbers']
+})
+
+// Or define full schema manually
+const advancedTheme = {
+  name: 'advanced',
+  mode: 'dark',
+  schema: {
+    defaultStyle: { color: '#e0e0e0' },
+    matchWords: {
+      'CRITICAL': { color: '#dc2626', styleCodes: ['bold', 'blink'] },
+      'TODO': { color: '#7c3aed', styleCodes: ['underline'] }
     },
-    {
-      regex: /\\d{3}\\s(OK|Created|Bad Request|Not Found)/g,
-      style: { color: '#10b981', background: '#d1fae5' }
-    }
-  ],
-  presets: ['logLevels', 'booleans', 'numbers', 'dates', 'urls', 'brackets']
-})`}</pre>
+    matchPatterns: [
+      {
+        name: 'http-methods',
+        pattern: '\\\\b(GET|POST|PUT|DELETE)\\\\b',
+        options: { color: '#3b82f6', styleCodes: ['bold'] }
+      }
+    ]
+  }
+}`}</pre>
               </div>
             </div>
 
@@ -94,23 +100,28 @@ const advancedTheme = createTheme({
                 Browser Console Integration
               </h3>
               <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { style, themes } from 'logsdx'
+                <pre>{`import { getLogsDX } from 'logsdx'
 
-// Override console methods for styled output
-const originalLog = console.log
-console.log = (...args) => {
-  const styled = args.map(arg => 
-    typeof arg === 'string' 
-      ? style(arg, { theme: themes.dracula }).html
-      : arg
-  )
-  originalLog(...styled)
+// Create HTML logger for browser
+const logger = getLogsDX('dracula', {
+  outputFormat: 'html',
+  htmlStyleFormat: 'css'
+})
+
+// Safe rendering example (no innerHTML)
+function renderLog(message) {
+  const styledHTML = logger.processLine(message)
+  // styledHTML contains escaped HTML with inline styles
+  // Use a safe rendering method in your framework
+  return styledHTML
 }
 
-// Now all console.log calls are styled!
-console.log('Server started successfully')
-console.log('Warning: API rate limit approaching')
-console.log('Error: Connection timeout')`}</pre>
+// Example outputs:
+renderLog('ERROR: Connection failed')
+// <span style="color: #ff4444; font-weight: bold">ERROR</span>: Connection failed
+
+renderLog('INFO: Server started on port 3000')
+// <span style="color: #00aaff">INFO</span>: Server started on port 3000`}</pre>
               </div>
             </div>
           </div>

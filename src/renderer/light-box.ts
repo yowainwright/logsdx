@@ -1,8 +1,5 @@
-/**
- * Light box rendering utilities for displaying light themes in dark terminals
- */
-
 import { Theme } from "../types";
+import { isDarkBackground } from "./detect-background";
 
 export interface LightBoxOptions {
   /** Width of the box (default: 80) */
@@ -177,15 +174,6 @@ export function isLightTheme(theme: Theme | string): boolean {
   );
 }
 
-/**
- * Check if terminal is dark (simplified check)
- */
 export function isTerminalDark(): boolean {
-  return (
-    process.env.COLORFGBG?.includes("0;") ||
-    process.env.TERM_PROGRAM === "iTerm.app" ||
-    process.env.TERM_PROGRAM === "WarpTerminal" ||
-    process.env.TERM_PROGRAM === "Hyper" ||
-    !process.env.COLORFGBG
-  ); // Default to dark if unknown
+  return isDarkBackground();
 }

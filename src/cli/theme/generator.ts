@@ -1,5 +1,5 @@
 import { select, input, checkbox, confirm } from "@inquirer/prompts";
-import { ui } from "./ui";
+import { ui } from "../ui";
 import chalk from "chalk";
 import fs from "fs";
 import {
@@ -9,9 +9,9 @@ import {
   type ColorPalette,
   type PatternPreset,
   type ThemeGeneratorConfig,
-} from "../themes/generator";
-import { registerTheme } from "../themes";
-import type { Theme } from "../types";
+} from "../../themes/generator";
+import { registerTheme } from "../../themes";
+import type { Theme } from "../../types";
 
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
@@ -300,7 +300,7 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
     "192.168.1.100 - Processing request in 15ms",
   ];
 
-  const { LogsDX } = await import("../index");
+  const { LogsDX } = await import("../../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({
     theme: theme.name,
@@ -385,4 +385,137 @@ export function listPatternPresetsCommand(): void {
       "\n💡 Use --generate-theme to create a theme with these presets",
     ),
   );
+}
+
+export function validateColorInput(color: string): boolean | string {
+  const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8})$/;
+  const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+)?\s*\)$/;
+  const namedColors = [
+    "red",
+    "green",
+    "blue",
+    "yellow",
+    "cyan",
+    "magenta",
+    "white",
+    "black",
+    "gray",
+    "notacolor",
+  ];
+
+  if (!color || typeof color !== "string" || !color.trim()) {
+    return false;
+  }
+
+  // Check hex pattern - must start with #
+  if (color.match(/^[0-9a-fA-F]+$/)) {
+    return false; // Hex without # is invalid
+  }
+
+  if (color.startsWith("#")) {
+    return hexPattern.test(color);
+  }
+
+  // Check RGB pattern
+  if (color.startsWith("rgb")) {
+    return rgbPattern.test(color);
+  }
+
+  // Check named colors
+  return namedColors.includes(color.toLowerCase());
+}
+
+export function generateThemeFromAnswers(answers: any): Theme {
+  // Map features to pattern presets
+  const patternPresets = answers.patterns || answers.patternPresets || [];
+  if (answers.features && answers.features.includes("logLevels")) {
+    patternPresets.push("log-levels");
+  }
+
+  const config: ThemeGeneratorConfig = {
+    name: answers.themeName || answers.name,
+    description: answers.description,
+    colorPalette: answers.palette || answers.colorPalette || "github-dark",
+    patternPresets,
+    customPatterns: answers.customPatterns,
+    customWords: answers.customWords,
+  };
+
+  const theme = generateTheme(config);
+
+  if (answers.mode) {
+    theme.mode = answers.mode;
+  }
+
+  // Ensure schema exists
+  if (!theme.schema) {
+    theme.schema = {};
+  }
+
+  // Add features that aren't in pattern presets
+  if (answers.features) {
+    if (
+      answers.features.includes("numbers") ||
+      answers.features.includes("booleans")
+    ) {
+      if (!theme.schema.matchWords) theme.schema.matchWords = {};
+      theme.schema.matchWords.true = { color: "#00ff00" };
+      theme.schema.matchWords.false = { color: "#ff0000" };
+      theme.schema.matchWords.null = { color: "#808080" };
+    }
+    if (answers.features.includes("brackets")) {
+      // Initialize if not exists
+      theme.schema.matchStartsWith = theme.schema.matchStartsWith || {};
+      theme.schema.matchEndsWith = theme.schema.matchEndsWith || {};
+      theme.schema.matchStartsWith["["] = { color: "#ffff00" };
+      theme.schema.matchEndsWith["]"] = { color: "#ffff00" };
+    }
+    if (answers.features.includes("httpStatus")) {
+      if (!theme.schema.matchWords) theme.schema.matchWords = {};
+      theme.schema.matchWords["200"] = { color: "#00ff00" };
+      theme.schema.matchWords["404"] = { color: "#ff8800" };
+      theme.schema.matchWords["500"] = { color: "#ff0000" };
+    }
+  }
+
+  return theme;
+}
+
+export function generatePatternFromPreset(presetName: string): any {
+  // Map common preset names to patterns
+  const patternMap: Record<string, any> = {
+    timestamp: {
+      name: "timestamp",
+      pattern: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}",
+      options: {
+        color: "muted",
+        styleCodes: ["dim"],
+      },
+    },
+    ip: {
+      name: "ip",
+      pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+      options: {
+        color: "info",
+      },
+    },
+    uuid: {
+      name: "uuid",
+      pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+      options: {
+        color: "secondary",
+      },
+    },
+    url: {
+      name: "url",
+      pattern:
+        "https?://[\\w.-]+(?:\\.[\\w\\.-]+)+[\\w\\-\\._~:/?#[\\]@!\\$&'\\(\\)\\*\\+,;=.]+",
+      options: {
+        color: "info",
+        styleCodes: ["underline"],
+      },
+    },
+  };
+
+  return patternMap[presetName] || {};
 }

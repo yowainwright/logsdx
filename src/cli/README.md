@@ -1,17 +1,32 @@
-# `@logsdx/cli`
+# LogsDX CLI
 
-The LogsDX CLI is a command-line interface for processing and formatting logs in a termainal with schema based syntax highlighting.
+LogsDX CLI provides command-line tools for applying isomorphic themes to logs, with features for theme creation, real-time processing, and multi-format output.
+
+## File Structure
+
+```
+src/cli/
+├── index.ts              # Main CLI entry point and command definitions
+├── interactive.ts        # Interactive mode for live log viewing
+├── ui.ts                # UI components (banners, spinners, boxes)
+├── types.ts             # TypeScript types and interfaces
+├── theme/               # Theme management
+│   ├── generator.ts     # Interactive theme creator
+│   └── transporter.ts   # Theme import/export functionality
+└── commands/            # Command implementations
+    └── theme.ts         # Theme command with subcommands
+```
 
 ## Features
 
-- **Syntax Highlighting**: Automatically detects and highlights code blocks in logs
-- **Log Level Styling**: Color-codes log entries based on their level (error, warn, info, debug, etc.)
-- **Custom Parsers**: Extensible parser system for different log formats
-- **Multiple Output Formats**: View logs in the terminal or save to files
-- **Filtering**: Filter logs by minimum log level
-- **JSON Formatting**: Pretty-prints JSON content in logs with syntax highlighting
-- **Theme Support**: Multiple built-in themes and custom theme support
-- **Configuration**: Customizable through config files and command-line options
+- **Isomorphic Themes**: Themes work identically in terminal (ANSI) and browser (HTML)
+- **Theme Creation**: Interactive wizard for creating custom themes with live preview
+- **Real-time Processing**: Stream and process logs as they're generated
+- **Multi-format Output**: ANSI for terminal, HTML with CSS or class names for web
+- **Interactive Mode**: Live viewing with theme switching and keyboard navigation
+- **Import/Export**: Share themes as JSON or TypeScript modules
+- **WCAG Compliance**: Built-in accessibility checking for color contrast
+- **Pattern Matching**: Regex-based highlighting with multiple matching strategies
 
 ## Installation
 

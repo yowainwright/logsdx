@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { parseArgs, loadConfig } from "./index";
-import { cliOptionsSchema, commanderOptionsSchema } from "./types";
+import { cliOptionsSchema } from "./types";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -259,7 +259,7 @@ describe("Zod schema validation", () => {
     expect(() => cliOptionsSchema.parse(invalidOptions)).toThrow();
   });
 
-  test("commanderOptionsSchema should validate commander options", () => {
+  test("cliOptionsSchema should validate commander options", () => {
     const commanderOptions = {
       theme: "oh-my-zsh",
       debug: true,
@@ -267,7 +267,7 @@ describe("Zod schema validation", () => {
       format: "html",
     };
 
-    const result = commanderOptionsSchema.parse(commanderOptions);
+    const result = cliOptionsSchema.parse(commanderOptions);
     expect(result.theme).toBe("oh-my-zsh");
     expect(result.debug).toBe(true);
     expect(result.interactive).toBe(false);
