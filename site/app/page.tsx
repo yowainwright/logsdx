@@ -5,6 +5,7 @@ import { ThemeShowcase } from "@/components/theme-showcase";
 import { ProblemSection } from "@/components/problem-section";
 import { SetupSection } from "@/components/setup-section";
 import { ExamplesSection } from "@/components/examples-section";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -31,6 +32,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      {/* Theme toggle positioned in top right corner */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* New Theme Showcase with Headline Overlay */}
       <ThemeShowcase
         themes={themes}
