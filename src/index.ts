@@ -9,6 +9,7 @@ import type {
   ParsedLine,
   StyleOptions,
   Theme,
+  ThemePair,
   LogsDXOptions,
 } from "./types";
 import {
@@ -25,7 +26,7 @@ import {
 export class LogsDX {
   private static instance: LogsDX | null = null;
   private options: Required<LogsDXOptions>;
-  private currentTheme: Theme;
+  private currentTheme!: Theme;
 
   /**
    * Create a new LogsDX instance
@@ -74,8 +75,32 @@ export class LogsDX {
           }
         }
       }
-    } else {
-      this.currentTheme = this.options.theme;
+    } else if (this.options.theme && "light" in this.options.theme && "dark" in this.options.theme) {
+      const themePair = this.options.theme as ThemePair;
+      
+      if (
+        this.options.outputFormat === "ansi" &&
+        this.options.autoAdjustTerminal !== false &&
+        typeof process !== "undefined"
+      ) {
+        const recommendedMode = getRecommendedThemeMode();
+        const selectedTheme = recommendedMode === "light" ? themePair.light : themePair.dark;
+        
+        if (typeof selectedTheme === "string") {
+          this.currentTheme = getTheme(selectedTheme);
+        } else {
+          this.currentTheme = selectedTheme;
+        }
+      } else {
+        const selectedTheme = themePair.dark;
+        if (typeof selectedTheme === "string") {
+          this.currentTheme = getTheme(selectedTheme);
+        } else {
+          this.currentTheme = selectedTheme;
+        }
+      }
+    } else if (this.options.theme) {
+      this.currentTheme = this.options.theme as Theme;
     }
 
     if (
@@ -110,11 +135,7 @@ export class LogsDX {
 
       // If theme changed, update the current theme
       if (options.theme) {
-        if (typeof options.theme === "string") {
-          LogsDX.instance.currentTheme = getTheme(options.theme);
-        } else {
-          LogsDX.instance.currentTheme = options.theme;
-        }
+        LogsDX.instance.setTheme(options.theme);
       }
     }
     return LogsDX.instance;
@@ -186,17 +207,28 @@ export class LogsDX {
 
   /**
    * Set the current theme
-   * @param theme Theme name or custom theme configuration
+   * @param theme Theme name, custom theme configuration, or theme pair
    * @returns True if theme was valid and applied, false otherwise
    */
-  setTheme(theme: string | Theme): boolean {
+  setTheme(theme: string | Theme | ThemePair): boolean {
     try {
       if (typeof theme === "string") {
         this.options.theme = theme;
         this.currentTheme = getTheme(theme);
         return true;
+      } else if ("light" in theme && "dark" in theme) {
+        // Handle ThemePair
+        this.options.theme = theme;
+        const recommendedMode = getRecommendedThemeMode();
+        const selectedTheme = recommendedMode === "light" ? theme.light : theme.dark;
+        if (typeof selectedTheme === "string") {
+          this.currentTheme = getTheme(selectedTheme);
+        } else {
+          this.currentTheme = selectedTheme;
+        }
+        return true;
       } else {
-        const validatedTheme = validateTheme(theme);
+        const validatedTheme = validateTheme(theme as Theme);
         this.currentTheme = validatedTheme;
         return true;
       }
@@ -269,7 +301,7 @@ export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }
 
-export type { Theme, StyleOptions, TokenList, LineParser, ParsedLine };
+export type { Theme, ThemePair, StyleOptions, TokenList, LineParser, ParsedLine };
 
 export {
   getTheme,
@@ -301,17 +333,5 @@ export {
   type BackgroundInfo,
   type ColorScheme,
 } from "./renderer";
-
-// Export adaptive theming utilities
-export {
-  detectColorScheme,
-  detectHighContrast,
-  detectReducedMotion,
-  getAdaptiveTheme,
-  AdaptiveLogger,
-  generateThemeProperties,
-  injectAdaptiveCSS,
-  THEME_VARIANTS,
-} from "./adaptive";
 
 export default LogsDX;

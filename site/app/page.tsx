@@ -7,7 +7,6 @@ import { ThemeShowcase } from "@/components/theme-showcase";
 import { ProblemSection } from "@/components/problem-section";
 import { SetupSection } from "@/components/setup-section";
 import { ExamplesSection } from "@/components/examples-section";
-import { AdaptiveThemeDemo } from "@/components/adaptive-theme-demo";
 // import { CustomThemeExamples } from "@/components/custom-theme-examples"
 
 export default function Home() {
@@ -81,7 +80,6 @@ export default function Home() {
             </p>
           </div>
           <div className="flex justify-center">
-            <AdaptiveThemeDemo />
           </div>
         </div>
       </section>

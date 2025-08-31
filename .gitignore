@@ -145,3 +145,4 @@ dist
 
 # Example lock files (use root bun.lock)
 examples/*/bun.lock
+.turbo

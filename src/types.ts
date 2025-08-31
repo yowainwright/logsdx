@@ -58,8 +58,13 @@ export interface Theme {
 
 export type ThemePreset = Theme;
 
+export interface ThemePair {
+  light: string | Theme;
+  dark: string | Theme;
+}
+
 export interface LogsDXOptions {
-  theme?: string | Theme;
+  theme?: string | Theme | ThemePair;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
   debug?: boolean;
