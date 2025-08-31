@@ -39,8 +39,6 @@
     "site:build": "cd site && bun run build",
     "site:start": "cd site && bun run start",
     "dev": "cd site && bun run dev",
-    "dev:site": "cd site && bun run dev",
-    "build:site": "cd site && bun run build",
     "create-theme": "bun run src/cli/index.ts theme create"
   },
   "homepage": "https://jeffry.in/logsdx",

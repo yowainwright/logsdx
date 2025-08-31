@@ -48,19 +48,49 @@ cat input.log | logsdx
 
 # Save output to a file
 logsdx input.log --output formatted.log
+
+# Interactive mode
+logsdx --interactive
+logsdx -i
 ```
 
 ### Command Line Options
 
-- `-q, --quiet`: Suppress all output except errors
-- `-d, --debug`: Enable debug mode
-- `-l, --level <level>`: Minimum log level to display (default: "info")
-- `-p, --parser <parser>`: Parser to use for log parsing (default: "default")
-- `-r, --rules <file>`: Path to custom rules file
-- `-o, --output <file>`: Path to output file
-- `--list-parsers`: List available parsers
 - `-t, --theme <theme>`: Theme to use (default, dark, light, minimal, or custom theme name)
 - `--list-themes`: List available themes
+- `-o, --output <file>`: Path to output file
+- `-f, --format <format>`: Output format (ansi or html)
+- `-i, --interactive`: Start interactive mode with live preview
+- `-p, --preview`: Preview theme with sample logs
+- `--config <file>`: Path to configuration file
+- `--no-spinner`: Disable loading spinners
+- `-q, --quiet`: Suppress all output except errors
+- `-d, --debug`: Enable debug mode
+
+### Theme Commands
+
+```bash
+# Create a new theme interactively
+logsdx theme create
+
+# Generate theme from color palette and patterns
+logsdx theme generate
+
+# List available color palettes
+logsdx theme palettes
+
+# List available pattern presets
+logsdx theme patterns
+
+# Export a theme to file
+logsdx theme export <theme-name> [output-file]
+
+# Import a theme from file
+logsdx theme import <file> [theme-name]
+
+# List theme files in current directory
+logsdx theme list-files
+```
 
 ### Log Levels
 
@@ -103,11 +133,39 @@ logsdx input.log --theme dark
 
 # Use a custom theme
 logsdx input.log --theme my-custom-theme
+
+# Preview a theme before using it
+logsdx --theme oceanic --preview
 ```
 
-### Custom Rules
+### Interactive Mode
 
 ```bash
-# Use custom parsing rules
-logsdx input.log --rules my-rules.json
+# Start interactive mode for live log viewing
+logsdx --interactive
+
+# Interactive mode with a specific theme
+logsdx -i --theme dracula
+
+# Interactive mode with HTML output
+logsdx -i --format html
+```
+
+### Theme Creation and Management
+
+```bash
+# Create a new theme with the interactive wizard
+logsdx theme create
+
+# Generate a theme from presets
+logsdx theme generate
+
+# Export your custom theme
+logsdx theme export my-theme ./my-theme.json
+
+# Import a theme from a file
+logsdx theme import ./downloaded-theme.json cool-theme
+
+# List all theme files in current directory
+logsdx theme list-files
 ```

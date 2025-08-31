@@ -1,13 +1,13 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { LogsDX, getThemeNames } from "@/src/index";
+import { LogsDX, getThemeNames } from "../index";
 import {
   type CliOptions,
   type CommanderOptions,
   cliOptionsSchema,
-} from "@/src/cli/types";
-import type { LogsDXOptions } from "@/src/types";
+} from "./types";
+import type { LogsDXOptions } from "../types";
 import { version } from "../../package.json";
 import { ui } from "./ui";
 import type { InteractiveConfig } from "./interactive";

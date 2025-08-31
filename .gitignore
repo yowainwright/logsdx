@@ -142,3 +142,6 @@ dist
 .cursor
 .claude
 .kiro
+
+# Example lock files (use root bun.lock)
+examples/*/bun.lock

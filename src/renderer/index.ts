@@ -1,6 +1,6 @@
-import { TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
-import { tokenize, applyTheme } from "@/src/tokenizer";
+import { TokenList } from "../schema/types";
+import { Theme } from "../types";
+import { tokenize, applyTheme } from "../tokenizer";
 import {
   BACKGROUND_COLORS,
   STYLE_CODES,

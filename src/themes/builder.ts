@@ -3,8 +3,8 @@ import type {
   SchemaConfig,
   StyleOptions,
   PatternMatch,
-} from "@/src/types";
-import { filterStyleCodes } from "@/src/types";
+} from "../types";
+import { filterStyleCodes } from "../types";
 
 export interface ColorPalette {
   primary?: string;

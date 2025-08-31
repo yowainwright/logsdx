@@ -1,6 +1,6 @@
-import { Token, TokenList } from "@/src/schema/types";
-import { Theme } from "@/src/types";
-import { MatcherType } from "@/src/tokenizer/types";
+import { Token, TokenList } from "../schema/types";
+import { Theme } from "../types";
+import { MatcherType } from "./types";
 
 /**
  * Simple token context for rule matching

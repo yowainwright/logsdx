@@ -1,5 +1,5 @@
-import type { Theme } from "@/src/types";
-import { THEMES, DEFAULT_THEME } from "@/src/themes/constants";
+import type { Theme } from "../types";
+import { THEMES, DEFAULT_THEME } from "./constants";
 import {
   createTheme,
   createSimpleTheme,
@@ -8,8 +8,8 @@ import {
   ThemeBuilder,
   checkWCAGCompliance,
   adjustThemeForAccessibility,
-} from "@/src/themes/builder";
-import type { ColorPalette, SimpleThemeConfig } from "@/src/themes/builder";
+} from "./builder";
+import type { ColorPalette, SimpleThemeConfig } from "./builder";
 
 /**
  * Get a theme by name
