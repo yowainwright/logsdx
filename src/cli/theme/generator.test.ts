@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "bun:test";
+import { describe, it, expect } from "bun:test";
 import {
   generateThemeFromAnswers,
   validateColorInput,
@@ -87,7 +87,7 @@ describe("Theme Generator", () => {
         patterns: [],
       });
 
-      const githubLightPalette = COLOR_PALETTES.find(
+      COLOR_PALETTES.find(
         (p) => p.name === "github-light",
       );
       expect(theme.schema.defaultStyle?.color).toBeDefined();

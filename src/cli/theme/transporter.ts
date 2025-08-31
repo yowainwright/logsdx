@@ -119,12 +119,7 @@ export function importThemeFromFile(filePath: string): Theme {
             .trim();
           return JSON.parse(jsonStr);
         } catch {
-          // If JSON.parse fails, try eval as fallback
-          try {
-            return eval(`(${match[1]})`);
-          } catch {
-            continue;
-          }
+          continue;
         }
       }
     }

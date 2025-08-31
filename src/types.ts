@@ -1,3 +1,6 @@
+/**
+ * Style codes that can be applied to text
+ */
 export type StyleCode =
   | "bold"
   | "italic"
@@ -7,9 +10,15 @@ export type StyleCode =
   | "reverse"
   | "strikethrough";
 
+/**
+ * Options for styling text in logs
+ */
 export interface StyleOptions {
+  /** The color to apply (hex, rgb, or color name) */
   color: string;
+  /** Optional style codes to apply */
   styleCodes?: StyleCode[];
+  /** Format for HTML output */
   htmlStyleFormat?: "css" | "className";
 }
 
@@ -58,8 +67,14 @@ export interface Theme {
 
 export type ThemePreset = Theme;
 
+/**
+ * Theme pair for automatic light/dark mode switching
+ * Allows specifying different themes for light and dark environments
+ */
 export interface ThemePair {
+  /** Theme to use in light mode (theme name or Theme object) */
   light: string | Theme;
+  /** Theme to use in dark mode (theme name or Theme object) */
   dark: string | Theme;
 }
 

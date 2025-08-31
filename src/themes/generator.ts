@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { schemaConfigSchema, themePresetSchema } from "../schema";
 import type { ThemePreset, StyleOptions, PatternMatch } from "../types";
 import { filterStyleCodes } from "../types";
 

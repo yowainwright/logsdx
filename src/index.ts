@@ -26,7 +26,19 @@ import {
 export class LogsDX {
   private static instance: LogsDX | null = null;
   private options: Required<LogsDXOptions>;
-  private currentTheme!: Theme;
+  private currentTheme: Theme = {
+    name: "none",
+    description: "No styling applied",
+    mode: "auto",
+    schema: {
+      defaultStyle: { color: "" },
+      matchWords: {},
+      matchStartsWith: {},
+      matchEndsWith: {},
+      matchContains: {},
+      matchPatterns: [],
+    },
+  };
 
   /**
    * Create a new LogsDX instance
@@ -34,7 +46,7 @@ export class LogsDX {
    */
   private constructor(options = {}) {
     this.options = {
-      theme: "oh-my-zsh",
+      theme: "none",
       outputFormat: "ansi",
       htmlStyleFormat: "css",
       debug: false,
@@ -43,8 +55,33 @@ export class LogsDX {
       ...options,
     };
 
-    if (typeof this.options.theme === "string") {
-      this.currentTheme = getTheme(this.options.theme);
+    this.currentTheme = this.resolveTheme(this.options.theme);
+  }
+
+  /**
+   * Resolve theme from various input formats
+   * @param theme Theme input in various formats
+   * @returns Resolved Theme object
+   */
+  private resolveTheme(theme: string | Theme | ThemePair | undefined): Theme {
+    if (!theme || theme === "none") {
+      return {
+        name: "none",
+        description: "No styling applied",
+        mode: "auto",
+        schema: {
+          defaultStyle: { color: "" },
+          matchWords: {},
+          matchStartsWith: {},
+          matchEndsWith: {},
+          matchContains: {},
+          matchPatterns: [],
+        },
+      };
+    }
+
+    if (typeof theme === "string") {
+      const baseTheme = getTheme(theme);
 
       if (
         this.options.outputFormat === "ansi" &&
@@ -52,31 +89,31 @@ export class LogsDX {
         typeof process !== "undefined"
       ) {
         const recommendedMode = getRecommendedThemeMode();
-        const currentThemeMode = this.currentTheme.mode || "dark";
+        const currentThemeMode = baseTheme.mode || "dark";
 
         if (currentThemeMode !== recommendedMode) {
-          const themeName = this.options.theme;
           let alternateThemeName: string;
 
-          if (themeName.includes("-dark")) {
-            alternateThemeName = themeName.replace("-dark", "-light");
-          } else if (themeName.includes("-light")) {
-            alternateThemeName = themeName.replace("-light", "-dark");
+          if (theme.includes("-dark")) {
+            alternateThemeName = theme.replace("-dark", "-light");
+          } else if (theme.includes("-light")) {
+            alternateThemeName = theme.replace("-light", "-dark");
           } else {
             alternateThemeName =
               recommendedMode === "dark"
-                ? `${themeName}-dark`
-                : `${themeName}-light`;
+                ? `${theme}-dark`
+                : `${theme}-light`;
           }
 
           const alternateTheme = getAllThemes()[alternateThemeName];
           if (alternateTheme) {
-            this.currentTheme = alternateTheme;
+            return alternateTheme;
           }
         }
       }
-    } else if (this.options.theme && "light" in this.options.theme && "dark" in this.options.theme) {
-      const themePair = this.options.theme as ThemePair;
+      return baseTheme;
+    } else if ("light" in theme && "dark" in theme) {
+      const themePair = theme as ThemePair;
       
       if (
         this.options.outputFormat === "ansi" &&
@@ -87,33 +124,40 @@ export class LogsDX {
         const selectedTheme = recommendedMode === "light" ? themePair.light : themePair.dark;
         
         if (typeof selectedTheme === "string") {
-          this.currentTheme = getTheme(selectedTheme);
+          return getTheme(selectedTheme);
         } else {
-          this.currentTheme = selectedTheme;
+          return selectedTheme;
         }
       } else {
         const selectedTheme = themePair.dark;
         if (typeof selectedTheme === "string") {
-          this.currentTheme = getTheme(selectedTheme);
+          return getTheme(selectedTheme);
         } else {
-          this.currentTheme = selectedTheme;
+          return selectedTheme;
         }
       }
-    } else if (this.options.theme) {
-      this.currentTheme = this.options.theme as Theme;
-    }
-
-    if (
-      typeof this.options.theme !== "string" ||
-      this.options.theme !== "oh-my-zsh"
-    ) {
+    } else {
+      // Direct Theme object
       try {
-        validateTheme(this.currentTheme);
+        return validateTheme(theme as Theme);
       } catch (error) {
         if (this.options.debug) {
           console.warn("Invalid custom theme:", error);
         }
-        this.currentTheme = getTheme("oh-my-zsh");
+        // Return no-op theme on validation failure
+        return {
+          name: "none",
+          description: "No styling applied",
+          mode: "auto",
+          schema: {
+            defaultStyle: { color: "" },
+            matchWords: {},
+            matchStartsWith: {},
+            matchEndsWith: {},
+            matchContains: {},
+            matchPatterns: [],
+          },
+        };
       }
     }
   }
@@ -135,7 +179,7 @@ export class LogsDX {
 
       // If theme changed, update the current theme
       if (options.theme) {
-        LogsDX.instance.setTheme(options.theme);
+        LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(options.theme);
       }
     }
     return LogsDX.instance;
@@ -212,26 +256,9 @@ export class LogsDX {
    */
   setTheme(theme: string | Theme | ThemePair): boolean {
     try {
-      if (typeof theme === "string") {
-        this.options.theme = theme;
-        this.currentTheme = getTheme(theme);
-        return true;
-      } else if ("light" in theme && "dark" in theme) {
-        // Handle ThemePair
-        this.options.theme = theme;
-        const recommendedMode = getRecommendedThemeMode();
-        const selectedTheme = recommendedMode === "light" ? theme.light : theme.dark;
-        if (typeof selectedTheme === "string") {
-          this.currentTheme = getTheme(selectedTheme);
-        } else {
-          this.currentTheme = selectedTheme;
-        }
-        return true;
-      } else {
-        const validatedTheme = validateTheme(theme as Theme);
-        this.currentTheme = validatedTheme;
-        return true;
-      }
+      this.options.theme = theme;
+      this.currentTheme = this.resolveTheme(theme);
+      return true;
     } catch (error) {
       if (this.options.debug) {
         console.warn("Invalid theme:", error);

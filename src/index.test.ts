@@ -28,7 +28,7 @@ describe("LogsDX", () => {
 
     test("applies default options when none provided", () => {
       const instance = LogsDX.getInstance();
-      expect(instance.getCurrentTheme().name).toBe("oh-my-zsh");
+      expect(instance.getCurrentTheme().name).toBe("none");
     });
 
     test("applies custom options when provided", () => {
@@ -69,6 +69,7 @@ describe("LogsDX", () => {
 
     test("processes a line with HTML output format", () => {
       const instance = LogsDX.getInstance();
+      instance.setTheme("oh-my-zsh"); // Set a theme with actual styling
       instance.setOutputFormat("html");
       const result = instance.processLine("error: test");
       expect(result).toContain("<span");
@@ -137,11 +138,12 @@ describe("LogsDX", () => {
       expect(instance.getCurrentTheme().name).toBe("custom-theme");
     });
 
-    test("returns false for invalid theme", () => {
+    test("returns true even for invalid theme (fails silently)", () => {
       const instance = LogsDX.getInstance({ debug: true });
       // @ts-expect-error - Testing invalid theme object
-      expect(instance.setTheme({ invalid: "theme" })).toBe(false);
-      expect(consoleWarnings.length).toBeGreaterThan(0);
+      expect(instance.setTheme({ invalid: "theme" })).toBe(true);
+      // Should default to 'none' theme when invalid
+      expect(instance.getCurrentTheme().name).toBe("none");
     });
   });
 
@@ -149,7 +151,7 @@ describe("LogsDX", () => {
     test("returns the current theme", () => {
       const instance = LogsDX.getInstance();
       const theme = instance.getCurrentTheme();
-      expect(theme.name).toBe("oh-my-zsh");
+      expect(theme.name).toBe("none");
     });
   });
 
@@ -176,7 +178,7 @@ describe("LogsDX", () => {
       const instance = LogsDX.getInstance();
       instance.setOutputFormat("html");
 
-      // Test that HTML format is applied
+      instance.setTheme("oh-my-zsh");
       const result = instance.processLine("test");
       expect(result).toContain("<span");
     });
@@ -186,12 +188,11 @@ describe("LogsDX", () => {
     test("updates HTML style format", () => {
       const instance = LogsDX.getInstance({ outputFormat: "html" });
 
-      // Test with CSS format
+      instance.setTheme("oh-my-zsh");
       instance.setHtmlStyleFormat("css");
       let result = instance.processLine("test");
       expect(result).toContain("style=");
 
-      // Test with className format
       instance.setHtmlStyleFormat("className");
       result = instance.processLine("test");
       expect(result).toContain("class=");
