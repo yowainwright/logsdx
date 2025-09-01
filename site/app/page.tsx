@@ -6,6 +6,7 @@ import { ProblemSection } from "@/components/problem-section";
 import { SetupSection } from "@/components/setup-section";
 import { ExamplesSection } from "@/components/examples-section";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CustomThemeCreator } from "@/components/themegenerator";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -32,7 +33,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      {/* Theme toggle positioned in top right corner */}
       <div className="fixed top-4 right-4 z-50">
         <ThemeToggle />
       </div>
@@ -74,6 +74,10 @@ export default function Home() {
       <ProblemSection />
       <SetupSection />
       <ExamplesSection />
+      
+      <section id="theme-creator" className="bg-slate-50 dark:bg-slate-900 py-24">
+        <CustomThemeCreator />
+      </section>
     </main>
   );
 }

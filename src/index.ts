@@ -1,5 +1,15 @@
 import { renderLine } from "./renderer";
-import { getTheme, getAllThemes, getThemeNames, ThemeBuilder } from "./themes";
+import { 
+  getTheme, 
+  getAllThemes, 
+  getThemeNames, 
+  ThemeBuilder,
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  registerTheme,
+  THEME_PRESETS
+} from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
 import { tokenize, applyTheme } from "./tokenizer";
 import type { TokenList } from "./schema/types";
@@ -337,6 +347,11 @@ export {
   validateTheme,
   validateThemeSafe,
   ThemeBuilder,
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  registerTheme,
+  THEME_PRESETS,
 };
 
 export { tokenize, applyTheme };
