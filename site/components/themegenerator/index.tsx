@@ -13,11 +13,7 @@ import {
 } from "./constants";
 import { generateThemeCode } from "./utils";
 
-interface CustomThemeCreatorProps {
-  onThemeCreate?: (theme: ThemeConfig) => void;
-}
-
-export function CustomThemeCreator({ onThemeCreate }: CustomThemeCreatorProps) {
+export function CustomThemeCreator() {
   const [themeName, setThemeName] = useState("custom-theme");
   const [mode, setMode] = useState<"light" | "dark">("dark");
   const [colors, setColors] = useState<ThemeColors>(DEFAULT_DARK_COLORS);
@@ -42,8 +38,6 @@ export function CustomThemeCreator({ onThemeCreate }: CustomThemeCreatorProps) {
       });
 
       registerTheme(customTheme);
-
-      const logsDX = getLogsDX({ theme: themeName });
 
       const processed = SAMPLE_LOGS.map(log => {
         const htmlLogsDX = getLogsDX({ 

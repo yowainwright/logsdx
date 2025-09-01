@@ -63,6 +63,19 @@ export interface Theme {
   description?: string;
   mode?: "light" | "dark" | "auto";
   schema: SchemaConfig;
+  colors?: {
+    text?: string;
+    background?: string;
+    primary?: string;
+    secondary?: string;
+    error?: string;
+    warning?: string;
+    info?: string;
+    success?: string;
+    debug?: string;
+    muted?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 export type ThemePreset = Theme;

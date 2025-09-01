@@ -18,7 +18,7 @@ export const DEFAULT_RULES = [
 
   // Key-value pairs (quoted)
   {
-    pattern: /\b([a-zA-Z0-9_-]+)=(['"])([^\x01]*?)\1/,
+    pattern: /\b([a-zA-Z0-9_-]+)=(['"])((?:\\.|(?!\2).)*?)\2/,
     type: "key-value",
   },
 

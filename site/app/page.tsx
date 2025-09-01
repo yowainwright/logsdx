@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { ThemeShowcase } from "@/components/theme-showcase";
-import { ProblemSection } from "@/components/problem-section";
+import { ProblemSection } from "@/components/solutionDemo";
 import { SetupSection } from "@/components/setup-section";
-import { ExamplesSection } from "@/components/examples-section";
+import { InteractiveExamplesSection } from "@/components/interactive";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CustomThemeCreator } from "@/components/themegenerator";
 
@@ -73,7 +73,7 @@ export default function Home() {
 
       <ProblemSection />
       <SetupSection />
-      <ExamplesSection />
+      <InteractiveExamplesSection />
       
       <section id="theme-creator" className="bg-slate-50 dark:bg-slate-900 py-24">
         <CustomThemeCreator />

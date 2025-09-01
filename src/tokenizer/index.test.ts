@@ -243,7 +243,7 @@ describe("Tokenizer", () => {
         expect(tokens.length).toBe(1);
         expect(tokens[0].content).toBe(line);
         expect(tokens[0].metadata?.matchType).toBe("default");
-      } catch (error) {
+      } catch {
         fail("Should not throw an error, but return a fallback token");
       }
     });

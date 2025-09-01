@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "fs";
 import { join } from "path";
 import {

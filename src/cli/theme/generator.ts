@@ -5,11 +5,11 @@ import fs from "fs";
 import {
   listColorPalettes,
   listPatternPresets,
-  generateTheme,
+  generateTemplate,
   type ColorPalette,
   type PatternPreset,
   type ThemeGeneratorConfig,
-} from "../../themes/generator";
+} from "../../themes/template";
 import { registerTheme } from "../../themes";
 import type { Theme } from "../../types";
 
@@ -120,7 +120,7 @@ export async function runThemeGenerator(): Promise<void> {
     customWords,
   };
 
-  const theme = generateTheme(config);
+  const theme = generateTemplate(config);
 
   ui.showSuccess(`Generated theme "${themeName}"!`);
 
@@ -188,7 +188,7 @@ async function collectCustomPatterns(): Promise<
         try {
           new RegExp(value);
           return true;
-        } catch (error) {
+        } catch {
           return "Invalid regular expression";
         }
       },
@@ -425,7 +425,7 @@ export function validateColorInput(color: string): boolean | string {
   return namedColors.includes(color.toLowerCase());
 }
 
-export function generateThemeFromAnswers(answers: any): Theme {
+export function generateTemplateFromAnswers(answers: any): Theme {
   // Map features to pattern presets
   const patternPresets = answers.patterns || answers.patternPresets || [];
   if (answers.features && answers.features.includes("logLevels")) {
@@ -441,7 +441,7 @@ export function generateThemeFromAnswers(answers: any): Theme {
     customWords: answers.customWords,
   };
 
-  const theme = generateTheme(config);
+  const theme = generateTemplate(config);
 
   if (answers.mode) {
     theme.mode = answers.mode;

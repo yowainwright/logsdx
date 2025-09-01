@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 
 import pino from "pino";
-import { getLogsDX, getAllThemes } from "../src/index";
+import { getLogsDX } from "../src/index";
 
-// Example 1: Simple pino with manual styling
-console.log("=== Example 1: Manual LogsDX styling with Pino ===\n");
+// Example 1: Pino with LogsDX styling
+console.log("=== Example 1: Pino with LogsDX styling ===\n");
 
-const simpleLogger = pino({
+const pinoLogger = pino({
   transport: {
     target: "pino-pretty",
     options: {
@@ -16,6 +16,9 @@ const simpleLogger = pino({
     },
   },
 });
+
+// Demonstrate basic Pino logging
+pinoLogger.info("Basic Pino log without LogsDX styling");
 
 // Wrap logger methods to apply logsdx styling
 const logsDX = getLogsDX({ theme: "dracula" });
@@ -53,7 +56,6 @@ themes.forEach((themeName) => {
 // Example 3: Using style function directly
 console.log("\n\n=== Example 3: Direct style function usage ===\n");
 
-import { themes as builtInThemes } from "../src/themes";
 
 const logMessage = "GET /api/users 200 OK (123ms)";
 console.log("Original:", logMessage);

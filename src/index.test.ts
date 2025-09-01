@@ -1,4 +1,5 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
+import stripAnsi from "strip-ansi";
 import { LogsDX, getLogsDX } from "./index";
 
 describe("LogsDX", () => {
@@ -249,10 +250,6 @@ describe("ANSI theming integration", () => {
   });
 
   // Helper function to strip ANSI escape codes for testing
-  function stripAnsi(str: string): string {
-    // More comprehensive ANSI escape sequence removal
-    return str.replace(/\x1B\[[0-9;]*[mGKHF]/g, "");
-  }
 
   test("applies style codes like bold and italic", () => {
     // Create a fresh instance with explicit ANSI output format and a custom theme

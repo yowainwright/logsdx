@@ -1,3 +1,4 @@
+import stripAnsiLib from "strip-ansi";
 import { Theme } from "../types";
 import { isDarkBackground } from "./detect-background";
 
@@ -70,7 +71,7 @@ export function getThemeBackground(theme: Theme | string): string {
  * Strip ANSI codes from a string for length calculation
  */
 export function stripAnsi(str: string): string {
-  return str.replace(/\x1b\[[0-9;]*m/g, "");
+  return stripAnsiLib(str);
 }
 
 /**

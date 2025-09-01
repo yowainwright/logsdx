@@ -1,3 +1,4 @@
+import { hex } from "wcag-contrast";
 import type {
   Theme,
   SchemaConfig,
@@ -5,6 +6,8 @@ import type {
   PatternMatch,
 } from "../types";
 import { filterStyleCodes } from "../types";
+import { getAccessibleTextColors, getWCAGLevel, getWCAGRecommendations } from "./utils";
+import { DEFAULT_COLORS } from "./constants";
 
 export interface ColorPalette {
   primary?: string;
@@ -261,7 +264,9 @@ export function createTheme(config: SimpleThemeConfig): Theme {
   return {
     name: config.name,
     description: config.description,
+    mode: config.mode,
     schema,
+    colors: config.colors,
   };
 }
 
@@ -323,7 +328,7 @@ export function extendTheme(
 }
 /**
 
- * Check WCAG compliance for a theme (stub implementation)
+ * Check WCAG compliance for a theme
  */
 export function checkWCAGCompliance(theme: Theme): {
   level: "AAA" | "AA" | "A" | "FAIL";
@@ -332,25 +337,54 @@ export function checkWCAGCompliance(theme: Theme): {
     normalText: { ratio: number };
   };
 } {
-  // TODO: Implement proper WCAG compliance checking
+  const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
+  const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
+  
+  const ratio = hex(textColor, bgColor);
+  
+  const level = getWCAGLevel(ratio, false);
+  const recommendations = getWCAGRecommendations(ratio);
+  
   return {
-    level: "AA",
-    recommendations: [],
+    level,
+    recommendations,
     details: {
-      normalText: { ratio: 4.5 },
+      normalText: { ratio },
     },
   };
 }
 
 /**
- * Adjust theme for accessibility (stub implementation)
+ * Adjust theme for accessibility by improving contrast ratios
  */
 export function adjustThemeForAccessibility(
   theme: Theme,
-  targetContrast?: number,
+  targetContrast: number = 4.5,
 ): Theme {
-  // TODO: Implement proper accessibility adjustments
-  return theme;
+  const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
+  const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
+  
+  const currentRatio = hex(textColor, bgColor);
+  
+  if (currentRatio >= targetContrast) {
+    return theme;
+  }
+  
+  const adjustedTheme = JSON.parse(JSON.stringify(theme)) as Theme;
+  
+  if (!adjustedTheme.colors) {
+    adjustedTheme.colors = {};
+  }
+  
+  const targetLevel = targetContrast >= 7 ? "AAA" : "AA";
+  const accessibleColors = getAccessibleTextColors(bgColor, targetLevel);
+  
+  adjustedTheme.colors = {
+    ...adjustedTheme.colors,
+    ...accessibleColors
+  };
+  
+  return adjustedTheme;
 } /**
  * 
 Fluent theme builder class (stub implementation)

@@ -8,7 +8,6 @@
 
 import { LogsDX } from "../../src";
 import { createTheme, createSimpleTheme } from "../../src/themes/builder";
-import type { SimpleThemeConfig } from "../../src/themes/builder";
 
 // Example 1: API Logs Theme using full schema
 const apiLogsTheme = createTheme({

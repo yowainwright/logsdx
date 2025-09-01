@@ -224,7 +224,7 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
               style: patternObj.options,
             });
           });
-        } catch (error) {
+        } catch {
           console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
         }
       });

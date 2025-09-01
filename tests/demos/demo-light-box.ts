@@ -1,12 +1,11 @@
 #!/usr/bin/env bun
 
+import stripAnsi from "strip-ansi";
 import { getLogsDX } from "../src/index";
 
 // ANSI codes for backgrounds
 const BG_WHITE = "\x1b[47m";
-const BG_LIGHT_GRAY = "\x1b[107m";
 const BG_RESET = "\x1b[49m";
-const CLEAR_LINE = "\x1b[2K";
 const RESET_ALL = "\x1b[0m";
 
 // Box drawing characters
@@ -48,9 +47,6 @@ function createLightBox(title: string, lines: string[], width: number = 60) {
 }
 
 // Simple ANSI stripping for length calculation
-function stripAnsi(str: string): string {
-  return str.replace(/\x1b\[[0-9;]*m/g, "");
-}
 
 // Demo light themes in dark terminal
 const lightThemes = ["github-light", "solarized-light"];
@@ -86,7 +82,6 @@ console.log("========================================\n");
 
 // Light gray background (closer to real light theme backgrounds)
 const BG_256_LIGHT = "\x1b[48;5;255m"; // Very light gray
-const BG_256_WHITE = "\x1b[48;5;231m"; // Pure white
 
 lightThemes.forEach((themeName) => {
   const logger = getLogsDX({
@@ -115,7 +110,6 @@ function createFullBlock(title: string, lines: string[], width: number = 70) {
   };
 
   const bg = backgrounds[title] || BG_WHITE;
-  const blockChar = "█";
 
   // Title bar
   console.log(bg + "\x1b[38;2;0;0;0m" + " ".repeat(width));

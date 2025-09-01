@@ -1,4 +1,5 @@
 import React from "react";
+import { CodeBlock } from "./codeblock";
 
 export function ExamplesSection() {
   return (
@@ -15,8 +16,8 @@ export function ExamplesSection() {
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <div>
                   <h4 className="mb-2 font-medium">Winston</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import winston from 'winston'
+                  <CodeBlock theme="monokai" language="javascript">
+                    {`import winston from 'winston'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -25,14 +26,14 @@ const logger = winston.createLogger({
   format: winston.format.printf(info => {
     return logsDX.processLine(info.message)
   })
-})`}</pre>
-                  </div>
+})`}
+                  </CodeBlock>
                 </div>
 
                 <div>
                   <h4 className="mb-2 font-medium">Pino</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import pino from 'pino'
+                  <CodeBlock theme="nord" language="javascript">
+                    {`import pino from 'pino'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -46,14 +47,14 @@ const logger = pino({
       }
     }
   }
-})`}</pre>
-                  </div>
+})`}
+                  </CodeBlock>
                 </div>
 
                 <div>
                   <h4 className="mb-2 font-medium">Console.log</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import { getLogsDX } from 'logsdx'
+                  <CodeBlock theme="github-dark" language="javascript">
+                    {`import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
 
@@ -66,14 +67,14 @@ console.log = (...args) => {
       : arg
   )
   originalLog(...styled)
-}`}</pre>
-                  </div>
+}`}
+                  </CodeBlock>
                 </div>
 
                 <div>
                   <h4 className="mb-2 font-medium">Bunyan</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import bunyan from 'bunyan'
+                  <CodeBlock theme="solarized-dark" language="javascript">
+                    {`import bunyan from 'bunyan'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -86,14 +87,14 @@ const logger = bunyan.createLogger({
       process.stdout.write(msg + '\n')
     }
   }
-})`}</pre>
-                  </div>
+})`}
+                  </CodeBlock>
                 </div>
 
                 <div>
                   <h4 className="mb-2 font-medium">Debug</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import debug from 'debug'
+                  <CodeBlock theme="dracula" language="javascript">
+                    {`import debug from 'debug'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -103,14 +104,14 @@ debug.formatters.h = (v) => {
 }
 
 const log = debug('app')
-log('%h', 'Server started')`}</pre>
-                  </div>
+log('%h', 'Server started')`}
+                  </CodeBlock>
                 </div>
 
                 <div>
                   <h4 className="mb-2 font-medium">Log4js</h4>
-                  <div className="rounded-lg bg-slate-900 p-4 text-sm text-white">
-                    <pre>{`import log4js from 'log4js'
+                  <CodeBlock theme="oh-my-zsh" language="javascript">
+                    {`import log4js from 'log4js'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -131,8 +132,8 @@ log4js.configure({
   categories: {
     default: { appenders: ['styled'], level: 'info' }
   }
-})`}</pre>
-                  </div>
+})`}
+                  </CodeBlock>
                 </div>
               </div>
             </div>
@@ -142,8 +143,8 @@ log4js.configure({
                 Advanced Theme Configuration
               </h3>
               <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`// Using createTheme helper
+                <CodeBlock theme="github-dark" language="javascript">
+                  {`// Using createTheme helper
 import { createTheme } from 'logsdx'
 
 const simpleTheme = createTheme({
@@ -157,10 +158,10 @@ const simpleTheme = createTheme({
     muted: '#6b7280'
   },
   presets: ['logLevels', 'timestamps', 'numbers']
-})`}</pre>
-                </div>
-                <div className="rounded-lg bg-slate-900 p-4 text-white">
-                  <pre>{`// Define full schema manually
+})`}
+                </CodeBlock>
+                <CodeBlock theme="monokai" language="javascript">
+                  {`// Define full schema manually
 const advancedTheme = {
   name: 'advanced',
   mode: 'dark',
@@ -178,8 +179,8 @@ const advancedTheme = {
       }
     ]
   }
-}`}</pre>
-                </div>
+}`}
+                </CodeBlock>
               </div>
             </div>
 
@@ -188,8 +189,8 @@ const advancedTheme = {
                 Browser Console Integration
               </h3>
               <div className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { getLogsDX } from 'logsdx'
+                <CodeBlock theme="dracula" language="javascript">
+                  {`import { getLogsDX } from 'logsdx'
 
 // Create HTML logger for browser
 const logger = getLogsDX('dracula', {
@@ -203,10 +204,10 @@ function renderLog(message) {
   // styledHTML contains escaped HTML with inline styles
   // Use a safe rendering method in your framework
   return styledHTML
-}`}</pre>
-                </div>
-                <div className="rounded-lg bg-slate-900 p-4 text-white">
-                  <pre>{`// Example outputs:
+}`}
+                </CodeBlock>
+                <CodeBlock theme="nord" language="javascript">
+                  {`// Example outputs:
 renderLog('ERROR: Connection failed')
 // <span style="color: #ff4444; font-weight: bold">ERROR</span>: Connection failed
 
@@ -217,8 +218,8 @@ renderLog('WARN: Memory usage high')
 // <span style="color: #ffaa00">WARN</span>: Memory usage high
 
 renderLog('SUCCESS: Build completed')
-// <span style="color: #00ff00">SUCCESS</span>: Build completed`}</pre>
-                </div>
+// <span style="color: #00ff00">SUCCESS</span>: Build completed`}
+                </CodeBlock>
               </div>
             </div>
           </div>

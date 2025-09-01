@@ -180,3 +180,13 @@
     animation: none;
   }
 }
+
+/* Code block styling for logsDx themed code */
+.line-number {
+  @apply inline-block w-10 text-right pr-3 text-gray-500 select-none;
+}
+
+/* Ensure proper spacing for logsDx HTML output */
+pre span[style] {
+  font-weight: inherit;
+}

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ThemeCardProps {
   themeName: string;
-  animationDelay?: number;
   isVisible?: boolean;
 }
 
@@ -164,24 +163,19 @@ const getStyledLogs = (themeName: string) => {
   };
 
   return sampleLogs.map((log) => {
-    let logType = "info";
     let styledLog = log;
 
     if (log.includes("WARN") || log.includes("Memory usage")) {
-      logType = "warn";
       styledLog = `<span style="color: ${getLogColors("warn")}">${log}</span>`;
     } else if (log.includes("ERROR") || log.includes("failed")) {
-      logType = "error";
       styledLog = `<span style="color: ${getLogColors("error")}">${log}</span>`;
     } else if (
       log.includes("✓") ||
       log.includes("🚀") ||
       log.includes("successful")
     ) {
-      logType = "success";
       styledLog = `<span style="color: ${getLogColors("success")}">${log}</span>`;
     } else if (log.includes("DEBUG")) {
-      logType = "debug";
       styledLog = `<span style="color: ${getLogColors("debug")}">${log}</span>`;
     } else {
       styledLog = `<span style="color: ${getLogColors("info")}">${log}</span>`;
@@ -193,7 +187,6 @@ const getStyledLogs = (themeName: string) => {
 
 export function ThemeCard({
   themeName,
-  animationDelay = 0,
   isVisible = true,
 }: ThemeCardProps) {
   const colors = getThemeColors(themeName);

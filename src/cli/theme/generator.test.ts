@@ -1,10 +1,10 @@
 import { describe, it, expect } from "bun:test";
 import {
-  generateThemeFromAnswers,
+  generateTemplateFromAnswers,
   validateColorInput,
   generatePatternFromPreset,
 } from "./generator";
-import { COLOR_PALETTES, PATTERN_PRESETS } from "../../themes/generator";
+import { COLOR_PALETTES, PATTERN_PRESETS } from "../../themes/template";
 
 describe("Theme Generator", () => {
   describe("validateColorInput", () => {
@@ -59,9 +59,9 @@ describe("Theme Generator", () => {
     });
   });
 
-  describe("generateThemeFromAnswers", () => {
+  describe("generateTemplateFromAnswers", () => {
     it("should generate a basic theme", () => {
-      const theme = generateThemeFromAnswers({
+      const theme = generateTemplateFromAnswers({
         name: "test-theme",
         description: "Test theme",
         mode: "dark",
@@ -79,7 +79,7 @@ describe("Theme Generator", () => {
     });
 
     it("should include custom palette colors", () => {
-      const theme = generateThemeFromAnswers({
+      const theme = generateTemplateFromAnswers({
         name: "custom-theme",
         mode: "light",
         palette: "github-light",
@@ -94,7 +94,7 @@ describe("Theme Generator", () => {
     });
 
     it("should include selected patterns", () => {
-      const theme = generateThemeFromAnswers({
+      const theme = generateTemplateFromAnswers({
         name: "pattern-theme",
         mode: "dark",
         palette: "github-dark",
@@ -107,7 +107,7 @@ describe("Theme Generator", () => {
     });
 
     it("should handle features correctly", () => {
-      const theme = generateThemeFromAnswers({
+      const theme = generateTemplateFromAnswers({
         name: "feature-theme",
         mode: "dark",
         palette: "github-dark",

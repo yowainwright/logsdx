@@ -333,7 +333,7 @@ export function listThemeFilesCommand(directory = "."): void {
         }
         console.log(`   File: ${chalk.dim(file)}`);
         console.log();
-      } catch (error) {
+      } catch {
         console.log(chalk.bold.red(`${index + 1}. ${path.basename(file)}`));
         console.log(chalk.red(`   Error: Invalid theme file`));
         console.log(`   File: ${chalk.dim(file)}`);

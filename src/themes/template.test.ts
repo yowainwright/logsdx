@@ -7,10 +7,10 @@ import {
   getPatternPreset,
   listColorPalettes,
   listPatternPresets,
-  generateTheme,
+  generateTemplate,
   COLOR_PALETTES,
   PATTERN_PRESETS,
-} from "./generator";
+} from "./template";
 
 describe("Theme Generator Schemas", () => {
   test("colorPaletteSchema should validate valid palette", () => {
@@ -161,7 +161,7 @@ describe("Pattern Preset Functions", () => {
 });
 
 describe("Theme Generation", () => {
-  test("generateTheme should create valid theme from config", () => {
+  test("generateTemplate should create valid theme from config", () => {
     const config = {
       name: "test-theme",
       description: "A test theme",
@@ -169,7 +169,7 @@ describe("Theme Generation", () => {
       patternPresets: ["log-levels"],
     };
 
-    const theme = generateTheme(config);
+    const theme = generateTemplate(config);
     expect(theme.name).toBe("test-theme");
     expect(theme.description).toBe("A test theme");
     expect(theme.schema).toBeDefined();
@@ -178,31 +178,31 @@ describe("Theme Generation", () => {
     expect(theme.schema.matchPatterns).toBeDefined();
   });
 
-  test("generateTheme should throw for invalid palette", () => {
+  test("generateTemplate should throw for invalid palette", () => {
     const config = {
       name: "test-theme",
       colorPalette: "non-existent-palette",
       patternPresets: ["log-levels"],
     };
 
-    expect(() => generateTheme(config)).toThrow(
+    expect(() => generateTemplate(config)).toThrow(
       "Color palette 'non-existent-palette' not found",
     );
   });
 
-  test("generateTheme should throw for invalid preset", () => {
+  test("generateTemplate should throw for invalid preset", () => {
     const config = {
       name: "test-theme",
       colorPalette: "github-light",
       patternPresets: ["non-existent-preset"],
     };
 
-    expect(() => generateTheme(config)).toThrow(
+    expect(() => generateTemplate(config)).toThrow(
       "Pattern preset 'non-existent-preset' not found",
     );
   });
 
-  test("generateTheme should include custom patterns", () => {
+  test("generateTemplate should include custom patterns", () => {
     const config = {
       name: "test-theme",
       colorPalette: "github-light",
@@ -216,7 +216,7 @@ describe("Theme Generation", () => {
       ],
     };
 
-    const theme = generateTheme(config);
+    const theme = generateTemplate(config);
     const customPattern = theme.schema.matchPatterns?.find(
       (p) => p.name === "custom-pattern",
     );
@@ -224,7 +224,7 @@ describe("Theme Generation", () => {
     expect(customPattern?.pattern).toBe("\\bCUSTOM\\b");
   });
 
-  test("generateTheme should include custom words", () => {
+  test("generateTemplate should include custom words", () => {
     const config = {
       name: "test-theme",
       colorPalette: "github-light",
@@ -237,20 +237,20 @@ describe("Theme Generation", () => {
       },
     };
 
-    const theme = generateTheme(config);
+    const theme = generateTemplate(config);
     expect(theme.schema.matchWords?.CUSTOM).toBeDefined();
     expect(theme.schema.matchWords?.CUSTOM.color).toBe("#d1242f"); // github-light error color
     expect(theme.schema.matchWords?.CUSTOM.styleCodes).toEqual(["bold"]);
   });
 
-  test("generateTheme should combine multiple presets", () => {
+  test("generateTemplate should combine multiple presets", () => {
     const config = {
       name: "test-theme",
       colorPalette: "github-light",
       patternPresets: ["log-levels", "http-api"],
     };
 
-    const theme = generateTheme(config);
+    const theme = generateTemplate(config);
 
     // Should have words from both presets
     expect(theme.schema.matchWords?.INFO).toBeDefined(); // from log-levels
@@ -267,14 +267,14 @@ describe("Theme Generation", () => {
     expect(urlPattern).toBeDefined();
   });
 
-  test("generateTheme should apply correct colors from palette", () => {
+  test("generateTemplate should apply correct colors from palette", () => {
     const config = {
       name: "test-theme",
       colorPalette: "dracula",
       patternPresets: ["log-levels"],
     };
 
-    const theme = generateTheme(config);
+    const theme = generateTemplate(config);
     const draculaPalette = getColorPalette("dracula")!;
 
     expect(theme.schema.defaultStyle?.color).toBe(draculaPalette.colors.text);

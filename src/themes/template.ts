@@ -502,7 +502,7 @@ export function listPatternPresets(
   return [...PATTERN_PRESETS];
 }
 
-export function generateTheme(config: ThemeGeneratorConfig): ThemePreset {
+export function generateTemplate(config: ThemeGeneratorConfig): ThemePreset {
   const palette = getColorPalette(config.colorPalette);
   if (!palette) {
     throw new Error(`Color palette '${config.colorPalette}' not found`);
