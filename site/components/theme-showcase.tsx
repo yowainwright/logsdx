@@ -136,7 +136,6 @@ export function ThemeShowcase({
                 <ThemeCard
                   key={`${theme}-${i}`}
                   themeName={theme}
-                  animationDelay={i * 0.5}
                   isVisible={true}
                 />
               ))}
