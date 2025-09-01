@@ -10,6 +10,8 @@ Run the theme creator with:
 bun run create-theme
 ```
 
+> **Note:** The theme creator uses `@inquirer/prompts` for an enhanced interactive experience. This dependency is automatically installed with LogsDX.
+
 ## Features
 
 ### 🎨 Interactive Color Selection

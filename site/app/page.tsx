@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ThemePreviewCard } from "@/components/theme-preview-card";
-import { Hero } from "@/components/hero";
 import { ThemeShowcase } from "@/components/theme-showcase";
-import { ProblemSection } from "@/components/problem-section";
+import { ProblemSection } from "@/components/solutionDemo";
 import { SetupSection } from "@/components/setup-section";
-import { ExamplesSection } from "@/components/examples-section";
-import { AdaptiveThemeDemo } from "@/components/adaptive-theme-demo";
-// import { CustomThemeExamples } from "@/components/custom-theme-examples"
+import { InteractiveExamplesSection } from "@/components/interactive";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { CustomThemeCreator } from "@/components/themegenerator";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -35,6 +33,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* New Theme Showcase with Headline Overlay */}
       <ThemeShowcase
         themes={themes}
@@ -61,7 +62,7 @@ export default function Home() {
               Get Started
             </a>
             <a
-              href="https://github.com/yourusername/logsdx"
+              href="https://github.com/yowainwright/logsdx"
               className="rounded-lg border border-slate-300 bg-white px-6 py-3 text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
               View on GitHub
@@ -70,26 +71,16 @@ export default function Home() {
         </div>
       </ThemeShowcase>
 
-      {/* Adaptive Theming Section */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Adaptive Theming</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Themes that automatically adapt to system preferences and user
-              settings
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <AdaptiveThemeDemo />
-          </div>
-        </div>
-      </section>
-
-      {/* <CustomThemeExamples /> */}
       <ProblemSection />
       <SetupSection />
-      <ExamplesSection />
+      <InteractiveExamplesSection />
+
+      <section
+        id="theme-creator"
+        className="bg-slate-50 dark:bg-slate-900 py-24"
+      >
+        <CustomThemeCreator />
+      </section>
     </main>
   );
 }

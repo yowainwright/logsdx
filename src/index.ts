@@ -1,5 +1,15 @@
 import { renderLine } from "./renderer";
-import { getTheme, getAllThemes, getThemeNames, ThemeBuilder } from "./themes";
+import {
+  getTheme,
+  getAllThemes,
+  getThemeNames,
+  ThemeBuilder,
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  registerTheme,
+  THEME_PRESETS,
+} from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
 import { tokenize, applyTheme } from "./tokenizer";
 import type { TokenList } from "./schema/types";
@@ -9,6 +19,7 @@ import type {
   ParsedLine,
   StyleOptions,
   Theme,
+  ThemePair,
   LogsDXOptions,
 } from "./types";
 import {
@@ -18,17 +29,26 @@ import {
   renderLightBox,
   renderLightBoxLine,
   isLightTheme as isLightThemeRenderer,
+  isDarkBackground,
+  getRecommendedThemeMode,
 } from "./renderer";
-import {
-  isTerminalDark,
-  adjustThemeForTerminal,
-  getTerminalAdjustedTheme,
-} from "./terminal/background-detection";
 
 export class LogsDX {
   private static instance: LogsDX | null = null;
   private options: Required<LogsDXOptions>;
-  private currentTheme: Theme;
+  private currentTheme: Theme = {
+    name: "none",
+    description: "No styling applied",
+    mode: "auto",
+    schema: {
+      defaultStyle: { color: "" },
+      matchWords: {},
+      matchStartsWith: {},
+      matchEndsWith: {},
+      matchContains: {},
+      matchPatterns: [],
+    },
+  };
 
   /**
    * Create a new LogsDX instance
@@ -36,7 +56,7 @@ export class LogsDX {
    */
   private constructor(options = {}) {
     this.options = {
-      theme: "oh-my-zsh",
+      theme: "none",
       outputFormat: "ansi",
       htmlStyleFormat: "css",
       debug: false,
@@ -45,40 +65,108 @@ export class LogsDX {
       ...options,
     };
 
-    if (typeof this.options.theme === "string") {
-      // For terminal output, adjust theme if needed
+    this.currentTheme = this.resolveTheme(this.options.theme);
+  }
+
+  /**
+   * Resolve theme from various input formats
+   * @param theme Theme input in various formats
+   * @returns Resolved Theme object
+   */
+  private resolveTheme(theme: string | Theme | ThemePair | undefined): Theme {
+    if (!theme || theme === "none") {
+      return {
+        name: "none",
+        description: "No styling applied",
+        mode: "auto",
+        schema: {
+          defaultStyle: { color: "" },
+          matchWords: {},
+          matchStartsWith: {},
+          matchEndsWith: {},
+          matchContains: {},
+          matchPatterns: [],
+        },
+      };
+    }
+
+    if (typeof theme === "string") {
+      const baseTheme = getTheme(theme);
+
       if (
         this.options.outputFormat === "ansi" &&
         this.options.autoAdjustTerminal !== false &&
         typeof process !== "undefined"
       ) {
-        const adjustedThemeName = getTerminalAdjustedTheme(this.options.theme);
-        this.currentTheme = getTheme(adjustedThemeName);
+        const recommendedMode = getRecommendedThemeMode();
+        const currentThemeMode = baseTheme.mode || "dark";
 
-        // Additional adjustment for terminal visibility
-        const terminalIsDark = isTerminalDark();
-        this.currentTheme = adjustThemeForTerminal(
-          this.currentTheme,
-          terminalIsDark,
-        );
+        if (currentThemeMode !== recommendedMode) {
+          let alternateThemeName: string;
+
+          if (theme.includes("-dark")) {
+            alternateThemeName = theme.replace("-dark", "-light");
+          } else if (theme.includes("-light")) {
+            alternateThemeName = theme.replace("-light", "-dark");
+          } else {
+            alternateThemeName =
+              recommendedMode === "dark" ? `${theme}-dark` : `${theme}-light`;
+          }
+
+          const alternateTheme = getAllThemes()[alternateThemeName];
+          if (alternateTheme) {
+            return alternateTheme;
+          }
+        }
+      }
+      return baseTheme;
+    } else if ("light" in theme && "dark" in theme) {
+      const themePair = theme as ThemePair;
+
+      if (
+        this.options.outputFormat === "ansi" &&
+        this.options.autoAdjustTerminal !== false &&
+        typeof process !== "undefined"
+      ) {
+        const recommendedMode = getRecommendedThemeMode();
+        const selectedTheme =
+          recommendedMode === "light" ? themePair.light : themePair.dark;
+
+        if (typeof selectedTheme === "string") {
+          return getTheme(selectedTheme);
+        } else {
+          return selectedTheme;
+        }
       } else {
-        this.currentTheme = getTheme(this.options.theme);
+        const selectedTheme = themePair.dark;
+        if (typeof selectedTheme === "string") {
+          return getTheme(selectedTheme);
+        } else {
+          return selectedTheme;
+        }
       }
     } else {
-      this.currentTheme = this.options.theme;
-    }
-
-    if (
-      typeof this.options.theme !== "string" ||
-      this.options.theme !== "oh-my-zsh"
-    ) {
+      // Direct Theme object
       try {
-        validateTheme(this.currentTheme);
+        return validateTheme(theme as Theme);
       } catch (error) {
         if (this.options.debug) {
           console.warn("Invalid custom theme:", error);
         }
-        this.currentTheme = getTheme("oh-my-zsh");
+        // Return no-op theme on validation failure
+        return {
+          name: "none",
+          description: "No styling applied",
+          mode: "auto",
+          schema: {
+            defaultStyle: { color: "" },
+            matchWords: {},
+            matchStartsWith: {},
+            matchEndsWith: {},
+            matchContains: {},
+            matchPatterns: [],
+          },
+        };
       }
     }
   }
@@ -100,11 +188,9 @@ export class LogsDX {
 
       // If theme changed, update the current theme
       if (options.theme) {
-        if (typeof options.theme === "string") {
-          LogsDX.instance.currentTheme = getTheme(options.theme);
-        } else {
-          LogsDX.instance.currentTheme = options.theme;
-        }
+        LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(
+          options.theme,
+        );
       }
     }
     return LogsDX.instance;
@@ -176,20 +262,14 @@ export class LogsDX {
 
   /**
    * Set the current theme
-   * @param theme Theme name or custom theme configuration
+   * @param theme Theme name, custom theme configuration, or theme pair
    * @returns True if theme was valid and applied, false otherwise
    */
-  setTheme(theme: string | Theme): boolean {
+  setTheme(theme: string | Theme | ThemePair): boolean {
     try {
-      if (typeof theme === "string") {
-        this.options.theme = theme;
-        this.currentTheme = getTheme(theme);
-        return true;
-      } else {
-        const validatedTheme = validateTheme(theme);
-        this.currentTheme = validatedTheme;
-        return true;
-      }
+      this.options.theme = theme;
+      this.currentTheme = this.resolveTheme(theme);
+      return true;
     } catch (error) {
       if (this.options.debug) {
         console.warn("Invalid theme:", error);
@@ -259,7 +339,14 @@ export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }
 
-export type { Theme, StyleOptions, TokenList, LineParser, ParsedLine };
+export type {
+  Theme,
+  ThemePair,
+  StyleOptions,
+  TokenList,
+  LineParser,
+  ParsedLine,
+};
 
 export {
   getTheme,
@@ -268,6 +355,11 @@ export {
   validateTheme,
   validateThemeSafe,
   ThemeBuilder,
+  createTheme,
+  createSimpleTheme,
+  extendTheme,
+  registerTheme,
+  THEME_PRESETS,
 };
 
 export { tokenize, applyTheme };
@@ -279,16 +371,17 @@ export {
   isLightThemeRenderer as isLightThemeStyle,
 };
 
-// Export adaptive theming utilities
 export {
-  detectColorScheme,
-  detectHighContrast,
-  detectReducedMotion,
-  getAdaptiveTheme,
-  AdaptiveLogger,
-  generateThemeProperties,
-  injectAdaptiveCSS,
-  THEME_VARIANTS,
-} from "./adaptive";
+  detectBackground,
+  detectTerminalBackground,
+  detectBrowserBackground,
+  detectSystemBackground,
+  isDarkBackground,
+  isLightBackground,
+  getRecommendedThemeMode,
+  watchBackgroundChanges,
+  type BackgroundInfo,
+  type ColorScheme,
+} from "./renderer";
 
 export default LogsDX;

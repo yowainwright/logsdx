@@ -1,4 +1,5 @@
 import React from "react";
+import { CodeBlock } from "./codeblock";
 
 export function SetupSection() {
   return (
@@ -10,47 +11,52 @@ export function SetupSection() {
           <div className="space-y-8">
             <div>
               <h3 className="mb-4 text-2xl font-semibold">1. Install</h3>
-              <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <code>npm install logsdx</code>
-              </div>
+              <CodeBlock theme="dracula" language="bash">
+                {`npm install logsdx`}
+              </CodeBlock>
             </div>
 
             <div>
               <h3 className="mb-4 text-2xl font-semibold">2. Import and Use</h3>
-              <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { style, themes } from 'logsdx'
+              <CodeBlock theme="dracula" language="javascript">
+                {`import { getLogsDX } from 'logsdx'
 
 // Use a built-in theme
-const styledLog = style('Hello World', { 
-  theme: themes.dracula 
-})
+const logger = getLogsDX('dracula')
 
 // Terminal output (ANSI)
-console.log(styledLog.ansi)
+console.log(logger.processLine('ERROR: Hello World'))
 
 // Browser output (HTML)
-document.body.innerHTML = styledLog.html`}</pre>
-              </div>
+const htmlLogger = getLogsDX('dracula', {
+  outputFormat: 'html'
+})
+const safeHTML = htmlLogger.processLine('ERROR: Hello World')`}
+              </CodeBlock>
             </div>
 
             <div>
               <h3 className="mb-4 text-2xl font-semibold">
                 3. Create Custom Themes
               </h3>
-              <div className="rounded-lg bg-slate-900 p-4 text-white">
-                <pre>{`import { createTheme } from 'logsdx'
+              <CodeBlock theme="dracula" language="javascript">
+                {`import { createTheme, registerTheme, getLogsDX } from 'logsdx'
 
 const myTheme = createTheme({
   name: 'my-theme',
-  colorPalette: {
+  colors: {
     primary: '#3b82f6',
     success: '#10b981',
     warning: '#f59e0b',
     error: '#ef4444',
   },
-  presets: ['logLevels', 'booleans'],
-})`}</pre>
-              </div>
+  presets: ['logLevels', 'timestamps'],
+})
+
+// Register and use the theme
+registerTheme(myTheme)
+const logger = getLogsDX('my-theme')`}
+              </CodeBlock>
             </div>
           </div>
         </div>

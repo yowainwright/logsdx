@@ -14,7 +14,7 @@ export function generateCSS(): string {
 
   // Add color classes
   css += "/* Color Classes */\n";
-  Object.entries(COLORS).forEach(([name, def]) => {
+  Object.entries(COLORS).forEach(([_name, def]) => {
     if (def.className) {
       css += `.${def.className} {\n`;
       css += `  color: ${def.hex};\n`;
@@ -28,7 +28,7 @@ export function generateCSS(): string {
 
   // Add style classes
   css += "/* Style Classes */\n";
-  Object.entries(STYLE_CODES).forEach(([name, def]) => {
+  Object.entries(STYLE_CODES).forEach(([_name, def]) => {
     if (def.className && def.css) {
       css += `.${def.className} {\n`;
       css += `  ${def.css}\n`;

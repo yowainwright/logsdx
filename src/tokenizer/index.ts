@@ -172,28 +172,6 @@ function escapeRegexPattern(pattern: string): string {
 }
 
 /**
- * Cache for compiled regex patterns to improve performance
- */
-const patternCache = new Map<string, RegExp>();
-
-/**
- * Get or create a cached regex pattern
- */
-function getCachedPattern(pattern: string, flags?: string): RegExp {
-  const key = `${pattern}:${flags || ""}`;
-  if (!patternCache.has(key)) {
-    try {
-      patternCache.set(key, new RegExp(pattern, flags));
-    } catch (_error) {
-      console.warn(`Invalid regex pattern: ${pattern}`);
-      // Return a pattern that matches nothing
-      patternCache.set(key, /(?!)/);
-    }
-  }
-  return patternCache.get(key)!;
-}
-
-/**
  * Add theme-specific tokenization rules
  */
 function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
@@ -221,8 +199,7 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   if (theme.schema?.matchWords) {
     Object.keys(theme.schema.matchWords).forEach((word) => {
       const escapedWord = escapeRegexPattern(word);
-      const pattern = getCachedPattern(`\\b${escapedWord}\\b`, "i");
-      lexer.rule(pattern, (ctx) => {
+      lexer.rule(new RegExp(`\\b${escapedWord}\\b`, "i"), (ctx) => {
         ctx.accept("word", {
           matchType: "word",
           pattern: word,
@@ -235,16 +212,21 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   if (theme.schema?.matchPatterns) {
     if (Array.isArray(theme.schema.matchPatterns)) {
       theme.schema.matchPatterns.forEach((patternObj, index: number) => {
-        const regex = getCachedPattern(patternObj.pattern);
-        lexer.rule(regex, (ctx) => {
-          ctx.accept("regex", {
-            matchType: "regex",
-            pattern: patternObj.pattern,
-            name: patternObj.name,
-            index,
-            style: patternObj.options,
+        try {
+          const safePattern = patternObj.pattern;
+          const regex = new RegExp(safePattern);
+          lexer.rule(regex, (ctx) => {
+            ctx.accept("regex", {
+              matchType: "regex",
+              pattern: patternObj.pattern,
+              name: patternObj.name,
+              index,
+              style: patternObj.options,
+            });
           });
-        });
+        } catch {
+          console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
+        }
       });
     } else {
       console.warn("matchPatterns is not an array in theme schema");
@@ -353,16 +335,8 @@ export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
   return tokens.map((token) => {
     const { metadata } = token;
 
-    // Apply default style to tokens without metadata
+    // Skip tokens without metadata
     if (!metadata) {
-      if (theme.schema?.defaultStyle) {
-        return {
-          ...token,
-          metadata: {
-            style: theme.schema.defaultStyle,
-          },
-        };
-      }
       return token;
     }
 

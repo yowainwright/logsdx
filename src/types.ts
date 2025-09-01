@@ -1,15 +1,44 @@
+/**
+ * Style codes that can be applied to text
+ */
+export type StyleCode =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "dim"
+  | "blink"
+  | "reverse"
+  | "strikethrough";
+
+/**
+ * Options for styling text in logs
+ */
 export interface StyleOptions {
+  /** The color to apply (hex, rgb, or color name) */
   color: string;
-  styleCodes?: (
-    | "bold"
-    | "italic"
-    | "underline"
-    | "dim"
-    | "blink"
-    | "reverse"
-    | "strikethrough"
-  )[];
+  /** Optional style codes to apply */
+  styleCodes?: StyleCode[];
+  /** Format for HTML output */
   htmlStyleFormat?: "css" | "className";
+}
+
+/**
+ * Filter and validate style codes
+ */
+export function filterStyleCodes(codes: string[] | undefined): StyleCode[] {
+  if (!codes) return [];
+  const validCodes: StyleCode[] = [
+    "bold",
+    "italic",
+    "underline",
+    "dim",
+    "blink",
+    "reverse",
+    "strikethrough",
+  ];
+  return codes.filter((code): code is StyleCode =>
+    validCodes.includes(code as StyleCode),
+  );
 }
 
 export interface PatternMatch {
@@ -34,10 +63,36 @@ export interface Theme {
   description?: string;
   mode?: "light" | "dark" | "auto";
   schema: SchemaConfig;
+  colors?: {
+    text?: string;
+    background?: string;
+    primary?: string;
+    secondary?: string;
+    error?: string;
+    warning?: string;
+    info?: string;
+    success?: string;
+    debug?: string;
+    muted?: string;
+    [key: string]: string | undefined;
+  };
+}
+
+export type ThemePreset = Theme;
+
+/**
+ * Theme pair for automatic light/dark mode switching
+ * Allows specifying different themes for light and dark environments
+ */
+export interface ThemePair {
+  /** Theme to use in light mode (theme name or Theme object) */
+  light: string | Theme;
+  /** Theme to use in dark mode (theme name or Theme object) */
+  dark: string | Theme;
 }
 
 export interface LogsDXOptions {
-  theme?: string | Theme;
+  theme?: string | Theme | ThemePair;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
   debug?: boolean;

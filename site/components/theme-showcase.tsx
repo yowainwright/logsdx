@@ -6,7 +6,6 @@ import { ThemeCard } from "./theme-card";
 interface ThemeShowcaseProps {
   autoPlay?: boolean;
   speed?: "slow" | "medium" | "fast";
-  visibleCards?: number;
   themes?: string[];
   dimOpacity?: number;
   children?: React.ReactNode; // For headline overlay content
@@ -114,7 +113,6 @@ function ShowcaseContainer({
 export function ThemeShowcase({
   autoPlay = true,
   speed = "medium",
-  visibleCards = 6,
   themes = [
     "oh-my-zsh",
     "dracula",
@@ -126,9 +124,6 @@ export function ThemeShowcase({
   dimOpacity = 0.3,
   children,
 }: ThemeShowcaseProps) {
-  // Create extended theme list for infinite scroll effect
-  const extendedThemes = [...themes, ...themes, ...themes];
-
   return (
     <section className="relative overflow-hidden min-h-screen">
       {/* Background Animation Container */}
@@ -141,7 +136,6 @@ export function ThemeShowcase({
                 <ThemeCard
                   key={`${theme}-${i}`}
                   themeName={theme}
-                  animationDelay={i * 0.5}
                   isVisible={true}
                 />
               ))}

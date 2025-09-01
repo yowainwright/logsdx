@@ -30,10 +30,7 @@ export function renderLine(
 
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
-      return tokensToClassNames(styledTokens, {
-        classPrefix: options.classPrefix,
-        useBEM: options.useBEM,
-      });
+      return tokensToClassNames(styledTokens);
     } else {
       return tokensToHtml(styledTokens);
     }
@@ -90,9 +87,16 @@ export function tokensToString(
         result = applyColor(result, style.color);
       }
 
-      const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) &&
-        style.styleCodes.includes(code as any);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
         result = applyBold(result);
@@ -180,9 +184,16 @@ export function tokensToHtml(tokens: TokenList): string {
         css.push(`color: ${colorDef?.hex || style.color}`);
       }
 
-      const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) &&
-        style.styleCodes.includes(code as any);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
         css.push("font-weight: bold");
@@ -210,14 +221,9 @@ export function tokensToHtml(tokens: TokenList): string {
 /**
  * Convert tokens to HTML with CSS class names
  * @param tokens - The tokens to convert
- * @param options - Rendering options with classPrefix and useBEM
  * @returns HTML with CSS class names for styling
  */
-export function tokensToClassNames(
-  tokens: TokenList,
-  options: { classPrefix?: string; useBEM?: boolean } = {},
-): string {
-  const { classPrefix = "logsdx", useBEM = false } = options;
+export function tokensToClassNames(tokens: TokenList): string {
   return tokens
     .map((token) => {
       if (
@@ -269,53 +275,34 @@ export function tokensToClassNames(
         const colorDef = getColorDefinition(style.color);
         if (colorDef?.className) {
           classes.push(colorDef.className);
-        } else {
-          // Generate class name from color
-          const colorClass = style.color
-            .replace(/[^a-zA-Z0-9-]/g, "-")
-            .toLowerCase();
-          if (useBEM) {
-            classes.push(`${classPrefix}__${colorClass}`);
-          } else {
-            classes.push(`${classPrefix}-${colorClass}`);
-          }
         }
       }
 
-      const hasStyleCode = (code: string) =>
-        Array.isArray(style.styleCodes) &&
-        style.styleCodes.includes(code as any);
+      const hasStyleCode = (
+        code:
+          | "bold"
+          | "italic"
+          | "underline"
+          | "dim"
+          | "blink"
+          | "reverse"
+          | "strikethrough",
+      ) => Array.isArray(style.styleCodes) && style.styleCodes.includes(code);
 
       if (hasStyleCode("bold")) {
-        if (useBEM) {
-          classes.push(`${classPrefix}--bold`);
-        } else {
-          classes.push(`${classPrefix}-bold`);
-        }
+        classes.push("logsdx-bold");
       }
 
       if (hasStyleCode("italic")) {
-        if (useBEM) {
-          classes.push(`${classPrefix}--italic`);
-        } else {
-          classes.push(`${classPrefix}-italic`);
-        }
+        classes.push("logsdx-italic");
       }
 
       if (hasStyleCode("underline")) {
-        if (useBEM) {
-          classes.push(`${classPrefix}--underline`);
-        } else {
-          classes.push(`${classPrefix}-underline`);
-        }
+        classes.push("logsdx-underline");
       }
 
       if (hasStyleCode("dim")) {
-        if (useBEM) {
-          classes.push(`${classPrefix}--dim`);
-        } else {
-          classes.push(`${classPrefix}-dim`);
-        }
+        classes.push("logsdx-dim");
       }
 
       const escapedContent = escapeHtml(token.content);
@@ -466,12 +453,22 @@ export function renderLines(
   return lines.map((line) => renderLine(line, theme, options));
 }
 
+// Export light box functions
+export { renderLightBox, renderLightBoxLine, isLightTheme } from "./light-box";
+
+// Export background detection functions
 export {
-  renderLightBox,
-  renderLightBoxLine,
-  isLightTheme,
-  getThemeBackground,
-} from "./light-box";
+  detectBackground,
+  detectTerminalBackground,
+  detectBrowserBackground,
+  detectSystemBackground,
+  isDarkBackground,
+  isLightBackground,
+  getRecommendedThemeMode,
+  watchBackgroundChanges,
+  type BackgroundInfo,
+  type ColorScheme,
+} from "./detect-background";
 
 export default {
   renderLine,

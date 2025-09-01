@@ -51,8 +51,8 @@ web_modules/
 # Optional npm cache directory
 .npm
 
-# Optional eslint cache
-.eslintcache
+# Optional oxlint cache
+.oxlint_cache
 
 # Optional stylelint cache
 .stylelintcache
@@ -142,3 +142,7 @@ dist
 .cursor
 .claude
 .kiro
+
+# Example lock files (use root bun.lock)
+examples/*/bun.lock
+.turbo
