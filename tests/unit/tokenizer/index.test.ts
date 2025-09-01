@@ -1,5 +1,9 @@
 import { expect, test, describe } from "bun:test";
-import { tokenize, createLexer, applyTheme } from "../../../src/tokenizer/index";
+import {
+  tokenize,
+  createLexer,
+  applyTheme,
+} from "../../../src/tokenizer/index";
 import { TokenList } from "../../../src/schema/types";
 import { Theme } from "../../../src/types";
 

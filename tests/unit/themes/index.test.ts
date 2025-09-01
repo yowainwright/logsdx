@@ -1,5 +1,10 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
-import { getTheme, getAllThemes, getThemeNames, registerTheme } from "../../../src/themes/index";
+import {
+  getTheme,
+  getAllThemes,
+  getThemeNames,
+  registerTheme,
+} from "../../../src/themes/index";
 import { THEMES, DEFAULT_THEME } from "../../../src/themes/constants";
 
 describe("Theme Management", () => {

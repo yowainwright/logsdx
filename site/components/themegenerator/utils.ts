@@ -4,10 +4,10 @@ export function generateThemeCode(
   themeName: string,
   mode: string,
   colors: ThemeColors,
-  selectedPresets: string[]
+  selectedPresets: string[],
 ): string {
   const safeThemeName = themeName.replace(/-/g, "_");
-  
+
   return `import { createSimpleTheme, registerTheme, getLogsDX } from 'logsdx';
 
 // Create your custom theme

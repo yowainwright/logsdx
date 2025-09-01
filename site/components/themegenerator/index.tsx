@@ -2,14 +2,20 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Download, Copy, RefreshCw } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Download,
+  Copy,
+  RefreshCw,
+} from "lucide-react";
 import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
 import type { ThemeColors, ThemeConfig } from "./types";
-import { 
-  DEFAULT_DARK_COLORS, 
-  DEFAULT_LIGHT_COLORS, 
-  PRESET_OPTIONS, 
-  SAMPLE_LOGS 
+import {
+  DEFAULT_DARK_COLORS,
+  DEFAULT_LIGHT_COLORS,
+  PRESET_OPTIONS,
+  SAMPLE_LOGS,
 } from "./constants";
 import { generateThemeCode } from "./utils";
 
@@ -39,10 +45,10 @@ export function CustomThemeCreator() {
 
       registerTheme(customTheme);
 
-      const processed = SAMPLE_LOGS.map(log => {
-        const htmlLogsDX = getLogsDX({ 
+      const processed = SAMPLE_LOGS.map((log) => {
+        const htmlLogsDX = getLogsDX({
           theme: themeName,
-          outputFormat: 'html'
+          outputFormat: "html",
         }) as unknown as { processLine: (line: string) => string };
         return htmlLogsDX.processLine(log.text);
       });
@@ -61,7 +67,7 @@ export function CustomThemeCreator() {
     setSelectedPresets((prev) =>
       prev.includes(presetId)
         ? prev.filter((p) => p !== presetId)
-        : [...prev, presetId]
+        : [...prev, presetId],
     );
   };
 
@@ -114,7 +120,8 @@ export function CustomThemeCreator() {
       <div className="text-center space-y-4">
         <h2 className="text-4xl font-bold">Create Your Custom Theme</h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Design your own LogsDX theme with custom colors and presets. See real-time preview using the actual LogsDX engine.
+          Design your own LogsDX theme with custom colors and presets. See
+          real-time preview using the actual LogsDX engine.
         </p>
       </div>
 
@@ -122,18 +129,24 @@ export function CustomThemeCreator() {
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <h3 className="text-xl font-semibold">Theme Basics</h3>
-            
+
             <div>
-              <label className="block text-sm font-medium mb-2">Theme Name</label>
+              <label className="block text-sm font-medium mb-2">
+                Theme Name
+              </label>
               <input
                 type="text"
                 value={themeName}
-                onChange={(e) => setThemeName(e.target.value.toLowerCase().replace(/\s+/g, "-"))}
+                onChange={(e) =>
+                  setThemeName(
+                    e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                  )
+                }
                 className="w-full px-3 py-2 border rounded-md dark:bg-slate-700 dark:border-slate-600"
                 placeholder="my-awesome-theme"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Mode</label>
               <div className="flex gap-2">
@@ -168,7 +181,7 @@ export function CustomThemeCreator() {
                 Reset
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               {Object.entries(colors).map(([key, value]) => (
                 <div key={key}>
@@ -179,13 +192,23 @@ export function CustomThemeCreator() {
                     <input
                       type="color"
                       value={value}
-                      onChange={(e) => handleColorChange(key as keyof ThemeColors, e.target.value)}
+                      onChange={(e) =>
+                        handleColorChange(
+                          key as keyof ThemeColors,
+                          e.target.value,
+                        )
+                      }
                       className="h-10 w-16 rounded border dark:border-slate-600 cursor-pointer"
                     />
                     <input
                       type="text"
                       value={value}
-                      onChange={(e) => handleColorChange(key as keyof ThemeColors, e.target.value)}
+                      onChange={(e) =>
+                        handleColorChange(
+                          key as keyof ThemeColors,
+                          e.target.value,
+                        )
+                      }
                       className="flex-1 px-2 py-1 text-sm border rounded dark:bg-slate-700 dark:border-slate-600"
                     />
                   </div>
@@ -224,7 +247,9 @@ export function CustomThemeCreator() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Live Preview</h3>
-              <span className="text-xs text-muted-foreground">Powered by LogsDX</span>
+              <span className="text-xs text-muted-foreground">
+                Powered by LogsDX
+              </span>
             </div>
             <div
               className="font-mono text-sm p-4 rounded-lg space-y-2 overflow-x-auto"
@@ -234,26 +259,20 @@ export function CustomThemeCreator() {
               }}
             >
               {processedLogs.map((log, index) => (
-                <div
-                  key={index}
-                  dangerouslySetInnerHTML={{ __html: log }}
-                />
+                <div key={index} dangerouslySetInnerHTML={{ __html: log }} />
               ))}
             </div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <h3 className="text-xl font-semibold">Export Theme</h3>
-            
+
             <div className="space-y-3">
-              <Button
-                className="w-full gap-2"
-                onClick={copyCode}
-              >
+              <Button className="w-full gap-2" onClick={copyCode}>
                 <Copy className="h-4 w-4" />
                 {copiedCode ? "Copied!" : "Copy Code"}
               </Button>
-              
+
               <Button
                 variant="outline"
                 className="w-full gap-2"
@@ -262,7 +281,7 @@ export function CustomThemeCreator() {
                 <Copy className="h-4 w-4" />
                 {copiedConfig ? "Copied!" : "Copy Config JSON"}
               </Button>
-              
+
               <Button
                 variant="outline"
                 className="w-full gap-2"
@@ -282,14 +301,25 @@ export function CustomThemeCreator() {
                 size="sm"
                 onClick={() => setShowAdvanced(!showAdvanced)}
               >
-                {showAdvanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {showAdvanced ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </Button>
             </div>
-            
+
             {showAdvanced && (
               <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto">
                 <pre className="text-xs">
-                  <code>{generateThemeCode(themeName, mode, colors, selectedPresets)}</code>
+                  <code>
+                    {generateThemeCode(
+                      themeName,
+                      mode,
+                      colors,
+                      selectedPresets,
+                    )}
+                  </code>
                 </pre>
               </div>
             )}
@@ -305,16 +335,22 @@ export function CustomThemeCreator() {
   );
 }
 
-function CustomLogInput({ themeName, colors }: { themeName: string; colors: ThemeColors }) {
+function CustomLogInput({
+  themeName,
+  colors,
+}: {
+  themeName: string;
+  colors: ThemeColors;
+}) {
   const [customLog, setCustomLog] = useState("");
   const [processedCustomLog, setProcessedCustomLog] = useState("");
 
   const handleProcessLog = () => {
     if (customLog) {
       try {
-        const htmlLogsDX = getLogsDX({ 
+        const htmlLogsDX = getLogsDX({
           theme: themeName,
-          outputFormat: 'html'
+          outputFormat: "html",
         }) as unknown as { processLine: (line: string) => string };
         const processed = htmlLogsDX.processLine(customLog);
         setProcessedCustomLog(processed);

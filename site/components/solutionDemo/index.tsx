@@ -59,8 +59,9 @@ export function ProblemSection() {
               </h2>
               <div className="space-y-6 text-lg text-slate-600 dark:text-slate-400">
                 <p>
-                  Have you ever built a beautiful logging system for your terminal,
-                  only to have it look completely different in the browser console?
+                  Have you ever built a beautiful logging system for your
+                  terminal, only to have it look completely different in the
+                  browser console?
                 </p>
                 <p>
                   Traditional logging libraries force you to choose between
@@ -135,18 +136,17 @@ export function ProblemSection() {
                         {showWithLogsDx ? (
                           <span
                             style={{
-                              color:
-                                log.text.includes("[ERROR]")
-                                  ? "#f85149"
-                                  : log.text.includes("[WARN]")
+                              color: log.text.includes("[ERROR]")
+                                ? "#f85149"
+                                : log.text.includes("[WARN]")
                                   ? "#f0883e"
                                   : log.text.includes("[SUCCESS]")
-                                  ? "#3fb950"
-                                  : log.text.includes("[INFO]")
-                                  ? "#58a6ff"
-                                  : log.text.includes("[DEBUG]")
-                                  ? "#a5a5ff"
-                                  : "#e6edf3",
+                                    ? "#3fb950"
+                                    : log.text.includes("[INFO]")
+                                      ? "#58a6ff"
+                                      : log.text.includes("[DEBUG]")
+                                        ? "#a5a5ff"
+                                        : "#e6edf3",
                               fontWeight: log.text.includes("[ERROR]")
                                 ? "bold"
                                 : "normal",

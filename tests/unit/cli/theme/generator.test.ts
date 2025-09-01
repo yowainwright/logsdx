@@ -4,7 +4,10 @@ import {
   validateColorInput,
   generatePatternFromPreset,
 } from "../../../../src/cli/theme/generator";
-import { COLOR_PALETTES, PATTERN_PRESETS } from "../../../../src/themes/template";
+import {
+  COLOR_PALETTES,
+  PATTERN_PRESETS,
+} from "../../../../src/themes/template";
 
 describe("Theme Generator", () => {
   describe("validateColorInput", () => {
@@ -87,9 +90,7 @@ describe("Theme Generator", () => {
         patterns: [],
       });
 
-      COLOR_PALETTES.find(
-        (p) => p.name === "github-light",
-      );
+      COLOR_PALETTES.find((p) => p.name === "github-light");
       expect(theme.schema.defaultStyle?.color).toBeDefined();
     });
 

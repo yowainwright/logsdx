@@ -185,10 +185,7 @@ const getStyledLogs = (themeName: string) => {
   });
 };
 
-export function ThemeCard({
-  themeName,
-  isVisible = true,
-}: ThemeCardProps) {
+export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
   const colors = getThemeColors(themeName);
   const styledLogs = getStyledLogs(themeName);
 

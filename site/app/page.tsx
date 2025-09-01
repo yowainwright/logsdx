@@ -74,8 +74,11 @@ export default function Home() {
       <ProblemSection />
       <SetupSection />
       <InteractiveExamplesSection />
-      
-      <section id="theme-creator" className="bg-slate-50 dark:bg-slate-900 py-24">
+
+      <section
+        id="theme-creator"
+        className="bg-slate-50 dark:bg-slate-900 py-24"
+      >
         <CustomThemeCreator />
       </section>
     </main>

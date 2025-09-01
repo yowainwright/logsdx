@@ -148,15 +148,25 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
 // Style individual log lines based on content
 const styleLogLine = (log: string, theme: ThemeConfig) => {
   const { colors } = theme;
-  
+
   // Determine log type and apply color
   if (log.includes("CRITICAL")) {
     return `<span style="color: ${colors.critical}; font-weight: bold;">${log}</span>`;
-  } else if (log.includes("ERROR") || log.includes("failed") || log.includes("401") || log.includes("Unauthorized")) {
+  } else if (
+    log.includes("ERROR") ||
+    log.includes("failed") ||
+    log.includes("401") ||
+    log.includes("Unauthorized")
+  ) {
     return `<span style="color: ${colors.error}; font-weight: bold;">${log}</span>`;
   } else if (log.includes("WARN") || log.includes("Memory usage")) {
     return `<span style="color: ${colors.warn}; font-weight: bold;">${log}</span>`;
-  } else if (log.includes("SUCCESS") || log.includes("✓") || log.includes("🚀") || log.includes("200 OK")) {
+  } else if (
+    log.includes("SUCCESS") ||
+    log.includes("✓") ||
+    log.includes("🚀") ||
+    log.includes("200 OK")
+  ) {
     return `<span style="color: ${colors.success};">${log}</span>`;
   } else if (log.includes("DEBUG")) {
     return `<span style="color: ${colors.debug};">${log}</span>`;
@@ -178,7 +188,9 @@ export function InteractiveExamplesSection() {
   useEffect(() => {
     const detectMode = () => {
       if (colorMode === "system") {
-        const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
         setEffectiveMode(isDark ? "dark" : "light");
       } else {
         setEffectiveMode(colorMode as "light" | "dark");
@@ -197,7 +209,8 @@ export function InteractiveExamplesSection() {
     }
   }, [colorMode]);
 
-  const currentThemePair = THEME_PAIRS[selectedTheme as keyof typeof THEME_PAIRS];
+  const currentThemePair =
+    THEME_PAIRS[selectedTheme as keyof typeof THEME_PAIRS];
   const currentThemeName = currentThemePair[effectiveMode];
   const currentTheme = getThemeStyles(currentThemeName);
 

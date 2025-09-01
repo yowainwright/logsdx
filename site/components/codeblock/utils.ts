@@ -4,18 +4,18 @@ export function createLogger(theme: string = "dracula") {
   const logger = getLogsDXBase({
     theme,
     outputFormat: "html",
-    htmlStyleFormat: "css"
+    htmlStyleFormat: "css",
   }) as any; // Type assertion to bypass TypeScript issue
-  
-  const hasLogger = logger && typeof logger?.processLine === 'function';
-  
+
+  const hasLogger = logger && typeof logger?.processLine === "function";
+
   // Ensure we have a valid logger instance
   if (!hasLogger) {
     // Fallback implementation
     return {
-      processLine: (line: string) => line
+      processLine: (line: string) => line,
     };
   }
-  
+
   return logger;
 }

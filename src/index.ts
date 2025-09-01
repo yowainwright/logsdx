@@ -1,14 +1,14 @@
 import { renderLine } from "./renderer";
-import { 
-  getTheme, 
-  getAllThemes, 
-  getThemeNames, 
+import {
+  getTheme,
+  getAllThemes,
+  getThemeNames,
   ThemeBuilder,
   createTheme,
   createSimpleTheme,
   extendTheme,
   registerTheme,
-  THEME_PRESETS
+  THEME_PRESETS,
 } from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
 import { tokenize, applyTheme } from "./tokenizer";
@@ -110,9 +110,7 @@ export class LogsDX {
             alternateThemeName = theme.replace("-light", "-dark");
           } else {
             alternateThemeName =
-              recommendedMode === "dark"
-                ? `${theme}-dark`
-                : `${theme}-light`;
+              recommendedMode === "dark" ? `${theme}-dark` : `${theme}-light`;
           }
 
           const alternateTheme = getAllThemes()[alternateThemeName];
@@ -124,15 +122,16 @@ export class LogsDX {
       return baseTheme;
     } else if ("light" in theme && "dark" in theme) {
       const themePair = theme as ThemePair;
-      
+
       if (
         this.options.outputFormat === "ansi" &&
         this.options.autoAdjustTerminal !== false &&
         typeof process !== "undefined"
       ) {
         const recommendedMode = getRecommendedThemeMode();
-        const selectedTheme = recommendedMode === "light" ? themePair.light : themePair.dark;
-        
+        const selectedTheme =
+          recommendedMode === "light" ? themePair.light : themePair.dark;
+
         if (typeof selectedTheme === "string") {
           return getTheme(selectedTheme);
         } else {
@@ -189,7 +188,9 @@ export class LogsDX {
 
       // If theme changed, update the current theme
       if (options.theme) {
-        LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(options.theme);
+        LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(
+          options.theme,
+        );
       }
     }
     return LogsDX.instance;
@@ -338,7 +339,14 @@ export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }
 
-export type { Theme, ThemePair, StyleOptions, TokenList, LineParser, ParsedLine };
+export type {
+  Theme,
+  ThemePair,
+  StyleOptions,
+  TokenList,
+  LineParser,
+  ParsedLine,
+};
 
 export {
   getTheme,

@@ -1,12 +1,11 @@
 import { hex } from "wcag-contrast";
-import type {
-  Theme,
-  SchemaConfig,
-  StyleOptions,
-  PatternMatch,
-} from "../types";
+import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "../types";
 import { filterStyleCodes } from "../types";
-import { getAccessibleTextColors, getWCAGLevel, getWCAGRecommendations } from "./utils";
+import {
+  getAccessibleTextColors,
+  getWCAGLevel,
+  getWCAGRecommendations,
+} from "./utils";
 import { DEFAULT_COLORS } from "./constants";
 
 export interface ColorPalette {
@@ -339,12 +338,12 @@ export function checkWCAGCompliance(theme: Theme): {
 } {
   const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
   const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
-  
+
   const ratio = hex(textColor, bgColor);
-  
+
   const level = getWCAGLevel(ratio, false);
   const recommendations = getWCAGRecommendations(ratio);
-  
+
   return {
     level,
     recommendations,
@@ -363,27 +362,27 @@ export function adjustThemeForAccessibility(
 ): Theme {
   const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
   const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
-  
+
   const currentRatio = hex(textColor, bgColor);
-  
+
   if (currentRatio >= targetContrast) {
     return theme;
   }
-  
+
   const adjustedTheme = JSON.parse(JSON.stringify(theme)) as Theme;
-  
+
   if (!adjustedTheme.colors) {
     adjustedTheme.colors = {};
   }
-  
+
   const targetLevel = targetContrast >= 7 ? "AAA" : "AA";
   const accessibleColors = getAccessibleTextColors(bgColor, targetLevel);
-  
+
   adjustedTheme.colors = {
     ...adjustedTheme.colors,
-    ...accessibleColors
+    ...accessibleColors,
   };
-  
+
   return adjustedTheme;
 } /**
  * 

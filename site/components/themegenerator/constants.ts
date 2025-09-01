@@ -31,102 +31,102 @@ export const DEFAULT_LIGHT_COLORS: ThemeColors = {
 };
 
 export const PRESET_OPTIONS: ThemePreset[] = [
-  { 
-    id: "logLevels", 
-    label: "Log Levels", 
-    description: "ERROR, WARN, INFO, DEBUG, SUCCESS" 
+  {
+    id: "logLevels",
+    label: "Log Levels",
+    description: "ERROR, WARN, INFO, DEBUG, SUCCESS",
   },
-  { 
-    id: "booleans", 
-    label: "Booleans", 
-    description: "true, false, null, undefined" 
+  {
+    id: "booleans",
+    label: "Booleans",
+    description: "true, false, null, undefined",
   },
-  { 
-    id: "brackets", 
-    label: "Brackets", 
-    description: "{ } [ ] ( ) < >" 
+  {
+    id: "brackets",
+    label: "Brackets",
+    description: "{ } [ ] ( ) < >",
   },
-  { 
-    id: "strings", 
-    label: "Strings", 
-    description: "Quoted text with single or double quotes" 
+  {
+    id: "strings",
+    label: "Strings",
+    description: "Quoted text with single or double quotes",
   },
-  { 
-    id: "numbers", 
-    label: "Numbers", 
-    description: "Integers and decimal values" 
+  {
+    id: "numbers",
+    label: "Numbers",
+    description: "Integers and decimal values",
   },
-  { 
-    id: "dates", 
-    label: "Dates", 
-    description: "Various date formats" 
+  {
+    id: "dates",
+    label: "Dates",
+    description: "Various date formats",
   },
-  { 
-    id: "timestamps", 
-    label: "Timestamps", 
-    description: "ISO 8601 timestamps" 
+  {
+    id: "timestamps",
+    label: "Timestamps",
+    description: "ISO 8601 timestamps",
   },
-  { 
-    id: "urls", 
-    label: "URLs", 
-    description: "HTTP/HTTPS web addresses" 
+  {
+    id: "urls",
+    label: "URLs",
+    description: "HTTP/HTTPS web addresses",
   },
-  { 
-    id: "paths", 
-    label: "File Paths", 
-    description: "Unix and Windows file paths" 
+  {
+    id: "paths",
+    label: "File Paths",
+    description: "Unix and Windows file paths",
   },
   {
     id: "json",
     label: "JSON Keys",
-    description: "JSON object keys and structure"
+    description: "JSON object keys and structure",
   },
   {
     id: "semantic",
     label: "Semantic Versions",
-    description: "Version numbers like 1.2.3"
-  }
+    description: "Version numbers like 1.2.3",
+  },
 ];
 
 export const SAMPLE_LOGS: SampleLog[] = [
-  { 
-    text: "2024-01-15T10:30:45.123Z INFO: Server started on port 3000", 
-    category: "info" 
+  {
+    text: "2024-01-15T10:30:45.123Z INFO: Server started on port 3000",
+    category: "info",
   },
-  { 
-    text: "ERROR: Connection failed to database at localhost:5432", 
-    category: "error" 
+  {
+    text: "ERROR: Connection failed to database at localhost:5432",
+    category: "error",
   },
-  { 
-    text: "DEBUG: Processing user request { id: 123, status: true, name: \"John Doe\" }", 
-    category: "debug" 
+  {
+    text: 'DEBUG: Processing user request { id: 123, status: true, name: "John Doe" }',
+    category: "debug",
   },
-  { 
-    text: "WARN: Memory usage high (85.3%) - threshold exceeded", 
-    category: "warning" 
+  {
+    text: "WARN: Memory usage high (85.3%) - threshold exceeded",
+    category: "warning",
   },
-  { 
-    text: "SUCCESS: Build completed in 3.45 seconds - v2.1.0", 
-    category: "success" 
+  {
+    text: "SUCCESS: Build completed in 3.45 seconds - v2.1.0",
+    category: "success",
   },
-  { 
-    text: "[API] GET https://api.example.com/users/123 - 200 OK (45ms)", 
-    category: "general" 
+  {
+    text: "[API] GET https://api.example.com/users/123 - 200 OK (45ms)",
+    category: "general",
   },
-  { 
-    text: "Loading configuration from /etc/app/config.json", 
-    category: "general" 
+  {
+    text: "Loading configuration from /etc/app/config.json",
+    category: "general",
   },
-  { 
-    text: "Database query: SELECT * FROM users WHERE active = true LIMIT 100", 
-    category: "general" 
+  {
+    text: "Database query: SELECT * FROM users WHERE active = true LIMIT 100",
+    category: "general",
   },
   {
     text: "TypeError: Cannot read property 'length' of undefined at index.js:42",
-    category: "error"
+    category: "error",
   },
   {
     text: "Cache hit ratio: 0.923 | Total requests: 10450 | Hits: 9646",
-    category: "info"
-  }
+    category: "info",
+  },
 ];
