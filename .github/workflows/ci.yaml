@@ -34,7 +34,7 @@ jobs:
         run: bun run format:check
 
       - name: Build packages with Turbo
-        run: bun run turbo build
+        run: bun run turbo build --filter="./..." --verbose
 
       - name: Verify site build is cached
         run: |
