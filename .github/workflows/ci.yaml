@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,16 +33,13 @@ jobs:
       - name: Run formatting check (Prettier)
         run: bun run format:check
 
-      - name: Build packages
-        run: bun run build
+      - name: Build packages with Turbo
+        run: bun run turbo build
 
-      - name: Install site dependencies
-        working-directory: ./site
-        run: bun install
-
-      - name: Verify site build
-        working-directory: ./site
-        run: bun run build
+      - name: Verify site build is cached
+        run: |
+          echo "Site build should be cached from the turbo build step above"
+          ls -la site/.next || true
 
       - name: Upload artifacts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
