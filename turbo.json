@@ -6,19 +6,19 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
-    "logsdx#build": {
+    "//#build": {
       "outputs": ["dist/**"]
     },
-    "@logsdx/app#build": {
-      "dependsOn": ["logsdx#build"],
+    "logsdx-site#build": {
+      "dependsOn": ["//#build"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
-    "@logsdx/app#dev": {
-      "dependsOn": ["logsdx#build"],
+    "logsdx-site#dev": {
+      "dependsOn": ["//#build"],
       "cache": false,
       "persistent": true
     },
