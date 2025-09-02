@@ -11,7 +11,7 @@ import {
   type ThemeGeneratorConfig,
 } from "../../themes/template";
 import { registerTheme } from "../../themes";
-import type { Theme } from "../../types";
+import type { Theme, PatternMatch } from "../../types";
 
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
@@ -425,7 +425,30 @@ export function validateColorInput(color: string): boolean | string {
   return namedColors.includes(color.toLowerCase());
 }
 
-export function generateTemplateFromAnswers(answers: any): Theme {
+interface ThemeAnswers {
+  themeName?: string;
+  name?: string;
+  description?: string;
+  palette?: string;
+  colorPalette?: string;
+  patterns?: string[];
+  patternPresets?: string[];
+  features?: string[];
+  customPatterns?: Array<{
+    name: string;
+    pattern: string;
+    color: string;
+    colorRole?: "primary" | "secondary" | "success" | "warning" | "error" | "info" | "muted" | "accent" | {};
+    styleCodes?: string[];
+  }>;
+  customWords?: Record<string, {
+    colorRole?: "primary" | "secondary" | "success" | "warning" | "error" | "info" | "muted" | "accent" | {};
+    styleCodes?: string[];
+  }> | string[];
+  mode?: "light" | "dark" | "auto" | {};
+}
+
+export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
   // Map features to pattern presets
   const patternPresets = answers.patterns || answers.patternPresets || [];
   if (answers.features && answers.features.includes("logLevels")) {
@@ -433,18 +456,18 @@ export function generateTemplateFromAnswers(answers: any): Theme {
   }
 
   const config: ThemeGeneratorConfig = {
-    name: answers.themeName || answers.name,
+    name: (answers.themeName || answers.name) || "",
     description: answers.description,
     colorPalette: answers.palette || answers.colorPalette || "github-dark",
     patternPresets,
-    customPatterns: answers.customPatterns,
-    customWords: answers.customWords,
+    customPatterns: answers.customPatterns as ThemeGeneratorConfig["customPatterns"],
+    customWords: answers.customWords as ThemeGeneratorConfig["customWords"],
   };
 
   const theme = generateTemplate(config);
 
   if (answers.mode) {
-    theme.mode = answers.mode;
+    theme.mode = answers.mode as Theme["mode"];
   }
 
   // Ensure schema exists
@@ -481,9 +504,8 @@ export function generateTemplateFromAnswers(answers: any): Theme {
   return theme;
 }
 
-export function generatePatternFromPreset(presetName: string): any {
-  // Map common preset names to patterns
-  const patternMap: Record<string, any> = {
+export function generatePatternFromPreset(presetName: string): PatternMatch | Record<string, never> {
+  const patternMap: Record<string, PatternMatch> = {
     timestamp: {
       name: "timestamp",
       pattern: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}",

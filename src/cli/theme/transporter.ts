@@ -123,12 +123,21 @@ export function importThemeFromFile(filePath: string): Theme {
         }
       }
     }
-    throw new Error("Could not parse TypeScript/JavaScript theme file");
+    throw new Error(
+      `Failed to parse theme file: The TypeScript/JavaScript file does not contain a valid theme export. ` +
+      `Expected an export statement with a theme object containing 'name' and 'schema' properties.`
+    );
   }
 
   const parsed = JSON.parse(fileContent);
   if (!parsed.name || !parsed.schema) {
-    throw new Error("Invalid theme: missing required fields");
+    const missing = [];
+    if (!parsed.name) missing.push("'name'");
+    if (!parsed.schema) missing.push("'schema'");
+    throw new Error(
+      `Invalid theme JSON: Missing required fields: ${missing.join(", ")}. ` +
+      `Theme files must contain both a 'name' string and a 'schema' object.`
+    );
   }
   return parsed;
 }

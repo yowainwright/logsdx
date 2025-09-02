@@ -243,14 +243,20 @@ function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
  */
 export function tokenize(line: string, theme?: Theme): TokenList {
   try {
-    // Check if the theme is problematic before proceeding
     if (
       theme &&
       (!theme.schema ||
         (theme.schema.matchPatterns &&
           !Array.isArray(theme.schema.matchPatterns)))
     ) {
-      throw new Error("Invalid theme schema");
+      return [
+        {
+          content: line,
+          metadata: {
+            matchType: "default",
+          },
+        },
+      ];
     }
 
     const lexer = createLexer(theme);
