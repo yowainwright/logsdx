@@ -335,6 +335,20 @@ export class LogsDX {
   }
 }
 
+/**
+ * Get or create a LogsDX instance
+ * @param options - Configuration options for LogsDX
+ * @param options.theme - Theme name, Theme object, or ThemePair for light/dark modes
+ * @param options.outputFormat - Output format ('ansi' for terminal, 'html' for web)
+ * @param options.htmlStyleFormat - HTML style format ('css' for inline styles, 'className' for CSS classes)
+ * @param options.debug - Enable debug mode for additional logging
+ * @param options.customRules - Custom parsing rules
+ * @param options.autoAdjustTerminal - Automatically adjust theme based on terminal background
+ * @returns LogsDX instance
+ * @example
+ * const logsdx = getLogsDX({ theme: 'github-dark' });
+ * const styledLine = logsdx.processLine('ERROR: Failed to connect');
+ */
 export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }

@@ -9,6 +9,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "logsdx": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -19,9 +22,10 @@
     "dist/"
   ],
   "scripts": {
-    "build": "bun run build:cjs && bun run build:esm && bun run build:types && bun run generate-schema",
+    "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types && bun run generate-schema",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
+    "build:cli": "bun build src/cli/bin.ts --outfile dist/cli.js --format cjs --minify --target node",
     "build:types": "tsc -p tsconfig.build.json",
     "test": "bun test",
     "test:watch": "bun test --watch",
