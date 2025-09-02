@@ -412,7 +412,7 @@ export class ThemeBuilder {
       if (!this.config.colors) missing.push("colors");
       throw new Error(
         `Theme validation failed: Missing required fields: ${missing.join(", ")}. ` +
-        `Please provide a theme name and color configuration.`
+          `Please provide a theme name and color configuration.`,
       );
     }
     return createTheme(this.config as SimpleThemeConfig);

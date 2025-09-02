@@ -438,13 +438,36 @@ interface ThemeAnswers {
     name: string;
     pattern: string;
     color: string;
-    colorRole?: "primary" | "secondary" | "success" | "warning" | "error" | "info" | "muted" | "accent" | {};
+    colorRole?:
+      | "primary"
+      | "secondary"
+      | "success"
+      | "warning"
+      | "error"
+      | "info"
+      | "muted"
+      | "accent"
+      | {};
     styleCodes?: string[];
   }>;
-  customWords?: Record<string, {
-    colorRole?: "primary" | "secondary" | "success" | "warning" | "error" | "info" | "muted" | "accent" | {};
-    styleCodes?: string[];
-  }> | string[];
+  customWords?:
+    | Record<
+        string,
+        {
+          colorRole?:
+            | "primary"
+            | "secondary"
+            | "success"
+            | "warning"
+            | "error"
+            | "info"
+            | "muted"
+            | "accent"
+            | {};
+          styleCodes?: string[];
+        }
+      >
+    | string[];
   mode?: "light" | "dark" | "auto" | {};
 }
 
@@ -456,11 +479,12 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
   }
 
   const config: ThemeGeneratorConfig = {
-    name: (answers.themeName || answers.name) || "",
+    name: answers.themeName || answers.name || "",
     description: answers.description,
     colorPalette: answers.palette || answers.colorPalette || "github-dark",
     patternPresets,
-    customPatterns: answers.customPatterns as ThemeGeneratorConfig["customPatterns"],
+    customPatterns:
+      answers.customPatterns as ThemeGeneratorConfig["customPatterns"],
     customWords: answers.customWords as ThemeGeneratorConfig["customWords"],
   };
 
@@ -504,7 +528,9 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
   return theme;
 }
 
-export function generatePatternFromPreset(presetName: string): PatternMatch | Record<string, never> {
+export function generatePatternFromPreset(
+  presetName: string,
+): PatternMatch | Record<string, never> {
   const patternMap: Record<string, PatternMatch> = {
     timestamp: {
       name: "timestamp",

@@ -125,7 +125,7 @@ export function importThemeFromFile(filePath: string): Theme {
     }
     throw new Error(
       `Failed to parse theme file: The TypeScript/JavaScript file does not contain a valid theme export. ` +
-      `Expected an export statement with a theme object containing 'name' and 'schema' properties.`
+        `Expected an export statement with a theme object containing 'name' and 'schema' properties.`,
     );
   }
 
@@ -136,7 +136,7 @@ export function importThemeFromFile(filePath: string): Theme {
     if (!parsed.schema) missing.push("'schema'");
     throw new Error(
       `Invalid theme JSON: Missing required fields: ${missing.join(", ")}. ` +
-      `Theme files must contain both a 'name' string and a 'schema' object.`
+        `Theme files must contain both a 'name' string and a 'schema' object.`,
     );
   }
   return parsed;
