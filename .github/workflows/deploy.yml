@@ -44,9 +44,17 @@ jobs:
           fi
           echo "✅ Main package build successful - dist directory exists"
 
+      - name: Link main package for site
+        run: |
+          bun link
+          echo "✅ Linked logsdx package globally"
+
       - name: Install site dependencies
         working-directory: ./site
-        run: bun install
+        run: |
+          bun install
+          bun link logsdx
+          echo "✅ Linked logsdx package to site"
 
       - name: Build with Next.js
         working-directory: ./site
