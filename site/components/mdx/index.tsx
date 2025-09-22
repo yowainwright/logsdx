@@ -25,7 +25,7 @@ interface LinkProps extends ComponentProps<"a"> {
 
 function createHeading(level: 1 | 2 | 3 | 4 | 5 | 6) {
   const Component = ({ children, id, className, ...props }: HeadingProps) => {
-    const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+    const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
     return (
       <Tag id={id} {...props} className={cn("scroll-mt-20 group", className)}>

@@ -69,7 +69,7 @@ function SidebarSection({
           className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")}
         />
       </button>
-      {isOpen && (
+      {isOpen && section.items && (
         <ul className="mt-2 space-y-1">
           {section.items.map((item) => (
             <SidebarItem
@@ -132,7 +132,7 @@ function SidebarItem({ item, pathname, depth = 0 }: SidebarItemProps) {
           {item.title}
         </div>
       )}
-      {hasChildren && (
+      {hasChildren && item.items && (
         <ul className="mt-1 space-y-1">
           {item.items.map((child) => (
             <SidebarItem
