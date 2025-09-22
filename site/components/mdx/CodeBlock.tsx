@@ -19,14 +19,11 @@ export function CodeBlock({
       <pre
         className={cn(
           "overflow-x-auto p-4 rounded-lg bg-zinc-900 dark:bg-zinc-950 text-sm",
-          className
+          className,
         )}
       >
         <code
-          className={cn(
-            language && `language-${language}`,
-            "text-zinc-100"
-          )}
+          className={cn(language && `language-${language}`, "text-zinc-100")}
         >
           {children}
         </code>
