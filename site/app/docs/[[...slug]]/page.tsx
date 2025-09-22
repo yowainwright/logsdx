@@ -1,82 +1,82 @@
-import { notFound } from 'next/navigation'
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-import { getDocBySlug, getAllDocsMeta, markdownToHtml } from '@/lib/mdx'
-import { extractHeadings } from '@/lib/toc'
-import { TableOfContents } from '@/components/docs/TableOfContents'
+import { notFound } from "next/navigation";
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+import { getDocBySlug, getAllDocsMeta, markdownToHtml } from "@/lib/mdx";
+import { extractHeadings } from "@/lib/toc";
+import { TableOfContents } from "@/components/docs/TableOfContents";
 
 interface DocPageProps {
   params: {
-    slug?: string[]
-  }
+    slug?: string[];
+  };
 }
 
 export async function generateStaticParams() {
-  const docs = getAllDocsMeta()
-  const paths = docs.map(doc => ({
-    slug: doc.slug === 'index' ? [] : doc.slug.split('/'),
-  }))
-  
-  paths.push({ slug: [] })
-  
-  return paths
+  const docs = getAllDocsMeta();
+  const paths = docs.map((doc) => ({
+    slug: doc.slug === "index" ? [] : doc.slug.split("/"),
+  }));
+
+  paths.push({ slug: [] });
+
+  return paths;
 }
 
 export async function generateMetadata({ params }: DocPageProps) {
-  const slug = params.slug?.length ? params.slug : ['index']
-  const doc = getDocBySlug(slug)
-  
+  const slug = params.slug?.length ? params.slug : ["index"];
+  const doc = getDocBySlug(slug);
+
   if (!doc) {
-    return {}
+    return {};
   }
-  
+
   return {
     title: `${doc.title} - LogsDX`,
     description: doc.description,
-  }
+  };
 }
 
 async function getDocContent(slug: string[]) {
-  const contentDirectory = path.join(process.cwd(), 'content', 'docs')
-  let fullPath = path.join(contentDirectory, ...slug) + '.mdx'
-  
+  const contentDirectory = path.join(process.cwd(), "content", "docs");
+  let fullPath = path.join(contentDirectory, ...slug) + ".mdx";
+
   if (!fs.existsSync(fullPath)) {
-    fullPath = path.join(contentDirectory, ...slug) + '.md'
+    fullPath = path.join(contentDirectory, ...slug) + ".md";
   }
-  
+
   if (!fs.existsSync(fullPath)) {
-    return null
+    return null;
   }
-  
-  const fileContents = fs.readFileSync(fullPath, 'utf8')
-  const { data, content } = matter(fileContents)
-  
-  const htmlContent = await markdownToHtml(content)
-  
+
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data, content } = matter(fileContents);
+
+  const htmlContent = await markdownToHtml(content);
+
   return {
     frontmatter: data,
     content,
     html: htmlContent,
-  }
+  };
 }
 
 export default async function DocPage({ params }: DocPageProps) {
-  const slug = params.slug?.length ? params.slug : ['index']
-  const meta = getDocBySlug(slug)
-  
+  const slug = params.slug?.length ? params.slug : ["index"];
+  const meta = getDocBySlug(slug);
+
   if (!meta) {
-    notFound()
+    notFound();
   }
-  
-  const doc = await getDocContent(slug)
-  
+
+  const doc = await getDocContent(slug);
+
   if (!doc) {
-    notFound()
+    notFound();
   }
-  
-  const headings = extractHeadings(doc.content)
-  
+
+  const headings = extractHeadings(doc.content);
+
   return (
     <div className="mx-auto flex max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
       <article className="min-w-0 flex-1">
@@ -84,7 +84,9 @@ export default async function DocPage({ params }: DocPageProps) {
           <header className="mb-8 not-prose">
             <h1 className="text-4xl font-bold tracking-tight">{meta.title}</h1>
             {meta.description && (
-              <p className="mt-4 text-lg text-muted-foreground">{meta.description}</p>
+              <p className="mt-4 text-lg text-muted-foreground">
+                {meta.description}
+              </p>
             )}
             <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
               {meta.readingTime && <span>{meta.readingTime}</span>}
@@ -92,10 +94,10 @@ export default async function DocPage({ params }: DocPageProps) {
                 <>
                   <span>•</span>
                   <time dateTime={meta.date}>
-                    {new Date(meta.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
+                    {new Date(meta.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </time>
                 </>
@@ -108,17 +110,15 @@ export default async function DocPage({ params }: DocPageProps) {
               )}
             </div>
           </header>
-          
-          <div 
+
+          <div
             className="mdx-content"
             dangerouslySetInnerHTML={{ __html: doc.html }}
           />
         </div>
       </article>
-      
-      {headings.length > 0 && (
-        <TableOfContents items={headings} />
-      )}
+
+      {headings.length > 0 && <TableOfContents items={headings} />}
     </div>
-  )
+  );
 }

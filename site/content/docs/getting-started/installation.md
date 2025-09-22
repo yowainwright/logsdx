@@ -60,10 +60,10 @@ LogsDX supports the following environments:
 After installation, you can verify that LogsDX is working correctly:
 
 ```javascript
-import LogsDX from 'logsdx'
+import LogsDX from "logsdx";
 
-const logger = new LogsDX()
-logger.info('LogsDX is installed and working!')
+const logger = new LogsDX();
+logger.info("LogsDX is installed and working!");
 ```
 
 ## TypeScript Support
@@ -71,14 +71,14 @@ logger.info('LogsDX is installed and working!')
 LogsDX includes TypeScript definitions out of the box. No additional packages are required.
 
 ```typescript
-import LogsDX, { LogsDXOptions, Theme } from 'logsdx'
+import LogsDX, { LogsDXOptions, Theme } from "logsdx";
 
 const options: LogsDXOptions = {
-  theme: 'dracula',
+  theme: "dracula",
   showTimestamp: true,
-}
+};
 
-const logger = new LogsDX(options)
+const logger = new LogsDX(options);
 ```
 
 ## Next Steps

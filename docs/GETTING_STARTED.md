@@ -63,6 +63,7 @@ console.log(logger.processLine("ERROR: Test message"));
 ```
 
 Run it:
+
 ```bash
 node test-logsdx.js
 # You should see "ERROR" in red and "Test message" in styled text
@@ -105,7 +106,7 @@ const lines = logContent.split("\n");
 
 // Process and display styled logs
 const styledLines = logger.processLines(lines);
-styledLines.forEach(line => console.log(line));
+styledLines.forEach((line) => console.log(line));
 
 // Or save to a new file (ANSI codes included)
 fs.writeFileSync("styled-app.log", styledLines.join("\n"));
@@ -126,7 +127,7 @@ const logger = getLogsDX("monokai");
 // Stream and style logs line by line
 const rl = createInterface({
   input: createReadStream("server.log"),
-  crlfDelay: Infinity
+  crlfDelay: Infinity,
 });
 
 rl.on("line", (line) => {
@@ -146,7 +147,7 @@ import { LogsDX } from "logsdx";
 const logger = LogsDX.getInstance({
   theme: "github-dark",
   outputFormat: "html",
-  htmlStyleFormat: "css"
+  htmlStyleFormat: "css",
 });
 
 // Generate HTML with inline styles
@@ -170,46 +171,50 @@ const customTheme = {
   mode: "dark",
   schema: {
     defaultStyle: {
-      color: "#ffffff"
+      color: "#ffffff",
     },
     matchWords: {
       // Log levels
-      "FATAL": { color: "#ff0000", styleCodes: ["bold", "underline"] },
-      "ERROR": { color: "#ff5555", styleCodes: ["bold"] },
-      "WARN": { color: "#ffaa00" },
-      "INFO": { color: "#00aaff" },
-      "DEBUG": { color: "#888888", styleCodes: ["dim"] },
+      FATAL: { color: "#ff0000", styleCodes: ["bold", "underline"] },
+      ERROR: { color: "#ff5555", styleCodes: ["bold"] },
+      WARN: { color: "#ffaa00" },
+      INFO: { color: "#00aaff" },
+      DEBUG: { color: "#888888", styleCodes: ["dim"] },
 
       // Custom keywords
-      "DATABASE": { color: "#00ff00", styleCodes: ["italic"] },
-      "API": { color: "#ff00ff", styleCodes: ["italic"] },
-      "CACHE": { color: "#ffff00" }
+      DATABASE: { color: "#00ff00", styleCodes: ["italic"] },
+      API: { color: "#ff00ff", styleCodes: ["italic"] },
+      CACHE: { color: "#ffff00" },
     },
     matchPatterns: [
       // Highlight timestamps
       {
         name: "timestamp",
         pattern: "\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}",
-        options: { color: "#666666", styleCodes: ["dim"] }
+        options: { color: "#666666", styleCodes: ["dim"] },
       },
       // Highlight IPs
       {
         name: "ip",
         pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
-        options: { color: "#cyan" }
+        options: { color: "#cyan" },
       },
       // Highlight UUIDs
       {
         name: "uuid",
         pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-        options: { color: "#magenta", styleCodes: ["italic"] }
-      }
-    ]
-  }
+        options: { color: "#magenta", styleCodes: ["italic"] },
+      },
+    ],
+  },
 };
 
 const logger = getLogsDX(customTheme);
-console.log(logger.processLine("2024-01-15T10:30:00 ERROR: DATABASE connection to 192.168.1.100 failed"));
+console.log(
+  logger.processLine(
+    "2024-01-15T10:30:00 ERROR: DATABASE connection to 192.168.1.100 failed",
+  ),
+);
 ```
 
 ### Step 6: Integration with Winston Logger
@@ -229,13 +234,8 @@ const logsDXFormat = winston.format.printf(({ level, message, timestamp }) => {
 
 // Configure Winston with LogsDX
 const logger = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    logsDXFormat
-  ),
-  transports: [
-    new winston.transports.Console()
-  ]
+  format: winston.format.combine(winston.format.timestamp(), logsDXFormat),
+  transports: [new winston.transports.Console()],
 });
 
 // Use Winston as normal - output will be styled
@@ -330,7 +330,7 @@ const levels = {
   ERROR: 0,
   WARN: 1,
   INFO: 2,
-  DEBUG: 3
+  DEBUG: 3,
 };
 
 function shouldLog(line) {
@@ -366,11 +366,11 @@ const testLines = [
   "WARN: Deprecated API used",
   "ERROR: Connection timeout at 192.168.1.1",
   "DEBUG: Cache miss for key abc-123-def",
-  "2024-01-15T10:30:00Z ERROR: Database connection failed"
+  "2024-01-15T10:30:00Z ERROR: Database connection failed",
 ];
 
 console.log("\nStyled output:");
-testLines.forEach(line => {
+testLines.forEach((line) => {
   console.log(logger.processLine(line));
 });
 
@@ -381,9 +381,9 @@ const customTheme = {
   schema: {
     defaultStyle: { color: "#fff" },
     matchWords: {
-      "ERROR": { color: "#f00" }
-    }
-  }
+      ERROR: { color: "#f00" },
+    },
+  },
 };
 
 const validation = validateTheme(customTheme);
@@ -431,7 +431,7 @@ if (!result.success) {
 
 ```javascript
 // React
-<div dangerouslySetInnerHTML={{ __html: logger.processLine(log) }} />
+<div dangerouslySetInnerHTML={{ __html: logger.processLine(log) }} />;
 
 // Vanilla JS
 element.innerHTML = logger.processLine(log);
@@ -455,22 +455,22 @@ element.innerHTML = logger.processLine(log);
 
 ```javascript
 import {
-  getLogsDX,           // Get logger instance
-  LogsDX,              // Class for singleton pattern
-  getThemeNames,       // List available themes
-  getTheme,            // Get theme by name
-  getAllThemes,        // Get all theme objects
-  registerTheme,       // Register custom theme
-  validateTheme,       // Validate theme structure
-  createTheme,         // Create theme helper
-  renderLightBox,      // Light theme rendering
+  getLogsDX, // Get logger instance
+  LogsDX, // Class for singleton pattern
+  getThemeNames, // List available themes
+  getTheme, // Get theme by name
+  getAllThemes, // Get all theme objects
+  registerTheme, // Register custom theme
+  validateTheme, // Validate theme structure
+  createTheme, // Create theme helper
+  renderLightBox, // Light theme rendering
   checkWCAGCompliance, // Accessibility check
 } from "logsdx";
 
 // Configuration options
 const options = {
-  outputFormat: "ansi",     // "ansi" | "html"
-  htmlStyleFormat: "css",   // "css" | "className"
-  debug: false             // Enable debug output
+  outputFormat: "ansi", // "ansi" | "html"
+  htmlStyleFormat: "css", // "css" | "className"
+  debug: false, // Enable debug output
 };
 ```

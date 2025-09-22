@@ -1,9 +1,9 @@
 export interface NavItem {
-  title: string
-  href?: string
-  items?: NavItem[]
-  badge?: string
-  external?: boolean
+  title: string;
+  href?: string;
+  items?: NavItem[];
+  badge?: string;
+  external?: boolean;
 }
 
 export const docsNavigation: NavItem[] = [
@@ -32,10 +32,14 @@ export const docsNavigation: NavItem[] = [
       { title: "Integrations", href: "/docs/guides/integrations" },
     ],
   },
-]
+];
 
 export const mainNavigation: NavItem[] = [
   { title: "Documentation", href: "/docs" },
   { title: "API", href: "/docs/api" },
-  { title: "GitHub", href: "https://github.com/yowainwright/logsdx", external: true },
-]
+  {
+    title: "GitHub",
+    href: "https://github.com/yowainwright/logsdx",
+    external: true,
+  },
+];

@@ -35,19 +35,19 @@ yarn add logsdx
 ## Basic Usage
 
 ```javascript
-import LogsDX from 'logsdx'
+import LogsDX from "logsdx";
 
-const logger = new LogsDX({ theme: 'dracula' })
+const logger = new LogsDX({ theme: "dracula" });
 
 // Simple logging
-logger.info('Server started on port 3000')
-logger.success('Database connected')
-logger.warn('Cache miss for key: user_123')
-logger.error('Failed to fetch user data')
+logger.info("Server started on port 3000");
+logger.success("Database connected");
+logger.warn("Cache miss for key: user_123");
+logger.error("Failed to fetch user data");
 
 // Process raw log strings
-const styledLog = logger.processLine('[2024-01-01] ERROR: Connection timeout')
-console.log(styledLog)
+const styledLog = logger.processLine("[2024-01-01] ERROR: Connection timeout");
+console.log(styledLog);
 ```
 
 ## Themes
@@ -86,10 +86,10 @@ logsdx preview
 
 ```html
 <script type="module">
-import LogsDX from 'https://unpkg.com/logsdx/dist/index.mjs'
+  import LogsDX from "https://unpkg.com/logsdx/dist/index.mjs";
 
-const logger = new LogsDX({ theme: 'github-dark' })
-logger.info('Running in browser!')
+  const logger = new LogsDX({ theme: "github-dark" });
+  logger.info("Running in browser!");
 </script>
 ```
 
