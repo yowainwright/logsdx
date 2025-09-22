@@ -2,483 +2,495 @@
 
 # LogsDX
 
-**A schema-based styling layer that makes logs look identical between terminal and browser.**
+**Beautiful, consistent log styling for terminal and browser environments.**
 
-LogsDX is not a logger replacement—it's a theming engine that applies consistent visual styling to logs across environments.
+LogsDX is a schema-based theming engine that applies consistent visual styling to logs across all environments—write themes once, style logs everywhere.
 
-## Table of Contents
+## Features
 
-- [The Problem](#the-problem)
-- [The LogsDX Solution](#the-logsdx-solution)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Schema Reference](#schema-reference)
-- [CLI Usage](#cli-usage)
-- [API Reference](#api-reference)
-- [Themes](#themes)
-- [Contributing](#contributing)
+- 🎨 **Unified Theming** - One theme works in terminal, browser, and CI/CD
+- 🚀 **Zero Dependencies** - Works with any existing logger
+- 📦 **8+ Built-in Themes** - Production-ready themes included
+- 🛠️ **CLI Tool** - Process log files with beautiful formatting
+- ♿ **Accessible** - WCAG compliance checking built-in
+- 🌓 **Light/Dark Mode** - Automatic theme adaptation
 
-## The Problem
+## Installation
 
-Logs look different everywhere:
+```bash
+# npm
+npm install logsdx
 
-- Terminal logs use ANSI colors
-- Browser logs are plain text or basic HTML
-- CI/CD tools have their own styling
-- Each environment requires separate theming efforts
+# bun (recommended for development)
+bun add logsdx
 
-## The LogsDX Solution
+# yarn
+yarn add logsdx
 
-**Write themes once, style logs everywhere.** LogsDX uses a unified schema to define log styling patterns that work identically in:
+# pnpm
+pnpm add logsdx
+```
 
-- **Terminal** (ANSI escape codes)
-- **Browser** (HTML with CSS or CSS classes)
-- **Any environment** (extensible rendering system)
+**Requirements:** Node.js 18+ or Bun 1.0+
 
-**Key concept:** LogsDX sits between your existing logger and the display layer, applying consistent theming without replacing your logging infrastructure.
+## Getting Started
 
-## Quick Start
+### 1. Basic Usage - Style Your Console Logs
 
 ```javascript
 import { getLogsDX } from "logsdx";
 
+// Initialize with a built-in theme
 const logger = getLogsDX("dracula");
+
+// Style a log line
 console.log(
   logger.processLine(
     "ERROR: Database connection failed at 2024-01-15T10:30:45Z",
   ),
 );
-// Outputs styled text with ERROR in red, timestamp in dim gray
+// Output: Styled text with ERROR in red, timestamp in dim gray
 ```
 
-## Schema Reference
+### 2. Process Multiple Lines
 
-### Theme Structure
+```javascript
+const logs = [
+  "INFO: Server started on port 3000",
+  "WARN: Memory usage above 80%",
+  "ERROR: Failed to connect to database",
+];
 
-```json
-{
-  "name": "my-theme",
-  "description": "Optional description",
-  "mode": "dark", // "light" | "dark" | "auto"
-  "schema": {
-    /* SchemaConfig */
-  }
+// Process all lines at once
+const styledLogs = logger.processLines(logs);
+styledLogs.forEach((line) => console.log(line));
+```
+
+### 3. Browser Integration (React Example)
+
+```jsx
+import { LogsDX } from "logsdx";
+
+function LogViewer({ logs }) {
+  const logger = LogsDX.getInstance({
+    theme: "dracula",
+    outputFormat: "html",
+    htmlStyleFormat: "css",
+  });
+
+  return (
+    <div className="log-container">
+      {logs.map((log, i) => (
+        <div
+          key={i}
+          dangerouslySetInnerHTML={{ __html: logger.processLine(log) }}
+        />
+      ))}
+    </div>
+  );
 }
 ```
 
-### SchemaConfig Options
+### 4. Use Different Output Formats
 
-| Field             | Type                         | Description                 |
-| ----------------- | ---------------------------- | --------------------------- |
-| `defaultStyle`    | StyleOptions                 | Fallback for unmatched text |
-| `matchWords`      | Record<string, StyleOptions> | Exact word matches          |
-| `matchPatterns`   | PatternMatch[]               | Regex patterns              |
-| `matchStartsWith` | Record<string, StyleOptions> | Prefix matches              |
-| `matchEndsWith`   | Record<string, StyleOptions> | Suffix matches              |
-| `matchContains`   | Record<string, StyleOptions> | Substring matches           |
+```javascript
+// Terminal output with ANSI colors
+const terminalLogger = getLogsDX("dracula", {
+  outputFormat: "ansi",
+});
 
-### StyleOptions
+// HTML with inline styles
+const htmlLogger = getLogsDX("dracula", {
+  outputFormat: "html",
+  htmlStyleFormat: "css",
+});
 
-```json
-{
-  "color": "#ff4444", // hex, rgb(), hsl(), or named
-  "styleCodes": ["bold", "underline"], // optional decorations
-  "htmlStyleFormat": "css" // "css" | "className"
-}
+// HTML with CSS classes
+const classLogger = getLogsDX("dracula", {
+  outputFormat: "html",
+  htmlStyleFormat: "className",
+});
+
+const line = "ERROR: Connection timeout";
+console.log(terminalLogger.processLine(line)); // \x1b[31;1mERROR\x1b[0m: Connection timeout
+console.log(htmlLogger.processLine(line)); // <span style="color:#ff5555;font-weight:bold">ERROR</span>: Connection timeout
+console.log(classLogger.processLine(line)); // <span class="logsdx-error logsdx-bold">ERROR</span>: Connection timeout
 ```
 
-**Available style codes:** `bold`, `italic`, `underline`, `dim`, `blink`, `reverse`, `strikethrough`
+## CLI Usage
 
-### Pattern Matching
+After installation, the `logsdx` CLI tool is available globally:
 
-```json
-"matchPatterns": [
-  {
-    "name": "timestamp",
-    "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
-    "options": { "color": "#888888", "styleCodes": ["dim"] }
-  }
-]
+### Setup & Basic Commands
+
+```bash
+# Process a log file with default theme
+logsdx server.log
+
+# Use a specific theme
+logsdx server.log --theme nord
+
+# Save formatted output
+logsdx server.log --output formatted.log
+
+# Process from stdin
+tail -f app.log | logsdx
+
+# List all available themes
+logsdx --list-themes
 ```
 
-### Complete Example
+### Real-World Examples
+
+```bash
+# Format nginx access logs
+logsdx /var/log/nginx/access.log --theme github-dark
+
+# Process Docker logs
+docker logs my-container | logsdx --theme dracula
+
+# Format and save application logs
+logsdx app.log --theme nord --output styled-app.log
+
+# Debug mode for troubleshooting
+logsdx app.log --debug
+```
+
+## Creating Custom Themes
+
+### Method 1: Using the Theme Creator (Interactive)
+
+```bash
+bun run create-theme
+```
+
+This launches an interactive wizard that helps you:
+
+- Choose color presets (Vibrant, Pastel, Neon, etc.)
+- Preview your theme in real-time
+- Check WCAG accessibility compliance
+- Export to JSON or TypeScript
+
+### Method 2: Define Programmatically
+
+```javascript
+import { createTheme, registerTheme } from "logsdx";
+
+const myTheme = createTheme({
+  name: "my-company-theme",
+  mode: "dark",
+  schema: {
+    defaultStyle: {
+      color: "#e0e0e0",
+    },
+    matchWords: {
+      ERROR: { color: "#ff5555", styleCodes: ["bold"] },
+      WARN: { color: "#ffaa00" },
+      INFO: { color: "#00aaff" },
+      DEBUG: { color: "#888888", styleCodes: ["dim"] },
+    },
+    matchPatterns: [
+      {
+        name: "timestamp",
+        pattern: "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+        options: { color: "#666666", styleCodes: ["italic"] },
+      },
+      {
+        name: "ip-address",
+        pattern: "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+        options: { color: "#ff00ff" },
+      },
+    ],
+    matchStartsWith: {
+      "[": { color: "#aaaaaa" },
+      "{": { color: "#00ff00" },
+    },
+  },
+});
+
+// Register and use the theme
+registerTheme(myTheme);
+const logger = getLogsDX("my-company-theme");
+```
+
+### Method 3: JSON Configuration File
+
+Create `my-theme.json`:
 
 ```json
 {
   "name": "production",
   "mode": "dark",
   "schema": {
-    "defaultStyle": { "color": "#e0e0e0" },
+    "defaultStyle": {
+      "color": "#ffffff"
+    },
     "matchWords": {
-      "ERROR": { "color": "#ff4444", "styleCodes": ["bold"] },
-      "WARN": { "color": "#ff9900" },
-      "INFO": { "color": "#00aaff" }
+      "ERROR": {
+        "color": "#ff4444",
+        "styleCodes": ["bold", "underline"]
+      },
+      "SUCCESS": {
+        "color": "#00ff00",
+        "styleCodes": ["bold"]
+      }
     },
     "matchPatterns": [
       {
-        "name": "ip",
-        "pattern": "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
-        "options": { "color": "#ff00ff" }
+        "name": "uuid",
+        "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+        "options": {
+          "color": "#cyan",
+          "styleCodes": ["italic"]
+        }
       }
     ]
   }
 }
 ```
 
-### Matching Priority
+Load and use:
 
-1. `matchWords` - Highest priority
-2. `matchPatterns`
-3. `matchStartsWith`
-4. `matchEndsWith`
-5. `matchContains`
-6. `defaultStyle` - Lowest priority
-
-## Integration Approach
-
-LogsDX works as a styling middleware:
-
-```
-Your Logger → LogsDX Styling → Output (Terminal/Browser)
+```javascript
+import theme from "./my-theme.json";
+const logger = getLogsDX(theme);
 ```
 
-**Terminal Integration:**
+## Integration with Popular Loggers
 
-```typescript
-import { LogsDX } from "logsdx";
-const logsDX = LogsDX.getInstance({ theme: "my-theme", outputFormat: "ansi" });
-console.log(logsDX.processLine(logLine)); // ANSI-styled output
+LogsDX works as a styling layer on top of any logger:
+
+### Winston
+
+```javascript
+import winston from "winston";
+import { getLogsDX } from "logsdx";
+
+const logsDX = getLogsDX("dracula");
+
+const logger = winston.createLogger({
+  format: winston.format.printf((info) => {
+    const message = `${info.level.toUpperCase()}: ${info.message}`;
+    return logsDX.processLine(message);
+  }),
+  transports: [new winston.transports.Console()],
+});
+
+logger.info("Application started");
+logger.error("Database connection failed");
 ```
 
-**Browser Integration:**
+### Pino
 
-```typescript
-import { LogsDX } from 'logsdx';
-const logsDX = LogsDX.getInstance({ theme: 'my-theme', outputFormat: 'html' });
-return <div dangerouslySetInnerHTML={{__html: logsDX.processLine(logLine)}} />;
+```javascript
+import pino from "pino";
+import { getLogsDX } from "logsdx";
+
+const logsDX = getLogsDX("nord");
+
+const logger = pino({
+  transport: {
+    target: "pino-pretty",
+    options: {
+      messageFormat: (log, messageKey) => {
+        const msg = log[messageKey];
+        return logsDX.processLine(msg);
+      },
+    },
+  },
+});
 ```
 
-**Same theme, different formats, identical appearance.**
+### Console Override (Global)
 
-## Installation
+```javascript
+import { getLogsDX } from "logsdx";
 
-```bash
-# Using npm
-npm install logsdx
+const logsDX = getLogsDX("github-dark");
+const originalLog = console.log;
 
-# Using bun (recommended)
-bun add logsdx
+console.log = (...args) => {
+  const message = args.join(" ");
+  originalLog(logsDX.processLine(message));
+};
 
-# Using yarn
-yarn add logsdx
-
-# Using pnpm
-pnpm add logsdx
-```
-
----
-
-## CLI Usage
-
-LogsDX provides a powerful command-line interface for processing and formatting logs.
-
-### Basic Usage
-
-```bash
-# Process a log file
-logsdx input.log
-
-# Process logs from stdin
-cat input.log | logsdx
-
-# Save output to a file
-logsdx input.log --output formatted.log
-```
-
-### Options
-
-```bash
---debug, -d           Enable debug mode
---output, -o <file>   Path to output file
---theme, -t <theme>   Theme to use (default: "oh-my-zsh")
---list-themes         List available themes
---config, -c <file>   Path to config file
-```
-
-### Examples
-
-#### List Available Themes
-
-```bash
-logsdx --list-themes
-```
-
-#### Using a Specific Theme
-
-```bash
-logsdx input.log --theme dark
-```
-
-#### Parse JSON Logs
-
-```bash
-# Parse a JSON log file
-logsdx input.json --parser=json
-
-# Parse JSON logs from stdin
-echo '{"level":"info","message":"Test message","timestamp":"2023-01-01T00:00:00.000Z"}' | logsdx --parser=json
-```
-
-#### Parse with Custom Rules
-
-```bash
-# Parse logs with custom regex rules
-logsdx input.log --parser=regex --rules=rules.json
-```
-
-#### Filter by Log Level
-
-```bash
-# Show only warnings and errors
-logsdx input.log --level=warn
-
-# Show only errors
-logsdx input.log --level=error
-```
-
-#### Debug Mode
-
-```bash
-# Enable debug mode for verbose output
-logsdx input.log --debug
+// Now all console.log calls are styled
+console.log("ERROR: Something went wrong");
+console.log("INFO: Process completed");
 ```
 
 ## API Reference
 
 ### Core Functions
 
-```javascript
-import { getLogsDX, createTheme, validateTheme } from "logsdx";
+#### `getLogsDX(theme, options?)`
 
-// Get a logger instance
-const logger = getLogsDX("dracula"); // built-in theme
-const logger2 = getLogsDX(customTheme); // custom theme object
+Returns a LogsDX instance configured with the specified theme.
 
-// Process logs
-logger.processLine(line); // Single line
-logger.processLines(lines); // Multiple lines
+```typescript
+const logger = getLogsDX("dracula", {
+  outputFormat: "ansi", // "ansi" | "html"
+  htmlStyleFormat: "css", // "css" | "className"
+  debug: false, // Enable debug output
+});
 ```
+
+#### `LogsDX.getInstance(config)`
+
+Singleton pattern for getting a LogsDX instance.
+
+```typescript
+const logger = LogsDX.getInstance({
+  theme: "nord",
+  outputFormat: "html",
+});
+```
+
+### Instance Methods
+
+#### `processLine(line: string): string`
+
+Process a single log line with theme styling.
+
+#### `processLines(lines: string[]): string[]`
+
+Process multiple log lines at once.
+
+#### `processLog(text: string): string`
+
+Process a multi-line log string (splits by newlines).
 
 ### Theme Management
 
-```javascript
-// Create a theme
-const theme = createTheme({
-  name: "my-theme",
-  colors: { primary: "#ff0000", error: "#ff4444" },
-  presets: ["logLevels", "timestamps"],
-});
+#### `getAllThemes(): Theme[]`
 
-// Validate a theme
-const result = validateTheme(theme);
-if (!result.valid) console.error(result.errors);
+Get all available themes.
 
-// Register a theme
-import { registerTheme, getTheme } from "logsdx";
-registerTheme(theme);
-const retrieved = getTheme("my-theme");
-```
+#### `getThemeNames(): string[]`
+
+Get names of all available themes.
+
+#### `getTheme(name: string): Theme | undefined`
+
+Get a specific theme by name.
+
+#### `registerTheme(theme: Theme): void`
+
+Register a custom theme for use.
+
+#### `validateTheme(theme: Theme): ValidationResult`
+
+Validate theme schema and check for errors.
 
 ### Configuration Options
 
-```javascript
-const logger = getLogsDX("theme-name", {
-  outputFormat: "ansi", // 'ansi' | 'html'
-  htmlStyleFormat: "css", // 'css' | 'className'
-  debug: false, // Enable debug output
-  autoAdjustTerminal: true, // Auto-adapt for terminal
-});
-```
+| Option            | Type                   | Default       | Description                       |
+| ----------------- | ---------------------- | ------------- | --------------------------------- |
+| `theme`           | `string \| Theme`      | `"oh-my-zsh"` | Theme name or custom theme object |
+| `outputFormat`    | `"ansi" \| "html"`     | `"ansi"`      | Output format for styled text     |
+| `htmlStyleFormat` | `"css" \| "className"` | `"css"`       | HTML styling method               |
+| `debug`           | `boolean`              | `false`       | Enable debug output               |
 
-### Output Formats
+### Style Codes
 
-LogsDX provides three output formats:
+Available style codes for text decoration:
 
-```javascript
-// 1. ANSI - Terminal output with escape codes
-const ansiLogger = getLogsDX("dracula", { outputFormat: "ansi" });
-console.log(ansiLogger.processLine("ERROR: Failed"));
-// Output: \x1b[31;1mERROR\x1b[0m: Failed
+- `bold` - Bold text
+- `italic` - Italic text
+- `underline` - Underlined text
+- `dim` - Dimmed/faded text
+- `blink` - Blinking text (terminal support varies)
+- `reverse` - Reversed colors
+- `strikethrough` - Strikethrough text
 
-// 2. HTML with inline CSS (safe, escaped)
-const htmlLogger = getLogsDX("dracula", {
-  outputFormat: "html",
-  htmlStyleFormat: "css",
-});
-htmlLogger.processLine("ERROR: Failed");
-// Output: <span style="color: #ff4444; font-weight: bold">ERROR</span>: Failed
+### Pattern Matching Priority
 
-// 3. HTML with CSS classes (safe, escaped)
-const classLogger = getLogsDX("dracula", {
-  outputFormat: "html",
-  htmlStyleFormat: "className",
-});
-classLogger.processLine("ERROR: Failed");
-// Output: <span class="logsdx-error logsdx-bold">ERROR</span>: Failed
-```
+LogsDX applies styles in this priority order (highest to lowest):
 
-All HTML output is automatically escaped for security.
+1. **`matchWords`** - Exact word matches
+2. **`matchPatterns`** - Regular expression patterns
+3. **`matchStartsWith`** - String prefix matches
+4. **`matchEndsWith`** - String suffix matches
+5. **`matchContains`** - Substring matches
+6. **`defaultStyle`** - Fallback style
+
+## Built-in Themes
+
+| Theme             | Mode  | Description                      |
+| ----------------- | ----- | -------------------------------- |
+| `oh-my-zsh`       | Dark  | Popular Oh My Zsh terminal theme |
+| `dracula`         | Dark  | Dracula color scheme             |
+| `nord`            | Dark  | Arctic, north-bluish theme       |
+| `monokai`         | Dark  | Classic Monokai colors           |
+| `github-dark`     | Dark  | GitHub's dark mode               |
+| `github-light`    | Light | GitHub's default light theme     |
+| `solarized-dark`  | Dark  | Solarized dark variant           |
+| `solarized-light` | Light | Solarized light variant          |
+
+## Advanced Features
 
 ### Light Box Rendering
 
-For light themes in dark terminals, LogsDX provides a light-box renderer that creates a bordered background:
+For light themes in dark terminals, use the light box renderer:
 
 ```javascript
 import { renderLightBox, isLightTheme } from "logsdx";
 
-// Check if a theme is light
 if (isLightTheme("github-light")) {
-  // Render with light box background
-  const boxedOutput = renderLightBox(
-    ["INFO: Server started", "WARN: High memory usage"],
+  const output = renderLightBox(
+    ["INFO: Server started", "WARN: High memory"],
     "github-light",
-    "Server Logs", // Optional title
+    "Server Logs",
     {
       width: 80,
       padding: 2,
-      border: true,
-      borderStyle: "rounded", // 'rounded' | 'square' | 'double' | 'simple'
+      borderStyle: "rounded",
     },
   );
+  console.log(output);
 }
 ```
 
----
+### WCAG Accessibility Compliance
 
-## Light/Dark Mode & Accessibility
+```javascript
+import { checkWCAGCompliance, adjustThemeForAccessibility } from "logsdx";
 
-LogsDX provides comprehensive tools to ensure your themes work perfectly in both light and dark environments with full accessibility compliance. The system automatically detects browser/terminal color preferences, validates WCAG contrast ratios using industry-standard tools (tinycolor2), and generates CSS for multiple output formats including BEM, Tailwind, and utility classes.
+// Check theme accessibility
+const compliance = checkWCAGCompliance(myTheme);
+console.log(compliance); // "AAA" | "AA" | "A" | "FAIL"
 
-```typescript
-import {
-  detectColorScheme,
-  validateTheme,
-  checkWCAGCompliance,
-  adjustThemeForAccessibility,
-  generateBEMClasses,
-  generateTailwindTheme,
-  generateCompleteCSS,
-} from "logsdx";
-
-// Auto-detect system preference and validate accessibility
-const colorScheme = detectColorScheme(); // 'light' | 'dark' | 'auto'
-const validation = validateTheme(theme);
-const wcag = checkWCAGCompliance(theme); // Returns AAA/AA/A/FAIL level
-
-// Auto-fix accessibility issues and generate CSS
-const fixedTheme = adjustThemeForAccessibility(theme, 4.5);
-const { bem, utilities, tailwind } = generateCompleteCSS(fixedTheme);
+// Auto-fix contrast issues
+const accessibleTheme = adjustThemeForAccessibility(myTheme, 4.5);
 ```
 
----
+### CSS Generation
 
-## API Reference
+Generate CSS for web applications:
 
-### Core API
+```javascript
+import { generateCompleteCSS } from "logsdx";
 
-```tsx
-import { LogsDX, getTheme, getAllThemes, getThemeNames } from "logsdx";
+const { bem, utilities, tailwind } = generateCompleteCSS(theme);
 
-// Get LogsDX instance
-const logsDX = LogsDX.getInstance({
-  theme: "oh-my-zsh",
-  outputFormat: "ansi", // or 'html'
-  htmlStyleFormat: "css", // or 'className'
-  debug: false,
-});
-
-// Process a single line
-const styledLine = logsDX.processLine("INFO: Application started");
-
-// Process multiple lines
-const styledLog = logsDX.processLog("INFO: Line 1\nERROR: Line 2");
-
-// Get available themes
-const themeNames = getThemeNames();
-const themes = getAllThemes();
-const myTheme = getTheme("oh-my-zsh");
+// Use generated CSS in your app
+// bem: BEM-style classes (.logsdx__error)
+// utilities: Utility classes (.text-red-500)
+// tailwind: Tailwind config extension
 ```
-
-### Themes
-
-LogsDX comes with built-in themes and supports custom themes:
-
-```tsx
-// Using a built-in theme
-const logsDX = LogsDX.getInstance({ theme: "oh-my-zsh" });
-
-// Using a custom theme
-const logsDX = LogsDX.getInstance({
-  theme: {
-    name: "my-custom-theme",
-    styles: {
-      error: { color: "red", bold: true },
-      warning: { color: "yellow" },
-      info: { color: "blue" },
-      // Add more style definitions
-    },
-    // Add pattern definitions
-  },
-});
-```
-
----
-
-## Themes
-
-### Built-in Themes
-
-| Theme             | Mode  | Description                  |
-| ----------------- | ----- | ---------------------------- |
-| `oh-my-zsh`       | Dark  | Oh My Zsh terminal colors    |
-| `dracula`         | Dark  | Popular Dracula color scheme |
-| `github-light`    | Light | GitHub's default colors      |
-| `github-dark`     | Dark  | GitHub's dark mode           |
-| `solarized-light` | Light | Solarized light variant      |
-| `solarized-dark`  | Dark  | Solarized dark variant       |
-| `nord`            | Dark  | Arctic, north-bluish theme   |
-| `monokai`         | Dark  | Classic Monokai colors       |
-
-### Creating Custom Themes
-
-```bash
-# Interactive theme creator
-bun run create-theme
-```
-
-Features:
-
-- 🎨 Color presets (Vibrant, Pastel, Neon, Earth, Ocean)
-- ✨ Live preview
-- ♿ WCAG compliance checking
-- 💾 Export to JSON/TypeScript
-
----
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Install dependencies (`bun install`)
-4. Run tests (`bun test`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development
+### Development Setup
 
 ```bash
-# Install dependencies (we use Bun for development)
+# Clone the repository
+git clone https://github.com/yowainwright/logsdx.git
+cd logsdx
+
+# Install dependencies
 bun install
 
 # Run tests
@@ -487,25 +499,16 @@ bun test
 # Build the project
 bun run build
 
-# Create a custom theme interactively
-bun run create-theme
-
-# Using mise for development tasks
-# brew install mise
-mise install
+# Run linting
+bun run lint
 ```
 
-<!--
+## License
 
-```css
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background: linear-gradient(135deg, #42d392, #647eff, #A463BF, #bf6399)
-```
+MIT © LogsDX Contributors
 
-```html
-<span style="-webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background: linear-gradient(135deg, #42d392, #647eff, #A463BF, #bf6399);">Your Text Here</span>
-```
--->
+## Support
+
+- 📘 [Documentation](https://jeffry.in/logsdx)
+- 🐛 [Report Issues](https://github.com/yowainwright/logsdx/issues)
+- 💬 [Discussions](https://github.com/yowainwright/logsdx/discussions)

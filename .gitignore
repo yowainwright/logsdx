@@ -147,3 +147,7 @@ dist
 examples/*/bun.lock
 .turbo
 CLAUDE.md
+
+site/SPECIFICATION.md
+site/DESIGN.md
+site/ARCHITECTURE.md 
