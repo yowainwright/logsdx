@@ -126,7 +126,6 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
-/* Scrolling animation for log lines */
 @keyframes scroll-up {
   0% {
     transform: translateY(100%);
@@ -149,6 +148,7 @@
 .animate-scroll-up {
   animation: scroll-up linear infinite;
 }
+
 
 /* Slot machine animations for theme showcase */
 @keyframes slot-machine {
