@@ -95,6 +95,7 @@ export interface LogsDXOptions {
   theme?: string | Theme | ThemePair;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
+  escapeHtml?: boolean; // Whether to escape HTML in output (default: true)
   debug?: boolean;
   customRules?: Record<string, unknown>;
   autoAdjustTerminal?: boolean; // Automatically adjust themes for terminal visibility

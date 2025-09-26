@@ -19,9 +19,11 @@ import {
 } from "./constants";
 import { generateThemeCode } from "./utils";
 
+const STORAGE_KEY = 'logsdx-custom-theme';
+
 export function CustomThemeCreator() {
-  const [themeName, setThemeName] = useState("custom-theme");
-  const [mode, setMode] = useState<"light" | "dark">("dark");
+  // Load saved theme from localStorage or use defaults
+  const [themeName, setThemeName] = useState("dracula-custom");
   const [colors, setColors] = useState<ThemeColors>(DEFAULT_DARK_COLORS);
   const [selectedPresets, setSelectedPresets] = useState<string[]>([
     "logLevels",
@@ -32,32 +34,237 @@ export function CustomThemeCreator() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedConfig, setCopiedConfig] = useState(false);
+  const [uniqueThemeName] = useState(() => `${themeName}-${Date.now()}`);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Initialize with empty array, will be populated by useEffect
   const [processedLogs, setProcessedLogs] = useState<string[]>([]);
+  const [liveLogIndex, setLiveLogIndex] = useState(0);
+  const [visibleLogs, setVisibleLogs] = useState<string[]>([]);
+
+  // Load saved theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(STORAGE_KEY);
+    if (savedTheme) {
+      try {
+        const parsed = JSON.parse(savedTheme);
+        if (parsed.themeName) setThemeName(parsed.themeName);
+        if (parsed.colors) setColors(parsed.colors);
+        if (parsed.selectedPresets) setSelectedPresets(parsed.selectedPresets);
+      } catch (e) {
+        console.error('Failed to load saved theme:', e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save theme to localStorage whenever it changes
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const themeData = {
+      themeName,
+      colors,
+      selectedPresets
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(themeData));
+  }, [themeName, colors, selectedPresets, isLoaded]);
 
   useEffect(() => {
-    try {
-      const customTheme = createSimpleTheme({
-        name: themeName,
-        mode,
-        colors,
-        presets: selectedPresets,
-      });
+    // Process logs immediately
+    const processLogs = async () => {
+      try {
+        const tempThemeName = `custom-theme-${Date.now()}`;
 
-      registerTheme(customTheme);
+        const customTheme = createSimpleTheme(
+          tempThemeName,
+          colors,
+          {
+            mode: "dark",
+            presets: selectedPresets,
+          }
+        );
 
-      const processed = SAMPLE_LOGS.map((log) => {
+        registerTheme(customTheme);
+
+        // Small delay to ensure theme is registered
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // Use HTML output with escapeHtml disabled for trusted content
         const htmlLogsDX = getLogsDX({
-          theme: themeName,
+          theme: tempThemeName,
           outputFormat: "html",
+          htmlStyleFormat: "css",
+          escapeHtml: false, // Disable HTML escaping for trusted content
         }) as unknown as { processLine: (line: string) => string };
-        return htmlLogsDX.processLine(log.text);
-      });
 
-      setProcessedLogs(processed);
-    } catch (error) {
-      console.error("Error creating theme:", error);
-    }
-  }, [themeName, mode, colors, selectedPresets]);
+        const processed = SAMPLE_LOGS.map((log) => {
+          try {
+            const result = htmlLogsDX.processLine(log.text);
+
+            // Debug: Check what LogsDX actually returns
+            console.log('=== LogsDX DEBUG ===');
+            console.log('Input:', log.text);
+            console.log('Raw result:', result);
+            console.log('Result type:', typeof result);
+            console.log('Result length:', result.length);
+            console.log('Contains <span:', result.includes('<span'));
+            console.log('Contains &lt;:', result.includes('&lt;'));
+            console.log('==================');
+
+            // Try using the result as-is first
+            return result;
+          } catch (e) {
+            console.error('LogsDX processing failed:', log.text, e);
+            // Return styled fallback using all theme colors
+            let styledText = log.text;
+
+            // Apply colors based on selected presets
+            if (selectedPresets.includes('logLevels')) {
+              if (log.text.includes('[ERROR]') || log.text.includes('ERROR:')) {
+                styledText = styledText.replace(/(\[ERROR\]|ERROR:)/g, `<span style="color: ${colors.error}; font-weight: bold;">$1</span>`);
+              }
+              if (log.text.includes('[WARN]') || log.text.includes('WARN:')) {
+                styledText = styledText.replace(/(\[WARN\]|WARN:)/g, `<span style="color: ${colors.warning}; font-weight: bold;">$1</span>`);
+              }
+              if (log.text.includes('[SUCCESS]') || log.text.includes('SUCCESS:')) {
+                styledText = styledText.replace(/(\[SUCCESS\]|SUCCESS:)/g, `<span style="color: ${colors.success}; font-weight: bold;">$1</span>`);
+              }
+              if (log.text.includes('[INFO]') || log.text.includes('INFO:')) {
+                styledText = styledText.replace(/(\[INFO\]|INFO:)/g, `<span style="color: ${colors.info}; font-weight: bold;">$1</span>`);
+              }
+              if (log.text.includes('[DEBUG]') || log.text.includes('DEBUG:')) {
+                styledText = styledText.replace(/(\[DEBUG\]|DEBUG:)/g, `<span style="color: ${colors.debug}; font-weight: bold;">$1</span>`);
+              }
+            }
+
+            // Highlight numbers
+            if (selectedPresets.includes('numbers')) {
+              styledText = styledText.replace(/\b(\d+\.?\d*)\b/g, `<span style="color: ${colors.accent};">$1</span>`);
+            }
+
+            // Highlight strings
+            if (selectedPresets.includes('strings')) {
+              styledText = styledText.replace(/(['"])([^'"]*)\1/g, `<span style="color: ${colors.secondary};">$1$2$1</span>`);
+            }
+
+            // Highlight brackets
+            if (selectedPresets.includes('brackets')) {
+              styledText = styledText.replace(/[\[\]{}()<>]/g, `<span style="color: ${colors.highlight};">$&</span>`);
+            }
+
+            // Highlight booleans and null
+            if (selectedPresets.includes('booleans')) {
+              styledText = styledText.replace(/\b(true|false|null|undefined)\b/g, `<span style="color: ${colors.primary};">$1</span>`);
+            }
+
+            // URLs
+            if (selectedPresets.includes('urls')) {
+              styledText = styledText.replace(/(https?:\/\/[^\s]+)/g, `<span style="color: ${colors.accent};">$1</span>`);
+            }
+
+            // Paths
+            if (selectedPresets.includes('paths')) {
+              styledText = styledText.replace(/(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g, `<span style="color: ${colors.muted};">$1</span>`);
+            }
+
+            // Timestamps
+            if (selectedPresets.includes('timestamps')) {
+              styledText = styledText.replace(/(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g, `<span style="color: ${colors.info};">$1</span>`);
+            }
+
+            // Semantic versions
+            if (selectedPresets.includes('semantic')) {
+              styledText = styledText.replace(/\bv?(\d+\.\d+\.\d+)\b/g, `<span style="color: ${colors.primary};">$&</span>`);
+            }
+
+            return `<span style="color: ${colors.text}">${styledText}</span>`;
+          }
+        });
+
+        setProcessedLogs(processed);
+      } catch (error) {
+        console.error("THEME CREATION ERROR:", error);
+        // Styled fallback showing all colors
+        const fallbackLogs = SAMPLE_LOGS.map(log => {
+          let styledText = log.text;
+
+          // Apply all color categories
+          if (log.category === 'error' || log.text.includes('[ERROR]')) {
+            styledText = `<span style="color: ${colors.error}; font-weight: bold;">${log.text}</span>`;
+          } else if (log.category === 'warning' || log.text.includes('[WARN]')) {
+            styledText = `<span style="color: ${colors.warning}; font-weight: bold;">${log.text}</span>`;
+          } else if (log.category === 'success' || log.text.includes('[SUCCESS]')) {
+            styledText = `<span style="color: ${colors.success}; font-weight: bold;">${log.text}</span>`;
+          } else if (log.category === 'info' || log.text.includes('[INFO]')) {
+            styledText = `<span style="color: ${colors.info}; font-weight: bold;">${log.text}</span>`;
+          } else if (log.category === 'debug' || log.text.includes('[DEBUG]')) {
+            styledText = `<span style="color: ${colors.debug}; font-weight: bold;">${log.text}</span>`;
+          }
+
+          // Apply pattern matching based on selected presets
+          // Numbers
+          if (selectedPresets.includes('numbers')) {
+            styledText = styledText.replace(/\b(\d+\.?\d*)\b/g, `<span style="color: ${colors.accent};">$1</span>`);
+          }
+
+          // Strings
+          if (selectedPresets.includes('strings')) {
+            styledText = styledText.replace(/(['"])([^'"]*)\1/g, `<span style="color: ${colors.secondary};">$1$2$1</span>`);
+          }
+
+          // Brackets
+          if (selectedPresets.includes('brackets')) {
+            styledText = styledText.replace(/[\[\]{}()<>]/g, `<span style="color: ${colors.highlight};">$&</span>`);
+          }
+
+          // Booleans
+          if (selectedPresets.includes('booleans')) {
+            styledText = styledText.replace(/\b(true|false|null|undefined)\b/g, `<span style="color: ${colors.primary};">$1</span>`);
+          }
+
+          // URLs
+          if (selectedPresets.includes('urls')) {
+            styledText = styledText.replace(/(https?:\/\/[^\s]+)/g, `<span style="color: ${colors.accent};">$1</span>`);
+          }
+
+          // Paths
+          if (selectedPresets.includes('paths')) {
+            styledText = styledText.replace(/(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g, `<span style="color: ${colors.muted};">$1</span>`);
+          }
+
+          // Timestamps
+          if (selectedPresets.includes('timestamps')) {
+            styledText = styledText.replace(/(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g, `<span style="color: ${colors.info};">$1</span>`);
+          }
+
+          // Dates
+          if (selectedPresets.includes('dates')) {
+            styledText = styledText.replace(/(\[\d{4}-\d{2}-\d{2}[\s\d:]*\])/g, `<span style="color: ${colors.info};">$1</span>`);
+          }
+
+          // Semantic versions
+          if (selectedPresets.includes('semantic')) {
+            styledText = styledText.replace(/\bv?(\d+\.\d+\.\d+)\b/g, `<span style="color: ${colors.primary};">$&</span>`);
+          }
+
+          // JSON keys
+          if (selectedPresets.includes('json')) {
+            styledText = styledText.replace(/(\w+):/g, `<span style="color: ${colors.accent};">$1</span>:`);
+          }
+
+          // Wrap in text color
+          styledText = `<span style="color: ${colors.text}">${styledText}</span>`;
+
+          return styledText;
+        });
+        setProcessedLogs(fallbackLogs);
+      }
+    };
+
+    processLogs();
+  }, [colors, selectedPresets]);
+
 
   const handleColorChange = (key: keyof ThemeColors, value: string) => {
     setColors((prev) => ({ ...prev, [key]: value }));
@@ -71,26 +278,23 @@ export function CustomThemeCreator() {
     );
   };
 
-  const handleModeChange = (newMode: "light" | "dark") => {
-    setMode(newMode);
-    setColors(newMode === "dark" ? DEFAULT_DARK_COLORS : DEFAULT_LIGHT_COLORS);
-  };
-
   const resetColors = () => {
-    setColors(mode === "dark" ? DEFAULT_DARK_COLORS : DEFAULT_LIGHT_COLORS);
+    setColors(DEFAULT_DARK_COLORS);
+    // Clear saved theme from localStorage
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const themeConfig: ThemeConfig = useMemo(() => {
     return {
       name: themeName,
-      mode,
+      mode: "dark", // Default mode, colors determine actual appearance
       colors,
       presets: selectedPresets,
     };
-  }, [themeName, mode, colors, selectedPresets]);
+  }, [themeName, colors, selectedPresets]);
 
   const copyCode = async () => {
-    const code = generateThemeCode(themeName, mode, colors, selectedPresets);
+    const code = generateThemeCode(themeName, "dark", colors, selectedPresets);
     await navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
@@ -103,7 +307,7 @@ export function CustomThemeCreator() {
   };
 
   const downloadTheme = () => {
-    const code = generateThemeCode(themeName, mode, colors, selectedPresets);
+    const code = generateThemeCode(themeName, "dark", colors, selectedPresets);
     const blob = new Blob([code], { type: "text/javascript" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -125,7 +329,7 @@ export function CustomThemeCreator() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-2 gap-8 relative">
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <h3 className="text-xl font-semibold">Theme Basics</h3>
@@ -147,25 +351,6 @@ export function CustomThemeCreator() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Mode</label>
-              <div className="flex gap-2">
-                <Button
-                  variant={mode === "dark" ? "default" : "outline"}
-                  onClick={() => handleModeChange("dark")}
-                  className="flex-1"
-                >
-                  Dark
-                </Button>
-                <Button
-                  variant={mode === "light" ? "default" : "outline"}
-                  onClick={() => handleModeChange("light")}
-                  className="flex-1"
-                >
-                  Light
-                </Button>
-              </div>
-            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
@@ -243,7 +428,7 @@ export function CustomThemeCreator() {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="lg:sticky lg:top-24 space-y-6" style={{ maxHeight: 'calc(100vh - 8rem)', overflowY: 'auto' }}>
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Live Preview</h3>
@@ -252,15 +437,68 @@ export function CustomThemeCreator() {
               </span>
             </div>
             <div
-              className="font-mono text-sm p-4 rounded-lg space-y-2 overflow-x-auto"
+              className="font-mono text-sm rounded-lg overflow-hidden h-[400px] relative"
               style={{
                 backgroundColor: colors.background,
                 color: colors.text,
+                border: `1px solid ${colors.muted}`,
               }}
             >
-              {processedLogs.map((log, index) => (
-                <div key={index} dangerouslySetInnerHTML={{ __html: log }} />
-              ))}
+              <style dangerouslySetInnerHTML={{
+                __html: `
+                  @keyframes scroll-up-continuous {
+                    from {
+                      transform: translateY(0);
+                    }
+                    to {
+                      transform: translateY(-50%);
+                    }
+                  }
+                  .log-scroll-wrapper {
+                    display: flex;
+                    flex-direction: column;
+                    animation: scroll-up-continuous 40s linear infinite;
+                  }
+                  .log-scroll-wrapper:hover {
+                    animation-play-state: paused;
+                  }
+                  .log-line {
+                    padding: 4px 16px;
+                    line-height: 1.6;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                `
+              }} />
+              <div className="h-full overflow-hidden relative">
+                {processedLogs.length > 0 ? (
+                  <div className="log-scroll-wrapper">
+                    {/* First set of logs */}
+                    {processedLogs.map((log, index) => (
+                      <div
+                        key={`log-1-${index}`}
+                        className="log-line"
+                        dangerouslySetInnerHTML={{ __html: log }}
+                      />
+                    ))}
+                    {/* Duplicate set for seamless loop */}
+                    {processedLogs.map((log, index) => (
+                      <div
+                        key={`log-2-${index}`}
+                        className="log-line"
+                        dangerouslySetInnerHTML={{ __html: log }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center opacity-50">
+                      Processing logs...
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -315,7 +553,7 @@ export function CustomThemeCreator() {
                   <code>
                     {generateThemeCode(
                       themeName,
-                      mode,
+                      "dark",
                       colors,
                       selectedPresets,
                     )}
@@ -344,13 +582,45 @@ function CustomLogInput({
 }) {
   const [customLog, setCustomLog] = useState("");
   const [processedCustomLog, setProcessedCustomLog] = useState("");
+  const [uniqueThemeName] = useState(() => `${themeName}-custom-${Date.now()}`);
+
+  useEffect(() => {
+    try {
+      const tempThemeName = `${uniqueThemeName}-${JSON.stringify(colors).substring(0, 10)}`;
+      const customTheme = createSimpleTheme(
+        tempThemeName,
+        colors,
+        {
+          mode: "dark",
+          presets: ["logLevels", "numbers", "strings", "brackets"],
+        }
+      );
+      registerTheme(customTheme);
+
+      if (customLog) {
+        const htmlLogsDX = getLogsDX({
+          theme: tempThemeName,
+          outputFormat: "html",
+          htmlStyleFormat: "css",
+          escapeHtml: false,
+        }) as unknown as { processLine: (line: string) => string };
+        const processed = htmlLogsDX.processLine(customLog);
+        setProcessedCustomLog(processed);
+      }
+    } catch (error) {
+      console.error("Error registering custom theme:", error);
+    }
+  }, [colors, uniqueThemeName, customLog]);
 
   const handleProcessLog = () => {
     if (customLog) {
       try {
+        const tempThemeName = `${uniqueThemeName}-${JSON.stringify(colors).substring(0, 10)}`;
         const htmlLogsDX = getLogsDX({
-          theme: themeName,
+          theme: tempThemeName,
           outputFormat: "html",
+          htmlStyleFormat: "css",
+          escapeHtml: false,
         }) as unknown as { processLine: (line: string) => string };
         const processed = htmlLogsDX.processLine(customLog);
         setProcessedCustomLog(processed);

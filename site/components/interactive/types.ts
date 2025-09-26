@@ -1,5 +1,6 @@
 export interface ThemeConfig {
   bg: string;
+  headerBg: string;
   text: string;
   border: string;
   colors: {

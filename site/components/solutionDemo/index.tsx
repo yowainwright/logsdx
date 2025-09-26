@@ -101,7 +101,7 @@ export function ProblemSection() {
             </div>
 
             {/* Right side - Live code example with spotlight */}
-            <div className="relative">
+            <div className="relative lg:sticky lg:top-24">
               {/* Floating badge - top right corner */}
               <div className="absolute -top-2 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full shadow-lg pointer-events-none">
                 {showWithLogsDx ? "✨ With logsDx" : "❌ Without logsDx"}
@@ -123,8 +123,26 @@ export function ProblemSection() {
                 </div>
 
                 {/* Code editor section */}
-                <div className="p-4 font-mono text-sm">
-                  <pre className="text-slate-300 overflow-x-auto">
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    .problem-scrollbar::-webkit-scrollbar {
+                      width: 6px;
+                      height: 6px;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-track {
+                      background: transparent;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-thumb {
+                      background: #475569;
+                      border-radius: 3px;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-thumb:hover {
+                      background: #64748b;
+                    }
+                  `
+                }} />
+                <div className="p-4 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '180px' }}>
+                  <pre className="text-slate-300">
                     <code>{showWithLogsDx ? WITH_LOGSDX : WITHOUT_LOGSDX}</code>
                   </pre>
                 </div>
@@ -135,12 +153,12 @@ export function ProblemSection() {
                 {/* Output section with Terminal and Browser panes */}
                 <div className="grid grid-cols-2 divide-x divide-slate-700">
                   {/* Terminal Pane */}
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col">
                     <div className="text-xs text-slate-500 mb-2 flex items-center gap-2">
                       <div className="w-3 h-3 rounded-sm bg-slate-700"></div>
                       Terminal
                     </div>
-                    <div className="space-y-1 font-mono text-sm">
+                    <div className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '200px' }}>
                       {DEMO_LOGS.map((log, index) => (
                         <div
                           key={`terminal-${index}`}
@@ -183,12 +201,12 @@ export function ProblemSection() {
                   </div>
 
                   {/* Browser Pane */}
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col">
                     <div className="text-xs text-slate-500 mb-2 flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-slate-700"></div>
                       Browser Console
                     </div>
-                    <div className="space-y-1 font-mono text-sm">
+                    <div className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '200px' }}>
                       {DEMO_LOGS.map((log, index) => (
                         <div
                           key={`browser-${index}`}
