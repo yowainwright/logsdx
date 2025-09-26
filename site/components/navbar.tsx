@@ -115,14 +115,15 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 pr-8">
-            <a
+            {/* Docs link hidden for now */}
+            {/* <a
               href="https://docs.claude.com/en/docs/claude-code"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-3"
             >
               Docs
-            </a>
+            </a> */}
             <Search />
             <Button
               variant="outline"
