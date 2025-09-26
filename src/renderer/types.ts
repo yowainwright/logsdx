@@ -4,6 +4,7 @@ export type RenderOptions = {
   theme?: Theme;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
+  escapeHtml?: boolean;
   classPrefix?: string;
   useBEM?: boolean;
 };

@@ -30,9 +30,9 @@ export function renderLine(
 
   if (options.outputFormat === "html") {
     if (options.htmlStyleFormat === "className") {
-      return tokensToClassNames(styledTokens);
+      return tokensToClassNames(styledTokens, options);
     } else {
-      return tokensToHtml(styledTokens);
+      return tokensToHtml(styledTokens, options);
     }
   } else {
     return tokensToString(styledTokens);
@@ -129,9 +129,13 @@ export function tokensToString(
 /**
  * Convert tokens to HTML with inline CSS styles
  * @param tokens - The tokens to convert
+ * @param options - Render options
  * @returns HTML string with inline CSS styles
  */
-export function tokensToHtml(tokens: TokenList): string {
+export function tokensToHtml(
+  tokens: TokenList,
+  options: RenderOptions = {},
+): string {
   return tokens
     .map((token) => {
       if (
@@ -174,7 +178,9 @@ export function tokensToHtml(tokens: TokenList): string {
 
       const style = token.metadata?.style;
       if (!style) {
-        return escapeHtml(token.content);
+        return options.escapeHtml !== false
+          ? escapeHtml(token.content)
+          : token.content;
       }
 
       const css = [];
@@ -211,9 +217,13 @@ export function tokensToHtml(tokens: TokenList): string {
         css.push("opacity: 0.8");
       }
 
+      const content =
+        options.escapeHtml !== false
+          ? escapeHtml(token.content)
+          : token.content;
       return css.length > 0
-        ? `<span style="${css.join("; ")}">${escapeHtml(token.content)}</span>`
-        : escapeHtml(token.content);
+        ? `<span style="${css.join("; ")}">${content}</span>`
+        : content;
     })
     .join("");
 }
@@ -223,7 +233,10 @@ export function tokensToHtml(tokens: TokenList): string {
  * @param tokens - The tokens to convert
  * @returns HTML with CSS class names for styling
  */
-export function tokensToClassNames(tokens: TokenList): string {
+export function tokensToClassNames(
+  tokens: TokenList,
+  options: RenderOptions = {},
+): string {
   return tokens
     .map((token) => {
       if (
@@ -266,7 +279,9 @@ export function tokensToClassNames(tokens: TokenList): string {
 
       const style = token.metadata?.style;
       if (!style) {
-        return escapeHtml(token.content);
+        return options.escapeHtml !== false
+          ? escapeHtml(token.content)
+          : token.content;
       }
 
       const classes = [];
@@ -305,10 +320,13 @@ export function tokensToClassNames(tokens: TokenList): string {
         classes.push("logsdx-dim");
       }
 
-      const escapedContent = escapeHtml(token.content);
+      const content =
+        options.escapeHtml !== false
+          ? escapeHtml(token.content)
+          : token.content;
       return classes.length > 0
-        ? `<span class="${classes.join(" ")}">${escapedContent}</span>`
-        : escapedContent;
+        ? `<span class="${classes.join(" ")}">${content}</span>`
+        : content;
     })
     .join("");
 }

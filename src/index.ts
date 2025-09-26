@@ -59,6 +59,7 @@ export class LogsDX {
       theme: "none",
       outputFormat: "ansi",
       htmlStyleFormat: "css",
+      escapeHtml: true,
       debug: false,
       customRules: {},
       autoAdjustTerminal: true,
@@ -210,6 +211,7 @@ export class LogsDX {
       theme: this.currentTheme,
       outputFormat: this.options.outputFormat,
       htmlStyleFormat: this.options.htmlStyleFormat,
+      escapeHtml: this.options.escapeHtml,
     };
 
     // First tokenize the line

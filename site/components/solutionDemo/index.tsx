@@ -30,6 +30,7 @@ logger.log('[WARN] Memory usage high: 85%');     // Styled in both`;
 export function ProblemSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showWithLogsDx, setShowWithLogsDx] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Cycle through logs for spotlight effect
   useEffect(() => {
@@ -39,13 +40,15 @@ export function ProblemSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Toggle between with/without logsDx every 5 seconds
+  // Toggle between with/without logsDx every 3 seconds (pause on hover)
   useEffect(() => {
+    if (isHovered) return; // Don't run interval when hovered
+
     const interval = setInterval(() => {
       setShowWithLogsDx((prev) => !prev);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isHovered]);
 
   return (
     <section id="problem" className="bg-slate-50 dark:bg-slate-900 py-24">
@@ -54,11 +57,16 @@ export function ProblemSection() {
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             {/* Left side - Problem description */}
             <div>
-              <h2 className="mb-8 text-4xl font-bold">
-                The Problem logsDx Solves
+              <h2 className="mb-8 text-5xl lg:text-6xl font-bold">
+                The Problem
+                <br />
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  logsDx
+                </span>{" "}
+                Solves
               </h2>
               <div className="space-y-6 text-lg text-slate-600 dark:text-slate-400">
-                <p>
+                <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                   Have you ever built a beautiful logging system for your
                   terminal, only to have it look completely different in the
                   browser console?
@@ -93,8 +101,18 @@ export function ProblemSection() {
             </div>
 
             {/* Right side - Live code example with spotlight */}
-            <div className="relative">
-              <Card className="overflow-hidden bg-slate-900 border-slate-700">
+            <div className="relative lg:sticky lg:top-24">
+              {/* Floating badge - top right corner */}
+              <div className="absolute -top-2 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full shadow-lg pointer-events-none">
+                {showWithLogsDx ? "✨ With logsDx" : "❌ Without logsDx"}
+              </div>
+
+              <Card
+                className="overflow-hidden bg-slate-900 border-slate-700 cursor-pointer transition-transform hover:scale-[1.01]"
+                onClick={() => setShowWithLogsDx((prev) => !prev)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
                 {/* Header */}
                 <div className="bg-slate-800 px-4 py-2 flex items-center justify-between">
                   <div className="flex gap-1.5">
@@ -102,14 +120,34 @@ export function ProblemSection() {
                     <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   </div>
-                  <div className="text-xs text-slate-400">
-                    {showWithLogsDx ? "✨ With logsDx" : "❌ Without logsDx"}
-                  </div>
                 </div>
 
                 {/* Code editor section */}
-                <div className="p-4 font-mono text-sm">
-                  <pre className="text-slate-300 overflow-x-auto">
+                <style
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                    .problem-scrollbar::-webkit-scrollbar {
+                      width: 6px;
+                      height: 6px;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-track {
+                      background: transparent;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-thumb {
+                      background: #475569;
+                      border-radius: 3px;
+                    }
+                    .problem-scrollbar::-webkit-scrollbar-thumb:hover {
+                      background: #64748b;
+                    }
+                  `,
+                  }}
+                />
+                <div
+                  className="p-4 font-mono text-sm overflow-auto problem-scrollbar"
+                  style={{ height: "180px" }}
+                >
+                  <pre className="text-slate-300">
                     <code>{showWithLogsDx ? WITH_LOGSDX : WITHOUT_LOGSDX}</code>
                   </pre>
                 </div>
@@ -117,76 +155,140 @@ export function ProblemSection() {
                 {/* Divider */}
                 <div className="border-t border-slate-700"></div>
 
-                {/* Output section with spotlight effect */}
-                <div className="p-4">
-                  <div className="text-xs text-slate-500 mb-2">Output:</div>
-                  <div className="space-y-1 font-mono text-sm">
-                    {DEMO_LOGS.map((log, index) => (
-                      <div
-                        key={index}
-                        className={`
-                          px-2 py-1 rounded transition-all duration-500
-                          ${
-                            index === activeIndex
-                              ? "bg-slate-800/50 ring-2 ring-blue-500/50"
-                              : ""
-                          }
-                        `}
-                      >
-                        {showWithLogsDx ? (
-                          <span
-                            style={{
-                              color: log.text.includes("[ERROR]")
-                                ? "#f85149"
-                                : log.text.includes("[WARN]")
-                                  ? "#f0883e"
-                                  : log.text.includes("[SUCCESS]")
-                                    ? "#3fb950"
-                                    : log.text.includes("[INFO]")
-                                      ? "#58a6ff"
-                                      : log.text.includes("[DEBUG]")
-                                        ? "#a5a5ff"
-                                        : "#e6edf3",
-                              fontWeight: log.text.includes("[ERROR]")
-                                ? "bold"
-                                : "normal",
-                            }}
-                          >
-                            {log.text}
-                          </span>
-                        ) : (
-                          <span className="text-slate-400">{log.text}</span>
-                        )}
-                      </div>
-                    ))}
+                {/* Output section with Terminal and Browser panes */}
+                <div className="grid grid-cols-2 divide-x divide-slate-700">
+                  {/* Terminal Pane */}
+                  <div className="p-4 flex flex-col">
+                    <div className="text-xs text-slate-500 mb-2 flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-sm bg-slate-700"></div>
+                      Terminal
+                    </div>
+                    <div
+                      className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar"
+                      style={{ height: "200px" }}
+                    >
+                      {DEMO_LOGS.map((log, index) => (
+                        <div
+                          key={`terminal-${index}`}
+                          className={`
+                            px-2 py-1 rounded transition-all duration-500
+                            ${
+                              index === activeIndex
+                                ? "bg-slate-800/50 ring-1 ring-blue-500/30"
+                                : ""
+                            }
+                          `}
+                        >
+                          {showWithLogsDx ? (
+                            <span
+                              style={{
+                                color: log.text.includes("[ERROR]")
+                                  ? "#f85149"
+                                  : log.text.includes("[WARN]")
+                                    ? "#f0883e"
+                                    : log.text.includes("[SUCCESS]")
+                                      ? "#3fb950"
+                                      : log.text.includes("[INFO]")
+                                        ? "#58a6ff"
+                                        : log.text.includes("[DEBUG]")
+                                          ? "#a5a5ff"
+                                          : "#e6edf3",
+                                fontWeight: log.text.includes("[ERROR]")
+                                  ? "bold"
+                                  : "normal",
+                              }}
+                            >
+                              {log.text}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">{log.text}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Browser Pane */}
+                  <div className="p-4 flex flex-col">
+                    <div className="text-xs text-slate-500 mb-2 flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-slate-700"></div>
+                      Browser Console
+                    </div>
+                    <div
+                      className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar"
+                      style={{ height: "200px" }}
+                    >
+                      {DEMO_LOGS.map((log, index) => (
+                        <div
+                          key={`browser-${index}`}
+                          className={`
+                            px-2 py-1 rounded transition-all duration-500
+                            ${
+                              index === activeIndex
+                                ? "bg-slate-800/50 ring-1 ring-blue-500/30"
+                                : ""
+                            }
+                          `}
+                        >
+                          {showWithLogsDx ? (
+                            <span
+                              style={{
+                                color: log.text.includes("[ERROR]")
+                                  ? "#f85149"
+                                  : log.text.includes("[WARN]")
+                                    ? "#f0883e"
+                                    : log.text.includes("[SUCCESS]")
+                                      ? "#3fb950"
+                                      : log.text.includes("[INFO]")
+                                        ? "#58a6ff"
+                                        : log.text.includes("[DEBUG]")
+                                          ? "#a5a5ff"
+                                          : "#e6edf3",
+                                fontWeight: log.text.includes("[ERROR]")
+                                  ? "bold"
+                                  : "normal",
+                              }}
+                            >
+                              {log.text}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">{log.text}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Environment indicators */}
-                <div className="px-4 pb-4 flex gap-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        showWithLogsDx ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    ></div>
-                    <span className="text-slate-500">Terminal</span>
+                {/* Status bar */}
+                <div className="px-4 pb-3 pt-2 border-t border-slate-700 flex items-center justify-between text-xs">
+                  <div className="flex gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          showWithLogsDx ? "bg-green-500" : "bg-yellow-500"
+                        }`}
+                      ></div>
+                      <span className="text-slate-500">
+                        Terminal: {showWithLogsDx ? "Styled" : "Plain"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          showWithLogsDx ? "bg-green-500" : "bg-yellow-500"
+                        }`}
+                      ></div>
+                      <span className="text-slate-500">
+                        Browser: {showWithLogsDx ? "Styled" : "Plain"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        showWithLogsDx ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    ></div>
-                    <span className="text-slate-500">Browser</span>
-                  </div>
+                  <span className="text-slate-600">
+                    {showWithLogsDx ? "logsDx enabled" : "Standard console"}
+                  </span>
                 </div>
               </Card>
-
-              {/* Floating badge */}
-              <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
-                Live Demo
-              </div>
             </div>
           </div>
         </div>

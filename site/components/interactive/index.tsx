@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CodeBlock } from "../codeblock";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Monitor } from "lucide-react";
 import type { ThemeConfig, ThemePair, ColorMode } from "./types";
@@ -38,6 +36,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
   const themes: Record<string, ThemeConfig> = {
     "github-light": {
       bg: "#ffffff",
+      headerBg: "#f6f8fa",
       text: "#1f2328",
       border: "#d1d9e0",
       colors: {
@@ -51,6 +50,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     "github-dark": {
       bg: "#0d1117",
+      headerBg: "#161b22",
       text: "#e6edf3",
       border: "#30363d",
       colors: {
@@ -64,6 +64,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     "solarized-light": {
       bg: "#fdf6e3",
+      headerBg: "#eee8d5",
       text: "#657b83",
       border: "#eee8d5",
       colors: {
@@ -77,6 +78,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     "solarized-dark": {
       bg: "#002b36",
+      headerBg: "#073642",
       text: "#839496",
       border: "#073642",
       colors: {
@@ -90,6 +92,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     dracula: {
       bg: "#282a36",
+      headerBg: "#1e1f29",
       text: "#f8f8f2",
       border: "#44475a",
       colors: {
@@ -103,6 +106,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     nord: {
       bg: "#2e3440",
+      headerBg: "#3b4252",
       text: "#eceff4",
       border: "#4c566a",
       colors: {
@@ -116,6 +120,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     monokai: {
       bg: "#272822",
+      headerBg: "#3e3d32",
       text: "#f8f8f2",
       border: "#75715e",
       colors: {
@@ -129,6 +134,7 @@ const getThemeStyles = (themeName: string): ThemeConfig => {
     },
     "oh-my-zsh": {
       bg: "#2c3e50",
+      headerBg: "#34495e",
       text: "#ecf0f1",
       border: "#34495e",
       colors: {
@@ -179,10 +185,128 @@ const styleLogLine = (log: string, theme: ThemeConfig) => {
   }
 };
 
+// Code block component with syntax highlighting
+function CodeBlock({
+  children,
+  theme,
+  className = "",
+}: {
+  children: string;
+  theme: string;
+  className?: string;
+}) {
+  const themeStyle = getThemeStyles(theme);
+
+  // Simple syntax highlighting for JavaScript
+  const highlightCode = (code: string) => {
+    const keywords = [
+      "import",
+      "from",
+      "const",
+      "let",
+      "var",
+      "function",
+      "return",
+      "export",
+      "default",
+      "true",
+      "false",
+      "new",
+    ];
+    const strings = /(["'`])(?:(?=(\\?))\2.)*?\1/g;
+    const comments = /(\/\/.*$)|(\/\*[\s\S]*?\*\/)/gm;
+
+    let highlighted = code
+      // Escape HTML
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      // Highlight strings
+      .replace(
+        strings,
+        `<span style="color: ${themeStyle.colors.success}">$&</span>`,
+      )
+      // Highlight comments
+      .replace(
+        comments,
+        `<span style="color: ${themeStyle.border}; font-style: italic">$&</span>`,
+      );
+
+    // Highlight keywords
+    keywords.forEach((keyword) => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "g");
+      highlighted = highlighted.replace(
+        regex,
+        `<span style="color: ${themeStyle.colors.info}; font-weight: bold">${keyword}</span>`,
+      );
+    });
+
+    // Highlight function names and properties
+    highlighted = highlighted
+      .replace(
+        /(\w+)(?=\()/g,
+        `<span style="color: ${themeStyle.colors.warn}">$1</span>`,
+      )
+      .replace(
+        /\.(\w+)/g,
+        `.<span style="color: ${themeStyle.colors.debug}">$1</span>`,
+      );
+
+    return highlighted;
+  };
+
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: ${themeStyle.border}44;
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: ${themeStyle.border}88;
+          }
+        `,
+        }}
+      />
+      <div
+        className={`p-4 font-mono text-sm overflow-auto custom-scrollbar ${className}`}
+        style={{
+          backgroundColor: themeStyle.bg,
+          color: themeStyle.text,
+          minHeight: "280px",
+        }}
+      >
+        <pre dangerouslySetInnerHTML={{ __html: highlightCode(children) }} />
+      </div>
+    </>
+  );
+}
+
 export function InteractiveExamplesSection() {
   const [selectedTheme, setSelectedTheme] = useState("GitHub");
   const [colorMode, setColorMode] = useState<ColorMode>("system");
   const [effectiveMode, setEffectiveMode] = useState<"light" | "dark">("dark");
+
+  useEffect(() => {
+    const themes = Object.keys(THEME_PAIRS);
+    const interval = setInterval(() => {
+      setSelectedTheme((current) => {
+        const currentIndex = themes.indexOf(current);
+        return themes[(currentIndex + 1) % themes.length];
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Detect system preference
   useEffect(() => {
@@ -221,13 +345,18 @@ export function InteractiveExamplesSection() {
     <section id="examples" className="bg-slate-50 dark:bg-slate-900 py-24">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mb-12 text-center text-4xl font-bold">
-            Interactive Theme Preview
+          <h2 className="mb-12 text-center text-5xl lg:text-6xl font-bold">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Interactive
+            </span>{" "}
+            Theme Preview
           </h2>
+        </div>
+      </div>
 
-          {/* Theme Controls */}
-          <div className="mb-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {/* Theme Selector */}
+      <div className="sticky top-16 z-40 w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-y border-slate-200 dark:border-slate-700 py-4 mb-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="flex flex-wrap justify-center gap-2">
               {Object.keys(THEME_PAIRS).map((theme) => (
                 <Button
@@ -241,7 +370,6 @@ export function InteractiveExamplesSection() {
               ))}
             </div>
 
-            {/* Color Mode Toggle */}
             {!isDarkOnly && (
               <div className="flex gap-1 border rounded-lg p-1">
                 <Button
@@ -271,69 +399,117 @@ export function InteractiveExamplesSection() {
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {/* Live Preview */}
-          <Card className="mb-12 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="grid grid-cols-1 lg:grid-cols-2">
-                {/* Terminal Preview */}
-                <div className="border-b lg:border-b-0 lg:border-r">
-                  <div className="bg-gray-800 px-4 py-2 flex items-center gap-2">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <span className="text-gray-400 text-sm ml-2">Terminal</span>
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Terminal Preview */}
+              <div className="overflow-hidden rounded-lg border border-slate-700">
+                <div
+                  className="px-4 py-2 flex items-center justify-between"
+                  style={{ backgroundColor: currentTheme.headerBg }}
+                >
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   </div>
-                  <div
-                    className="p-4 font-mono text-sm overflow-auto h-96"
-                    style={{
-                      backgroundColor: currentTheme.bg,
-                      color: currentTheme.text,
-                    }}
+                  <span
+                    className="text-xs"
+                    style={{ color: currentTheme.text, opacity: 0.7 }}
                   >
-                    {SAMPLE_LOGS.map((log, i) => (
-                      <div
-                        key={i}
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{
-                          __html: styleLogLine(log, currentTheme),
-                        }}
-                      />
-                    ))}
-                  </div>
+                    Terminal
+                  </span>
                 </div>
-
-                {/* Browser Console Preview */}
-                <div>
-                  <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 flex items-center gap-2">
-                    <span className="text-gray-600 dark:text-gray-400 text-sm">
-                      Browser Console
-                    </span>
-                  </div>
-                  <div
-                    className="p-4 font-mono text-sm overflow-auto h-96"
-                    style={{
-                      backgroundColor: currentTheme.bg,
-                      color: currentTheme.text,
-                    }}
+                <div
+                  className="p-4 font-mono text-sm overflow-auto h-96"
+                  style={{
+                    backgroundColor: currentTheme.bg,
+                    color: currentTheme.text,
+                  }}
+                >
+                  {SAMPLE_LOGS.map((log, i) => (
+                    <div
+                      key={i}
+                      className="leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: styleLogLine(log, currentTheme),
+                      }}
+                    />
+                  ))}
+                </div>
+                <div
+                  className="px-4 py-2 border-t"
+                  style={{
+                    backgroundColor: currentTheme.headerBg,
+                    borderColor: currentTheme.border,
+                  }}
+                >
+                  <span
+                    className="text-xs"
+                    style={{ color: currentTheme.text, opacity: 0.6 }}
                   >
-                    {SAMPLE_LOGS.map((log, i) => (
-                      <div
-                        key={i}
-                        className="leading-relaxed border-b"
-                        style={{ borderColor: currentTheme.border }}
-                        dangerouslySetInnerHTML={{
-                          __html: styleLogLine(log, currentTheme),
-                        }}
-                      />
-                    ))}
-                  </div>
+                    Theme: {currentThemeName}
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Browser Console Preview */}
+              <div className="overflow-hidden rounded-lg border border-slate-700">
+                <div
+                  className="px-4 py-2 flex items-center justify-between"
+                  style={{ backgroundColor: currentTheme.headerBg }}
+                >
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <span
+                    className="text-xs"
+                    style={{ color: currentTheme.text, opacity: 0.7 }}
+                  >
+                    Browser Console
+                  </span>
+                </div>
+                <div
+                  className="p-4 font-mono text-sm overflow-auto h-96"
+                  style={{
+                    backgroundColor: currentTheme.bg,
+                    color: currentTheme.text,
+                  }}
+                >
+                  {SAMPLE_LOGS.map((log, i) => (
+                    <div
+                      key={i}
+                      className="leading-relaxed border-b"
+                      style={{ borderColor: currentTheme.border }}
+                      dangerouslySetInnerHTML={{
+                        __html: styleLogLine(log, currentTheme),
+                      }}
+                    />
+                  ))}
+                </div>
+                <div
+                  className="px-4 py-2 border-t"
+                  style={{
+                    backgroundColor: currentTheme.headerBg,
+                    borderColor: currentTheme.border,
+                  }}
+                >
+                  <span
+                    className="text-xs"
+                    style={{ color: currentTheme.text, opacity: 0.6 }}
+                  >
+                    Theme: {currentThemeName}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Integration Examples */}
           <div className="space-y-12">
@@ -341,10 +517,25 @@ export function InteractiveExamplesSection() {
               <h3 className="mb-6 text-2xl font-semibold text-center">
                 Quick Integration
               </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <h4 className="mb-3 font-medium">Basic Usage</h4>
-                  <CodeBlock theme={currentThemeName} language="javascript">
+              <div className="grid gap-6 md:grid-cols-2 items-stretch">
+                <div className="overflow-hidden rounded-lg border border-slate-700 flex flex-col">
+                  <div
+                    className="px-4 py-2 flex items-center justify-between"
+                    style={{ backgroundColor: currentTheme.headerBg }}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.7 }}
+                    >
+                      Basic Usage
+                    </span>
+                  </div>
+                  <CodeBlock theme={currentThemeName} className="flex-1">
                     {`import { getLogsDX } from 'logsdx'
 
 // Initialize with selected theme
@@ -355,11 +546,40 @@ console.log(logger.processLine('[INFO] Server started'))
 console.log(logger.processLine('[ERROR] Connection failed'))
 console.log(logger.processLine('[SUCCESS] Deploy complete'))`}
                   </CodeBlock>
+                  <div
+                    className="px-4 py-2 border-t"
+                    style={{
+                      backgroundColor: currentTheme.headerBg,
+                      borderColor: currentTheme.border,
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.6 }}
+                    >
+                      Theme: {currentThemeName}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="mb-3 font-medium">Auto Theme Detection</h4>
-                  <CodeBlock theme={currentThemeName} language="javascript">
+                <div className="overflow-hidden rounded-lg border border-slate-700 flex flex-col">
+                  <div
+                    className="px-4 py-2 flex items-center justify-between"
+                    style={{ backgroundColor: currentTheme.headerBg }}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.7 }}
+                    >
+                      Auto Theme Detection
+                    </span>
+                  </div>
+                  <CodeBlock theme={currentThemeName} className="flex-1">
                     {`import { getLogsDX } from 'logsdx'
 
 // Auto-detect light/dark mode
@@ -372,6 +592,20 @@ const logger = getLogsDX({
 // Your logs will adapt to user's theme preference
 logger.log('INFO', 'Adaptive theming enabled')`}
                   </CodeBlock>
+                  <div
+                    className="px-4 py-2 border-t"
+                    style={{
+                      backgroundColor: currentTheme.headerBg,
+                      borderColor: currentTheme.border,
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.6 }}
+                    >
+                      Theme: {currentThemeName}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -381,10 +615,25 @@ logger.log('INFO', 'Adaptive theming enabled')`}
               <h3 className="mb-6 text-2xl font-semibold text-center">
                 Logger Integration Examples
               </h3>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <h4 className="mb-2 font-medium">Winston</h4>
-                  <CodeBlock theme={currentThemeName} language="javascript">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                <div className="overflow-hidden rounded-lg border border-slate-700 flex flex-col">
+                  <div
+                    className="px-4 py-2 flex items-center justify-between"
+                    style={{ backgroundColor: currentTheme.headerBg }}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.7 }}
+                    >
+                      Winston
+                    </span>
+                  </div>
+                  <CodeBlock theme={currentThemeName} className="flex-1">
                     {`import winston from 'winston'
 import { getLogsDX } from 'logsdx'
 
@@ -396,11 +645,40 @@ const logger = winston.createLogger({
   })
 })`}
                   </CodeBlock>
+                  <div
+                    className="px-4 py-2 border-t"
+                    style={{
+                      backgroundColor: currentTheme.headerBg,
+                      borderColor: currentTheme.border,
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.6 }}
+                    >
+                      Theme: {currentThemeName}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="mb-2 font-medium">Pino</h4>
-                  <CodeBlock theme={currentThemeName} language="javascript">
+                <div className="overflow-hidden rounded-lg border border-slate-700 flex flex-col">
+                  <div
+                    className="px-4 py-2 flex items-center justify-between"
+                    style={{ backgroundColor: currentTheme.headerBg }}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.7 }}
+                    >
+                      Pino
+                    </span>
+                  </div>
+                  <CodeBlock theme={currentThemeName} className="flex-1">
                     {`import pino from 'pino'
 import { getLogsDX } from 'logsdx'
 
@@ -417,11 +695,40 @@ const logger = pino({
   }
 })`}
                   </CodeBlock>
+                  <div
+                    className="px-4 py-2 border-t"
+                    style={{
+                      backgroundColor: currentTheme.headerBg,
+                      borderColor: currentTheme.border,
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.6 }}
+                    >
+                      Theme: {currentThemeName}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <h4 className="mb-2 font-medium">Console Override</h4>
-                  <CodeBlock theme={currentThemeName} language="javascript">
+                <div className="overflow-hidden rounded-lg border border-slate-700 flex flex-col">
+                  <div
+                    className="px-4 py-2 flex items-center justify-between"
+                    style={{ backgroundColor: currentTheme.headerBg }}
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.7 }}
+                    >
+                      Console Override
+                    </span>
+                  </div>
+                  <CodeBlock theme={currentThemeName} className="flex-1">
                     {`import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('${currentThemeName}')
@@ -429,14 +736,28 @@ const logsDX = getLogsDX('${currentThemeName}')
 // Override console methods
 const originalLog = console.log
 console.log = (...args) => {
-  const styled = args.map(arg => 
-    typeof arg === 'string' 
+  const styled = args.map(arg =>
+    typeof arg === 'string'
       ? logsDX.processLine(arg)
       : arg
   )
   originalLog(...styled)
 }`}
                   </CodeBlock>
+                  <div
+                    className="px-4 py-2 border-t"
+                    style={{
+                      backgroundColor: currentTheme.headerBg,
+                      borderColor: currentTheme.border,
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: currentTheme.text, opacity: 0.6 }}
+                    >
+                      Theme: {currentThemeName}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

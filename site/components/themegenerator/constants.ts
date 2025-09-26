@@ -1,19 +1,21 @@
 import type { ThemeColors, ThemePreset, SampleLog } from "./types";
 
-export const DEFAULT_DARK_COLORS: ThemeColors = {
-  primary: "#3b82f6",
-  secondary: "#8b5cf6",
-  accent: "#06b6d4",
-  error: "#ef4444",
-  warning: "#f59e0b",
-  info: "#0ea5e9",
-  success: "#10b981",
-  debug: "#6b7280",
-  text: "#e5e7eb",
-  background: "#111827",
-  muted: "#6b7280",
-  highlight: "#fbbf24",
+export const DRACULA_COLORS: ThemeColors = {
+  primary: "#bd93f9",
+  secondary: "#ff79c6",
+  accent: "#8be9fd",
+  error: "#ff5555",
+  warning: "#ffb86c",
+  info: "#8be9fd",
+  success: "#50fa7b",
+  debug: "#6272a4",
+  text: "#f8f8f2",
+  background: "#282a36",
+  muted: "#6272a4",
+  highlight: "#f1fa8c",
 };
+
+export const DEFAULT_DARK_COLORS: ThemeColors = DRACULA_COLORS;
 
 export const DEFAULT_LIGHT_COLORS: ThemeColors = {
   primary: "#2563eb",
@@ -89,44 +91,101 @@ export const PRESET_OPTIONS: ThemePreset[] = [
 ];
 
 export const SAMPLE_LOGS: SampleLog[] = [
+  // Log Levels (affected by logLevels preset)
   {
-    text: "2024-01-15T10:30:45.123Z INFO: Server started on port 3000",
+    text: "[INFO] Server initialized on port 3000",
     category: "info",
   },
   {
-    text: "ERROR: Connection failed to database at localhost:5432",
+    text: "[ERROR] Database connection failed: ECONNREFUSED",
     category: "error",
   },
   {
-    text: 'DEBUG: Processing user request { id: 123, status: true, name: "John Doe" }',
-    category: "debug",
-  },
-  {
-    text: "WARN: Memory usage high (85.3%) - threshold exceeded",
+    text: "[WARN] Memory usage: 85% - approaching limit",
     category: "warning",
   },
   {
-    text: "SUCCESS: Build completed in 3.45 seconds - v2.1.0",
+    text: "[SUCCESS] Deployment completed successfully",
     category: "success",
   },
   {
-    text: "[API] GET https://api.example.com/users/123 - 200 OK (45ms)",
+    text: "[DEBUG] Query execution time: 45ms",
+    category: "debug",
+  },
+
+  // Strings (affected by strings preset)
+  {
+    text: 'Processing request: "POST /api/users" with body: "admin@example.com"',
     category: "general",
   },
   {
-    text: "Loading configuration from /etc/app/config.json",
+    text: "Loading module: 'authentication-service' from './auth/index.js'",
+    category: "general",
+  },
+
+  // Numbers (affected by numbers preset)
+  {
+    text: "Response time: 123.45ms | Status: 200 | Size: 1024 bytes",
     category: "general",
   },
   {
-    text: "Database query: SELECT * FROM users WHERE active = true LIMIT 100",
+    text: "Cache stats: Hit ratio: 0.95 | Requests: 10000 | Hits: 9500",
+    category: "general",
+  },
+
+  // Brackets (affected by brackets preset)
+  {
+    text: "Parsing JSON: { user: { id: 123, role: [admin, user] } }",
     category: "general",
   },
   {
-    text: "TypeError: Cannot read property 'length' of undefined at index.js:42",
-    category: "error",
+    text: "Array processing: [1, 2, 3] => map(x => x * 2) => [2, 4, 6]",
+    category: "general",
+  },
+
+  // Booleans (affected by booleans preset)
+  {
+    text: "Config loaded: { production: true, debug: false, ssl: null }",
+    category: "general",
   },
   {
-    text: "Cache hit ratio: 0.923 | Total requests: 10450 | Hits: 9646",
-    category: "info",
+    text: "Feature flags: analytics=true, beta=false, legacy=undefined",
+    category: "general",
+  },
+
+  // URLs (affected by urls preset)
+  {
+    text: "API endpoint: https://api.example.com/v2/users?limit=100",
+    category: "general",
+  },
+  {
+    text: "Webhook registered: http://localhost:3000/webhooks/github",
+    category: "general",
+  },
+
+  // Paths (affected by paths preset)
+  {
+    text: "Loading config from: /etc/app/config.json",
+    category: "general",
+  },
+  {
+    text: "Saving logs to: C:\\Users\\Admin\\AppData\\logs\\app.log",
+    category: "general",
+  },
+
+  // Timestamps (affected by timestamps preset)
+  {
+    text: "2024-01-15T10:30:45.123Z - Request received",
+    category: "general",
+  },
+  {
+    text: "[2024-01-15 10:30:45] User session started",
+    category: "general",
+  },
+
+  // Semantic Versions (affected by semantic preset)
+  {
+    text: "Application version: v2.1.0 | Node: v20.10.0 | npm: v10.2.3",
+    category: "general",
   },
 ];
