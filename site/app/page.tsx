@@ -45,17 +45,24 @@ export default function Home() {
       >
         {/* Headline content positioned over the dimmed animation */}
         <div className="mx-auto max-w-3xl">
-          <h1 className="mb-6 text-8xl md:text-9xl font-bold tracking-tight leading-tight flex items-center justify-center" style={{ filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))', lineHeight: '1.2' }}>
+          <h1
+            className="mb-6 text-8xl md:text-9xl font-bold tracking-tight leading-tight flex items-center justify-center"
+            style={{
+              filter:
+                "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+              lineHeight: "1.2",
+            }}
+          >
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pr-2">
               logsDx
             </span>
             <span
               className="inline-block animate-pulse"
               style={{
-                width: '0.08em',
-                height: '0.8em',
-                backgroundColor: '#ef4444',
-                marginLeft: '0.1em'
+                width: "0.08em",
+                height: "0.8em",
+                backgroundColor: "#ef4444",
+                marginLeft: "0.1em",
               }}
             ></span>
           </h1>

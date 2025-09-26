@@ -123,8 +123,9 @@ export function ProblemSection() {
                 </div>
 
                 {/* Code editor section */}
-                <style dangerouslySetInnerHTML={{
-                  __html: `
+                <style
+                  dangerouslySetInnerHTML={{
+                    __html: `
                     .problem-scrollbar::-webkit-scrollbar {
                       width: 6px;
                       height: 6px;
@@ -139,9 +140,13 @@ export function ProblemSection() {
                     .problem-scrollbar::-webkit-scrollbar-thumb:hover {
                       background: #64748b;
                     }
-                  `
-                }} />
-                <div className="p-4 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '180px' }}>
+                  `,
+                  }}
+                />
+                <div
+                  className="p-4 font-mono text-sm overflow-auto problem-scrollbar"
+                  style={{ height: "180px" }}
+                >
                   <pre className="text-slate-300">
                     <code>{showWithLogsDx ? WITH_LOGSDX : WITHOUT_LOGSDX}</code>
                   </pre>
@@ -158,7 +163,10 @@ export function ProblemSection() {
                       <div className="w-3 h-3 rounded-sm bg-slate-700"></div>
                       Terminal
                     </div>
-                    <div className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '200px' }}>
+                    <div
+                      className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar"
+                      style={{ height: "200px" }}
+                    >
                       {DEMO_LOGS.map((log, index) => (
                         <div
                           key={`terminal-${index}`}
@@ -206,7 +214,10 @@ export function ProblemSection() {
                       <div className="w-3 h-3 rounded-full bg-slate-700"></div>
                       Browser Console
                     </div>
-                    <div className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar" style={{ height: '200px' }}>
+                    <div
+                      className="space-y-1 font-mono text-sm overflow-auto problem-scrollbar"
+                      style={{ height: "200px" }}
+                    >
                       {DEMO_LOGS.map((log, index) => (
                         <div
                           key={`browser-${index}`}
@@ -258,7 +269,9 @@ export function ProblemSection() {
                           showWithLogsDx ? "bg-green-500" : "bg-yellow-500"
                         }`}
                       ></div>
-                      <span className="text-slate-500">Terminal: {showWithLogsDx ? "Styled" : "Plain"}</span>
+                      <span className="text-slate-500">
+                        Terminal: {showWithLogsDx ? "Styled" : "Plain"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div
@@ -266,7 +279,9 @@ export function ProblemSection() {
                           showWithLogsDx ? "bg-green-500" : "bg-yellow-500"
                         }`}
                       ></div>
-                      <span className="text-slate-500">Browser: {showWithLogsDx ? "Styled" : "Plain"}</span>
+                      <span className="text-slate-500">
+                        Browser: {showWithLogsDx ? "Styled" : "Plain"}
+                      </span>
                     </div>
                   </div>
                   <span className="text-slate-600">

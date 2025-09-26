@@ -29,7 +29,7 @@ export function Navbar() {
         return;
       }
 
-      const sections = navLinks.map(link => link.href.substring(1));
+      const sections = navLinks.map((link) => link.href.substring(1));
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -54,14 +54,18 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
     e.preventDefault();
     const element = document.querySelector(href);
     if (element) {
-      const offsetTop = element.getBoundingClientRect().top + window.scrollY - 80;
+      const offsetTop =
+        element.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({
         top: offsetTop,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
@@ -88,10 +92,10 @@ export function Navbar() {
               <span
                 className="inline-block animate-pulse"
                 style={{
-                  width: '3px',
-                  height: '1.25rem',
-                  backgroundColor: '#ef4444',
-                  marginLeft: '2px'
+                  width: "3px",
+                  height: "1.25rem",
+                  backgroundColor: "#ef4444",
+                  marginLeft: "2px",
                 }}
               ></span>
             </a>
@@ -125,11 +129,7 @@ export function Navbar() {
               Docs
             </a> */}
             <Search />
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-            >
+            <Button variant="outline" size="icon" asChild>
               <a
                 href="https://github.com/yowainwright/logsdx"
                 target="_blank"

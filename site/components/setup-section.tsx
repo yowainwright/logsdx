@@ -33,21 +33,29 @@ const SETUP_CONTENT = {
       { text: "const logger = getLogsDX('dracula')", highlight: true },
       { text: "" },
       { text: "// Terminal output (ANSI)" },
-      { text: "console.log(logger.processLine('ERROR: Database connection failed'))" },
-      { text: "console.log(logger.processLine('INFO: Server started on port 3000'))" },
+      {
+        text: "console.log(logger.processLine('ERROR: Database connection failed'))",
+      },
+      {
+        text: "console.log(logger.processLine('INFO: Server started on port 3000'))",
+      },
       { text: "" },
       { text: "// Browser output (HTML)" },
       { text: "const htmlLogger = getLogsDX('dracula', {" },
       { text: "  outputFormat: 'html'" },
       { text: "})" },
-      { text: "const safeHTML = htmlLogger.processLine('ERROR: Critical error occurred')" },
+      {
+        text: "const safeHTML = htmlLogger.processLine('ERROR: Critical error occurred')",
+      },
     ],
     language: "javascript",
   },
   custom: {
     title: "Create custom themes",
     lines: [
-      { text: "import { createTheme, registerTheme, getLogsDX } from 'logsdx'" },
+      {
+        text: "import { createTheme, registerTheme, getLogsDX } from 'logsdx'",
+      },
       { text: "" },
       { text: "const myTheme = createTheme({", highlight: true },
       { text: "  name: 'my-theme',", highlight: true },
@@ -59,7 +67,10 @@ const SETUP_CONTENT = {
       { text: "    info: '#06b6d4',", highlight: true },
       { text: "    debug: '#8b5cf6',", highlight: true },
       { text: "  },", highlight: true },
-      { text: "  presets: ['logLevels', 'timestamps', 'json'],", highlight: true },
+      {
+        text: "  presets: ['logLevels', 'timestamps', 'json'],",
+        highlight: true,
+      },
       { text: "})", highlight: true },
       { text: "" },
       { text: "// Register and use the theme" },
@@ -120,7 +131,8 @@ export function SetupSection() {
       .filter((i) => i !== null) as number[];
 
     const isHighlightable = line.highlight;
-    const isCurrentlyHighlighted = isHighlightable && highlightedLines[highlightIndex] === lineIndex;
+    const isCurrentlyHighlighted =
+      isHighlightable && highlightedLines[highlightIndex] === lineIndex;
 
     // When hovering, show all lines normally
     if (isHovered) {
@@ -135,9 +147,13 @@ export function SetupSection() {
     if (isHighlightable) {
       return {
         opacity: isCurrentlyHighlighted ? 1 : 0.5,
-        background: isCurrentlyHighlighted ? "rgba(59, 130, 246, 0.1)" : "transparent",
+        background: isCurrentlyHighlighted
+          ? "rgba(59, 130, 246, 0.1)"
+          : "transparent",
         transform: isCurrentlyHighlighted ? "scale(1.02)" : "scale(1)",
-        borderLeft: isCurrentlyHighlighted ? "3px solid rgb(59, 130, 246)" : "3px solid transparent",
+        borderLeft: isCurrentlyHighlighted
+          ? "3px solid rgb(59, 130, 246)"
+          : "3px solid transparent",
         paddingLeft: "12px",
         marginLeft: "-12px",
       };
@@ -170,7 +186,13 @@ export function SetupSection() {
             <div className="relative lg:sticky lg:top-24">
               {/* Step indicator badge */}
               <div className="absolute -top-2 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full shadow-lg">
-                Step {activeStep === "install" ? "1" : activeStep === "import" ? "2" : "3"} of 3
+                Step{" "}
+                {activeStep === "install"
+                  ? "1"
+                  : activeStep === "import"
+                    ? "2"
+                    : "3"}{" "}
+                of 3
               </div>
 
               <Card
@@ -187,10 +209,16 @@ export function SetupSection() {
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
                     </div>
                     <div className="text-xs text-slate-400 flex items-center gap-2">
-                      <span>{activeStep === "install" ? "terminal" : "app.js"}</span>
+                      <span>
+                        {activeStep === "install" ? "terminal" : "app.js"}
+                      </span>
                       <div
                         className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: getLanguageColor(SETUP_CONTENT[activeStep].language) }}
+                        style={{
+                          backgroundColor: getLanguageColor(
+                            SETUP_CONTENT[activeStep].language,
+                          ),
+                        }}
                       />
                     </div>
                   </div>
@@ -206,7 +234,10 @@ export function SetupSection() {
                         style={getLineStyle(index, line)}
                       >
                         <div className="flex">
-                          <span className="text-slate-600 select-none pr-4 text-xs" style={{ minWidth: "2rem" }}>
+                          <span
+                            className="text-slate-600 select-none pr-4 text-xs"
+                            style={{ minWidth: "2rem" }}
+                          >
                             {index + 1}
                           </span>
                           <pre className="flex-1">

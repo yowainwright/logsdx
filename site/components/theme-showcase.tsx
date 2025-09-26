@@ -45,7 +45,7 @@ export function ThemeShowcase({
   const tripleThemes = [...themes, ...themes, ...themes];
 
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       @keyframes scrollColumn1 {
         0% { transform: translateY(0); }
@@ -98,15 +98,25 @@ export function ThemeShowcase({
                 setHoveredCard(null);
               }}
             >
-              <div className={`scroll-animation-1 ${isCol1Hovered ? 'animation-paused' : ''}`}>
+              <div
+                className={`scroll-animation-1 ${isCol1Hovered ? "animation-paused" : ""}`}
+              >
                 <div className="space-y-4 py-4">
                   {tripleThemes.map((theme, i) => (
                     <div
                       key={`col1-${theme}-${i}`}
                       style={{
-                        opacity: hoveredCard === `col1-${theme}-${i}` ? 1 : (isCol1Hovered ? 0.5 : 0.7),
-                        transform: hoveredCard === `col1-${theme}-${i}` ? 'scale(1.02)' : 'scale(1)',
-                        transition: 'all 0.3s ease'
+                        opacity:
+                          hoveredCard === `col1-${theme}-${i}`
+                            ? 1
+                            : isCol1Hovered
+                              ? 0.5
+                              : 0.7,
+                        transform:
+                          hoveredCard === `col1-${theme}-${i}`
+                            ? "scale(1.02)"
+                            : "scale(1)",
+                        transition: "all 0.3s ease",
                       }}
                       onMouseEnter={() => setHoveredCard(`col1-${theme}-${i}`)}
                       onMouseLeave={() => setHoveredCard(null)}
@@ -127,15 +137,25 @@ export function ThemeShowcase({
                 setHoveredCard(null);
               }}
             >
-              <div className={`scroll-animation-2 ${isCol2Hovered ? 'animation-paused' : ''}`}>
+              <div
+                className={`scroll-animation-2 ${isCol2Hovered ? "animation-paused" : ""}`}
+              >
                 <div className="space-y-4 py-4">
                   {tripleThemes.map((theme, i) => (
                     <div
                       key={`col2-${theme}-${i}`}
                       style={{
-                        opacity: hoveredCard === `col2-${theme}-${i}` ? 1 : (isCol2Hovered ? 0.5 : 0.7),
-                        transform: hoveredCard === `col2-${theme}-${i}` ? 'scale(1.02)' : 'scale(1)',
-                        transition: 'all 0.3s ease'
+                        opacity:
+                          hoveredCard === `col2-${theme}-${i}`
+                            ? 1
+                            : isCol2Hovered
+                              ? 0.5
+                              : 0.7,
+                        transform:
+                          hoveredCard === `col2-${theme}-${i}`
+                            ? "scale(1.02)"
+                            : "scale(1)",
+                        transition: "all 0.3s ease",
                       }}
                       onMouseEnter={() => setHoveredCard(`col2-${theme}-${i}`)}
                       onMouseLeave={() => setHoveredCard(null)}
@@ -156,15 +176,25 @@ export function ThemeShowcase({
                 setHoveredCard(null);
               }}
             >
-              <div className={`scroll-animation-3 ${isCol3Hovered ? 'animation-paused' : ''}`}>
+              <div
+                className={`scroll-animation-3 ${isCol3Hovered ? "animation-paused" : ""}`}
+              >
                 <div className="space-y-4 py-4">
                   {tripleThemes.map((theme, i) => (
                     <div
                       key={`col3-${theme}-${i}`}
                       style={{
-                        opacity: hoveredCard === `col3-${theme}-${i}` ? 1 : (isCol3Hovered ? 0.5 : 0.7),
-                        transform: hoveredCard === `col3-${theme}-${i}` ? 'scale(1.02)' : 'scale(1)',
-                        transition: 'all 0.3s ease'
+                        opacity:
+                          hoveredCard === `col3-${theme}-${i}`
+                            ? 1
+                            : isCol3Hovered
+                              ? 0.5
+                              : 0.7,
+                        transform:
+                          hoveredCard === `col3-${theme}-${i}`
+                            ? "scale(1.02)"
+                            : "scale(1)",
+                        transition: "all 0.3s ease",
                       }}
                       onMouseEnter={() => setHoveredCard(`col3-${theme}-${i}`)}
                       onMouseLeave={() => setHoveredCard(null)}

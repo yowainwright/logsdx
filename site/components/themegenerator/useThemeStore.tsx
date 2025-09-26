@@ -1,14 +1,14 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import type { ThemeColors } from './types';
-import { DEFAULT_DARK_COLORS } from './constants';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { openDB, DBSchema, IDBPDatabase } from "idb";
+import type { ThemeColors } from "./types";
+import { DEFAULT_DARK_COLORS } from "./constants";
 
 interface ThemeDB extends DBSchema {
   themes: {
     key: string;
     value: SavedTheme;
-    indexes: { 'by-date': Date };
+    indexes: { "by-date": Date };
   };
 }
 
@@ -52,10 +52,10 @@ let db: IDBPDatabase<ThemeDB> | null = null;
 
 async function getDB() {
   if (!db) {
-    db = await openDB<ThemeDB>('logsdx-themes', 1, {
+    db = await openDB<ThemeDB>("logsdx-themes", 1, {
       upgrade(db) {
-        const store = db.createObjectStore('themes', { keyPath: 'id' });
-        store.createIndex('by-date', 'updatedAt');
+        const store = db.createObjectStore("themes", { keyPath: "id" });
+        store.createIndex("by-date", "updatedAt");
       },
     });
   }
@@ -67,9 +67,9 @@ export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
       currentTheme: {
-        name: 'my-custom-theme',
+        name: "my-custom-theme",
         colors: DEFAULT_DARK_COLORS,
-        presets: ['logLevels', 'numbers', 'strings', 'brackets'],
+        presets: ["logLevels", "numbers", "strings", "brackets"],
       },
 
       savedThemes: [],
@@ -78,7 +78,7 @@ export const useThemeStore = create<ThemeState>()(
         set((state) => ({
           currentTheme: {
             ...state.currentTheme,
-            name: name.toLowerCase().replace(/\s+/g, '-'),
+            name: name.toLowerCase().replace(/\s+/g, "-"),
           },
         })),
 
@@ -106,9 +106,9 @@ export const useThemeStore = create<ThemeState>()(
       resetTheme: () =>
         set({
           currentTheme: {
-            name: 'my-custom-theme',
+            name: "my-custom-theme",
             colors: DEFAULT_DARK_COLORS,
-            presets: ['logLevels', 'numbers', 'strings', 'brackets'],
+            presets: ["logLevels", "numbers", "strings", "brackets"],
           },
         }),
 
@@ -126,10 +126,10 @@ export const useThemeStore = create<ThemeState>()(
 
         // Save to IndexedDB
         const database = await getDB();
-        await database.add('themes', theme);
+        await database.add("themes", theme);
 
         // Update saved themes list
-        const allThemes = await database.getAllFromIndex('themes', 'by-date');
+        const allThemes = await database.getAllFromIndex("themes", "by-date");
         set({ savedThemes: allThemes.reverse() });
 
         return id;
@@ -137,7 +137,7 @@ export const useThemeStore = create<ThemeState>()(
 
       loadTheme: async (id) => {
         const database = await getDB();
-        const theme = await database.get('themes', id);
+        const theme = await database.get("themes", id);
 
         if (theme) {
           set({
@@ -152,9 +152,9 @@ export const useThemeStore = create<ThemeState>()(
 
       deleteTheme: async (id) => {
         const database = await getDB();
-        await database.delete('themes', id);
+        await database.delete("themes", id);
 
-        const allThemes = await database.getAllFromIndex('themes', 'by-date');
+        const allThemes = await database.getAllFromIndex("themes", "by-date");
         set({ savedThemes: allThemes.reverse() });
       },
 
@@ -164,7 +164,7 @@ export const useThemeStore = create<ThemeState>()(
           name: currentTheme.name,
           colors: currentTheme.colors,
           presets: currentTheme.presets,
-          version: '1.0.0',
+          version: "1.0.0",
         };
         return btoa(JSON.stringify(data));
       },
@@ -174,20 +174,21 @@ export const useThemeStore = create<ThemeState>()(
           const data = JSON.parse(atob(shareCode));
           set({
             currentTheme: {
-              name: data.name || 'imported-theme',
+              name: data.name || "imported-theme",
               colors: data.colors || DEFAULT_DARK_COLORS,
               presets: data.presets || [],
             },
           });
         } catch (e) {
-          console.error('Failed to import theme:', e);
+          console.error("Failed to import theme:", e);
         }
       },
 
       generateShareUrl: () => {
         const { currentTheme } = get();
         const shareCode = get().exportTheme();
-        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+        const baseUrl =
+          typeof window !== "undefined" ? window.location.origin : "";
         return `${baseUrl}/theme/${shareCode}`;
       },
 
@@ -196,17 +197,17 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: 'logsdx-theme-store',
+      name: "logsdx-theme-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ currentTheme: state.currentTheme }),
-    }
-  )
+    },
+  ),
 );
 
 // Load saved themes from IndexedDB on initialization
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   getDB().then(async (database) => {
-    const themes = await database.getAllFromIndex('themes', 'by-date');
+    const themes = await database.getAllFromIndex("themes", "by-date");
     useThemeStore.setState({ savedThemes: themes.reverse() });
   });
 }

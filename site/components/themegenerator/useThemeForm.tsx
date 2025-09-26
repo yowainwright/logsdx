@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { createSimpleTheme, registerTheme, getLogsDX } from 'logsdx';
-import { useThemeStore } from './useThemeStore';
-import { SAMPLE_LOGS } from './constants';
-import type { ThemeColors } from './types';
+import { useState, useEffect, useCallback } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
+import { useThemeStore } from "./useThemeStore";
+import { SAMPLE_LOGS } from "./constants";
+import type { ThemeColors } from "./types";
 
 export interface ThemeFormData {
   name: string;
@@ -16,7 +16,7 @@ export interface ThemeFormData {
 export function useThemeForm() {
   const [processedLogs, setProcessedLogs] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string>('');
+  const [shareUrl, setShareUrl] = useState<string>("");
 
   const {
     currentTheme,
@@ -29,9 +29,10 @@ export function useThemeForm() {
     generateShareUrl,
   } = useThemeStore();
 
-  const { control, watch, reset, setValue, handleSubmit } = useForm<ThemeFormData>({
-    defaultValues: currentTheme,
-  });
+  const { control, watch, reset, setValue, handleSubmit } =
+    useForm<ThemeFormData>({
+      defaultValues: currentTheme,
+    });
 
   // Sync store with form
   useEffect(() => {
@@ -51,13 +52,13 @@ export function useThemeForm() {
         {
           mode: "dark",
           presets: currentTheme.presets,
-        }
+        },
       );
 
       registerTheme(customTheme);
 
       // Small delay to ensure registration
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const htmlLogsDX = getLogsDX({
         theme: tempThemeName,
@@ -72,7 +73,7 @@ export function useThemeForm() {
           return result;
         } catch (e) {
           // Fallback if LogsDX fails
-          console.warn('LogsDX processing failed, using fallback:', e);
+          console.warn("LogsDX processing failed, using fallback:", e);
           return `<span style="color: ${currentTheme.colors.text}">${log.text}</span>`;
         }
       });
@@ -81,8 +82,9 @@ export function useThemeForm() {
     } catch (error) {
       console.error("Theme processing error:", error);
       // Use fallback rendering
-      const fallback = SAMPLE_LOGS.map(log =>
-        `<span style="color: ${currentTheme.colors.text}">${log.text}</span>`
+      const fallback = SAMPLE_LOGS.map(
+        (log) =>
+          `<span style="color: ${currentTheme.colors.text}">${log.text}</span>`,
       );
       setProcessedLogs(fallback);
     } finally {
@@ -107,7 +109,7 @@ export function useThemeForm() {
 
   const handleNameChange = (name: string) => {
     setThemeName(name);
-    setValue('name', name);
+    setValue("name", name);
   };
 
   const handleSaveTheme = async () => {
@@ -134,14 +136,14 @@ export function useThemeForm() {
     const jsCode = `
 import { createSimpleTheme, registerTheme } from 'logsdx';
 
-const ${currentTheme.name.replace(/-/g, '_')}Theme = createSimpleTheme({
+const ${currentTheme.name.replace(/-/g, "_")}Theme = createSimpleTheme({
   name: '${currentTheme.name}',
   mode: 'dark',
   colors: ${JSON.stringify(currentTheme.colors, null, 2)},
   presets: ${JSON.stringify(currentTheme.presets)}
 });
 
-registerTheme(${currentTheme.name.replace(/-/g, '_')}Theme);
+registerTheme(${currentTheme.name.replace(/-/g, "_")}Theme);
 `;
 
     return jsCode;
@@ -150,9 +152,9 @@ registerTheme(${currentTheme.name.replace(/-/g, '_')}Theme);
   const handleReset = () => {
     resetTheme();
     reset({
-      name: 'my-custom-theme',
+      name: "my-custom-theme",
       colors: currentTheme.colors,
-      presets: ['logLevels', 'numbers', 'strings', 'brackets'],
+      presets: ["logLevels", "numbers", "strings", "brackets"],
     });
   };
 

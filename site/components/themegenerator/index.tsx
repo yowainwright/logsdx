@@ -19,7 +19,7 @@ import {
 } from "./constants";
 import { generateThemeCode } from "./utils";
 
-const STORAGE_KEY = 'logsdx-custom-theme';
+const STORAGE_KEY = "logsdx-custom-theme";
 
 export function CustomThemeCreator() {
   // Load saved theme from localStorage or use defaults
@@ -52,7 +52,7 @@ export function CustomThemeCreator() {
         if (parsed.colors) setColors(parsed.colors);
         if (parsed.selectedPresets) setSelectedPresets(parsed.selectedPresets);
       } catch (e) {
-        console.error('Failed to load saved theme:', e);
+        console.error("Failed to load saved theme:", e);
       }
     }
     setIsLoaded(true);
@@ -65,7 +65,7 @@ export function CustomThemeCreator() {
     const themeData = {
       themeName,
       colors,
-      selectedPresets
+      selectedPresets,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(themeData));
   }, [themeName, colors, selectedPresets, isLoaded]);
@@ -76,19 +76,15 @@ export function CustomThemeCreator() {
       try {
         const tempThemeName = `custom-theme-${Date.now()}`;
 
-        const customTheme = createSimpleTheme(
-          tempThemeName,
-          colors,
-          {
-            mode: "dark",
-            presets: selectedPresets,
-          }
-        );
+        const customTheme = createSimpleTheme(tempThemeName, colors, {
+          mode: "dark",
+          presets: selectedPresets,
+        });
 
         registerTheme(customTheme);
 
         // Small delay to ensure theme is registered
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // Use HTML output with escapeHtml disabled for trusted content
         const htmlLogsDX = getLogsDX({
@@ -103,79 +99,121 @@ export function CustomThemeCreator() {
             const result = htmlLogsDX.processLine(log.text);
 
             // Debug: Check what LogsDX actually returns
-            console.log('=== LogsDX DEBUG ===');
-            console.log('Input:', log.text);
-            console.log('Raw result:', result);
-            console.log('Result type:', typeof result);
-            console.log('Result length:', result.length);
-            console.log('Contains <span:', result.includes('<span'));
-            console.log('Contains &lt;:', result.includes('&lt;'));
-            console.log('==================');
+            console.log("=== LogsDX DEBUG ===");
+            console.log("Input:", log.text);
+            console.log("Raw result:", result);
+            console.log("Result type:", typeof result);
+            console.log("Result length:", result.length);
+            console.log("Contains <span:", result.includes("<span"));
+            console.log("Contains &lt;:", result.includes("&lt;"));
+            console.log("==================");
 
             // Try using the result as-is first
             return result;
           } catch (e) {
-            console.error('LogsDX processing failed:', log.text, e);
+            console.error("LogsDX processing failed:", log.text, e);
             // Return styled fallback using all theme colors
             let styledText = log.text;
 
             // Apply colors based on selected presets
-            if (selectedPresets.includes('logLevels')) {
-              if (log.text.includes('[ERROR]') || log.text.includes('ERROR:')) {
-                styledText = styledText.replace(/(\[ERROR\]|ERROR:)/g, `<span style="color: ${colors.error}; font-weight: bold;">$1</span>`);
+            if (selectedPresets.includes("logLevels")) {
+              if (log.text.includes("[ERROR]") || log.text.includes("ERROR:")) {
+                styledText = styledText.replace(
+                  /(\[ERROR\]|ERROR:)/g,
+                  `<span style="color: ${colors.error}; font-weight: bold;">$1</span>`,
+                );
               }
-              if (log.text.includes('[WARN]') || log.text.includes('WARN:')) {
-                styledText = styledText.replace(/(\[WARN\]|WARN:)/g, `<span style="color: ${colors.warning}; font-weight: bold;">$1</span>`);
+              if (log.text.includes("[WARN]") || log.text.includes("WARN:")) {
+                styledText = styledText.replace(
+                  /(\[WARN\]|WARN:)/g,
+                  `<span style="color: ${colors.warning}; font-weight: bold;">$1</span>`,
+                );
               }
-              if (log.text.includes('[SUCCESS]') || log.text.includes('SUCCESS:')) {
-                styledText = styledText.replace(/(\[SUCCESS\]|SUCCESS:)/g, `<span style="color: ${colors.success}; font-weight: bold;">$1</span>`);
+              if (
+                log.text.includes("[SUCCESS]") ||
+                log.text.includes("SUCCESS:")
+              ) {
+                styledText = styledText.replace(
+                  /(\[SUCCESS\]|SUCCESS:)/g,
+                  `<span style="color: ${colors.success}; font-weight: bold;">$1</span>`,
+                );
               }
-              if (log.text.includes('[INFO]') || log.text.includes('INFO:')) {
-                styledText = styledText.replace(/(\[INFO\]|INFO:)/g, `<span style="color: ${colors.info}; font-weight: bold;">$1</span>`);
+              if (log.text.includes("[INFO]") || log.text.includes("INFO:")) {
+                styledText = styledText.replace(
+                  /(\[INFO\]|INFO:)/g,
+                  `<span style="color: ${colors.info}; font-weight: bold;">$1</span>`,
+                );
               }
-              if (log.text.includes('[DEBUG]') || log.text.includes('DEBUG:')) {
-                styledText = styledText.replace(/(\[DEBUG\]|DEBUG:)/g, `<span style="color: ${colors.debug}; font-weight: bold;">$1</span>`);
+              if (log.text.includes("[DEBUG]") || log.text.includes("DEBUG:")) {
+                styledText = styledText.replace(
+                  /(\[DEBUG\]|DEBUG:)/g,
+                  `<span style="color: ${colors.debug}; font-weight: bold;">$1</span>`,
+                );
               }
             }
 
             // Highlight numbers
-            if (selectedPresets.includes('numbers')) {
-              styledText = styledText.replace(/\b(\d+\.?\d*)\b/g, `<span style="color: ${colors.accent};">$1</span>`);
+            if (selectedPresets.includes("numbers")) {
+              styledText = styledText.replace(
+                /\b(\d+\.?\d*)\b/g,
+                `<span style="color: ${colors.accent};">$1</span>`,
+              );
             }
 
             // Highlight strings
-            if (selectedPresets.includes('strings')) {
-              styledText = styledText.replace(/(['"])([^'"]*)\1/g, `<span style="color: ${colors.secondary};">$1$2$1</span>`);
+            if (selectedPresets.includes("strings")) {
+              styledText = styledText.replace(
+                /(['"])([^'"]*)\1/g,
+                `<span style="color: ${colors.secondary};">$1$2$1</span>`,
+              );
             }
 
             // Highlight brackets
-            if (selectedPresets.includes('brackets')) {
-              styledText = styledText.replace(/[\[\]{}()<>]/g, `<span style="color: ${colors.highlight};">$&</span>`);
+            if (selectedPresets.includes("brackets")) {
+              styledText = styledText.replace(
+                /[\[\]{}()<>]/g,
+                `<span style="color: ${colors.highlight};">$&</span>`,
+              );
             }
 
             // Highlight booleans and null
-            if (selectedPresets.includes('booleans')) {
-              styledText = styledText.replace(/\b(true|false|null|undefined)\b/g, `<span style="color: ${colors.primary};">$1</span>`);
+            if (selectedPresets.includes("booleans")) {
+              styledText = styledText.replace(
+                /\b(true|false|null|undefined)\b/g,
+                `<span style="color: ${colors.primary};">$1</span>`,
+              );
             }
 
             // URLs
-            if (selectedPresets.includes('urls')) {
-              styledText = styledText.replace(/(https?:\/\/[^\s]+)/g, `<span style="color: ${colors.accent};">$1</span>`);
+            if (selectedPresets.includes("urls")) {
+              styledText = styledText.replace(
+                /(https?:\/\/[^\s]+)/g,
+                `<span style="color: ${colors.accent};">$1</span>`,
+              );
             }
 
             // Paths
-            if (selectedPresets.includes('paths')) {
-              styledText = styledText.replace(/(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g, `<span style="color: ${colors.muted};">$1</span>`);
+            if (selectedPresets.includes("paths")) {
+              styledText = styledText.replace(
+                /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+                `<span style="color: ${colors.muted};">$1</span>`,
+              );
             }
 
             // Timestamps
-            if (selectedPresets.includes('timestamps')) {
-              styledText = styledText.replace(/(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g, `<span style="color: ${colors.info};">$1</span>`);
+            if (selectedPresets.includes("timestamps")) {
+              styledText = styledText.replace(
+                /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+                `<span style="color: ${colors.info};">$1</span>`,
+              );
             }
 
             // Semantic versions
-            if (selectedPresets.includes('semantic')) {
-              styledText = styledText.replace(/\bv?(\d+\.\d+\.\d+)\b/g, `<span style="color: ${colors.primary};">$&</span>`);
+            if (selectedPresets.includes("semantic")) {
+              styledText = styledText.replace(
+                /\bv?(\d+\.\d+\.\d+)\b/g,
+                `<span style="color: ${colors.primary};">$&</span>`,
+              );
             }
 
             return `<span style="color: ${colors.text}">${styledText}</span>`;
@@ -186,71 +224,107 @@ export function CustomThemeCreator() {
       } catch (error) {
         console.error("THEME CREATION ERROR:", error);
         // Styled fallback showing all colors
-        const fallbackLogs = SAMPLE_LOGS.map(log => {
+        const fallbackLogs = SAMPLE_LOGS.map((log) => {
           let styledText = log.text;
 
           // Apply all color categories
-          if (log.category === 'error' || log.text.includes('[ERROR]')) {
+          if (log.category === "error" || log.text.includes("[ERROR]")) {
             styledText = `<span style="color: ${colors.error}; font-weight: bold;">${log.text}</span>`;
-          } else if (log.category === 'warning' || log.text.includes('[WARN]')) {
+          } else if (
+            log.category === "warning" ||
+            log.text.includes("[WARN]")
+          ) {
             styledText = `<span style="color: ${colors.warning}; font-weight: bold;">${log.text}</span>`;
-          } else if (log.category === 'success' || log.text.includes('[SUCCESS]')) {
+          } else if (
+            log.category === "success" ||
+            log.text.includes("[SUCCESS]")
+          ) {
             styledText = `<span style="color: ${colors.success}; font-weight: bold;">${log.text}</span>`;
-          } else if (log.category === 'info' || log.text.includes('[INFO]')) {
+          } else if (log.category === "info" || log.text.includes("[INFO]")) {
             styledText = `<span style="color: ${colors.info}; font-weight: bold;">${log.text}</span>`;
-          } else if (log.category === 'debug' || log.text.includes('[DEBUG]')) {
+          } else if (log.category === "debug" || log.text.includes("[DEBUG]")) {
             styledText = `<span style="color: ${colors.debug}; font-weight: bold;">${log.text}</span>`;
           }
 
           // Apply pattern matching based on selected presets
           // Numbers
-          if (selectedPresets.includes('numbers')) {
-            styledText = styledText.replace(/\b(\d+\.?\d*)\b/g, `<span style="color: ${colors.accent};">$1</span>`);
+          if (selectedPresets.includes("numbers")) {
+            styledText = styledText.replace(
+              /\b(\d+\.?\d*)\b/g,
+              `<span style="color: ${colors.accent};">$1</span>`,
+            );
           }
 
           // Strings
-          if (selectedPresets.includes('strings')) {
-            styledText = styledText.replace(/(['"])([^'"]*)\1/g, `<span style="color: ${colors.secondary};">$1$2$1</span>`);
+          if (selectedPresets.includes("strings")) {
+            styledText = styledText.replace(
+              /(['"])([^'"]*)\1/g,
+              `<span style="color: ${colors.secondary};">$1$2$1</span>`,
+            );
           }
 
           // Brackets
-          if (selectedPresets.includes('brackets')) {
-            styledText = styledText.replace(/[\[\]{}()<>]/g, `<span style="color: ${colors.highlight};">$&</span>`);
+          if (selectedPresets.includes("brackets")) {
+            styledText = styledText.replace(
+              /[\[\]{}()<>]/g,
+              `<span style="color: ${colors.highlight};">$&</span>`,
+            );
           }
 
           // Booleans
-          if (selectedPresets.includes('booleans')) {
-            styledText = styledText.replace(/\b(true|false|null|undefined)\b/g, `<span style="color: ${colors.primary};">$1</span>`);
+          if (selectedPresets.includes("booleans")) {
+            styledText = styledText.replace(
+              /\b(true|false|null|undefined)\b/g,
+              `<span style="color: ${colors.primary};">$1</span>`,
+            );
           }
 
           // URLs
-          if (selectedPresets.includes('urls')) {
-            styledText = styledText.replace(/(https?:\/\/[^\s]+)/g, `<span style="color: ${colors.accent};">$1</span>`);
+          if (selectedPresets.includes("urls")) {
+            styledText = styledText.replace(
+              /(https?:\/\/[^\s]+)/g,
+              `<span style="color: ${colors.accent};">$1</span>`,
+            );
           }
 
           // Paths
-          if (selectedPresets.includes('paths')) {
-            styledText = styledText.replace(/(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g, `<span style="color: ${colors.muted};">$1</span>`);
+          if (selectedPresets.includes("paths")) {
+            styledText = styledText.replace(
+              /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+              `<span style="color: ${colors.muted};">$1</span>`,
+            );
           }
 
           // Timestamps
-          if (selectedPresets.includes('timestamps')) {
-            styledText = styledText.replace(/(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g, `<span style="color: ${colors.info};">$1</span>`);
+          if (selectedPresets.includes("timestamps")) {
+            styledText = styledText.replace(
+              /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+              `<span style="color: ${colors.info};">$1</span>`,
+            );
           }
 
           // Dates
-          if (selectedPresets.includes('dates')) {
-            styledText = styledText.replace(/(\[\d{4}-\d{2}-\d{2}[\s\d:]*\])/g, `<span style="color: ${colors.info};">$1</span>`);
+          if (selectedPresets.includes("dates")) {
+            styledText = styledText.replace(
+              /(\[\d{4}-\d{2}-\d{2}[\s\d:]*\])/g,
+              `<span style="color: ${colors.info};">$1</span>`,
+            );
           }
 
           // Semantic versions
-          if (selectedPresets.includes('semantic')) {
-            styledText = styledText.replace(/\bv?(\d+\.\d+\.\d+)\b/g, `<span style="color: ${colors.primary};">$&</span>`);
+          if (selectedPresets.includes("semantic")) {
+            styledText = styledText.replace(
+              /\bv?(\d+\.\d+\.\d+)\b/g,
+              `<span style="color: ${colors.primary};">$&</span>`,
+            );
           }
 
           // JSON keys
-          if (selectedPresets.includes('json')) {
-            styledText = styledText.replace(/(\w+):/g, `<span style="color: ${colors.accent};">$1</span>:`);
+          if (selectedPresets.includes("json")) {
+            styledText = styledText.replace(
+              /(\w+):/g,
+              `<span style="color: ${colors.accent};">$1</span>:`,
+            );
           }
 
           // Wrap in text color
@@ -264,7 +338,6 @@ export function CustomThemeCreator() {
 
     processLogs();
   }, [colors, selectedPresets]);
-
 
   const handleColorChange = (key: keyof ThemeColors, value: string) => {
     setColors((prev) => ({ ...prev, [key]: value }));
@@ -350,7 +423,6 @@ export function CustomThemeCreator() {
                 placeholder="my-awesome-theme"
               />
             </div>
-
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
@@ -428,7 +500,10 @@ export function CustomThemeCreator() {
           </div>
         </div>
 
-        <div className="lg:sticky lg:top-24 space-y-6" style={{ maxHeight: 'calc(100vh - 8rem)', overflowY: 'auto' }}>
+        <div
+          className="lg:sticky lg:top-24 space-y-6"
+          style={{ maxHeight: "calc(100vh - 8rem)", overflowY: "auto" }}
+        >
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Live Preview</h3>
@@ -444,8 +519,9 @@ export function CustomThemeCreator() {
                 border: `1px solid ${colors.muted}`,
               }}
             >
-              <style dangerouslySetInnerHTML={{
-                __html: `
+              <style
+                dangerouslySetInnerHTML={{
+                  __html: `
                   @keyframes scroll-up-continuous {
                     from {
                       transform: translateY(0);
@@ -469,8 +545,9 @@ export function CustomThemeCreator() {
                     overflow: hidden;
                     text-overflow: ellipsis;
                   }
-                `
-              }} />
+                `,
+                }}
+              />
               <div className="h-full overflow-hidden relative">
                 {processedLogs.length > 0 ? (
                   <div className="log-scroll-wrapper">
@@ -587,14 +664,10 @@ function CustomLogInput({
   useEffect(() => {
     try {
       const tempThemeName = `${uniqueThemeName}-${JSON.stringify(colors).substring(0, 10)}`;
-      const customTheme = createSimpleTheme(
-        tempThemeName,
-        colors,
-        {
-          mode: "dark",
-          presets: ["logLevels", "numbers", "strings", "brackets"],
-        }
-      );
+      const customTheme = createSimpleTheme(tempThemeName, colors, {
+        mode: "dark",
+        presets: ["logLevels", "numbers", "strings", "brackets"],
+      });
       registerTheme(customTheme);
 
       if (customLog) {

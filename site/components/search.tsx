@@ -77,7 +77,7 @@ export function Search() {
         (item) =>
           item.title.toLowerCase().includes(query.toLowerCase()) ||
           item.description.toLowerCase().includes(query.toLowerCase()) ||
-          item.section.toLowerCase().includes(query.toLowerCase())
+          item.section.toLowerCase().includes(query.toLowerCase()),
       );
       setResults(filtered.slice(0, 5));
     } else {
@@ -104,7 +104,9 @@ export function Search() {
       }
       if (isOpen && e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+        setSelectedIndex(
+          (prev) => (prev - 1 + results.length) % results.length,
+        );
       }
       if (isOpen && e.key === "Enter" && results[selectedIndex]) {
         e.preventDefault();
@@ -128,7 +130,8 @@ export function Search() {
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen]);
 
@@ -148,7 +151,8 @@ export function Search() {
         </kbd>
       </button>
 
-      {isOpen && typeof document !== "undefined" &&
+      {isOpen &&
+        typeof document !== "undefined" &&
         createPortal(
           <>
             <div
@@ -180,8 +184,12 @@ export function Search() {
                   <div className="max-h-[60vh] overflow-y-auto">
                     {query.length > 0 && results.length === 0 && (
                       <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                        <div className="text-lg font-medium mb-2">No results found</div>
-                        <div className="text-sm">Try searching for something else</div>
+                        <div className="text-lg font-medium mb-2">
+                          No results found
+                        </div>
+                        <div className="text-sm">
+                          Try searching for something else
+                        </div>
                       </div>
                     )}
 
@@ -284,7 +292,7 @@ export function Search() {
               </div>
             </div>
           </>,
-          document.body
+          document.body,
         )}
     </>
   );
