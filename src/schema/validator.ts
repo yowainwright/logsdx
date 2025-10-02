@@ -1,8 +1,37 @@
-import { z } from "zod";
+import type { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { tokenSchema, tokenListSchema, themePresetSchema } from "./index";
-import { JsonSchemaOptions } from "./types";
-import { Theme } from "../types";
+import type { JsonSchemaOptions } from "./types";
+import type { Theme } from "../types";
+import {
+  TOKEN_SCHEMA_NAME,
+  TOKEN_SCHEMA_DESCRIPTION,
+  THEME_SCHEMA_NAME,
+  THEME_SCHEMA_DESCRIPTION,
+} from "./constants";
+import {
+  formatZodIssues,
+  createValidationError,
+  isZodError,
+} from "./utils";
+
+export function parseToken(token: unknown): z.infer<typeof tokenSchema> {
+  return tokenSchema.parse(token);
+}
+
+export function parseTokenSafe(token: unknown): {
+  success: boolean;
+  data?: z.infer<typeof tokenSchema>;
+  error?: z.ZodError;
+} {
+  const result = tokenSchema.safeParse(token);
+
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+
+  return { success: false, error: result.error };
+}
 
 /**
  * Validates a token against the schema
@@ -10,7 +39,7 @@ import { Theme } from "../types";
  * @returns The validated token or throws an error
  */
 export function validateToken(token: unknown): z.infer<typeof tokenSchema> {
-  return tokenSchema.parse(token);
+  return parseToken(token);
 }
 
 /**
@@ -23,12 +52,25 @@ export function validateTokenSafe(token: unknown): {
   data?: z.infer<typeof tokenSchema>;
   error?: z.ZodError;
 } {
-  const result = tokenSchema.safeParse(token);
+  return parseTokenSafe(token);
+}
+
+export function parseTokenList(tokens: unknown): z.infer<typeof tokenListSchema> {
+  return tokenListSchema.parse(tokens);
+}
+
+export function parseTokenListSafe(tokens: unknown): {
+  success: boolean;
+  data?: z.infer<typeof tokenListSchema>;
+  error?: z.ZodError;
+} {
+  const result = tokenListSchema.safeParse(tokens);
+
   if (result.success) {
     return { success: true, data: result.data };
-  } else {
-    return { success: false, error: result.error };
   }
+
+  return { success: false, error: result.error };
 }
 
 /**
@@ -37,9 +79,9 @@ export function validateTokenSafe(token: unknown): {
  * @returns The validated token list or throws an error
  */
 export function validateTokenList(
-  tokens: unknown,
+  tokens: unknown
 ): z.infer<typeof tokenListSchema> {
-  return tokenListSchema.parse(tokens);
+  return parseTokenList(tokens);
 }
 
 /**
@@ -52,12 +94,19 @@ export function validateTokenListSafe(tokens: unknown): {
   data?: z.infer<typeof tokenListSchema>;
   error?: z.ZodError;
 } {
-  const result = tokenListSchema.safeParse(tokens);
-  if (result.success) {
-    return { success: true, data: result.data };
-  } else {
-    return { success: false, error: result.error };
-  }
+  return parseTokenListSafe(tokens);
+}
+
+export function createTokenJsonSchemaOptions(): JsonSchemaOptions {
+  return {
+    name: TOKEN_SCHEMA_NAME,
+    description: TOKEN_SCHEMA_DESCRIPTION,
+  };
+}
+
+export function convertTokenSchemaToJson() {
+  const options = createTokenJsonSchemaOptions();
+  return zodToJsonSchema(tokenSchema, options);
 }
 
 /**
@@ -65,10 +114,37 @@ export function validateTokenListSafe(tokens: unknown): {
  * @returns JSON Schema representation of the token schema
  */
 export function tokenSchemaToJsonSchema() {
-  return zodToJsonSchema(tokenSchema, {
-    name: "Token",
-    description: "Schema for tokens in the LogsDX styling system",
-  } as JsonSchemaOptions);
+  return convertTokenSchemaToJson();
+}
+
+export function parseTheme(theme: unknown): Theme {
+  return themePresetSchema.parse(theme) as Theme;
+}
+
+export function parseThemeSafe(theme: unknown): {
+  success: boolean;
+  data?: Theme;
+  error?: z.ZodError;
+} {
+  const result = themePresetSchema.safeParse(theme);
+
+  if (result.success) {
+    return { success: true, data: result.data as Theme };
+  }
+
+  return { success: false, error: result.error };
+}
+
+export function createThemeValidationError(error: unknown): Error {
+  if (!isZodError(error)) {
+    if (error instanceof Error) {
+      return error;
+    }
+    return new Error(String(error));
+  }
+
+  const message = `Theme validation failed: ${formatZodIssues(error.issues)}`;
+  return createValidationError(message, error);
 }
 
 /**
@@ -78,18 +154,9 @@ export function tokenSchemaToJsonSchema() {
  */
 export function validateTheme(theme: unknown): Theme {
   try {
-    return themePresetSchema.parse(theme) as Theme;
+    return parseTheme(theme);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      const enhancedError = new Error(
-        `Theme validation failed: ${error.issues
-          .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-          .join(", ")}`,
-      );
-      enhancedError.cause = error;
-      throw enhancedError;
-    }
-    throw error;
+    throw createThemeValidationError(error);
   }
 }
 
@@ -103,12 +170,19 @@ export function validateThemeSafe(theme: unknown): {
   data?: Theme;
   error?: z.ZodError;
 } {
-  const result = themePresetSchema.safeParse(theme);
-  if (result.success) {
-    return { success: true, data: result.data as Theme };
-  } else {
-    return { success: false, error: result.error };
-  }
+  return parseThemeSafe(theme);
+}
+
+export function createThemeJsonSchemaOptions(): JsonSchemaOptions {
+  return {
+    name: THEME_SCHEMA_NAME,
+    description: THEME_SCHEMA_DESCRIPTION,
+  };
+}
+
+export function convertThemeSchemaToJson() {
+  const options = createThemeJsonSchemaOptions();
+  return zodToJsonSchema(themePresetSchema, options);
 }
 
 /**
@@ -116,8 +190,5 @@ export function validateThemeSafe(theme: unknown): {
  * @returns JSON Schema representation of the theme schema
  */
 export function themeSchemaToJsonSchema() {
-  return zodToJsonSchema(themePresetSchema, {
-    name: "Theme",
-    description: "Schema for themes in the LogsDX styling system",
-  } as JsonSchemaOptions);
+  return convertThemeSchemaToJson();
 }

@@ -71,10 +71,9 @@ export function CustomThemeCreator() {
   }, [themeName, colors, selectedPresets, isLoaded]);
 
   useEffect(() => {
-    // Process logs immediately
-    const processLogs = async () => {
+    const processLogs = () => {
       try {
-        const tempThemeName = `custom-theme-${Date.now()}`;
+        const tempThemeName = `logsdx-theme-preview`;
 
         const customTheme = createSimpleTheme(tempThemeName, colors, {
           mode: "dark",
@@ -82,9 +81,6 @@ export function CustomThemeCreator() {
         });
 
         registerTheme(customTheme);
-
-        // Small delay to ensure theme is registered
-        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // Use HTML output with escapeHtml disabled for trusted content
         const htmlLogsDX = getLogsDX({

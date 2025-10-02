@@ -8,7 +8,7 @@ import {
   isLightBackground,
   getRecommendedThemeMode,
   watchBackgroundChanges,
-} from "../../../src/renderer/detect-background";
+} from "../../../src/renderer/detectBackground";
 
 describe("detectTerminalBackground", () => {
   const originalEnv = process.env;
