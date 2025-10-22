@@ -42,7 +42,7 @@
     "site:dev": "cd site && bun run dev",
     "site:build": "cd site && bun run build",
     "site:start": "cd site && bun run start",
-    "dev": "cd site && bun run dev",
+    "dev": "mprocs",
     "create-theme": "bun run src/cli/index.ts theme create"
   },
   "homepage": "https://jeffry.in/logsdx",
@@ -59,6 +59,7 @@
     "@types/figlet": "^1.7.0",
     "@types/node": "^24.0.0",
     "@types/wcag-contrast": "^3.0.3",
+    "mprocs": "^0.7.3",
     "oxlint": "^0.15.0",
     "pino": "^9.9.0",
     "prettier": "^3.5.3",

@@ -1,0 +1,35 @@
+procs:
+  site:
+    shell: "cd site && bun run dev"
+    stop: send_keys
+    autostart: true
+
+  tests:
+    shell: "bun test --watch"
+    stop: send_keys
+    autostart: true
+
+  build:
+    shell: "bun run build"
+    stop: send_keys
+    autostart: false
+
+  lint:
+    shell: "bun run lint"
+    stop: send_keys
+    autostart: false
+
+  format:
+    shell: "bun run format"
+    stop: send_keys
+    autostart: false
+
+  check:
+    shell: "bun run check"
+    stop: send_keys
+    autostart: false
+
+  site-build:
+    shell: "bun run site:build"
+    stop: send_keys
+    autostart: false

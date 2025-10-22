@@ -70,16 +70,13 @@ describe("LogsDX", () => {
 
     test("processes a line with HTML output format", () => {
       const instance = LogsDX.getInstance();
-      instance.setTheme("oh-my-zsh"); // Set a theme with actual styling
+      instance.setTheme("oh-my-zsh");
       instance.setOutputFormat("html");
       const result = instance.processLine("error: test");
       expect(result).toContain("<span");
-
-      // Check that the word "error" is properly styled as a complete word
       expect(result).toContain("error");
-      // Check that individual characters are properly styled
-      expect(result).toContain(">t</span>");
-      expect(result).toContain(">e</span>");
+      expect(result).toContain(">test</span>");
+      expect(result).toContain(">:</span>");
     });
   });
 

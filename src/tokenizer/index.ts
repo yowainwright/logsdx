@@ -88,7 +88,7 @@ export class SimpleLexer {
       return matchedToken;
     }
 
-    return this.consumeCharacter();
+    return this.consumeUnmatchedText();
   }
 
   private findMatchingToken(
@@ -121,9 +121,27 @@ export class SimpleLexer {
     return null;
   }
 
-  private consumeCharacter(): { type: string; text: string } {
-    const text = this.inputContent[this.position] || "";
-    this.position++;
+  private consumeUnmatchedText(): { type: string; text: string } {
+    const start = this.position;
+    let end = start;
+
+    while (end < this.inputContent.length) {
+      const slice = this.inputContent.slice(end);
+
+      const hasMatch = this.rules.some(({ pattern }) => {
+        pattern.lastIndex = 0;
+        const match = pattern.exec(slice);
+        return match && match.index === 0;
+      });
+
+      if (hasMatch) break;
+      end++;
+    }
+
+    if (end === start) end = start + 1;
+
+    const text = this.inputContent.slice(start, end);
+    this.position = end;
 
     return {
       type: TOKEN_TYPE_CHAR,
@@ -227,17 +245,61 @@ export function addWordMatchRules(
   }
 }
 
+function createIdentifierPattern(identifier: string): RegExp {
+  return new RegExp(escapeRegexPattern(identifier), 'gi');
+}
+
+function validatePatternMatch(
+  ctx: TokenContext,
+  fullPattern: string | RegExp
+): boolean {
+  const fullRegex = typeof fullPattern === 'string'
+    ? createSafeRegex(fullPattern)
+    : fullPattern;
+
+  if (!fullRegex) return false;
+
+  fullRegex.lastIndex = 0;
+  const fullMatch = fullRegex.exec(ctx.text);
+  return fullMatch !== null && fullMatch[0] === ctx.text;
+}
+
 export function addPatternMatchRules(
   lexer: SimpleLexer,
   matchPatterns: ReadonlyArray<{
-    pattern: string;
+    pattern: string | RegExp;
     name?: string;
+    identifier?: string;
     options?: unknown;
   }>
 ): void {
   for (let index = 0; index < matchPatterns.length; index++) {
     const patternObj = matchPatterns[index];
-    const regex = createSafeRegex(patternObj.pattern);
+
+    if (patternObj.identifier && typeof patternObj.identifier === 'string') {
+      const identifierRegex = createIdentifierPattern(patternObj.identifier);
+
+      lexer.rule(identifierRegex, (ctx) => {
+        if (!validatePatternMatch(ctx, patternObj.pattern)) {
+          ctx.ignore();
+          return;
+        }
+
+        ctx.accept(TOKEN_TYPE_REGEX, {
+          matchType: MATCH_TYPE_REGEX,
+          pattern: patternObj.pattern,
+          name: patternObj.name,
+          index,
+          style: patternObj.options,
+        });
+      });
+
+      continue;
+    }
+
+    const regex = typeof patternObj.pattern === 'string'
+      ? createSafeRegex(patternObj.pattern)
+      : patternObj.pattern;
 
     if (!regex) {
       console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
@@ -277,8 +339,9 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
 
   if (schema.matchPatterns && isValidMatchPatternsArray(schema.matchPatterns)) {
     addPatternMatchRules(lexer, schema.matchPatterns as ReadonlyArray<{
-      pattern: string;
+      pattern: string | RegExp;
       name?: string;
+      identifier?: string;
       options?: unknown;
     }>);
   } else if (schema.matchPatterns) {
