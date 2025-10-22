@@ -44,17 +44,15 @@ jobs:
           fi
           echo "✅ Main package build successful - dist directory exists"
 
-      - name: Link main package for site
+      - name: Copy build to workspace cache
         run: |
-          bun link
-          echo "✅ Linked logsdx package globally"
-
-      - name: Install site dependencies
-        working-directory: ./site
-        run: |
-          bun install
-          bun link logsdx
-          echo "✅ Linked logsdx package to site"
+          CACHE_DIR=$(find node_modules/.bun -type d -name "logsdx" -path "*/node_modules/logsdx" | head -1)
+          if [ -n "$CACHE_DIR" ] && [ -d "$CACHE_DIR/dist" ]; then
+            cp -f dist/index.cjs dist/index.mjs dist/index.d.ts dist/cli.js "$CACHE_DIR/dist/" 2>/dev/null || true
+            echo "✅ Copied build files to workspace cache at $CACHE_DIR"
+          else
+            echo "⚠️  Workspace cache not found, relying on bun workspace resolution"
+          fi
 
       - name: Build with Next.js
         working-directory: ./site
