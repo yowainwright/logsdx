@@ -22,6 +22,7 @@
     "dist/"
   ],
   "scripts": {
+    "clean": "rm -rf dist node_modules/.bun site/node_modules",
     "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types && bun run generate-schema",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
