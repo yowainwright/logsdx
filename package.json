@@ -22,6 +22,8 @@
     "dist/"
   ],
   "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "clean": "rm -rf dist node_modules/.bun site/node_modules",
     "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types && bun run generate-schema",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
@@ -42,8 +44,9 @@
     "site:dev": "cd site && bun run dev",
     "site:build": "cd site && bun run build",
     "site:start": "cd site && bun run start",
-    "dev": "cd site && bun run dev",
-    "create-theme": "bun run src/cli/index.ts theme create"
+    "dev": "mprocs",
+    "create-theme": "bun run src/cli/index.ts theme create",
+    "prepare": "husky"
   },
   "homepage": "https://jeffry.in/logsdx",
   "repository": {
@@ -59,6 +62,9 @@
     "@types/figlet": "^1.7.0",
     "@types/node": "^24.0.0",
     "@types/wcag-contrast": "^3.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "mprocs": "^0.7.3",
     "oxlint": "^0.15.0",
     "pino": "^9.9.0",
     "prettier": "^3.5.3",

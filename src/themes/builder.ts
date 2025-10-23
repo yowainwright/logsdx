@@ -39,7 +39,7 @@ export interface SimpleThemeConfig {
   customWords?: Record<string, string | StyleOptions>;
   customPatterns?: Array<{
     name: string;
-    pattern: string;
+    pattern: string | RegExp;
     color: string;
     style?: string[];
   }>;
@@ -58,8 +58,43 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
       INFO: { color: "info", styleCodes: ["bold"] },
       DEBUG: { color: "debug" },
       SUCCESS: { color: "success", styleCodes: ["bold"] },
+      TRACE: { color: "muted" },
+      FATAL: { color: "error", styleCodes: ["bold"] },
+      CRITICAL: { color: "error", styleCodes: ["bold"] },
     },
-    patterns: [],
+    patterns: [
+      {
+        name: "log-level-brackets",
+        pattern:
+          /\[(ERROR|WARN|WARNING|INFO|DEBUG|SUCCESS|TRACE|FATAL|CRITICAL)\]/gi,
+        options: { color: "primary" },
+      },
+      {
+        name: "log-level-error-bracket",
+        pattern: /\[ERROR\]/gi,
+        options: { color: "error", styleCodes: ["bold"] },
+      },
+      {
+        name: "log-level-warn-bracket",
+        pattern: /\[WARN(?:ING)?\]/gi,
+        options: { color: "warning", styleCodes: ["bold"] },
+      },
+      {
+        name: "log-level-info-bracket",
+        pattern: /\[INFO\]/gi,
+        options: { color: "info", styleCodes: ["bold"] },
+      },
+      {
+        name: "log-level-success-bracket",
+        pattern: /\[SUCCESS\]/gi,
+        options: { color: "success", styleCodes: ["bold"] },
+      },
+      {
+        name: "log-level-debug-bracket",
+        pattern: /\[DEBUG\]/gi,
+        options: { color: "debug" },
+      },
+    ],
   },
 
   booleans: {
@@ -118,9 +153,14 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
     name: "Strings and Quotes",
     patterns: [
       {
-        name: "quoted-string",
-        pattern: "(['\"])(.*?)\\1",
-        options: { color: "success" },
+        name: "double-quoted-string",
+        pattern: /"([^"]*)"/g,
+        options: { color: "secondary" },
+      },
+      {
+        name: "single-quoted-string",
+        pattern: /'([^']*)'/g,
+        options: { color: "secondary" },
       },
     ],
   },
@@ -129,9 +169,14 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
     name: "Numbers",
     patterns: [
       {
-        name: "number",
-        pattern: "\\b\\d+\\b",
-        options: { color: "primary" },
+        name: "decimal-number",
+        pattern: /\b\d+\.\d+\b/g,
+        options: { color: "accent" },
+      },
+      {
+        name: "integer",
+        pattern: /\b\d+\b/g,
+        options: { color: "accent" },
       },
     ],
   },
@@ -140,19 +185,84 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
     name: "Dates and Times",
     patterns: [
       {
-        name: "semantic-version",
-        pattern: "\\d+\\.\\d+\\.\\d+",
-        options: { color: "info", styleCodes: ["bold"] },
+        name: "bracketed-timestamp",
+        pattern: /\[\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[^\]]*\]/g,
+        options: { color: "info" },
       },
       {
-        name: "date",
-        pattern: "\\d{4}-\\d{2}-\\d{2}",
+        name: "iso-date",
+        pattern: /\d{4}-\d{2}-\d{2}/g,
         options: { color: "info" },
       },
       {
         name: "time",
-        pattern: "\\d{2}:\\d{2}:\\d{2}",
+        pattern: /\d{2}:\d{2}:\d{2}/g,
         options: { color: "info" },
+      },
+    ],
+  },
+
+  timestamps: {
+    name: "Timestamps",
+    patterns: [
+      {
+        name: "iso8601-timestamp",
+        pattern: /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?/g,
+        options: { color: "info" },
+      },
+    ],
+  },
+
+  urls: {
+    name: "URLs",
+    patterns: [
+      {
+        name: "http-url",
+        pattern: /https?:\/\/[^\s]+/g,
+        options: { color: "accent", styleCodes: ["underline"] },
+      },
+    ],
+  },
+
+  paths: {
+    name: "File Paths",
+    patterns: [
+      {
+        name: "unix-path",
+        pattern: /\/[\w\-\.\/]+/g,
+        options: { color: "muted" },
+      },
+      {
+        name: "windows-path",
+        pattern: /[A-Z]:\\[\w\-\.\\]+/g,
+        options: { color: "muted" },
+      },
+    ],
+  },
+
+  json: {
+    name: "JSON Keys",
+    patterns: [
+      {
+        name: "json-key",
+        pattern: /"(\w+)":/g,
+        options: { color: "accent" },
+      },
+      {
+        name: "json-key-unquoted",
+        pattern: /\b(\w+):/g,
+        options: { color: "accent" },
+      },
+    ],
+  },
+
+  semantic: {
+    name: "Semantic Versions",
+    patterns: [
+      {
+        name: "semantic-version",
+        pattern: /\bv?\d+\.\d+\.\d+\b/g,
+        options: { color: "primary", styleCodes: ["bold"] },
       },
     ],
   },

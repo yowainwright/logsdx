@@ -71,10 +71,9 @@ export function CustomThemeCreator() {
   }, [themeName, colors, selectedPresets, isLoaded]);
 
   useEffect(() => {
-    // Process logs immediately
-    const processLogs = async () => {
+    const processLogs = () => {
       try {
-        const tempThemeName = `custom-theme-${Date.now()}`;
+        const tempThemeName = `logsdx-theme-preview`;
 
         const customTheme = createSimpleTheme(tempThemeName, colors, {
           mode: "dark",
@@ -83,33 +82,16 @@ export function CustomThemeCreator() {
 
         registerTheme(customTheme);
 
-        // Small delay to ensure theme is registered
-        await new Promise((resolve) => setTimeout(resolve, 50));
-
-        // Use HTML output with escapeHtml disabled for trusted content
         const htmlLogsDX = getLogsDX({
           theme: tempThemeName,
           outputFormat: "html",
           htmlStyleFormat: "css",
-          escapeHtml: false, // Disable HTML escaping for trusted content
+          escapeHtml: false,
         }) as unknown as { processLine: (line: string) => string };
 
         const processed = SAMPLE_LOGS.map((log) => {
           try {
-            const result = htmlLogsDX.processLine(log.text);
-
-            // Debug: Check what LogsDX actually returns
-            console.log("=== LogsDX DEBUG ===");
-            console.log("Input:", log.text);
-            console.log("Raw result:", result);
-            console.log("Result type:", typeof result);
-            console.log("Result length:", result.length);
-            console.log("Contains <span:", result.includes("<span"));
-            console.log("Contains &lt;:", result.includes("&lt;"));
-            console.log("==================");
-
-            // Try using the result as-is first
-            return result;
+            return htmlLogsDX.processLine(log.text);
           } catch (e) {
             console.error("LogsDX processing failed:", log.text, e);
             // Return styled fallback using all theme colors
@@ -171,7 +153,7 @@ export function CustomThemeCreator() {
             // Highlight brackets
             if (selectedPresets.includes("brackets")) {
               styledText = styledText.replace(
-                /[\[\]{}()<>]/g,
+                /[[\]{}()<>]/g,
                 `<span style="color: ${colors.highlight};">$&</span>`,
               );
             }
@@ -195,7 +177,7 @@ export function CustomThemeCreator() {
             // Paths
             if (selectedPresets.includes("paths")) {
               styledText = styledText.replace(
-                /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+                /(\/[\w\-./]+|[A-Z]:\\[\w\-.\\]+)/g,
                 `<span style="color: ${colors.muted};">$1</span>`,
               );
             }
@@ -203,7 +185,7 @@ export function CustomThemeCreator() {
             // Timestamps
             if (selectedPresets.includes("timestamps")) {
               styledText = styledText.replace(
-                /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+                /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w.:]*)/g,
                 `<span style="color: ${colors.info};">$1</span>`,
               );
             }
@@ -266,7 +248,7 @@ export function CustomThemeCreator() {
           // Brackets
           if (selectedPresets.includes("brackets")) {
             styledText = styledText.replace(
-              /[\[\]{}()<>]/g,
+              /[[\]{}()<>]/g,
               `<span style="color: ${colors.highlight};">$&</span>`,
             );
           }
@@ -290,7 +272,7 @@ export function CustomThemeCreator() {
           // Paths
           if (selectedPresets.includes("paths")) {
             styledText = styledText.replace(
-              /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+              /(\/[\w\-./]+|[A-Z]:\\[\w\-.\\]+)/g,
               `<span style="color: ${colors.muted};">$1</span>`,
             );
           }
@@ -298,7 +280,7 @@ export function CustomThemeCreator() {
           // Timestamps
           if (selectedPresets.includes("timestamps")) {
             styledText = styledText.replace(
-              /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+              /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w.:]*)/g,
               `<span style="color: ${colors.info};">$1</span>`,
             );
           }
@@ -659,49 +641,33 @@ function CustomLogInput({
 }) {
   const [customLog, setCustomLog] = useState("");
   const [processedCustomLog, setProcessedCustomLog] = useState("");
-  const [uniqueThemeName] = useState(() => `${themeName}-custom-${Date.now()}`);
 
   useEffect(() => {
+    if (!customLog) {
+      setProcessedCustomLog("");
+      return;
+    }
+
     try {
-      const tempThemeName = `${uniqueThemeName}-${JSON.stringify(colors).substring(0, 10)}`;
+      const tempThemeName = `logsdx-custom-input`;
       const customTheme = createSimpleTheme(tempThemeName, colors, {
         mode: "dark",
         presets: ["logLevels", "numbers", "strings", "brackets"],
       });
       registerTheme(customTheme);
 
-      if (customLog) {
-        const htmlLogsDX = getLogsDX({
-          theme: tempThemeName,
-          outputFormat: "html",
-          htmlStyleFormat: "css",
-          escapeHtml: false,
-        }) as unknown as { processLine: (line: string) => string };
-        const processed = htmlLogsDX.processLine(customLog);
-        setProcessedCustomLog(processed);
-      }
+      const htmlLogsDX = getLogsDX({
+        theme: tempThemeName,
+        outputFormat: "html",
+        htmlStyleFormat: "css",
+        escapeHtml: false,
+      }) as unknown as { processLine: (line: string) => string };
+      const processed = htmlLogsDX.processLine(customLog);
+      setProcessedCustomLog(processed);
     } catch (error) {
-      console.error("Error registering custom theme:", error);
+      console.error("Error processing custom log:", error);
     }
-  }, [colors, uniqueThemeName, customLog]);
-
-  const handleProcessLog = () => {
-    if (customLog) {
-      try {
-        const tempThemeName = `${uniqueThemeName}-${JSON.stringify(colors).substring(0, 10)}`;
-        const htmlLogsDX = getLogsDX({
-          theme: tempThemeName,
-          outputFormat: "html",
-          htmlStyleFormat: "css",
-          escapeHtml: false,
-        }) as unknown as { processLine: (line: string) => string };
-        const processed = htmlLogsDX.processLine(customLog);
-        setProcessedCustomLog(processed);
-      } catch (error) {
-        console.error("Error processing custom log:", error);
-      }
-    }
-  };
+  }, [colors, customLog]);
 
   return (
     <div className="space-y-3">
@@ -711,9 +677,6 @@ function CustomLogInput({
         placeholder="Enter your own log message to test the theme..."
         className="w-full px-3 py-2 border rounded-md dark:bg-slate-700 dark:border-slate-600 h-24 font-mono text-sm"
       />
-      <Button onClick={handleProcessLog} className="w-full">
-        Process Log
-      </Button>
       {processedCustomLog && (
         <div
           className="font-mono text-sm p-4 rounded-lg"

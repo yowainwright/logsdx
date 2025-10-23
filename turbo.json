@@ -23,6 +23,18 @@
     },
     "clean": {
       "cache": false
+    },
+    "lint": {
+      "outputs": []
+    },
+    "format": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
     }
   }
 }

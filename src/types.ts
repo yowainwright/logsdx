@@ -43,7 +43,8 @@ export function filterStyleCodes(codes: string[] | undefined): StyleCode[] {
 
 export interface PatternMatch {
   name: string;
-  pattern: string;
+  pattern: string | RegExp;
+  identifier?: string;
   options: StyleOptions;
 }
 

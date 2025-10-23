@@ -1,12 +1,12 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
 import {
   getThemeBackground,
-  stripAnsi,
   renderLightBoxLine,
   renderLightBox,
   isLightTheme,
   isTerminalDark,
-} from "../../../src/renderer/light-box";
+} from "../../../src/renderer/lightBox";
+import { stripAnsi } from "../../../src/renderer/utils";
 import { Theme } from "../../../src/types";
 
 describe("getThemeBackground", () => {

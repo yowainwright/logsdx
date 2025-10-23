@@ -1,5 +1,45 @@
-import { ColorDefinition } from "./types";
-import { Theme } from "../types";
+import type {
+  ColorDefinition,
+  BackgroundInfo,
+  BorderChars,
+  MatchType,
+} from "./types";
+import type { Theme } from "../types";
+
+export const DEFAULT_THEME_NAME = "default";
+export const DEFAULT_THEME_COLOR = "white";
+
+export const TAB_SIZE = 4;
+export const NBSP = "&nbsp;";
+export const BR = "<br>";
+export const EMPTY_STRING = "";
+
+export const LINE_HIGHLIGHT_BG = "\x1b[48;5;236m";
+export const RESET = "\x1b[0m";
+
+export const WHITESPACE_MATCH_TYPES: ReadonlySet<MatchType> = new Set([
+  "whitespace",
+  "newline",
+  "space",
+  "spaces",
+  "tab",
+  "carriage-return",
+]);
+
+export const TRIMMED_SPACE_MATCH_TYPES: ReadonlySet<MatchType> = new Set([
+  "spaces",
+  "space",
+]);
+
+export const CSS_BOLD = "font-weight: bold";
+export const CSS_ITALIC = "font-style: italic";
+export const CSS_UNDERLINE = "text-decoration: underline";
+export const CSS_DIM = "opacity: 0.8";
+
+export const CLASS_BOLD = "logsdx-bold";
+export const CLASS_ITALIC = "logsdx-italic";
+export const CLASS_UNDERLINE = "logsdx-underline";
+export const CLASS_DIM = "logsdx-dim";
 
 /**
  * Check if the terminal supports colors
@@ -14,14 +54,12 @@ export function supportsColors(): boolean {
     return true;
   }
 
-  // Check if stdout exists and has isTTY (Node.js)
   if (process.stdout && process.stdout.isTTY === false) {
     return false;
   }
 
   const term = process.env.TERM;
   if (!term) {
-    // If no TERM but we're in a known runtime that supports colors, assume true
     if (typeof Bun !== "undefined" || (globalThis as any).Deno !== undefined) {
       return true;
     }
@@ -47,7 +85,31 @@ export function supportsColors(): boolean {
   return false;
 }
 
-// Define ANSI color codes for text
+export const DARK_TERMINALS: ReadonlyArray<string> = [
+  "iTerm.app",
+  "WarpTerminal",
+  "Hyper",
+  "Alacritty",
+  "kitty",
+  "WezTerm",
+] as const;
+
+export const LIGHT_TERMINALS: ReadonlyArray<string> = [
+  "Apple_Terminal",
+] as const;
+
+export const DEFAULT_DARK_BACKGROUND: BackgroundInfo = {
+  scheme: "dark",
+  confidence: "low",
+  source: "default",
+} as const;
+
+export const DEFAULT_AUTO_BACKGROUND: BackgroundInfo = {
+  scheme: "auto",
+  confidence: "low",
+  source: "default",
+} as const;
+
 export const TEXT_COLORS: Record<string, ColorDefinition> = {
   black: {
     ansi: "\x1b[30m",
@@ -129,12 +191,10 @@ export function getColorDefinition(
   colorName: string,
   theme?: Theme,
 ): ColorDefinition | undefined {
-  // First check base colors
   if (TEXT_COLORS[colorName]) {
     return TEXT_COLORS[colorName];
   }
 
-  // If theme has custom color definitions, check those
   if (
     theme &&
     "colorDefinitions" in theme &&
@@ -147,7 +207,6 @@ export function getColorDefinition(
     ];
   }
 
-  // If it's a hex color (starts with #), create a definition
   if (colorName.startsWith("#")) {
     return {
       ansi: `\x1b[38;2;${hexToRgb(colorName).join(";")}m`,
@@ -156,7 +215,6 @@ export function getColorDefinition(
     };
   }
 
-  // Fallback to basic color mapping for unknown theme colors
   const fallbackMap: Record<string, string> = {
     lightGray: "white",
     darkGray: "brightBlack",
@@ -196,7 +254,6 @@ function hexToRgb(hex: string): [number, number, number] {
     : [0, 0, 0];
 }
 
-// Define ANSI color codes for background
 export const BACKGROUND_COLORS: Record<string, ColorDefinition> = {
   black: { ansi: "\x1b[40m", hex: "#000000", className: "logsdx__bg--black" },
   red: { ansi: "\x1b[41m", hex: "#ff0000", className: "logsdx__bg--red" },
@@ -252,7 +309,6 @@ export const BACKGROUND_COLORS: Record<string, ColorDefinition> = {
   },
 };
 
-// Define ANSI style codes
 export const STYLE_CODES = {
   reset: "\x1b[0m",
   bold: "\x1b[1m",
