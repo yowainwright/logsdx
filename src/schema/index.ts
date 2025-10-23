@@ -18,12 +18,9 @@ import {
 import { isValidColorFormat } from "./utils";
 
 export const styleOptionsSchema = z.object({
-  color: z
-    .string()
-    .min(1, EMPTY_COLOR_MESSAGE)
-    .refine(isValidColorFormat, {
-      message: COLOR_VALIDATION_MESSAGE,
-    }),
+  color: z.string().min(1, EMPTY_COLOR_MESSAGE).refine(isValidColorFormat, {
+    message: COLOR_VALIDATION_MESSAGE,
+  }),
   styleCodes: z.array(z.enum(STYLE_CODES)).optional(),
   htmlStyleFormat: z
     .enum(HTML_STYLE_FORMATS)

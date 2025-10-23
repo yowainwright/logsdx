@@ -443,7 +443,7 @@ export function createThemeCommand() {
 
       showBanner();
       renderPreview(theme, `${theme.name} Theme`);
-      
+
       const palette = boxen(
         Object.entries(theme.schema)
           .map(([key, value]) => {

@@ -1,4 +1,5 @@
-export const COLOR_PATTERN = /^(#[0-9a-fA-F]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|\w+)/;
+export const COLOR_PATTERN =
+  /^(#[0-9a-fA-F]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|\w+)/;
 
 export const COLOR_VALIDATION_MESSAGE =
   "Invalid color format. Use hex (#ff0000), rgb(), hsl(), or named colors";

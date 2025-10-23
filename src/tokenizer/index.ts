@@ -46,7 +46,7 @@ export class TokenContext {
 
   constructor(
     public text: string,
-    public type: string
+    public type: string,
   ) {}
 
   accept(type: string, value?: unknown): void {
@@ -92,7 +92,7 @@ export class SimpleLexer {
   }
 
   private findMatchingToken(
-    slice: string
+    slice: string,
   ): { type: string; text: string; value?: unknown } | null {
     for (const { pattern, action } of this.rules) {
       pattern.lastIndex = 0;
@@ -150,7 +150,7 @@ export class SimpleLexer {
   }
 
   tokenize(
-    input: string
+    input: string,
   ): ReadonlyArray<{ type: string; text: string; value?: unknown }> {
     this.input(input);
     const tokens: Array<{ type: string; text: string; value?: unknown }> = [];
@@ -229,7 +229,7 @@ export function addTrimNewlineRules(lexer: SimpleLexer): void {
 
 export function addWordMatchRules(
   lexer: SimpleLexer,
-  matchWords: Record<string, unknown>
+  matchWords: Record<string, unknown>,
 ): void {
   const wordEntries = Object.entries(matchWords);
 
@@ -246,16 +246,17 @@ export function addWordMatchRules(
 }
 
 function createIdentifierPattern(identifier: string): RegExp {
-  return new RegExp(escapeRegexPattern(identifier), 'gi');
+  return new RegExp(escapeRegexPattern(identifier), "gi");
 }
 
 function validatePatternMatch(
   ctx: TokenContext,
-  fullPattern: string | RegExp
+  fullPattern: string | RegExp,
 ): boolean {
-  const fullRegex = typeof fullPattern === 'string'
-    ? createSafeRegex(fullPattern)
-    : fullPattern;
+  const fullRegex =
+    typeof fullPattern === "string"
+      ? createSafeRegex(fullPattern)
+      : fullPattern;
 
   if (!fullRegex) return false;
 
@@ -271,12 +272,12 @@ export function addPatternMatchRules(
     name?: string;
     identifier?: string;
     options?: unknown;
-  }>
+  }>,
 ): void {
   for (let index = 0; index < matchPatterns.length; index++) {
     const patternObj = matchPatterns[index];
 
-    if (patternObj.identifier && typeof patternObj.identifier === 'string') {
+    if (patternObj.identifier && typeof patternObj.identifier === "string") {
       const identifierRegex = createIdentifierPattern(patternObj.identifier);
 
       lexer.rule(identifierRegex, (ctx) => {
@@ -297,9 +298,10 @@ export function addPatternMatchRules(
       continue;
     }
 
-    const regex = typeof patternObj.pattern === 'string'
-      ? createSafeRegex(patternObj.pattern)
-      : patternObj.pattern;
+    const regex =
+      typeof patternObj.pattern === "string"
+        ? createSafeRegex(patternObj.pattern)
+        : patternObj.pattern;
 
     if (!regex) {
       console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
@@ -338,12 +340,15 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   }
 
   if (schema.matchPatterns && isValidMatchPatternsArray(schema.matchPatterns)) {
-    addPatternMatchRules(lexer, schema.matchPatterns as ReadonlyArray<{
-      pattern: string | RegExp;
-      name?: string;
-      identifier?: string;
-      options?: unknown;
-    }>);
+    addPatternMatchRules(
+      lexer,
+      schema.matchPatterns as ReadonlyArray<{
+        pattern: string | RegExp;
+        name?: string;
+        identifier?: string;
+        options?: unknown;
+      }>,
+    );
   } else if (schema.matchPatterns) {
     console.warn("matchPatterns is not an array in theme schema");
   }
@@ -386,7 +391,10 @@ export function shouldUseDefaultToken(theme?: Theme): boolean {
     return true;
   }
 
-  if (theme.schema.matchPatterns && !isValidMatchPatternsArray(theme.schema.matchPatterns)) {
+  if (
+    theme.schema.matchPatterns &&
+    !isValidMatchPatternsArray(theme.schema.matchPatterns)
+  ) {
     return true;
   }
 
@@ -396,7 +404,7 @@ export function shouldUseDefaultToken(theme?: Theme): boolean {
 export function createTokenMetadata(
   matchType: MatcherType,
   tokenType: string,
-  tokenValue: unknown
+  tokenValue: unknown,
 ): Token["metadata"] {
   const pattern = extractPattern(tokenValue);
 
@@ -439,7 +447,11 @@ export function convertLexerToken(lexerToken: {
   value?: unknown;
 }): Token {
   const matchType = lexerToken.type as MatcherType;
-  const metadata = createTokenMetadata(matchType, lexerToken.type, lexerToken.value);
+  const metadata = createTokenMetadata(
+    matchType,
+    lexerToken.type,
+    lexerToken.value,
+  );
 
   return {
     content: lexerToken.text,
@@ -448,7 +460,7 @@ export function convertLexerToken(lexerToken: {
 }
 
 export function convertLexerTokens(
-  lexerTokens: ReadonlyArray<{ type: string; text: string; value?: unknown }>
+  lexerTokens: ReadonlyArray<{ type: string; text: string; value?: unknown }>,
 ): TokenList {
   return lexerTokens.map(convertLexerToken);
 }
@@ -476,22 +488,20 @@ export function tokenize(line: string, theme?: Theme): TokenList {
 
 export function findPatternByName(
   matchPatterns: unknown,
-  name: unknown
+  name: unknown,
 ): { options?: unknown } | undefined {
   if (!isValidMatchPatternsArray(matchPatterns)) {
     return undefined;
   }
 
-  const pattern = matchPatterns.find(
-    (p) => isObject(p) && p.name === name
-  );
+  const pattern = matchPatterns.find((p) => isObject(p) && p.name === name);
 
   return isObject(pattern) ? pattern : undefined;
 }
 
 export function findPatternByIndex(
   matchPatterns: unknown,
-  index: number
+  index: number,
 ): { options?: unknown } | undefined {
   if (!isValidMatchPatternsArray(matchPatterns)) {
     return undefined;
@@ -501,10 +511,7 @@ export function findPatternByIndex(
   return isObject(pattern) ? pattern : undefined;
 }
 
-export function applyWordStyle(
-  token: Token,
-  theme: Theme
-): Token | undefined {
+export function applyWordStyle(token: Token, theme: Theme): Token | undefined {
   const metadata = token.metadata;
 
   if (!metadata || metadata.matchType !== MATCH_TYPE_WORD) {
@@ -537,7 +544,7 @@ export function applyWordStyle(
 
 export function applyPatternStyleByName(
   token: Token,
-  theme: Theme
+  theme: Theme,
 ): Token | undefined {
   const metadata = token.metadata;
 
@@ -566,7 +573,7 @@ export function applyPatternStyleByName(
 
 export function applyPatternStyleByIndex(
   token: Token,
-  theme: Theme
+  theme: Theme,
 ): Token | undefined {
   const metadata = token.metadata;
 

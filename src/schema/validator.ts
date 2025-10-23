@@ -9,11 +9,7 @@ import {
   THEME_SCHEMA_NAME,
   THEME_SCHEMA_DESCRIPTION,
 } from "./constants";
-import {
-  formatZodIssues,
-  createValidationError,
-  isZodError,
-} from "./utils";
+import { formatZodIssues, createValidationError, isZodError } from "./utils";
 
 export function parseToken(token: unknown): z.infer<typeof tokenSchema> {
   return tokenSchema.parse(token);
@@ -55,7 +51,9 @@ export function validateTokenSafe(token: unknown): {
   return parseTokenSafe(token);
 }
 
-export function parseTokenList(tokens: unknown): z.infer<typeof tokenListSchema> {
+export function parseTokenList(
+  tokens: unknown,
+): z.infer<typeof tokenListSchema> {
   return tokenListSchema.parse(tokens);
 }
 
@@ -79,7 +77,7 @@ export function parseTokenListSafe(tokens: unknown): {
  * @returns The validated token list or throws an error
  */
 export function validateTokenList(
-  tokens: unknown
+  tokens: unknown,
 ): z.infer<typeof tokenListSchema> {
   return parseTokenList(tokens);
 }

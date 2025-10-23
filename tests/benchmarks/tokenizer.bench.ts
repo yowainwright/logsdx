@@ -6,23 +6,28 @@ describe("Tokenizer Performance Benchmarks", () => {
   const scenarios = [
     {
       name: "Dense matches - many log levels",
-      input: "[ERROR] Connection failed [WARN] Retrying [INFO] Connected [SUCCESS] Data received",
+      input:
+        "[ERROR] Connection failed [WARN] Retrying [INFO] Connected [SUCCESS] Data received",
       description: "Multiple pattern matches in short text",
     },
     {
       name: "Sparse matches - mostly plain text",
-      input: "Processing data from server without any log level markers present in this very long string that should be batched together efficiently",
+      input:
+        "Processing data from server without any log level markers present in this very long string that should be batched together efficiently",
       description: "Long text with no matches - tests batching optimization",
     },
     {
       name: "No matches - plain text",
       input: "a".repeat(1000),
-      description: "1000 characters with no matches - worst case for old implementation",
+      description:
+        "1000 characters with no matches - worst case for old implementation",
     },
     {
       name: "Mixed content - realistic log",
-      input: "2024-01-15 10:30:45 [INFO] User authentication successful for user@example.com - Session ID: abc123def456 - Duration: 152ms",
-      description: "Realistic log with timestamps, log levels, emails, and numbers",
+      input:
+        "2024-01-15 10:30:45 [INFO] User authentication successful for user@example.com - Session ID: abc123def456 - Duration: 152ms",
+      description:
+        "Realistic log with timestamps, log levels, emails, and numbers",
     },
     {
       name: "Large log line",
@@ -48,13 +53,17 @@ describe("Tokenizer Performance Benchmarks", () => {
       console.log(`  Time: ${timeMs}ms`);
       console.log(`  Tokens created: ${tokens.length}`);
       console.log(`  Chars/token: ${charsPerToken}`);
-      console.log(`  Throughput: ${((scenario.input.length / parseFloat(timeMs)) * 1000).toFixed(0)} chars/sec`);
+      console.log(
+        `  Throughput: ${((scenario.input.length / parseFloat(timeMs)) * 1000).toFixed(0)} chars/sec`,
+      );
     });
   }
 
   test("Batch processing - 1000 lines", () => {
     const lexer = createLexer(getTheme("dracula"));
-    const lines = Array(1000).fill("[INFO] Processing request from 192.168.1.1 - Status: 200 OK");
+    const lines = Array(1000).fill(
+      "[INFO] Processing request from 192.168.1.1 - Status: 200 OK",
+    );
 
     const start = performance.now();
     let totalTokens = 0;

@@ -69,7 +69,7 @@ function getBorderChars(borderStyle: BorderStyle): BorderChars {
 function createTopBorder(
   width: number,
   borderChars: BorderChars,
-  title?: string
+  title?: string,
 ): string {
   if (!title) {
     return (
@@ -82,7 +82,7 @@ function createTopBorder(
   const paddedTitle = ` ${title} `;
   const [leftPadding, rightPadding] = calculateCenterPadding(
     width - 2,
-    paddedTitle.length
+    paddedTitle.length,
   );
 
   return (
@@ -105,7 +105,7 @@ function createBottomBorder(width: number, borderChars: BorderChars): string {
 function calculateContentWidth(
   width: number,
   hasBorder: boolean,
-  padding: number
+  padding: number,
 ): number {
   const borderWidth = hasBorder ? 2 : 0;
   return width - borderWidth - padding * 2;
@@ -116,7 +116,7 @@ function createPaddedLine(
   contentWidth: number,
   padding: number,
   backgroundColor: string,
-  borderChar?: string
+  borderChar?: string,
 ): string {
   const lineLength = stripAnsi(line).length;
   const rightPadding = Math.max(0, contentWidth - lineLength);
@@ -142,7 +142,7 @@ function createPaddedLine(
 export function renderLightBoxLine(
   line: string,
   theme: Theme | string,
-  options: LightBoxOptions = {}
+  options: LightBoxOptions = {},
 ): string {
   const width = options.width ?? DEFAULT_WIDTH;
   const padding = options.padding ?? DEFAULT_PADDING;
@@ -159,7 +159,7 @@ export function renderLightBoxLine(
     contentWidth,
     padding,
     backgroundColor,
-    borderChar
+    borderChar,
   );
 }
 
@@ -175,7 +175,7 @@ export function renderLightBox(
   lines: ReadonlyArray<string>,
   theme: Theme | string,
   title?: string,
-  options: LightBoxOptions = {}
+  options: LightBoxOptions = {},
 ): ReadonlyArray<string> {
   const width = options.width ?? DEFAULT_WIDTH;
   const border = options.border ?? DEFAULT_BORDER;

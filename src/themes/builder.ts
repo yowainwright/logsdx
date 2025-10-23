@@ -65,7 +65,8 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
     patterns: [
       {
         name: "log-level-brackets",
-        pattern: /\[(ERROR|WARN|WARNING|INFO|DEBUG|SUCCESS|TRACE|FATAL|CRITICAL)\]/gi,
+        pattern:
+          /\[(ERROR|WARN|WARNING|INFO|DEBUG|SUCCESS|TRACE|FATAL|CRITICAL)\]/gi,
         options: { color: "primary" },
       },
       {

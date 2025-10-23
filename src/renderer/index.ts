@@ -58,7 +58,7 @@ export function handleTrimmedSpaces(token: Token): string {
 
 export function applyStyleCodes(
   text: string,
-  styleCodes: ReadonlyArray<StyleCode> | undefined
+  styleCodes: ReadonlyArray<StyleCode> | undefined,
 ): string {
   let result = text;
 
@@ -102,10 +102,7 @@ export function tokenToString(token: Token, colorSupport: boolean): string {
 
   result = applyStyleCodes(result, style.styleCodes);
 
-  if (
-    "backgroundColor" in style &&
-    typeof style.backgroundColor === "string"
-  ) {
+  if ("backgroundColor" in style && typeof style.backgroundColor === "string") {
     result = applyBackgroundColor(result, style.backgroundColor);
   }
 
@@ -120,10 +117,12 @@ export function tokenToString(token: Token, colorSupport: boolean): string {
  */
 export function tokensToString(
   tokens: TokenList,
-  forceColors?: boolean
+  forceColors?: boolean,
 ): string {
   const colorSupport = forceColors ?? supportsColors();
-  return tokens.map((token) => tokenToString(token, colorSupport)).join(EMPTY_STRING);
+  return tokens
+    .map((token) => tokenToString(token, colorSupport))
+    .join(EMPTY_STRING);
 }
 
 export function handleWhitespaceHtml(token: Token): string {
@@ -149,7 +148,9 @@ export function handleWhitespaceHtml(token: Token): string {
     return NBSP;
   }
 
-  return token.content.replace(/ /g, NBSP).replace(/\t/g, NBSP.repeat(TAB_SIZE));
+  return token.content
+    .replace(/ /g, NBSP)
+    .replace(/\t/g, NBSP.repeat(TAB_SIZE));
 }
 
 export function handleSpecialHtmlTokens(token: Token): string | null {
@@ -168,7 +169,7 @@ export function handleSpecialHtmlTokens(token: Token): string | null {
 
 export function buildCssStyles(
   style: NonNullable<Token["metadata"]>["style"],
-  styleCodes: ReadonlyArray<StyleCode> | undefined
+  styleCodes: ReadonlyArray<StyleCode> | undefined,
 ): ReadonlyArray<string> {
   const css: string[] = [];
 
@@ -196,7 +197,10 @@ export function buildCssStyles(
   return css;
 }
 
-export function wrapInSpan(content: string, styles: ReadonlyArray<string>): string {
+export function wrapInSpan(
+  content: string,
+  styles: ReadonlyArray<string>,
+): string {
   if (styles.length === 0) {
     return content;
   }
@@ -233,14 +237,14 @@ export function tokenToHtml(token: Token, options: RenderOptions): string {
  */
 export function tokensToHtml(
   tokens: TokenList,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
   return tokens.map((token) => tokenToHtml(token, options)).join(EMPTY_STRING);
 }
 
 export function buildCssClasses(
   style: NonNullable<Token["metadata"]>["style"],
-  styleCodes: ReadonlyArray<StyleCode> | undefined
+  styleCodes: ReadonlyArray<StyleCode> | undefined,
 ): ReadonlyArray<string> {
   const classes: string[] = [];
 
@@ -272,7 +276,7 @@ export function buildCssClasses(
 
 export function wrapInSpanWithClass(
   content: string,
-  classes: ReadonlyArray<string>
+  classes: ReadonlyArray<string>,
 ): string {
   if (classes.length === 0) {
     return content;
@@ -310,9 +314,11 @@ export function tokenToClassName(token: Token, options: RenderOptions): string {
  */
 export function tokensToClassNames(
   tokens: TokenList,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
-  return tokens.map((token) => tokenToClassName(token, options)).join(EMPTY_STRING);
+  return tokens
+    .map((token) => tokenToClassName(token, options))
+    .join(EMPTY_STRING);
 }
 
 /**
@@ -325,7 +331,7 @@ export function tokensToClassNames(
 export function renderLine(
   line: string,
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): string {
   const tokens = tokenize(line, theme);
   const styledTokens = applyTheme(tokens, theme || DEFAULT_THEME);
@@ -463,7 +469,7 @@ export function bgRGB(r: number, g: number, b: number): string {
 export function renderLines(
   lines: ReadonlyArray<string>,
   theme?: Theme,
-  options: RenderOptions = {}
+  options: RenderOptions = {},
 ): ReadonlyArray<string> {
   return lines.map((line) => renderLine(line, theme, options));
 }

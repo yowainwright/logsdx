@@ -17,7 +17,7 @@ export function escapeHtml(text: string): string {
 
   return replacements.reduce(
     (acc, [pattern, replacement]) => acc.replace(pattern, replacement),
-    text
+    text,
   );
 }
 
@@ -60,7 +60,7 @@ export function stripAnsi(str: string): string {
  */
 export function hasStyleCode(
   styleCodes: ReadonlyArray<StyleCode> | undefined,
-  code: StyleCode
+  code: StyleCode,
 ): boolean {
   if (!styleCodes) {
     return false;
@@ -113,7 +113,7 @@ export function repeatString(str: string, count: number): string {
  */
 export function calculateCenterPadding(
   totalWidth: number,
-  textLength: number
+  textLength: number,
 ): readonly [number, number] {
   const remainingSpace = Math.max(0, totalWidth - textLength);
   const leftPadding = Math.floor(remainingSpace / 2);

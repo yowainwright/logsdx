@@ -10,7 +10,9 @@ export function formatFileSize(bytes: number): string {
     return "0 B";
   }
 
-  const unitIndex = Math.floor(Math.log(bytes) / Math.log(SIZE_UNIT_MULTIPLIER));
+  const unitIndex = Math.floor(
+    Math.log(bytes) / Math.log(SIZE_UNIT_MULTIPLIER),
+  );
   const clampedIndex = Math.min(unitIndex, SIZE_UNITS.length - 1);
   const size = bytes / Math.pow(SIZE_UNIT_MULTIPLIER, clampedIndex);
   const unit = SIZE_UNITS[clampedIndex];

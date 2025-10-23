@@ -30,7 +30,7 @@ export function generateThemeCode(
 
   const configString = JSON.stringify(themeConfig, null, 2)
     .replace(/"([^"]+)":/g, "$1:")
-    .replace(/"pattern":\s*"([^"]+)"/g, 'pattern: /$1/g');
+    .replace(/"pattern":\s*"([^"]+)"/g, "pattern: /$1/g");
 
   return `import { createSimpleTheme, registerTheme, getLogsDX } from 'logsdx';
 

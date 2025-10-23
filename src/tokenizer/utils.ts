@@ -92,6 +92,8 @@ export function createSafeRegex(pattern: string): RegExp | undefined {
  * @param matchPatterns - The match patterns to validate
  * @returns True if valid array
  */
-export function isValidMatchPatternsArray(matchPatterns: unknown): matchPatterns is Array<unknown> {
+export function isValidMatchPatternsArray(
+  matchPatterns: unknown,
+): matchPatterns is Array<unknown> {
   return Array.isArray(matchPatterns);
 }

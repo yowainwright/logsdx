@@ -1,8 +1,4 @@
-import type {
-  BackgroundInfo,
-  ColorScheme,
-  ConfidenceLevel,
-} from "./types";
+import type { BackgroundInfo, ColorScheme, ConfidenceLevel } from "./types";
 import {
   parseColorFgBg,
   isLightBgColor,
@@ -20,7 +16,7 @@ function createBackgroundInfo(
   scheme: ColorScheme,
   confidence: ConfidenceLevel,
   source: BackgroundInfo["source"],
-  details?: BackgroundInfo["details"]
+  details?: BackgroundInfo["details"],
 ): BackgroundInfo {
   return {
     scheme,
@@ -50,7 +46,7 @@ function detectFromColorFgBg(): BackgroundInfo | undefined {
 
 function isTerminalInList(
   termProgram: string,
-  list: ReadonlyArray<string>
+  list: ReadonlyArray<string>,
 ): boolean {
   return list.includes(termProgram);
 }
@@ -76,7 +72,7 @@ function detectFromTermProgram(): BackgroundInfo | undefined {
 function isVSCode(): boolean {
   const hasVscodePid = Boolean(process.env.VSCODE_PID);
   const hasVscodeVersion = Boolean(
-    process.env.TERM_PROGRAM_VERSION?.includes("vscode")
+    process.env.TERM_PROGRAM_VERSION?.includes("vscode"),
   );
 
   return hasVscodePid || hasVscodeVersion;
@@ -215,10 +211,7 @@ export function detectSystemBackground(): BackgroundInfo {
   return DEFAULT_AUTO_BACKGROUND;
 }
 
-function hasHigherConfidence(
-  a: ConfidenceLevel,
-  b: ConfidenceLevel
-): boolean {
+function hasHigherConfidence(a: ConfidenceLevel, b: ConfidenceLevel): boolean {
   const confidenceOrder: Record<ConfidenceLevel, number> = {
     high: 3,
     medium: 2,
@@ -287,7 +280,7 @@ export function getRecommendedThemeMode(): "light" | "dark" {
 }
 
 function setupMediaQueryListeners(
-  callback: (info: BackgroundInfo) => void
+  callback: (info: BackgroundInfo) => void,
 ): () => void {
   if (!hasMatchMedia()) {
     return () => {};
@@ -329,7 +322,7 @@ function setupMediaQueryListeners(
  * @returns Cleanup function to stop watching
  */
 export function watchBackgroundChanges(
-  callback: (info: BackgroundInfo) => void
+  callback: (info: BackgroundInfo) => void,
 ): () => void {
   return setupMediaQueryListeners(callback);
 }

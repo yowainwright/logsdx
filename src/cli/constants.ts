@@ -17,5 +17,11 @@ export const DEFAULT_OUTPUT = "styled";
 export const EXIT_SUCCESS = 0;
 export const EXIT_ERROR = 1;
 
-export const SIZE_UNITS: ReadonlyArray<string> = ["B", "KB", "MB", "GB", "TB"] as const;
+export const SIZE_UNITS: ReadonlyArray<string> = [
+  "B",
+  "KB",
+  "MB",
+  "GB",
+  "TB",
+] as const;
 export const SIZE_UNIT_MULTIPLIER = 1024;
