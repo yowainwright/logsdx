@@ -490,18 +490,24 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 git clone https://github.com/yowainwright/logsdx.git
 cd logsdx
 
-# Install dependencies
-bun install
+# Run setup script (installs dependencies, builds, configures git hooks)
+bun run setup
 
-# Run tests
-bun test
+# Start development server with mprocs (runs site + tests in watch mode)
+bun run dev
 
-# Build the project
-bun run build
-
-# Run linting
-bun run lint
+# Or run individual commands:
+bun test              # Run tests
+bun run build         # Build the project
+bun run lint          # Check code quality
+bun run format        # Format code
 ```
+
+The setup script will:
+- ✅ Install all dependencies
+- ✅ Build the main package
+- ✅ Configure git hooks (pre-commit, post-merge, post-checkout)
+- ✅ Verify your environment is ready
 
 ## License
 
