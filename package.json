@@ -44,7 +44,8 @@
     "site:build": "cd site && bun run build",
     "site:start": "cd site && bun run start",
     "dev": "mprocs",
-    "create-theme": "bun run src/cli/index.ts theme create"
+    "create-theme": "bun run src/cli/index.ts theme create",
+    "prepare": "husky"
   },
   "homepage": "https://jeffry.in/logsdx",
   "repository": {
@@ -60,6 +61,8 @@
     "@types/figlet": "^1.7.0",
     "@types/node": "^24.0.0",
     "@types/wcag-contrast": "^3.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
     "mprocs": "^0.7.3",
     "oxlint": "^0.15.0",
     "pino": "^9.9.0",

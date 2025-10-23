@@ -153,7 +153,7 @@ export function CustomThemeCreator() {
             // Highlight brackets
             if (selectedPresets.includes("brackets")) {
               styledText = styledText.replace(
-                /[\[\]{}()<>]/g,
+                /[[\]{}()<>]/g,
                 `<span style="color: ${colors.highlight};">$&</span>`,
               );
             }
@@ -177,7 +177,7 @@ export function CustomThemeCreator() {
             // Paths
             if (selectedPresets.includes("paths")) {
               styledText = styledText.replace(
-                /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+                /(\/[\w\-./]+|[A-Z]:\\[\w\-.\\]+)/g,
                 `<span style="color: ${colors.muted};">$1</span>`,
               );
             }
@@ -185,7 +185,7 @@ export function CustomThemeCreator() {
             // Timestamps
             if (selectedPresets.includes("timestamps")) {
               styledText = styledText.replace(
-                /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+                /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w.:]*)/g,
                 `<span style="color: ${colors.info};">$1</span>`,
               );
             }
@@ -248,7 +248,7 @@ export function CustomThemeCreator() {
           // Brackets
           if (selectedPresets.includes("brackets")) {
             styledText = styledText.replace(
-              /[\[\]{}()<>]/g,
+              /[[\]{}()<>]/g,
               `<span style="color: ${colors.highlight};">$&</span>`,
             );
           }
@@ -272,7 +272,7 @@ export function CustomThemeCreator() {
           // Paths
           if (selectedPresets.includes("paths")) {
             styledText = styledText.replace(
-              /(\/[\w\-\.\/]+|[A-Z]:\\[\w\-\.\\]+)/g,
+              /(\/[\w\-./]+|[A-Z]:\\[\w\-.\\]+)/g,
               `<span style="color: ${colors.muted};">$1</span>`,
             );
           }
@@ -280,7 +280,7 @@ export function CustomThemeCreator() {
           // Timestamps
           if (selectedPresets.includes("timestamps")) {
             styledText = styledText.replace(
-              /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w\.\:]*)/g,
+              /(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}[\w.:]*)/g,
               `<span style="color: ${colors.info};">$1</span>`,
             );
           }
