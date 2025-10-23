@@ -504,6 +504,7 @@ bun run format        # Format code
 ```
 
 The setup script will:
+
 - ✅ Install all dependencies
 - ✅ Build the main package
 - ✅ Configure git hooks (pre-commit, post-merge, post-checkout)
