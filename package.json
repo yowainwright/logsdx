@@ -46,7 +46,7 @@
     "site:start": "cd site && bun run start",
     "dev": "mprocs",
     "create-theme": "bun run src/cli/index.ts theme create",
-    "prepare": "husky"
+    "postinstall": "bun run scripts/install-hooks.ts"
   },
   "homepage": "https://jeffry.in/logsdx",
   "repository": {
@@ -58,20 +58,14 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
-    "@types/cli-progress": "^3.11.6",
-    "@types/figlet": "^1.7.0",
-    "@types/node": "^24.0.0",
-    "@types/wcag-contrast": "^3.0.3",
-    "husky": "^9.1.7",
     "mprocs": "^0.7.3",
     "oxlint": "^0.15.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.6",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "zod-to-json-schema": "^3.24.6"
   },
   "dependencies": {
-    "wcag-contrast": "^3.0.0",
-    "zod": "^3.25.74",
-    "zod-to-json-schema": "^3.24.6"
+    "zod": "^3.25.74"
   }
 }

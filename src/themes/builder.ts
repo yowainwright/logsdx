@@ -1,4 +1,3 @@
-import { hex } from "wcag-contrast";
 import type { Theme, SchemaConfig, StyleOptions, PatternMatch } from "../types";
 import { filterStyleCodes } from "../types";
 import {
@@ -7,6 +6,7 @@ import {
   getWCAGRecommendations,
 } from "./utils";
 import { DEFAULT_COLORS } from "./constants";
+import { hexContrastRatio } from "../utils/contrast";
 
 export interface ColorPalette {
   primary?: string;
@@ -449,7 +449,7 @@ export function checkWCAGCompliance(theme: Theme): {
   const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
   const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
 
-  const ratio = hex(textColor, bgColor);
+  const ratio = hexContrastRatio(textColor, bgColor);
 
   const level = getWCAGLevel(ratio, false);
   const recommendations = getWCAGRecommendations(ratio);
@@ -473,7 +473,7 @@ export function adjustThemeForAccessibility(
   const bgColor = theme.colors?.background || DEFAULT_COLORS.DARK_BACKGROUND;
   const textColor = theme.colors?.text || DEFAULT_COLORS.LIGHT_TEXT;
 
-  const currentRatio = hex(textColor, bgColor);
+  const currentRatio = hexContrastRatio(textColor, bgColor);
 
   if (currentRatio >= targetContrast) {
     return theme;
