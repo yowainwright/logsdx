@@ -11,10 +11,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "declaration": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@/src/*": ["src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts",

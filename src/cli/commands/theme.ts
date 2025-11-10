@@ -1,9 +1,9 @@
-import { Command } from "commander";
-import { input, select, checkbox, confirm } from "@inquirer/prompts";
-import chalk from "chalk";
-import ora from "ora";
-import boxen from "boxen";
-import gradientString from "gradient-string";
+import { createCLI, CLI } from "../../utils/cli";
+import { input, select, checkbox, confirm } from "../../utils/prompts";
+import spinner from "../../utils/spinner";
+import * as colorUtil from "../../utils/colors";
+import gradient from "../../utils/gradient";
+import boxen from "../../utils/boxen";
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import {
@@ -15,7 +15,6 @@ import {
 import { registerTheme, getTheme, getThemeNames } from "../../themes";
 import { getLogsDX } from "../../index";
 import { Theme } from "../../types";
-// import { renderLightBox } from '../../renderer/light-box';
 
 // Sample logs for preview
 const SAMPLE_LOGS = [
@@ -76,15 +75,15 @@ const COLOR_PRESETS = {
 
 function showBanner() {
   console.clear();
-  const gradient = gradientString(["#00ffff", "#ff00ff", "#ffff00"]);
+  const grad = gradient(["#00ffff", "#ff00ff", "#ffff00"]);
   console.log(
-    gradient.multiline(`
+    grad.multiline(`
   ╦  ┌─┐┌─┐┌─┐╔╦╗═╗ ╦
   ║  │ ││ ┬└─┐ ║║╔╩╦╝
   ╩═╝└─┘└─┘└─┘═╩╝╩ ╚═
   `),
   );
-  console.log(chalk.dim("  Theme Creator v1.0.0\n"));
+  console.log(colorUtil.dim("  Theme Creator v1.0.0\n"));
 }
 
 function renderPreview(theme: Theme, title: string = "Theme Preview") {
@@ -93,7 +92,6 @@ function renderPreview(theme: Theme, title: string = "Theme Preview") {
     SAMPLE_LOGS.map((log) => logsDX.processLine(log)).join("\n"),
     {
       title,
-      titleAlignment: "center",
       padding: 1,
       borderStyle: "round",
       borderColor: "cyan",
@@ -152,17 +150,16 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   let colors = COLOR_PRESETS[preset as keyof typeof COLOR_PRESETS];
 
   if (preset === "Custom" || !colors) {
-    const spinner = ora("Loading color picker...").start();
+    const loadingSpinner = spinner("Loading color picker...").start();
     await new Promise((r) => setTimeout(r, 500));
-    spinner.stop();
+    loadingSpinner.stop();
 
     const primary = await input({
       message: "Primary color (hex):",
       default: "#ffffff",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#ffffff")(inputValue || "#ffffff"),
+      transformer: (inputValue: string) => colorUtil.cyan(inputValue || "#ffffff"),
     });
 
     const error = await input({
@@ -170,8 +167,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#ff4444",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#ff4444")(inputValue || "#ff4444"),
+      transformer: (inputValue: string) => colorUtil.red(inputValue || "#ff4444"),
     });
 
     const warning = await input({
@@ -180,7 +176,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
       transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#ff9900")(inputValue || "#ff9900"),
+        colorUtil.yellow(inputValue || "#ff9900"),
     });
 
     const success = await input({
@@ -189,7 +185,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
       transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#00cc66")(inputValue || "#00cc66"),
+        colorUtil.green(inputValue || "#00cc66"),
     });
 
     const info = await input({
@@ -197,8 +193,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#00aaff",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#00aaff")(inputValue || "#00aaff"),
+      transformer: (inputValue: string) => colorUtil.blue(inputValue || "#00aaff"),
     });
 
     const muted = await input({
@@ -206,8 +201,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#666666",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) =>
-        chalk.hex(inputValue || "#666666")(inputValue || "#666666"),
+      transformer: (inputValue: string) => colorUtil.gray(inputValue || "#666666"),
     });
 
     colors = { primary, error, warning, success, info, muted };
@@ -239,7 +233,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   });
 
   // Create theme
-  const spinner = ora("Creating theme...").start();
+  const createSpinner = spinner("Creating theme...").start();
 
   const config: SimpleThemeConfig = {
     name: basicInfo.name,
@@ -250,7 +244,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   };
 
   const theme = createTheme(config);
-  spinner.succeed("Theme created!");
+  createSpinner.succeed("Theme created!");
 
   // Preview
   console.log("\n");
@@ -263,7 +257,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   });
 
   if (checkAccessibility) {
-    const accessSpinner = ora("Checking accessibility...").start();
+    const accessSpinner = spinner("Checking accessibility...").start();
     const result = checkWCAGCompliance(theme);
     accessSpinner.stop();
 
@@ -295,7 +289,7 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       });
 
       if (fixIssues) {
-        const fixSpinner = ora("Fixing accessibility issues...").start();
+        const fixSpinner = spinner("Fixing accessibility issues...").start();
         const fixedTheme = adjustThemeForAccessibility(theme, 4.5);
         fixSpinner.succeed("Accessibility issues fixed!");
         Object.assign(theme, fixedTheme);
@@ -321,9 +315,9 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
 
   console.log(
     boxen(
-      chalk.green("🎉 Theme creation complete!\n\n") +
-        chalk.dim(
-          `Use your theme with: ${chalk.cyan(`logsdx --theme ${theme.name}`)}`,
+      colorUtil.green("🎉 Theme creation complete!\n\n") +
+        colorUtil.dim(
+          `Use your theme with: ${colorUtil.cyan(`logsdx --theme ${theme.name}`)}`,
         ),
       {
         padding: 1,
@@ -359,7 +353,7 @@ async function saveTheme(theme: Theme, saveOption: string) {
     }
 
     writeFileSync(filepath, JSON.stringify(themeData, null, 2));
-    console.log(chalk.green(`✅ Saved to ${filepath}`));
+    console.log(colorUtil.green(`✅ Saved to ${filepath}`));
   } else if (saveOption === "typescript") {
     const filepath = await input({
       message: "Save as:",
@@ -377,92 +371,7 @@ export const ${theme.name.replace(/[^a-zA-Z0-9]/g, "_")}Theme: Theme = ${JSON.st
 `;
 
     writeFileSync(filepath, tsContent);
-    console.log(chalk.green(`✅ Saved to ${filepath}`));
+    console.log(colorUtil.green(`✅ Saved to ${filepath}`));
   }
 }
 
-export function createThemeCommand() {
-  const theme = new Command("theme").description("Theme management commands");
-
-  theme
-    .command("create")
-    .description("Create a new theme interactively")
-    .option("--skip-intro", "Skip the intro banner")
-    .action(async (options) => {
-      await createInteractiveTheme(options);
-    });
-
-  theme
-    .command("list")
-    .description("List all available themes")
-    .option("-d, --detailed", "Show detailed theme information")
-    .action((options) => {
-      const themes = getThemeNames();
-
-      if (options.detailed) {
-        themes.forEach((name) => {
-          const theme = getTheme(name);
-          console.log(
-            boxen(
-              `${chalk.bold(name)}\n` +
-                (theme.description ? chalk.dim(theme.description) + "\n" : "") +
-                `Mode: ${theme.mode || "auto"}`,
-              {
-                padding: { top: 0, right: 1, bottom: 0, left: 1 },
-                borderStyle: "round",
-                borderColor: "cyan",
-              },
-            ),
-          );
-        });
-      } else {
-        console.log(chalk.bold("\nAvailable themes:\n"));
-        themes.forEach((name) => {
-          const theme = getTheme(name);
-          const icon =
-            theme.mode === "light"
-              ? "☀️ "
-              : theme.mode === "dark"
-                ? "🌙"
-                : "🔄";
-          console.log(`  ${icon} ${name}`);
-        });
-        console.log("");
-      }
-    });
-
-  theme
-    .command("preview <name>")
-    .description("Preview a theme with sample logs")
-    .action((name) => {
-      const theme = getTheme(name);
-      if (!theme) {
-        console.error(chalk.red(`Theme "${name}" not found`));
-        process.exit(1);
-      }
-
-      showBanner();
-      renderPreview(theme, `${theme.name} Theme`);
-
-      const palette = boxen(
-        Object.entries(theme.schema)
-          .map(([key, value]) => {
-            if (typeof value === "object" && "color" in value) {
-              return `${key}: ${chalk.hex(value.color)(value.color)}`;
-            }
-            return null;
-          })
-          .filter(Boolean)
-          .join("\n"),
-        {
-          title: "Color Palette",
-          padding: 1,
-          borderStyle: "round",
-          borderColor: "cyan",
-        },
-      );
-      console.log(palette);
-    });
-
-  return theme;
-}

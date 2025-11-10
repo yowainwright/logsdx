@@ -1,4 +1,4 @@
-import { select, confirm } from "@inquirer/prompts";
+import { select, confirm } from "../utils/prompts";
 import { LogsDX, getThemeNames, getTheme } from "../index";
 import { ui } from "./ui";
 import chalk from "chalk";

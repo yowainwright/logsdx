@@ -2,7 +2,7 @@
  * Theme utility functions for color accessibility and contrast
  */
 
-import colors from "tailwindcss/colors";
+import { colors } from "./color-constants";
 
 /**
  * Determine if a hex color is dark or light based on luminance

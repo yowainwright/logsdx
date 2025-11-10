@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { Command } from "commander";
+import { createCLI } from "../utils/cli";
 import { main } from "./index";
+import type { CommanderOptions } from "./types";
 import { version } from "../../package.json";
 
-const program = new Command();
+const program = createCLI();
 
 program
   .name("logsdx")
@@ -28,6 +29,6 @@ program
     "[input]",
     "Input file (optional, reads from stdin if not provided)",
   )
-  .action(async (input, options) => await main(input, options));
+  .action(async (input: string | undefined, options: any) => await main(input, options as CommanderOptions));
 
 program.parse();

@@ -1,14 +1,14 @@
-import chalk from "chalk";
-import boxen from "boxen";
-import figlet from "figlet";
-import gradient from "gradient-string";
-import ora, { type Ora } from "ora";
-import { SingleBar, Presets } from "cli-progress";
+import boxen from "../utils/boxen";
+import spinner, { type Spinner } from "../utils/spinner";
+import colors from "../utils/colors";
+import ascii from "../utils/ascii";
+import gradient from "../utils/gradient";
+import { createProgressBar } from "../utils/progress";
 import { SpinnerLike, ProgressBarLike } from "./types";
 
 export class CliUI {
-  private spinner?: Ora;
-  private progressBar?: SingleBar;
+  private spinner?: Spinner;
+  private progressBar?: ProgressBarLike;
 
   createSpinner(text: string, disabled = false): SpinnerLike {
     if (disabled) {
@@ -22,11 +22,7 @@ export class CliUI {
       return mockSpinner;
     }
 
-    this.spinner = ora({
-      text,
-      spinner: "dots",
-      color: "cyan",
-    });
+    this.spinner = spinner(text);
     return this.spinner;
   }
 
@@ -39,23 +35,12 @@ export class CliUI {
       };
     }
 
-    this.progressBar = new SingleBar(
-      {
-        format:
-          " {bar} | {percentage}% | {value}/{total} lines | {duration_formatted}",
-        barCompleteChar: "█",
-        barIncompleteChar: "░",
-        hideCursor: true,
-      },
-      Presets.shades_classic,
-    );
-
-    this.progressBar.start(total, 0);
+    this.progressBar = createProgressBar(total);
     return this.progressBar;
   }
 
   showHeader() {
-    const title = figlet.textSync("LogsDX", {
+    const title = ascii.textSync("LogsDX", {
       font: "Small",
       horizontalLayout: "default",
       verticalLayout: "default",
@@ -80,27 +65,27 @@ export class CliUI {
   }
 
   showSuccess(message: string) {
-    console.log(chalk.green("✅"), chalk.bold(message));
+    console.log(colors.green("✅"), colors.bold(message));
   }
 
   showError(message: string, suggestion?: string) {
-    console.log(chalk.red("❌"), chalk.bold.red("Error:"), message);
+    console.log(colors.red("❌"), colors.bold.red("Error:"), message);
     if (suggestion) {
-      console.log(chalk.yellow("💡"), chalk.italic(suggestion));
+      console.log(colors.yellow("💡"), colors.italic(suggestion));
     }
   }
 
   showWarning(message: string) {
-    console.log(chalk.yellow("⚠️"), chalk.bold.yellow("Warning:"), message);
+    console.log(colors.yellow("⚠️"), colors.bold.yellow("Warning:"), message);
   }
 
   showInfo(message: string) {
-    console.log(chalk.blue("ℹ️"), message);
+    console.log(colors.blue("ℹ️"), message);
   }
 
   showThemePreview(themeName: string, sample: string) {
     const box = boxen(sample, {
-      title: chalk.bold.cyan(themeName),
+      title: colors.bold.cyan(themeName),
       padding: 1,
       margin: { top: 0, bottom: 1, left: 2, right: 2 },
       borderStyle: "single",
@@ -111,9 +96,9 @@ export class CliUI {
 
   showFileStats(filename: string, lineCount: number, fileSize: number) {
     const stats = [
-      `📄 File: ${chalk.cyan(filename)}`,
-      `📊 Lines: ${chalk.yellow(lineCount.toLocaleString())}`,
-      `📐 Size: ${chalk.green(this.formatFileSize(fileSize))}`,
+      `📄 File: ${colors.cyan(filename)}`,
+      `📊 Lines: ${colors.yellow(lineCount.toLocaleString())}`,
+      `📐 Size: ${colors.green(this.formatFileSize(fileSize))}`,
     ].join("  ");
 
     console.log(

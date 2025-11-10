@@ -146,6 +146,88 @@ describe("parseArgs", () => {
 
     expect(result.theme).toBeUndefined();
   });
+
+  test("should parse generate-theme flag", () => {
+    const args = ["--generate-theme"];
+    const result = parseArgs(args);
+
+    expect(result.generateTheme).toBe(true);
+  });
+
+  test("should parse list-palettes flag", () => {
+    const args = ["--list-palettes"];
+    const result = parseArgs(args);
+
+    expect(result.listPalettes).toBe(true);
+  });
+
+  test("should parse list-patterns flag", () => {
+    const args = ["--list-patterns"];
+    const result = parseArgs(args);
+
+    expect(result.listPatterns).toBe(true);
+  });
+
+  test("should parse export-theme with value", () => {
+    const args = ["--export-theme", "my-theme"];
+    const result = parseArgs(args);
+
+    expect(result.exportTheme).toBe("my-theme");
+  });
+
+  test("should parse export-theme without value", () => {
+    const args = ["--export-theme"];
+    const result = parseArgs(args);
+
+    expect(result.exportTheme).toBe("");
+  });
+
+  test("should parse import-theme with value", () => {
+    const args = ["--import-theme", "theme.json"];
+    const result = parseArgs(args);
+
+    expect(result.importTheme).toBe("theme.json");
+  });
+
+  test("should parse import-theme without value", () => {
+    const args = ["--import-theme"];
+    const result = parseArgs(args);
+
+    expect(result.importTheme).toBe("");
+  });
+
+  test("should parse list-theme-files flag", () => {
+    const args = ["--list-theme-files"];
+    const result = parseArgs(args);
+
+    expect(result.listThemeFiles).toBe(true);
+  });
+
+  test("should handle multiple flags", () => {
+    const args = ["--debug", "--quiet", "--list-themes", "--preview"];
+    const result = parseArgs(args);
+
+    expect(result.debug).toBe(true);
+    expect(result.quiet).toBe(true);
+    expect(result.listThemes).toBe(true);
+    expect(result.preview).toBe(true);
+  });
+
+  test("should prioritize first input argument", () => {
+    const args = ["first.log", "second.log", "--theme", "dracula"];
+    const result = parseArgs(args);
+
+    expect(result.input).toBe("first.log");
+  });
+
+  test("should handle empty args array", () => {
+    const args: string[] = [];
+    const result = parseArgs(args);
+
+    expect(result.theme).toBeUndefined();
+    expect(result.debug).toBe(false);
+    expect(result.input).toBeUndefined();
+  });
 });
 
 describe("loadConfig", () => {
