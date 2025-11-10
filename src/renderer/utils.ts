@@ -1,4 +1,4 @@
-import stripAnsiLib from "strip-ansi";
+import { stripAnsi as stripAnsiLib } from "../utils/strip-ansi";
 import type { StyleCode } from "./types";
 
 /**

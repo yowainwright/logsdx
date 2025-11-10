@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ui } from "../ui";
-import { select, input, confirm } from "@inquirer/prompts";
+import { select, input, confirm } from "../../utils/prompts";
 import { registerTheme, getAllThemes, getTheme } from "../../themes";
 import type { Theme } from "../../types";
 import { themePresetSchema } from "../../schema";

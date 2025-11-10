@@ -28,6 +28,15 @@ jobs:
       - name: Run tests
         run: bun test
 
+      - name: Run tests with coverage
+        run: bun test --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
       - name: Run linting (OxLint)
         run: bun run lint
 

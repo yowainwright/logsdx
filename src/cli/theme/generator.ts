@@ -1,4 +1,4 @@
-import { select, input, checkbox, confirm } from "@inquirer/prompts";
+import { select, input, checkbox, confirm } from "../../utils/prompts";
 import { ui } from "../ui";
 import chalk from "chalk";
 import fs from "fs";
@@ -65,31 +65,15 @@ export async function runThemeGenerator(): Promise<void> {
   const selectedPresets = await checkbox({
     message: "📋 Select pattern presets to include:",
     choices: Object.entries(presetsByCategory).flatMap(
-      ([category, categoryPresets]) => [
-        {
-          name: chalk.bold.yellow(`── ${category.toUpperCase()} ──`),
-          value: `__category_${category}`,
-          disabled: true,
-        },
-        ...categoryPresets.map((preset) => ({
-          name: `  ${preset.name} - ${preset.description}`,
+      ([category, categoryPresets]) =>
+        categoryPresets.map((preset) => ({
+          name: `${category}: ${preset.name} - ${preset.description}`,
           value: preset.name,
         })),
-      ],
     ),
-    validate: (choices) => {
-      const validChoices = choices.filter(
-        (choice) => !String(choice).startsWith("__category_"),
-      );
-      return validChoices.length > 0
-        ? true
-        : "Please select at least one pattern preset";
-    },
   });
 
-  const filteredPresets = selectedPresets.filter(
-    (preset) => !preset.startsWith("__category_"),
-  );
+  const filteredPresets = selectedPresets;
 
   const addCustomPatterns = await confirm({
     message: "➕ Add custom patterns?",

@@ -29,28 +29,6 @@ export function parseTokenSafe(token: unknown): {
   return { success: false, error: result.error };
 }
 
-/**
- * Validates a token against the schema
- * @param token The token object to validate
- * @returns The validated token or throws an error
- */
-export function validateToken(token: unknown): z.infer<typeof tokenSchema> {
-  return parseToken(token);
-}
-
-/**
- * Safely validates a token against the schema
- * @param token The token object to validate
- * @returns An object with success flag and either the validated data or error
- */
-export function validateTokenSafe(token: unknown): {
-  success: boolean;
-  data?: z.infer<typeof tokenSchema>;
-  error?: z.ZodError;
-} {
-  return parseTokenSafe(token);
-}
-
 export function parseTokenList(
   tokens: unknown,
 ): z.infer<typeof tokenListSchema> {
@@ -71,30 +49,6 @@ export function parseTokenListSafe(tokens: unknown): {
   return { success: false, error: result.error };
 }
 
-/**
- * Validates a list of tokens against the schema
- * @param tokens The token list to validate
- * @returns The validated token list or throws an error
- */
-export function validateTokenList(
-  tokens: unknown,
-): z.infer<typeof tokenListSchema> {
-  return parseTokenList(tokens);
-}
-
-/**
- * Safely validates a list of tokens against the schema
- * @param tokens The token list to validate
- * @returns An object with success flag and either the validated data or error
- */
-export function validateTokenListSafe(tokens: unknown): {
-  success: boolean;
-  data?: z.infer<typeof tokenListSchema>;
-  error?: z.ZodError;
-} {
-  return parseTokenListSafe(tokens);
-}
-
 export function createTokenJsonSchemaOptions(): JsonSchemaOptions {
   return {
     name: TOKEN_SCHEMA_NAME,
@@ -105,14 +59,6 @@ export function createTokenJsonSchemaOptions(): JsonSchemaOptions {
 export function convertTokenSchemaToJson() {
   const options = createTokenJsonSchemaOptions();
   return zodToJsonSchema(tokenSchema, options);
-}
-
-/**
- * Converts the token schema to JSON Schema format for documentation
- * @returns JSON Schema representation of the token schema
- */
-export function tokenSchemaToJsonSchema() {
-  return convertTokenSchemaToJson();
 }
 
 export function parseTheme(theme: unknown): Theme {
@@ -181,12 +127,4 @@ export function createThemeJsonSchemaOptions(): JsonSchemaOptions {
 export function convertThemeSchemaToJson() {
   const options = createThemeJsonSchemaOptions();
   return zodToJsonSchema(themePresetSchema, options);
-}
-
-/**
- * Converts the theme schema to JSON Schema format for documentation
- * @returns JSON Schema representation of the theme schema
- */
-export function themeSchemaToJsonSchema() {
-  return convertThemeSchemaToJson();
 }

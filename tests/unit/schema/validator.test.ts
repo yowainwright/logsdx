@@ -1,18 +1,18 @@
 import { expect, test, describe } from "bun:test";
 import {
-  validateToken,
-  validateTokenSafe,
-  validateTokenList,
-  validateTokenListSafe,
+  parseToken,
+  parseTokenSafe,
+  parseTokenList,
+  parseTokenListSafe,
   validateTheme,
   validateThemeSafe,
-  tokenSchemaToJsonSchema,
-  themeSchemaToJsonSchema,
+  convertTokenSchemaToJson,
+  convertThemeSchemaToJson,
 } from "../../../src/schema/validator";
 import { z } from "zod";
 
 describe("Schema Validator", () => {
-  describe("validateToken", () => {
+  describe("parseToken", () => {
     test("validates a valid token", () => {
       const validToken = {
         content: "error",
@@ -22,7 +22,7 @@ describe("Schema Validator", () => {
         },
       };
 
-      const result = validateToken(validToken);
+      const result = parseToken(validToken);
       expect(result).toEqual(validToken);
     });
 
@@ -31,11 +31,11 @@ describe("Schema Validator", () => {
         metadata: { style: { color: "red" } },
       };
 
-      expect(() => validateToken(invalidToken)).toThrow();
+      expect(() => parseToken(invalidToken)).toThrow();
     });
   });
 
-  describe("validateTokenSafe", () => {
+  describe("parseTokenSafe", () => {
     test("returns success for valid token", () => {
       const validToken = {
         content: "error",
@@ -44,7 +44,7 @@ describe("Schema Validator", () => {
         },
       };
 
-      const result = validateTokenSafe(validToken);
+      const result = parseTokenSafe(validToken);
       expect(result.success).toBe(true);
       expect(result.data).toEqual(validToken);
     });
@@ -54,20 +54,20 @@ describe("Schema Validator", () => {
         metadata: { style: { color: "red" } },
       };
 
-      const result = validateTokenSafe(invalidToken);
+      const result = parseTokenSafe(invalidToken);
       expect(result.success).toBe(false);
       expect(result.error).toBeInstanceOf(z.ZodError);
     });
   });
 
-  describe("validateTokenList", () => {
+  describe("parseTokenList", () => {
     test("validates a valid token list", () => {
       const validList = [
         { content: "error", metadata: { style: { color: "red" } } },
         { content: " message", metadata: { style: { color: "white" } } },
       ];
 
-      const result = validateTokenList(validList);
+      const result = parseTokenList(validList);
       expect(result).toEqual(validList);
     });
 
@@ -77,18 +77,18 @@ describe("Schema Validator", () => {
         { invalidProp: "not a token" },
       ];
 
-      expect(() => validateTokenList(invalidList)).toThrow();
+      expect(() => parseTokenList(invalidList)).toThrow();
     });
   });
 
-  describe("validateTokenListSafe", () => {
+  describe("parseTokenListSafe", () => {
     test("returns success for valid token list", () => {
       const validList = [
         { content: "error", metadata: { style: { color: "red" } } },
         { content: " message", metadata: { style: { color: "white" } } },
       ];
 
-      const result = validateTokenListSafe(validList);
+      const result = parseTokenListSafe(validList);
       expect(result.success).toBe(true);
       expect(result.data).toEqual(validList);
     });
@@ -99,7 +99,7 @@ describe("Schema Validator", () => {
         { invalidProp: "not a token" },
       ];
 
-      const result = validateTokenListSafe(invalidList);
+      const result = parseTokenListSafe(invalidList);
       expect(result.success).toBe(false);
       expect(result.error).toBeInstanceOf(z.ZodError);
     });
@@ -162,9 +162,9 @@ describe("Schema Validator", () => {
     });
   });
 
-  describe("tokenSchemaToJsonSchema", () => {
+  describe("convertTokenSchemaToJson", () => {
     test("converts token schema to JSON schema", () => {
-      const jsonSchema = tokenSchemaToJsonSchema();
+      const jsonSchema = convertTokenSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
       // The structure might be different than expected, check what's actually returned
@@ -177,9 +177,9 @@ describe("Schema Validator", () => {
     });
   });
 
-  describe("themeSchemaToJsonSchema", () => {
+  describe("convertThemeSchemaToJson", () => {
     test("converts theme schema to JSON schema", () => {
-      const jsonSchema = themeSchemaToJsonSchema();
+      const jsonSchema = convertThemeSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
       // The structure might be different than expected, check what's actually returned
