@@ -29,17 +29,26 @@ export function calculateChannelLuminance(channelValue: number): number {
     return normalized / CONTRAST.GAMMA_DIVISOR;
   }
 
-  return Math.pow((normalized + CONTRAST.GAMMA_OFFSET) / CONTRAST.GAMMA_MULTIPLIER, CONTRAST.GAMMA_EXPONENT);
+  return Math.pow(
+    (normalized + CONTRAST.GAMMA_OFFSET) / CONTRAST.GAMMA_MULTIPLIER,
+    CONTRAST.GAMMA_EXPONENT,
+  );
 }
 
-export function calculateRelativeLuminance(rgb: [number, number, number]): number {
+export function calculateRelativeLuminance(
+  rgb: [number, number, number],
+): number {
   const [r, g, b] = rgb;
 
   const rLuminance = calculateChannelLuminance(r);
   const gLuminance = calculateChannelLuminance(g);
   const bLuminance = calculateChannelLuminance(b);
 
-  return rLuminance * CONTRAST.R_COEFFICIENT + gLuminance * CONTRAST.G_COEFFICIENT + bLuminance * CONTRAST.B_COEFFICIENT;
+  return (
+    rLuminance * CONTRAST.R_COEFFICIENT +
+    gLuminance * CONTRAST.G_COEFFICIENT +
+    bLuminance * CONTRAST.B_COEFFICIENT
+  );
 }
 
 export function hexContrastRatio(hex1: string, hex2: string): number {

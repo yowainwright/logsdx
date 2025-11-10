@@ -11,11 +11,7 @@ import {
 } from "lucide-react";
 import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
 import type { ThemeColors, ThemeConfig } from "./types";
-import {
-  DEFAULT_DARK_COLORS,
-  PRESET_OPTIONS,
-  SAMPLE_LOGS,
-} from "./constants";
+import { DEFAULT_DARK_COLORS, PRESET_OPTIONS, SAMPLE_LOGS } from "./constants";
 import { generateThemeCode } from "./utils";
 
 const STORAGE_KEY = "logsdx-custom-theme";
