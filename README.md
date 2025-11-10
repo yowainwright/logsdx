@@ -2,6 +2,15 @@
 
 # LogsDX
 
+<div align="center">
+
+[![npm version](https://img.shields.io/npm/v/logsdx.svg?style=flat-square)](https://www.npmjs.com/package/logsdx)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/yowainwright/logsdx/ci.yaml?branch=main&style=flat-square&label=CI)](https://github.com/yowainwright/logsdx/actions/workflows/ci.yaml)
+[![codecov](https://img.shields.io/codecov/c/github/yowainwright/logsdx?style=flat-square)](https://codecov.io/gh/yowainwright/logsdx)
+[![License](https://img.shields.io/npm/l/logsdx.svg?style=flat-square)](https://github.com/yowainwright/logsdx/blob/main/LICENSE)
+
+</div>
+
 **Beautiful, consistent log styling for terminal and browser environments.**
 
 LogsDX is a schema-based theming engine that applies consistent visual styling to logs across all environments—write themes once, style logs everywhere.
