@@ -13,7 +13,6 @@ import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
 import type { ThemeColors, ThemeConfig } from "./types";
 import {
   DEFAULT_DARK_COLORS,
-  DEFAULT_LIGHT_COLORS,
   PRESET_OPTIONS,
   SAMPLE_LOGS,
 } from "./constants";
@@ -34,13 +33,10 @@ export function CustomThemeCreator() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedConfig, setCopiedConfig] = useState(false);
-  const [uniqueThemeName] = useState(() => `${themeName}-${Date.now()}`);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize with empty array, will be populated by useEffect
   const [processedLogs, setProcessedLogs] = useState<string[]>([]);
-  const [liveLogIndex, setLiveLogIndex] = useState(0);
-  const [visibleLogs, setVisibleLogs] = useState<string[]>([]);
 
   // Load saved theme from localStorage on mount
   useEffect(() => {
@@ -633,7 +629,7 @@ export function CustomThemeCreator() {
 }
 
 function CustomLogInput({
-  themeName,
+  themeName: _themeName,
   colors,
 }: {
   themeName: string;

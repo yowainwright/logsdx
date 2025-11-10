@@ -1,4 +1,4 @@
-import type { ThemeColors, CustomPattern } from "./types";
+import type { ThemeColors } from "./types";
 
 export function generateThemeCode(
   themeName: string,

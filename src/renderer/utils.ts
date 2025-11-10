@@ -1,11 +1,6 @@
 import { stripAnsi as stripAnsiLib } from "../utils/strip-ansi";
 import type { StyleCode } from "./types";
 
-/**
- * Escape HTML special characters
- * @param text - The text to escape
- * @returns Escaped HTML string
- */
 export function escapeHtml(text: string): string {
   const replacements: ReadonlyArray<readonly [RegExp, string]> = [
     [/&/g, "&amp;"],
@@ -21,11 +16,6 @@ export function escapeHtml(text: string): string {
   );
 }
 
-/**
- * Convert hex color to RGB values
- * @param hex - Hex color string (e.g., "#ff0000")
- * @returns RGB array [r, g, b]
- */
 export function hexToRgb(hex: string): readonly [number, number, number] {
   const HEX_PATTERN = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
   const DEFAULT_RGB: readonly [number, number, number] = [0, 0, 0] as const;
@@ -43,21 +33,8 @@ export function hexToRgb(hex: string): readonly [number, number, number] {
   ] as const;
 }
 
-/**
- * Strip ANSI codes from a string for length calculation
- * @param str - The string to strip
- * @returns String without ANSI codes
- */
-export function stripAnsi(str: string): string {
-  return stripAnsiLib(str);
-}
+export const stripAnsi = stripAnsiLib;
 
-/**
- * Check if a style code is present in an array of style codes
- * @param styleCodes - Array of style codes
- * @param code - The code to check for
- * @returns True if the code is present
- */
 export function hasStyleCode(
   styleCodes: ReadonlyArray<StyleCode> | undefined,
   code: StyleCode,
@@ -68,11 +45,6 @@ export function hasStyleCode(
   return styleCodes.includes(code);
 }
 
-/**
- * Parse COLORFGBG environment variable
- * @param colorFgBg - The COLORFGBG environment variable value
- * @returns Background color code or undefined
- */
 export function parseColorFgBg(colorFgBg: string): number | undefined {
   const parts = colorFgBg.split(";");
 
@@ -85,32 +57,15 @@ export function parseColorFgBg(colorFgBg: string): number | undefined {
   return isNaN(bgColor) ? undefined : bgColor;
 }
 
-/**
- * Check if a background color is light
- * @param bgColor - Background color code
- * @returns True if the color is light
- */
 export function isLightBgColor(bgColor: number): boolean {
   const LIGHT_BG_COLORS: ReadonlyArray<number> = [7, 15];
   return LIGHT_BG_COLORS.includes(bgColor);
 }
 
-/**
- * Repeat a string n times
- * @param str - The string to repeat
- * @param count - Number of times to repeat
- * @returns Repeated string
- */
 export function repeatString(str: string, count: number): string {
   return str.repeat(Math.max(0, count));
 }
 
-/**
- * Calculate padding for centering text
- * @param totalWidth - Total width available
- * @param textLength - Length of the text
- * @returns Tuple of [left padding, right padding]
- */
 export function calculateCenterPadding(
   totalWidth: number,
   textLength: number,
@@ -122,18 +77,10 @@ export function calculateCenterPadding(
   return [leftPadding, rightPadding] as const;
 }
 
-/**
- * Check if window is defined (browser environment)
- * @returns True if in browser environment
- */
 export function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
-/**
- * Check if window.matchMedia is available
- * @returns True if matchMedia is available
- */
 export function hasMatchMedia(): boolean {
   return isBrowser() && typeof window.matchMedia === "function";
 }

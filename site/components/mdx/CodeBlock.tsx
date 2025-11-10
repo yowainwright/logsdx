@@ -12,7 +12,7 @@ export function CodeBlock({
   children,
   language,
   className,
-  showLineNumbers = false,
+  showLineNumbers: _showLineNumbers = false,
 }: CodeBlockProps) {
   return (
     <div className="relative group">
