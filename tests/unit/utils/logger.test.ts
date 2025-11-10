@@ -9,35 +9,50 @@ describe("logger", () => {
   test("info() logs with blue info icon", () => {
     const spy = spyOn(console, "log");
     logger.info("test message");
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining("ℹ"), "test message");
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("ℹ"),
+      "test message",
+    );
     spy.mockRestore();
   });
 
   test("success() logs with green check icon", () => {
     const spy = spyOn(console, "log");
     logger.success("operation completed");
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining("✔"), "operation completed");
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("✔"),
+      "operation completed",
+    );
     spy.mockRestore();
   });
 
   test("warn() logs with yellow warning icon", () => {
     const spy = spyOn(console, "log");
     logger.warn("warning message");
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining("⚠"), "warning message");
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("⚠"),
+      "warning message",
+    );
     spy.mockRestore();
   });
 
   test("error() logs with red X icon", () => {
     const spy = spyOn(console, "error");
     logger.error("error message");
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining("✖"), "error message");
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("✖"),
+      "error message",
+    );
     spy.mockRestore();
   });
 
   test("debug() logs with gray gear icon", () => {
     const spy = spyOn(console, "log");
     logger.debug("debug message");
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining("⚙"), "debug message");
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("⚙"),
+      "debug message",
+    );
     spy.mockRestore();
   });
 
@@ -63,7 +78,10 @@ describe("logger", () => {
     const multiline = "line1\nline2\nline3";
 
     logger.info(multiline);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("ℹ"), multiline);
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("ℹ"),
+      multiline,
+    );
 
     logSpy.mockRestore();
   });

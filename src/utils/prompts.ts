@@ -52,7 +52,9 @@ export async function input(options: InputPrompt): Promise<string> {
       if (validation === true) {
         return value;
       }
-      logger.error(typeof validation === "string" ? validation : "Invalid input");
+      logger.error(
+        typeof validation === "string" ? validation : "Invalid input",
+      );
       continue;
     }
 
@@ -62,7 +64,7 @@ export async function input(options: InputPrompt): Promise<string> {
 
 export async function select(options: SelectPrompt): Promise<any> {
   const choices = options.choices.map((choice) =>
-    typeof choice === "string" ? { name: choice, value: choice } : choice
+    typeof choice === "string" ? { name: choice, value: choice } : choice,
   );
 
   console.log(options.message);
@@ -79,7 +81,9 @@ export async function select(options: SelectPrompt): Promise<any> {
 
   while (true) {
     const answer = await question(`Select${defaultText}: `);
-    const index = answer.trim() ? parseInt(answer.trim(), 10) - 1 : defaultIndex - 1;
+    const index = answer.trim()
+      ? parseInt(answer.trim(), 10) - 1
+      : defaultIndex - 1;
 
     if (index >= 0 && index < choices.length) {
       return choices[index].value;
@@ -105,9 +109,10 @@ export async function checkbox(options: CheckboxPrompt): Promise<string[]> {
 }
 
 export async function confirm(options: ConfirmPrompt): Promise<boolean> {
-  const defaultText = options.default !== undefined
-    ? ` (${options.default ? "Y/n" : "y/N"})`
-    : " (y/n)";
+  const defaultText =
+    options.default !== undefined
+      ? ` (${options.default ? "Y/n" : "y/N"})`
+      : " (y/n)";
   const prompt = `${options.message}${defaultText}: `;
 
   const answer = await question(prompt);

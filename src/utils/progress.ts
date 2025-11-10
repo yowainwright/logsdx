@@ -17,7 +17,9 @@ export function createProgressBar(total: number): ProgressBar {
     const elapsed = Date.now() - startTime;
     const duration = `${Math.floor(elapsed / 1000)}s`;
 
-    process.stdout.write(`\r ${bar} | ${percentage}% | ${value}/${total} lines | ${duration}`);
+    process.stdout.write(
+      `\r ${bar} | ${percentage}% | ${value}/${total} lines | ${duration}`,
+    );
   };
 
   return {

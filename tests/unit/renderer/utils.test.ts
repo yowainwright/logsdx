@@ -36,7 +36,7 @@ describe("renderer/utils", () => {
 
     test("escapes multiple special characters", () => {
       expect(escapeHtml('<a href="test">Tom & Jerry\'s</a>')).toBe(
-        "&lt;a href=&quot;test&quot;&gt;Tom &amp; Jerry&#039;s&lt;/a&gt;"
+        "&lt;a href=&quot;test&quot;&gt;Tom &amp; Jerry&#039;s&lt;/a&gt;",
       );
     });
 

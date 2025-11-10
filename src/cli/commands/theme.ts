@@ -159,7 +159,8 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#ffffff",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) => colorUtil.cyan(inputValue || "#ffffff"),
+      transformer: (inputValue: string) =>
+        colorUtil.cyan(inputValue || "#ffffff"),
     });
 
     const error = await input({
@@ -167,7 +168,8 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#ff4444",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) => colorUtil.red(inputValue || "#ff4444"),
+      transformer: (inputValue: string) =>
+        colorUtil.red(inputValue || "#ff4444"),
     });
 
     const warning = await input({
@@ -193,7 +195,8 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#00aaff",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) => colorUtil.blue(inputValue || "#00aaff"),
+      transformer: (inputValue: string) =>
+        colorUtil.blue(inputValue || "#00aaff"),
     });
 
     const muted = await input({
@@ -201,7 +204,8 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
       default: "#666666",
       validate: (inputValue: string) =>
         /^#[0-9A-Fa-f]{6}$/.test(inputValue) || "Invalid hex color",
-      transformer: (inputValue: string) => colorUtil.gray(inputValue || "#666666"),
+      transformer: (inputValue: string) =>
+        colorUtil.gray(inputValue || "#666666"),
     });
 
     colors = { primary, error, warning, success, info, muted };

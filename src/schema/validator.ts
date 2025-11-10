@@ -29,7 +29,6 @@ export function parseTokenSafe(token: unknown): {
   return { success: false, error: result.error };
 }
 
-
 export function parseTokenList(
   tokens: unknown,
 ): z.infer<typeof tokenListSchema> {
@@ -50,7 +49,6 @@ export function parseTokenListSafe(tokens: unknown): {
   return { success: false, error: result.error };
 }
 
-
 export function createTokenJsonSchemaOptions(): JsonSchemaOptions {
   return {
     name: TOKEN_SCHEMA_NAME,
@@ -62,7 +60,6 @@ export function convertTokenSchemaToJson() {
   const options = createTokenJsonSchemaOptions();
   return zodToJsonSchema(tokenSchema, options);
 }
-
 
 export function parseTheme(theme: unknown): Theme {
   return themePresetSchema.parse(theme) as Theme;
@@ -131,4 +128,3 @@ export function convertThemeSchemaToJson() {
   const options = createThemeJsonSchemaOptions();
   return zodToJsonSchema(themePresetSchema, options);
 }
-

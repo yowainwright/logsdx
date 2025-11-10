@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import gradient, { gradient as namedGradient } from "../../../src/utils/gradient";
+import gradient, {
+  gradient as namedGradient,
+} from "../../../src/utils/gradient";
 
 describe("gradient", () => {
   test("creates a gradient function", () => {
@@ -32,7 +34,7 @@ describe("gradient", () => {
 
     const lines = result.split("\n");
     expect(lines).toHaveLength(3);
-    lines.forEach(line => {
+    lines.forEach((line) => {
       expect(line).toMatch(/\x1B\[36m.*\x1B\[0m/);
     });
   });

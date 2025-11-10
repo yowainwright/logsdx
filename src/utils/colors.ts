@@ -9,7 +9,7 @@ const styles = {
   cyan: "\x1B[36m",
   white: "\x1B[37m",
   gray: "\x1B[90m",
-  
+
   // Bright colors
   redBright: "\x1B[91m",
   greenBright: "\x1B[92m",
@@ -18,13 +18,13 @@ const styles = {
   magentaBright: "\x1B[95m",
   cyanBright: "\x1B[96m",
   whiteBright: "\x1B[97m",
-  
+
   // Modifiers
   bold: "\x1B[1m",
   dim: "\x1B[2m",
   italic: "\x1B[3m",
   underline: "\x1B[4m",
-  
+
   // Reset
   reset: "\x1B[0m",
 };
@@ -46,7 +46,10 @@ function createChainableColor(appliedStyles: string[] = []): any {
     if (key === "reset") return;
     Object.defineProperty(fn, key, {
       get() {
-        return createChainableColor([...appliedStyles, styles[key as StyleName]]);
+        return createChainableColor([
+          ...appliedStyles,
+          styles[key as StyleName],
+        ]);
       },
     });
   });

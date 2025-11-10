@@ -131,7 +131,11 @@ describe("tokenizer/utils", () => {
 
   describe("hasStyleMetadata()", () => {
     test("returns true when token has style metadata", () => {
-      const token = { type: "test", value: "test", metadata: { style: { color: "red" } } };
+      const token = {
+        type: "test",
+        value: "test",
+        metadata: { style: { color: "red" } },
+      };
       expect(hasStyleMetadata(token)).toBe(true);
     });
 

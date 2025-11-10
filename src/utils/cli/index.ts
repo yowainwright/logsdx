@@ -1,4 +1,8 @@
-import type { OptionDefinition, ParsedOptions, ArgumentDefinition } from "./types";
+import type {
+  OptionDefinition,
+  ParsedOptions,
+  ArgumentDefinition,
+} from "./types";
 import { HELP_FLAGS, VERSION_FLAGS, BOOLEAN_FLAG_PREFIX } from "./constants";
 import {
   camelCase,
@@ -14,7 +18,10 @@ export class CLI {
   private programVersion = "";
   private options: OptionDefinition[] = [];
   private argumentDef?: ArgumentDefinition;
-  private actionFn?: (arg: string | undefined, options: ParsedOptions) => Promise<void> | void;
+  private actionFn?: (
+    arg: string | undefined,
+    options: ParsedOptions,
+  ) => Promise<void> | void;
 
   name(value: string): this {
     this.programName = value;
@@ -43,7 +50,12 @@ export class CLI {
     return this;
   }
 
-  action(fn: (arg: string | undefined, options: ParsedOptions) => Promise<void> | void): this {
+  action(
+    fn: (
+      arg: string | undefined,
+      options: ParsedOptions,
+    ) => Promise<void> | void,
+  ): this {
     this.actionFn = fn;
     return this;
   }
@@ -93,7 +105,9 @@ export class CLI {
               options[key] = true;
             }
           } else if (flag.startsWith(BOOLEAN_FLAG_PREFIX)) {
-            const positiveKey = camelCase(flag.slice(BOOLEAN_FLAG_PREFIX.length));
+            const positiveKey = camelCase(
+              flag.slice(BOOLEAN_FLAG_PREFIX.length),
+            );
             options[positiveKey] = false;
           } else {
             options[key] = true;
@@ -163,5 +177,9 @@ export function createCLI(): CLI {
   return new CLI();
 }
 
-export { type OptionDefinition, type ParsedOptions, type ArgumentDefinition } from "./types";
+export {
+  type OptionDefinition,
+  type ParsedOptions,
+  type ArgumentDefinition,
+} from "./types";
 export default CLI;

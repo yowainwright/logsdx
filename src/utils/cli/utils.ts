@@ -6,7 +6,7 @@ export function camelCase(str: string): string {
 
 export function findOption(
   options: OptionDefinition[],
-  flag: string
+  flag: string,
 ): OptionDefinition | undefined {
   return options.find((o) => o.flags.includes(flag));
 }

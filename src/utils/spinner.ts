@@ -28,16 +28,16 @@ export function spinner(initialText: string): Spinner {
 
     start() {
       if (isSpinning) return instance;
-      
+
       isSpinning = true;
       process.stdout.write("\x1B[?25l"); // Hide cursor
-      
+
       interval = setInterval(() => {
         const frame = frames[frameIndex];
         frameIndex = (frameIndex + 1) % frames.length;
         process.stdout.write(`\r\x1B[36m${frame}\x1B[0m ${text}`);
       }, 80);
-      
+
       return instance;
     },
 

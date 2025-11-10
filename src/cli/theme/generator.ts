@@ -65,10 +65,11 @@ export async function runThemeGenerator(): Promise<void> {
   const selectedPresets = await checkbox({
     message: "📋 Select pattern presets to include:",
     choices: Object.entries(presetsByCategory).flatMap(
-      ([category, categoryPresets]) => categoryPresets.map((preset) => ({
-        name: `${category}: ${preset.name} - ${preset.description}`,
-        value: preset.name,
-      })),
+      ([category, categoryPresets]) =>
+        categoryPresets.map((preset) => ({
+          name: `${category}: ${preset.name} - ${preset.description}`,
+          value: preset.name,
+        })),
     ),
   });
 
