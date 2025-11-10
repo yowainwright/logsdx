@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
 import { useThemeStore } from "./useThemeStore";
 import { SAMPLE_LOGS } from "./constants";
@@ -25,7 +25,6 @@ export function useThemeForm() {
     togglePreset,
     resetTheme,
     saveTheme,
-    exportTheme,
     generateShareUrl,
   } = useThemeStore();
 
@@ -130,8 +129,6 @@ export function useThemeForm() {
   };
 
   const handleExportCode = () => {
-    const code = exportTheme();
-
     // Generate JavaScript code
     const jsCode = `
 import { createSimpleTheme, registerTheme } from 'logsdx';

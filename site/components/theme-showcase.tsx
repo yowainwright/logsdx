@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronRight } from "lucide-react";
-import { FaGithub } from "react-icons/fa";
 import { ThemeCard } from "./theme-card";
 
 interface ThemeShowcaseProps {
@@ -23,7 +21,7 @@ const getAnimationConfig = (speed: "slow" | "medium" | "fast") => {
 };
 
 export function ThemeShowcase({
-  autoPlay = true,
+  autoPlay: _autoPlay = true,
   speed = "medium",
   themes = [
     "oh-my-zsh",

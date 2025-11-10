@@ -185,7 +185,6 @@ export const useThemeStore = create<ThemeState>()(
       },
 
       generateShareUrl: () => {
-        const { currentTheme } = get();
         const shareCode = get().exportTheme();
         const baseUrl =
           typeof window !== "undefined" ? window.location.origin : "";
