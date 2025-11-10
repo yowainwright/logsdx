@@ -374,4 +374,3 @@ export const ${theme.name.replace(/[^a-zA-Z0-9]/g, "_")}Theme: Theme = ${JSON.st
     console.log(colorUtil.green(`✅ Saved to ${filepath}`));
   }
 }
-
