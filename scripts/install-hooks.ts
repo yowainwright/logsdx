@@ -5,51 +5,25 @@ import { join } from "path";
 
 const HOOKS_DIR = ".git/hooks";
 
-const PRE_COMMIT = `#!/usr/bin/env bun
-
-import { $ } from 'bun';
-
-console.log('Running pre-commit checks...');
-
-try {
-  await $\`bunx turbo run format lint test\`;
-  console.log('All pre-commit checks passed');
-} catch (error) {
-  console.error('Pre-commit checks failed');
-  process.exit(1);
-}
+const PRE_COMMIT = `#!/bin/sh
+cd "\$(git rev-parse --show-toplevel)" || exit 1
+bun run format && bun run lint && bun test
 `;
 
-const POST_CHECKOUT = `#!/usr/bin/env bun
-
-import { $ } from 'bun';
-import { existsSync } from 'fs';
-
-const changedFiles = await $\`git diff-tree -r --name-only --no-commit-id $1 $2\`.text();
-
-if (changedFiles.includes('package.json') || changedFiles.includes('bun.lock')) {
-  console.log('Dependencies changed, running bun install...');
-  await $\`bun install\`;
-  console.log('Dependencies updated');
-}
+const POST_CHECKOUT = `#!/bin/sh
+changed=\$(git diff-tree -r --name-only --no-commit-id $1 $2 2>/dev/null)
+if echo "$changed" | grep -q "package.json\\|bun.lock"; then
+  echo "Dependencies changed, running bun install..."
+  bun install
+fi
 `;
 
-const POST_MERGE = `#!/usr/bin/env bun
-
-import { $ } from 'bun';
-import { existsSync } from 'fs';
-
-console.log('Running post-merge checks...');
-
-const changedFiles = await $\`git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD\`.text();
-
-if (changedFiles.includes('package.json') || changedFiles.includes('bun.lock')) {
-  console.log('Dependencies changed, running bun install...');
-  await $\`bun install\`;
-  console.log('Dependencies updated');
-} else {
-  console.log('No dependency changes detected');
-}
+const POST_MERGE = `#!/bin/sh
+changed=\$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null)
+if echo "$changed" | grep -q "package.json\\|bun.lock"; then
+  echo "Dependencies changed, running bun install..."
+  bun install
+fi
 `;
 
 const HOOKS = {
