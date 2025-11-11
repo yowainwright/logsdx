@@ -1,10 +1,5 @@
 import { SIZE_UNITS, SIZE_UNIT_MULTIPLIER } from "./constants";
 
-
-
-
-
-
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) {
     return "0 B";
@@ -20,19 +15,9 @@ export function formatFileSize(bytes: number): string {
   return `${size.toFixed(1)} ${unit}`;
 }
 
-
-
-
-
-
 export function formatNumber(num: number): string {
   return num.toLocaleString();
 }
-
-
-
-
-
 
 export function fileExists(path: string): boolean {
   try {
@@ -41,10 +26,6 @@ export function fileExists(path: string): boolean {
     return false;
   }
 }
-
-
-
-
 
 export function ensureDir(dirPath: string): void {
   const fs = require("fs");

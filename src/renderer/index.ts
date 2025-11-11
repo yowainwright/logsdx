@@ -109,12 +109,6 @@ export function tokenToString(token: Token, colorSupport: boolean): string {
   return result;
 }
 
-
-
-
-
-
-
 export function tokensToString(
   tokens: TokenList,
   forceColors?: boolean,
@@ -229,12 +223,6 @@ export function tokenToHtml(token: Token, options: RenderOptions): string {
   return wrapInSpan(content, css);
 }
 
-
-
-
-
-
-
 export function tokensToHtml(
   tokens: TokenList,
   options: RenderOptions = {},
@@ -306,12 +294,6 @@ export function tokenToClassName(token: Token, options: RenderOptions): string {
   return wrapInSpanWithClass(content, classes);
 }
 
-
-
-
-
-
-
 export function tokensToClassNames(
   tokens: TokenList,
   options: RenderOptions = {},
@@ -320,13 +302,6 @@ export function tokensToClassNames(
     .map((token) => tokenToClassName(token, options))
     .join(EMPTY_STRING);
 }
-
-
-
-
-
-
-
 
 export function renderLine(
   line: string,
@@ -346,20 +321,9 @@ export function renderLine(
   return tokensToString(styledTokens);
 }
 
-
-
-
-
-
 export function highlightLine(line: string): string {
   return `${LINE_HIGHLIGHT_BG}${line}${RESET}`;
 }
-
-
-
-
-
-
 
 export function applyColor(text: string, color: string): string {
   const colorDef = getColorDefinition(color);
@@ -369,47 +333,21 @@ export function applyColor(text: string, color: string): string {
   return `${colorDef.ansi}${text}${STYLE_CODES.resetColor}`;
 }
 
-
-
-
-
-
 export function applyBold(text: string): string {
   return `${STYLE_CODES.bold}${text}${STYLE_CODES.resetBold}`;
 }
-
-
-
-
-
 
 export function applyItalic(text: string): string {
   return `${STYLE_CODES.italic}${text}${STYLE_CODES.resetItalic}`;
 }
 
-
-
-
-
-
 export function applyUnderline(text: string): string {
   return `${STYLE_CODES.underline}${text}${STYLE_CODES.resetUnderline}`;
 }
 
-
-
-
-
-
 export function applyDim(text: string): string {
   return `${STYLE_CODES.dim}${text}${STYLE_CODES.resetDim}`;
 }
-
-
-
-
-
-
 
 export function applyBackgroundColor(text: string, color: string): string {
   const colorDef = BACKGROUND_COLORS[color];
@@ -419,32 +357,13 @@ export function applyBackgroundColor(text: string, color: string): string {
   return `${colorDef.ansi}${text}${STYLE_CODES.resetBackground}`;
 }
 
-
-
-
-
-
 export function fg256(code: number): string {
   return `\x1b[38;5;${code}m`;
 }
 
-
-
-
-
-
-
-
 export function fgRGB(r: number, g: number, b: number): string {
   return `\x1b[38;2;${r};${g};${b}m`;
 }
-
-
-
-
-
-
-
 
 export function renderLines(
   lines: ReadonlyArray<string>,

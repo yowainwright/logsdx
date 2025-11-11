@@ -94,8 +94,8 @@ describe("spinner", () => {
     s.stop();
 
     const output = mockWrites.join("");
-    expect(output).toContain("\x1B[K"); 
-    expect(output).toContain("\x1B[?25h"); 
+    expect(output).toContain("\x1B[K");
+    expect(output).toContain("\x1B[?25h");
   });
 
   test("start should hide cursor and write frames", async () => {
@@ -106,7 +106,7 @@ describe("spinner", () => {
     s.stop();
 
     const output = mockWrites.join("");
-    expect(output).toContain("\x1B[?25l"); 
+    expect(output).toContain("\x1B[?25l");
     expect(output).toContain("Test");
   });
 

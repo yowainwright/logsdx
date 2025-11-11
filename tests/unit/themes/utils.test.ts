@@ -38,8 +38,8 @@ describe("themes/utils", () => {
     });
 
     test("correctly identifies medium luminance colors", () => {
-      expect(isDarkColor("#808080")).toBe(false); 
-      expect(isDarkColor("#404040")).toBe(true); 
+      expect(isDarkColor("#808080")).toBe(false);
+      expect(isDarkColor("#404040")).toBe(true);
     });
   });
 
@@ -102,7 +102,6 @@ describe("themes/utils", () => {
       const colorsAA = getAccessibleTextColors("#000000", "AA");
       const colorsAAA = getAccessibleTextColors("#000000", "AAA");
 
-      
       expect(colorsAAA.text).not.toBe(colorsAA.text);
     });
 
@@ -110,7 +109,6 @@ describe("themes/utils", () => {
       const colorsAA = getAccessibleTextColors("#FFFFFF", "AA");
       const colorsAAA = getAccessibleTextColors("#FFFFFF", "AAA");
 
-      
       expect(colorsAAA.text).not.toBe(colorsAA.text);
     });
   });

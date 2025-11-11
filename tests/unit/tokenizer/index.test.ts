@@ -36,7 +36,6 @@ describe("Tokenizer", () => {
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
 
-      
       const totalContent = tokens.map((t) => t.content).join("");
       expect(totalContent).toBe(line);
     });
@@ -45,15 +44,11 @@ describe("Tokenizer", () => {
       const line = "2023-01-01T12:00:00Z ERROR: Something went wrong";
       const tokens = tokenize(line);
 
-      
-      
       const content = tokens.map((t) => t.content).join("");
       expect(content).toBe(line);
 
-      
       expect(tokens.length).toBeGreaterThan(1);
 
-      
       const hasError = tokens.some((t) => t.content.includes("ERROR"));
       expect(hasError).toBe(true);
     });
@@ -61,12 +56,10 @@ describe("Tokenizer", () => {
     test("handles whitespace according to theme preferences", () => {
       const line = "test  with  spaces";
 
-      
       const tokensPreserve = tokenize(line);
       const contentPreserve = tokensPreserve.map((t) => t.content).join("");
       expect(contentPreserve).toBe(line);
 
-      
       const themeTrim: Theme = {
         name: "Trim Whitespace",
         schema: {
@@ -74,7 +67,6 @@ describe("Tokenizer", () => {
         },
       };
 
-      
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
       expect(tokensTrim.length).toBeGreaterThan(0);
@@ -83,12 +75,10 @@ describe("Tokenizer", () => {
     test("handles newlines according to theme preferences", () => {
       const line = "line1\nline2";
 
-      
       const tokensPreserve = tokenize(line);
       const hasNewline = tokensPreserve.some((t) => t.content === "\n");
       expect(hasNewline).toBe(true);
 
-      
       const themeTrim: Theme = {
         name: "Trim Newlines",
         schema: {
@@ -96,14 +86,12 @@ describe("Tokenizer", () => {
         },
       };
 
-      
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
       expect(tokensTrim.length).toBeGreaterThan(0);
     });
 
     test("applies theme-specific word matching", () => {
-      
       const theme: Theme = {
         name: "Word Theme",
         schema: {
@@ -113,7 +101,6 @@ describe("Tokenizer", () => {
         },
       };
 
-      
       const tokens: TokenList = [
         {
           content: "test",
@@ -124,15 +111,12 @@ describe("Tokenizer", () => {
         },
       ];
 
-      
       const styledTokens = applyTheme(tokens, theme);
 
-      
       expect(styledTokens[0].metadata?.style?.color).toBe("green");
     });
 
     test("applies theme-specific pattern matching", () => {
-      
       const tokens: TokenList = [
         {
           content: "123",
@@ -144,7 +128,6 @@ describe("Tokenizer", () => {
         },
       ];
 
-      
       const theme: Theme = {
         name: "Simple Pattern Theme",
         schema: {
@@ -158,18 +141,14 @@ describe("Tokenizer", () => {
         },
       };
 
-      
       const styledTokens = applyTheme(tokens, theme);
 
-      
       expect(styledTokens[0].metadata?.style?.color).toBe("blue");
     });
 
     test("handles invalid regex patterns gracefully", () => {
-      
       const originalWarn = console.warn;
 
-      
       console.warn = () => {};
 
       try {

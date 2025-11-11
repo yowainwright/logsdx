@@ -129,7 +129,6 @@ export const themeGeneratorConfigSchema = z.object({
 
 export type ThemeGeneratorConfig = z.infer<typeof themeGeneratorConfigSchema>;
 
-
 export const COLOR_PALETTES: ColorPalette[] = [
   {
     name: "github-light",
@@ -253,7 +252,6 @@ export const COLOR_PALETTES: ColorPalette[] = [
     },
   },
 ];
-
 
 export const PATTERN_PRESETS: PatternPreset[] = [
   {

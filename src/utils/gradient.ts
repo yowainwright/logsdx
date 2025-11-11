@@ -2,7 +2,6 @@ export function gradient(colors: string[]): {
   (text: string): string;
   multiline(text: string): string;
 } {
-  
   const applyGradient = (text: string) => `\x1B[36m${text}\x1B[0m`;
 
   applyGradient.multiline = (text: string) => {

@@ -84,14 +84,12 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
 
   const result: string[] = [];
 
-  
   for (let i = 0; i < margin.top; i++) {
     result.push("");
   }
 
   const leftMargin = " ".repeat(margin.left);
 
-  
   const topBorder = options.title
     ? border.topLeft +
       ` ${options.title} ` +
@@ -102,14 +100,12 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
     : border.topLeft + border.horizontal.repeat(boxWidth) + border.topRight;
   result.push(leftMargin + topBorder);
 
-  
   for (let i = 0; i < padding.top; i++) {
     result.push(
       leftMargin + border.vertical + " ".repeat(boxWidth) + border.vertical,
     );
   }
 
-  
   lines.forEach((line) => {
     const cleanLength = line.replace(/\x1B\[[0-9;]*m/g, "").length;
     const paddingRight = " ".repeat(Math.max(0, contentWidth - cleanLength));
@@ -124,14 +120,12 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
     );
   });
 
-  
   for (let i = 0; i < padding.bottom; i++) {
     result.push(
       leftMargin + border.vertical + " ".repeat(boxWidth) + border.vertical,
     );
   }
 
-  
   result.push(
     leftMargin +
       border.bottomLeft +
@@ -139,7 +133,6 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
       border.bottomRight,
   );
 
-  
   for (let i = 0; i < margin.bottom; i++) {
     result.push("");
   }

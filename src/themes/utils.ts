@@ -1,30 +1,16 @@
-
-
-
-
 import { colors } from "./color-constants";
 
-
-
-
 export function isDarkColor(hex: string): boolean {
-  
   const color = hex.replace("#", "");
 
-  
   const r = parseInt(color.slice(0, 2), 16);
   const g = parseInt(color.slice(2, 4), 16);
   const b = parseInt(color.slice(4, 6), 16);
 
-  
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
   return luminance < 0.5;
 }
-
-
-
-
 
 export function getAccessibleTextColors(
   backgroundColor: string,
@@ -33,7 +19,6 @@ export function getAccessibleTextColors(
   const isDark = isDarkColor(backgroundColor);
 
   if (isDark) {
-    
     return {
       text: contrastLevel === "AAA" ? colors.gray[50] : colors.gray[100],
       info: contrastLevel === "AAA" ? colors.sky[300] : colors.sky[400],
@@ -45,7 +30,6 @@ export function getAccessibleTextColors(
       string: contrastLevel === "AAA" ? colors.lime[300] : colors.lime[400],
     };
   } else {
-    
     return {
       text: contrastLevel === "AAA" ? colors.gray[900] : colors.gray[800],
       info: contrastLevel === "AAA" ? colors.sky[700] : colors.sky[600],
@@ -59,9 +43,6 @@ export function getAccessibleTextColors(
   }
 }
 
-
-
-
 export function getWCAGLevel(
   ratio: number,
   isLargeText: boolean = false,
@@ -73,13 +54,10 @@ export function getWCAGLevel(
   } else {
     if (ratio >= 7) return "AAA";
     if (ratio >= 4.5) return "AA";
-    if (ratio >= 3) return "A"; 
+    if (ratio >= 3) return "A";
     return "FAIL";
   }
 }
-
-
-
 
 export function getWCAGRecommendations(ratio: number): string[] {
   const recommendations: string[] = [];

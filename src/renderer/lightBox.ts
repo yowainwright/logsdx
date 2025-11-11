@@ -52,11 +52,6 @@ const DEFAULT_PADDING = 2;
 const DEFAULT_BORDER = true;
 const DEFAULT_BORDER_STYLE: BorderStyle = "rounded";
 
-
-
-
-
-
 export function getThemeBackground(theme: Theme | string): string {
   const themeName = typeof theme === "string" ? theme : theme.name;
   return THEME_BACKGROUNDS[themeName] || DEFAULT_BACKGROUND;
@@ -132,13 +127,6 @@ function createPaddedLine(
   return `${backgroundColor}${content}${RESET}`;
 }
 
-
-
-
-
-
-
-
 export function renderLightBoxLine(
   line: string,
   theme: Theme | string,
@@ -162,14 +150,6 @@ export function renderLightBoxLine(
     borderChar,
   );
 }
-
-
-
-
-
-
-
-
 
 export function renderLightBox(
   lines: ReadonlyArray<string>,
@@ -199,11 +179,6 @@ export function renderLightBox(
   return result;
 }
 
-
-
-
-
-
 export function isLightTheme(theme: Theme | string): boolean {
   if (typeof theme === "object" && theme.mode) {
     return theme.mode === "light";
@@ -214,10 +189,6 @@ export function isLightTheme(theme: Theme | string): boolean {
 
   return lowerName.includes("light") || lowerName.includes("white");
 }
-
-
-
-
 
 export function isTerminalDark(): boolean {
   return isDarkBackground();

@@ -12,12 +12,10 @@ export function textSync(
     verticalLayout?: string;
   },
 ): string {
-  
   if (text === "LogsDX") {
     return LOGSDX_ASCII;
   }
 
-  
   return text;
 }
 

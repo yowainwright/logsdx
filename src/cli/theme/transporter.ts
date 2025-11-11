@@ -100,8 +100,6 @@ export function importThemeFromFile(filePath: string): Theme {
   const fileContent = fs.readFileSync(filePath, "utf8");
 
   if (filePath.endsWith(".ts") || filePath.endsWith(".js")) {
-    
-    
     const patterns = [
       /export\s+const\s+\w+\s*:\s*\w+\s*=\s*(\{[\s\S]*?\})\s*;?\s*$/m,
       /export\s+default\s+(\{[\s\S]*?\})\s*;?\s*$/m,
@@ -112,10 +110,9 @@ export function importThemeFromFile(filePath: string): Theme {
       const match = fileContent.match(pattern);
       if (match) {
         try {
-          
           const jsonStr = match[1]
-            .replace(/^\s+/gm, "") 
-            .replace(/\s+$/gm, "") 
+            .replace(/^\s+/gm, "")
+            .replace(/\s+$/gm, "")
             .trim();
           return JSON.parse(jsonStr);
         } catch {
@@ -159,7 +156,6 @@ export async function importTheme(filename?: string): Promise<void> {
     const fileContent = fs.readFileSync(themeFile, "utf8");
     const themeData = JSON.parse(fileContent);
 
-    
     const validatedTheme = themePresetSchema.parse(themeData);
 
     ui.showInfo(`Importing theme: ${chalk.cyan(validatedTheme.name)}`);
@@ -167,7 +163,6 @@ export async function importTheme(filename?: string): Promise<void> {
       console.log(`Description: ${validatedTheme.description}`);
     }
 
-    
     const existingTheme = getTheme(validatedTheme.name);
     if (existingTheme) {
       const shouldOverwrite = await confirm({
@@ -185,7 +180,6 @@ export async function importTheme(filename?: string): Promise<void> {
       }
     }
 
-    
     const showPreview = await confirm({
       message: "Preview theme before importing?",
       default: true,
@@ -244,7 +238,6 @@ async function previewImportedTheme(theme: Theme) {
     "POST /api/login 401 Unauthorized 23ms",
   ];
 
-  
   const { LogsDX } = await import("../../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({

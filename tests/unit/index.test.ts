@@ -3,11 +3,9 @@ import stripAnsi from "strip-ansi";
 import { LogsDX, getLogsDX } from "../../src/index";
 
 describe("LogsDX", () => {
-  
   const originalConsoleWarn = console.warn;
   let consoleWarnings: string[] = [];
 
-  
   beforeEach(() => {
     LogsDX.resetInstance();
     consoleWarnings = [];
@@ -33,9 +31,8 @@ describe("LogsDX", () => {
     });
 
     test("applies custom options when provided", () => {
-      
       LogsDX.resetInstance();
-      
+
       const customInstance = LogsDX.getInstance({ theme: "oh-my-zsh" });
       expect(customInstance.getCurrentTheme().name).toBe("oh-my-zsh");
     });
@@ -64,7 +61,6 @@ describe("LogsDX", () => {
       const line = "test line";
       const result = instance.processLine(line);
 
-      
       expect(typeof result).toBe("string");
     });
 
@@ -108,7 +104,6 @@ describe("LogsDX", () => {
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
 
-      
       const totalContent = tokens.map((t) => t.content).join("");
       expect(totalContent).toBe("test line");
     });
@@ -117,7 +112,7 @@ describe("LogsDX", () => {
   describe("setTheme", () => {
     test("sets theme by name", () => {
       const instance = LogsDX.getInstance();
-      
+
       const result = instance.setTheme("oh-my-zsh");
       expect(result).toBe(true);
       expect(instance.getCurrentTheme().name).toBe("oh-my-zsh");
@@ -138,9 +133,9 @@ describe("LogsDX", () => {
 
     test("returns true even for invalid theme (fails silently)", () => {
       const instance = LogsDX.getInstance({ debug: true });
-      
+
       expect(instance.setTheme({ invalid: "theme" })).toBe(true);
-      
+
       expect(instance.getCurrentTheme().name).toBe("none");
     });
   });
@@ -199,57 +194,45 @@ describe("LogsDX", () => {
 });
 
 describe("ANSI theming integration", () => {
-  
   const originalConsoleWarn = console.warn;
 
   beforeEach(() => {
-    
     LogsDX.resetInstance();
-    
+
     console.warn = () => {};
   });
 
   afterEach(() => {
-    
     console.warn = originalConsoleWarn;
   });
 
   test("applies theme colors to ANSI output", () => {
-    
     const instance = LogsDX.getInstance({
       theme: "oh-my-zsh",
-      outputFormat: "ansi", 
+      outputFormat: "ansi",
     });
 
-    
     expect(instance.getCurrentOutputFormat()).toBe("ansi");
 
-    
     const errorLine = instance.processLine("ERROR: This is an error message");
     const warnLine = instance.processLine("WARN: This is a warning message");
     const infoLine = instance.processLine("INFO: This is an info message");
 
-    
     expect(stripAnsi(errorLine)).toBe("ERROR: This is an error message");
     expect(stripAnsi(warnLine)).toBe("WARN: This is a warning message");
     expect(stripAnsi(infoLine)).toBe("INFO: This is an info message");
 
-    
     LogsDX.resetInstance();
     const dracula = LogsDX.getInstance({
       theme: "dracula",
-      outputFormat: "ansi", 
+      outputFormat: "ansi",
     });
     const draculaError = dracula.processLine("ERROR: This is an error message");
 
-    
     expect(stripAnsi(draculaError)).toBe("ERROR: This is an error message");
   });
 
-  
-
   test("applies style codes like bold and italic", () => {
-    
     const instance = LogsDX.getInstance({
       theme: {
         name: "test-theme",
@@ -263,14 +246,11 @@ describe("ANSI theming integration", () => {
       outputFormat: "ansi",
     });
 
-    
     const errorLine = instance.processLine("ERROR: Critical failure");
 
-    
     const plainText = stripAnsi(errorLine);
     expect(plainText).toBe("ERROR: Critical failure");
 
-    
     expect(instance.getCurrentOutputFormat()).toBe("ansi");
   });
 });

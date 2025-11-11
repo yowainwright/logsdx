@@ -1,6 +1,3 @@
-
-
-
 export type StyleCode =
   | "bold"
   | "italic"
@@ -10,20 +7,13 @@ export type StyleCode =
   | "reverse"
   | "strikethrough";
 
-
-
-
 export interface StyleOptions {
-  
   color: string;
-  
+
   styleCodes?: StyleCode[];
-  
+
   htmlStyleFormat?: "css" | "className";
 }
-
-
-
 
 export function filterStyleCodes(codes: string[] | undefined): StyleCode[] {
   if (!codes) return [];
@@ -81,14 +71,9 @@ export interface Theme {
 
 export type ThemePreset = Theme;
 
-
-
-
-
 export interface ThemePair {
-  
   light: string | Theme;
-  
+
   dark: string | Theme;
 }
 
@@ -96,10 +81,10 @@ export interface LogsDXOptions {
   theme?: string | Theme | ThemePair;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
-  escapeHtml?: boolean; 
+  escapeHtml?: boolean;
   debug?: boolean;
   customRules?: Record<string, unknown>;
-  autoAdjustTerminal?: boolean; 
+  autoAdjustTerminal?: boolean;
 }
 
 export type LogLevel = "debug" | "info" | "warn" | "error";

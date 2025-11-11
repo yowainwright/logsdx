@@ -354,11 +354,6 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   }
 }
 
-
-
-
-
-
 export function createLexer(theme?: Theme): SimpleLexer {
   const lexer = new SimpleLexer();
 
@@ -464,12 +459,6 @@ export function convertLexerTokens(
 ): TokenList {
   return lexerTokens.map(convertLexerToken);
 }
-
-
-
-
-
-
 
 export function tokenize(line: string, theme?: Theme): TokenList {
   try {
@@ -642,12 +631,6 @@ export function applyTokenStyle(token: Token, theme: Theme): Token {
 
   return applyDefaultStyle(token, theme);
 }
-
-
-
-
-
-
 
 export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
   if (!theme || !theme.schema) {

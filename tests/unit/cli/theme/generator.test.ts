@@ -22,13 +22,13 @@ describe("Theme Generator", () => {
     it("should validate rgb colors", () => {
       expect(validateColorInput("rgb(255, 0, 0)")).toBe(true);
       expect(validateColorInput("rgba(255, 0, 0, 0.5)")).toBe(true);
-      expect(validateColorInput("rgb(256, 0, 0)")).toBe(true); 
+      expect(validateColorInput("rgb(256, 0, 0)")).toBe(true);
     });
 
     it("should validate named colors", () => {
       expect(validateColorInput("red")).toBe(true);
       expect(validateColorInput("blue")).toBe(true);
-      expect(validateColorInput("notacolor")).toBe(true); 
+      expect(validateColorInput("notacolor")).toBe(true);
     });
   });
 
@@ -120,11 +120,9 @@ describe("Theme Generator", () => {
       expect(theme.schema.matchWords).toHaveProperty("false");
       expect(theme.schema.matchWords).toHaveProperty("null");
 
-      
       expect(theme.schema.matchStartsWith).toBeDefined();
       expect(theme.schema.matchEndsWith).toBeDefined();
 
-      
       expect(theme.schema.matchStartsWith?.["["]).toBeDefined();
       expect(theme.schema.matchEndsWith?.["]"]).toBeDefined();
     });

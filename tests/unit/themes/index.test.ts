@@ -8,11 +8,9 @@ import {
 import { THEMES, DEFAULT_THEME } from "../../../src/themes/constants";
 
 describe("Theme Management", () => {
-  
   const originalConsoleLog = console.log;
   let consoleOutput: string[] = [];
 
-  
   beforeEach(() => {
     consoleOutput = [];
     console.log = (message: string) => {
@@ -20,7 +18,6 @@ describe("Theme Management", () => {
     };
   });
 
-  
   afterEach(() => {
     console.log = originalConsoleLog;
   });
@@ -72,7 +69,6 @@ describe("Theme Management", () => {
 
       registerTheme(testTheme);
 
-      
       expect(getTheme("test-theme")).toEqual(testTheme);
       expect(getThemeNames()).toContain("test-theme");
       expect(getAllThemes()["test-theme"]).toEqual(testTheme);
@@ -106,7 +102,6 @@ describe("Theme Management", () => {
       registerTheme(firstTheme);
       registerTheme(secondTheme);
 
-      
       expect(getTheme("overwrite-test")).toEqual(secondTheme);
       expect(getTheme("overwrite-test").description).toBe("Second version");
     });

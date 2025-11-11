@@ -16,7 +16,6 @@ import { registerTheme, getTheme, getThemeNames } from "../../themes";
 import { getLogsDX } from "../../index";
 import { Theme } from "../../types";
 
-
 const SAMPLE_LOGS = [
   "INFO: Server started on port 3000",
   "WARN: Memory usage high: 85%",
@@ -27,7 +26,6 @@ const SAMPLE_LOGS = [
   "GET /api/users 200 OK (123ms)",
   "Cache hit ratio: 92.5%",
 ];
-
 
 const COLOR_PRESETS = {
   Vibrant: {
@@ -105,7 +103,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     showBanner();
   }
 
-  
   const name = await input({
     message: "Theme name:",
     validate: (inputValue: string) => {
@@ -138,7 +135,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     mode,
   };
 
-  
   const preset = await select({
     message: "Choose a color preset:",
     choices: Object.keys(COLOR_PRESETS).map((name) => ({
@@ -211,7 +207,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     colors = { primary, error, warning, success, info, muted };
   }
 
-  
   const presets = await checkbox({
     message: "Select features to highlight:",
     choices: [
@@ -236,7 +231,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     ],
   });
 
-  
   const createSpinner = spinner("Creating theme...").start();
 
   const config: SimpleThemeConfig = {
@@ -250,11 +244,9 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   const theme = createTheme(config);
   createSpinner.succeed("Theme created!");
 
-  
   console.log("\n");
   renderPreview(theme, `✨ ${theme.name} Preview`);
 
-  
   const checkAccessibility = await confirm({
     message: "Check accessibility compliance?",
     default: true,
@@ -301,7 +293,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     }
   }
 
-  
   const saveOption = await select({
     message: "How would you like to save the theme?",
     choices: [

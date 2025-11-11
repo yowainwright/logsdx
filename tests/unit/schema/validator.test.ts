@@ -125,7 +125,6 @@ describe("Schema Validator", () => {
     test("throws on invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        
       };
 
       expect(() => validateTheme(invalidTheme)).toThrow();
@@ -153,7 +152,6 @@ describe("Schema Validator", () => {
     test("returns error for invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        
       };
 
       const result = validateThemeSafe(invalidTheme);
@@ -167,11 +165,9 @@ describe("Schema Validator", () => {
       const jsonSchema = convertTokenSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      
+
       expect(typeof jsonSchema).toBe("object");
 
-      
-      
       const hasNameReference = JSON.stringify(jsonSchema).includes("Token");
       expect(hasNameReference).toBe(true);
     });
@@ -182,11 +178,9 @@ describe("Schema Validator", () => {
       const jsonSchema = convertThemeSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      
+
       expect(typeof jsonSchema).toBe("object");
 
-      
-      
       const hasNameReference = JSON.stringify(jsonSchema).includes("Theme");
       expect(hasNameReference).toBe(true);
     });

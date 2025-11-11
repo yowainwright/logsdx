@@ -5,8 +5,6 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
-
-
 describe("parseArgs", () => {
   test("should parse basic theme argument", () => {
     const args = ["--theme", "dracula"];

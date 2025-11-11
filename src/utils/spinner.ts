@@ -1,7 +1,3 @@
-
-
-
-
 export interface Spinner {
   start(): Spinner;
   succeed(text?: string): Spinner;
@@ -30,7 +26,7 @@ export function spinner(initialText: string): Spinner {
       if (isSpinning) return instance;
 
       isSpinning = true;
-      process.stdout.write("\x1B[?25l"); 
+      process.stdout.write("\x1B[?25l");
 
       interval = setInterval(() => {
         const frame = frames[frameIndex];
@@ -61,8 +57,8 @@ export function spinner(initialText: string): Spinner {
         interval = null;
       }
       if (isSpinning) {
-        process.stdout.write("\r\x1B[K"); 
-        process.stdout.write("\x1B[?25h"); 
+        process.stdout.write("\r\x1B[K");
+        process.stdout.write("\x1B[?25h");
         isSpinning = false;
       }
       return instance;

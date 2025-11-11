@@ -8,19 +8,16 @@ import {
 } from "../../../../src/cli/theme/transporter";
 import type { Theme } from "../../../../src/types";
 
-
 const TEST_DIR = join(process.cwd(), ".test-themes");
 
 describe("Theme Transporter", () => {
   beforeEach(() => {
-    
     if (!existsSync(TEST_DIR)) {
       mkdirSync(TEST_DIR, { recursive: true });
     }
   });
 
   afterEach(() => {
-    
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });
     }
@@ -121,7 +118,6 @@ describe("Theme Transporter", () => {
     it("should validate imported theme", () => {
       const filePath = join(TEST_DIR, "invalid-theme.json");
       const invalidTheme = {
-        
         description: "Invalid theme",
       };
       writeFileSync(filePath, JSON.stringify(invalidTheme, null, 2));
@@ -144,7 +140,6 @@ describe("Theme Transporter", () => {
 
   describe("listThemeFiles", () => {
     it("should list theme files in directory", () => {
-      
       writeFileSync(join(TEST_DIR, "theme1.json"), JSON.stringify(sampleTheme));
       writeFileSync(join(TEST_DIR, "theme2.json"), JSON.stringify(sampleTheme));
       writeFileSync(
@@ -195,26 +190,20 @@ describe("Theme Transporter", () => {
     it("should round-trip theme through export and import", () => {
       const filePath = join(TEST_DIR, "round-trip.json");
 
-      
       exportThemeToFile(sampleTheme, filePath, "json");
 
-      
       const imported = importThemeFromFile(filePath);
 
-      
       expect(imported).toEqual(sampleTheme);
     });
 
     it("should handle TypeScript round-trip", () => {
       const filePath = join(TEST_DIR, "round-trip.ts");
 
-      
       exportThemeToFile(sampleTheme, filePath, "typescript");
 
-      
       const imported = importThemeFromFile(filePath);
 
-      
       expect(imported.name).toBe(sampleTheme.name);
       expect(imported.description).toBe(sampleTheme.description);
       expect(imported.mode).toBe(sampleTheme.mode);

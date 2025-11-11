@@ -391,21 +391,18 @@ export function validateColorInput(color: string): boolean | string {
     return false;
   }
 
-  
   if (color.match(/^[0-9a-fA-F]+$/)) {
-    return false; 
+    return false;
   }
 
   if (color.startsWith("#")) {
     return hexPattern.test(color);
   }
 
-  
   if (color.startsWith("rgb")) {
     return rgbPattern.test(color);
   }
 
-  
   return namedColors.includes(color.toLowerCase());
 }
 
@@ -456,7 +453,6 @@ interface ThemeAnswers {
 }
 
 export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
-  
   const patternPresets = answers.patterns || answers.patternPresets || [];
   if (answers.features && answers.features.includes("logLevels")) {
     patternPresets.push("log-levels");
@@ -478,12 +474,10 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
     theme.mode = answers.mode as Theme["mode"];
   }
 
-  
   if (!theme.schema) {
     theme.schema = {};
   }
 
-  
   if (answers.features) {
     if (
       answers.features.includes("numbers") ||
@@ -495,7 +489,6 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
       theme.schema.matchWords.null = { color: "#808080" };
     }
     if (answers.features.includes("brackets")) {
-      
       theme.schema.matchStartsWith = theme.schema.matchStartsWith || {};
       theme.schema.matchEndsWith = theme.schema.matchEndsWith || {};
       theme.schema.matchStartsWith["["] = { color: "#ffff00" };

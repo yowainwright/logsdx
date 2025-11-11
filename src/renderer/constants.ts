@@ -41,10 +41,6 @@ export const CLASS_ITALIC = "logsdx-italic";
 export const CLASS_UNDERLINE = "logsdx-underline";
 export const CLASS_DIM = "logsdx-dim";
 
-
-
-
-
 export function supportsColors(): boolean {
   if (process.env.NO_COLOR) {
     return false;
@@ -181,12 +177,6 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
   },
 };
 
-
-
-
-
-
-
 export function getColorDefinition(
   colorName: string,
   theme?: Theme,
@@ -237,11 +227,6 @@ export function getColorDefinition(
 
   return undefined;
 }
-
-
-
-
-
 
 function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

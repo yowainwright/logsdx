@@ -88,10 +88,6 @@ function detectFromVSCode(): BackgroundInfo | undefined {
   });
 }
 
-
-
-
-
 export function detectTerminalBackground(): BackgroundInfo {
   const fromColorFgBg = detectFromColorFgBg();
   if (fromColorFgBg) {
@@ -119,10 +115,6 @@ function matchesColorScheme(scheme: "dark" | "light"): boolean {
   const query = window.matchMedia(`(prefers-color-scheme: ${scheme})`);
   return query.matches;
 }
-
-
-
-
 
 export function detectBrowserBackground(): BackgroundInfo {
   if (!hasMatchMedia()) {
@@ -188,10 +180,6 @@ function detectFromLinux(): BackgroundInfo | undefined {
   });
 }
 
-
-
-
-
 export function detectSystemBackground(): BackgroundInfo {
   const fromMacOS = detectFromMacOS();
   if (fromMacOS) {
@@ -221,10 +209,6 @@ function hasHigherConfidence(a: ConfidenceLevel, b: ConfidenceLevel): boolean {
   return confidenceOrder[a] >= confidenceOrder[b];
 }
 
-
-
-
-
 export function detectBackground(): BackgroundInfo {
   if (isBrowser()) {
     const browserInfo = detectBrowserBackground();
@@ -251,10 +235,6 @@ export function detectBackground(): BackgroundInfo {
     : systemInfo;
 }
 
-
-
-
-
 export function isDarkBackground(): boolean {
   const info = detectBackground();
   const isDefaultAuto = info.scheme === "auto" && info.source === "default";
@@ -262,18 +242,10 @@ export function isDarkBackground(): boolean {
   return info.scheme === "dark" || isDefaultAuto;
 }
 
-
-
-
-
 export function isLightBackground(): boolean {
   const info = detectBackground();
   return info.scheme === "light";
 }
-
-
-
-
 
 export function getRecommendedThemeMode(): "light" | "dark" {
   return isDarkBackground() ? "dark" : "light";
@@ -315,11 +287,6 @@ function setupMediaQueryListeners(
 
   return () => {};
 }
-
-
-
-
-
 
 export function watchBackgroundChanges(
   callback: (info: BackgroundInfo) => void,

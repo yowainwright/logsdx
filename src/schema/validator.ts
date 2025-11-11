@@ -91,11 +91,6 @@ export function createThemeValidationError(error: unknown): Error {
   return createValidationError(message, error);
 }
 
-
-
-
-
-
 export function validateTheme(theme: unknown): Theme {
   try {
     return parseTheme(theme);
@@ -103,11 +98,6 @@ export function validateTheme(theme: unknown): Theme {
     throw createThemeValidationError(error);
   }
 }
-
-
-
-
-
 
 export function validateThemeSafe(theme: unknown): {
   success: boolean;

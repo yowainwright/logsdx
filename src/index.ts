@@ -50,10 +50,6 @@ export class LogsDX {
     },
   };
 
-  
-
-
-
   private constructor(options = {}) {
     this.options = {
       theme: "none",
@@ -68,11 +64,6 @@ export class LogsDX {
 
     this.currentTheme = this.resolveTheme(this.options.theme);
   }
-
-  
-
-
-
 
   private resolveTheme(theme: string | Theme | ThemePair | undefined): Theme {
     if (!theme || theme === "none") {
@@ -147,14 +138,13 @@ export class LogsDX {
         }
       }
     } else {
-      
       try {
         return validateTheme(theme as Theme);
       } catch (error) {
         if (this.options.debug) {
           console.warn("Invalid custom theme:", error);
         }
-        
+
         return {
           name: "none",
           description: "No styling applied",
@@ -172,22 +162,15 @@ export class LogsDX {
     }
   }
 
-  
-
-
-
-
   static getInstance(options: LogsDXOptions = {}): LogsDX {
     if (!LogsDX.instance) {
       LogsDX.instance = new LogsDX(options);
     } else if (Object.keys(options).length > 0) {
-      
       LogsDX.instance.options = {
         ...LogsDX.instance.options,
         ...options,
       };
 
-      
       if (options.theme) {
         LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(
           options.theme,
@@ -201,11 +184,6 @@ export class LogsDX {
     LogsDX.instance = null;
   }
 
-  
-
-
-
-
   processLine(line: string): string {
     const renderOptions: RenderOptions = {
       theme: this.currentTheme,
@@ -214,13 +192,10 @@ export class LogsDX {
       escapeHtml: this.options.escapeHtml,
     };
 
-    
     const tokens = tokenize(line, this.currentTheme);
 
-    
     const styledTokens = applyTheme(tokens, this.currentTheme);
 
-    
     if (renderOptions.outputFormat === "html") {
       if (renderOptions.htmlStyleFormat === "className") {
         return tokensToClassNames(styledTokens);
@@ -228,24 +203,13 @@ export class LogsDX {
         return tokensToHtml(styledTokens);
       }
     } else {
-      
       return tokensToString(styledTokens);
     }
   }
 
-  
-
-
-
-
   processLines(lines: string[]): string[] {
     return lines.map((line) => this.processLine(line));
   }
-
-  
-
-
-
 
   processLog(logContent: string): string {
     const lines = logContent.split("\n");
@@ -253,19 +217,9 @@ export class LogsDX {
     return processedLines.join("\n");
   }
 
-  
-
-
-
-
   tokenizeLine(line: string): TokenList {
     return tokenize(line, this.currentTheme);
   }
-
-  
-
-
-
 
   setTheme(theme: string | Theme | ThemePair): boolean {
     try {
@@ -280,76 +234,34 @@ export class LogsDX {
     }
   }
 
-  
-
-
-
   getCurrentTheme(): Theme {
     return this.currentTheme;
   }
-
-  
-
-
 
   getAllThemes(): Record<string, Theme> {
     return getAllThemes();
   }
 
-  
-
-
-
   getThemeNames(): string[] {
     return getThemeNames();
   }
-
-  
-
-
 
   setOutputFormat(format: "ansi" | "html"): void {
     this.options.outputFormat = format;
   }
 
-  
-
-
-
   setHtmlStyleFormat(format: "css" | "className"): void {
     this.options.htmlStyleFormat = format;
   }
-
-  
-
-
 
   getCurrentOutputFormat(): "ansi" | "html" {
     return this.options.outputFormat;
   }
 
-  
-
-
-
   getCurrentHtmlStyleFormat(): "css" | "className" {
     return this.options.htmlStyleFormat;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
