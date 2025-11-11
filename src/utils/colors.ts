@@ -1,5 +1,5 @@
 const styles = {
-  // Colors
+  
   black: "\x1B[30m",
   red: "\x1B[31m",
   green: "\x1B[32m",
@@ -10,7 +10,7 @@ const styles = {
   white: "\x1B[37m",
   gray: "\x1B[90m",
 
-  // Bright colors
+  
   redBright: "\x1B[91m",
   greenBright: "\x1B[92m",
   yellowBright: "\x1B[93m",
@@ -19,13 +19,13 @@ const styles = {
   cyanBright: "\x1B[96m",
   whiteBright: "\x1B[97m",
 
-  // Modifiers
+  
   bold: "\x1B[1m",
   dim: "\x1B[2m",
   italic: "\x1B[3m",
   underline: "\x1B[4m",
 
-  // Reset
+  
   reset: "\x1B[0m",
 };
 
@@ -41,7 +41,7 @@ function createChainableColor(appliedStyles: string[] = []): any {
     return `${prefix}${text}${styles.reset}`;
   };
 
-  // Add all style properties
+  
   Object.keys(styles).forEach((key) => {
     if (key === "reset") return;
     Object.defineProperty(fn, key, {
@@ -59,7 +59,7 @@ function createChainableColor(appliedStyles: string[] = []): any {
 
 export const colors = createChainableColor();
 
-// Export individual functions for direct use
+
 export const red = createColorFunction(styles.red);
 export const green = createColorFunction(styles.green);
 export const yellow = createColorFunction(styles.yellow);

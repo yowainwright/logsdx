@@ -50,10 +50,10 @@ export class LogsDX {
     },
   };
 
-  /**
-   * Create a new LogsDX instance
-   * @param options Configuration options
-   */
+  
+
+
+
   private constructor(options = {}) {
     this.options = {
       theme: "none",
@@ -69,11 +69,11 @@ export class LogsDX {
     this.currentTheme = this.resolveTheme(this.options.theme);
   }
 
-  /**
-   * Resolve theme from various input formats
-   * @param theme Theme input in various formats
-   * @returns Resolved Theme object
-   */
+  
+
+
+
+
   private resolveTheme(theme: string | Theme | ThemePair | undefined): Theme {
     if (!theme || theme === "none") {
       return {
@@ -147,14 +147,14 @@ export class LogsDX {
         }
       }
     } else {
-      // Direct Theme object
+      
       try {
         return validateTheme(theme as Theme);
       } catch (error) {
         if (this.options.debug) {
           console.warn("Invalid custom theme:", error);
         }
-        // Return no-op theme on validation failure
+        
         return {
           name: "none",
           description: "No styling applied",
@@ -172,22 +172,22 @@ export class LogsDX {
     }
   }
 
-  /**
-   * Get a singleton instance of LogsDX
-   * @param options Configuration options
-   * @returns LogsDX instance
-   */
+  
+
+
+
+
   static getInstance(options: LogsDXOptions = {}): LogsDX {
     if (!LogsDX.instance) {
       LogsDX.instance = new LogsDX(options);
     } else if (Object.keys(options).length > 0) {
-      // Update existing instance with new options
+      
       LogsDX.instance.options = {
         ...LogsDX.instance.options,
         ...options,
       };
 
-      // If theme changed, update the current theme
+      
       if (options.theme) {
         LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(
           options.theme,
@@ -201,11 +201,11 @@ export class LogsDX {
     LogsDX.instance = null;
   }
 
-  /**
-   * Process a log line with the current theme
-   * @param line Log line to process
-   * @returns The styled log line
-   */
+  
+
+
+
+
   processLine(line: string): string {
     const renderOptions: RenderOptions = {
       theme: this.currentTheme,
@@ -214,13 +214,13 @@ export class LogsDX {
       escapeHtml: this.options.escapeHtml,
     };
 
-    // First tokenize the line
+    
     const tokens = tokenize(line, this.currentTheme);
 
-    // Then apply the theme to get styled tokens
+    
     const styledTokens = applyTheme(tokens, this.currentTheme);
 
-    // Now render the styled tokens based on output format
+    
     if (renderOptions.outputFormat === "html") {
       if (renderOptions.htmlStyleFormat === "className") {
         return tokensToClassNames(styledTokens);
@@ -228,45 +228,45 @@ export class LogsDX {
         return tokensToHtml(styledTokens);
       }
     } else {
-      // Default to ANSI output
+      
       return tokensToString(styledTokens);
     }
   }
 
-  /**
-   * Process multiple log lines
-   * @param lines Array of log lines
-   * @returns Array of styled log lines
-   */
+  
+
+
+
+
   processLines(lines: string[]): string[] {
     return lines.map((line) => this.processLine(line));
   }
 
-  /**
-   * Process a log string with multiple lines
-   * @param logContent Multi-line log content
-   * @returns The styled log content
-   */
+  
+
+
+
+
   processLog(logContent: string): string {
     const lines = logContent.split("\n");
     const processedLines = this.processLines(lines);
     return processedLines.join("\n");
   }
 
-  /**
-   * Tokenize a log line without applying styling
-   * @param line Log line to tokenize
-   * @returns Tokenized log line
-   */
+  
+
+
+
+
   tokenizeLine(line: string): TokenList {
     return tokenize(line, this.currentTheme);
   }
 
-  /**
-   * Set the current theme
-   * @param theme Theme name, custom theme configuration, or theme pair
-   * @returns True if theme was valid and applied, false otherwise
-   */
+  
+
+
+
+
   setTheme(theme: string | Theme | ThemePair): boolean {
     try {
       this.options.theme = theme;
@@ -280,77 +280,77 @@ export class LogsDX {
     }
   }
 
-  /**
-   * Get the current theme
-   * @returns Current theme configuration
-   */
+  
+
+
+
   getCurrentTheme(): Theme {
     return this.currentTheme;
   }
 
-  /**
-   * Get all available themes
-   * @returns Object containing all available themes
-   */
+  
+
+
+
   getAllThemes(): Record<string, Theme> {
     return getAllThemes();
   }
 
-  /**
-   * Get names of all available themes
-   * @returns Array of theme names
-   */
+  
+
+
+
   getThemeNames(): string[] {
     return getThemeNames();
   }
 
-  /**
-   * Set the output format
-   * @param format The output format to use ('ansi' or 'html')
-   */
+  
+
+
+
   setOutputFormat(format: "ansi" | "html"): void {
     this.options.outputFormat = format;
   }
 
-  /**
-   * Set the HTML style format
-   * @param format The HTML style format to use ('css' or 'className')
-   */
+  
+
+
+
   setHtmlStyleFormat(format: "css" | "className"): void {
     this.options.htmlStyleFormat = format;
   }
 
-  /**
-   * Get the current output format
-   * @returns The current output format
-   */
+  
+
+
+
   getCurrentOutputFormat(): "ansi" | "html" {
     return this.options.outputFormat;
   }
 
-  /**
-   * Get the current HTML style format
-   * @returns The current HTML style format
-   */
+  
+
+
+
   getCurrentHtmlStyleFormat(): "css" | "className" {
     return this.options.htmlStyleFormat;
   }
 }
 
-/**
- * Get or create a LogsDX instance
- * @param options - Configuration options for LogsDX
- * @param options.theme - Theme name, Theme object, or ThemePair for light/dark modes
- * @param options.outputFormat - Output format ('ansi' for terminal, 'html' for web)
- * @param options.htmlStyleFormat - HTML style format ('css' for inline styles, 'className' for CSS classes)
- * @param options.debug - Enable debug mode for additional logging
- * @param options.customRules - Custom parsing rules
- * @param options.autoAdjustTerminal - Automatically adjust theme based on terminal background
- * @returns LogsDX instance
- * @example
- * const logsdx = getLogsDX({ theme: 'github-dark' });
- * const styledLine = logsdx.processLine('ERROR: Failed to connect');
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function getLogsDX(options?: LogsDXOptions): LogsDX {
   return LogsDX.getInstance(options);
 }

@@ -17,7 +17,7 @@ describe("Renderer", () => {
   describe("renderLine", () => {
     test("renders a simple line with default options", () => {
       const result = renderLine("test line");
-      // We need to check for individual characters since they're styled separately
+      
       expect(result).toContain("t");
       expect(result).toContain("e");
       expect(result).toContain("s");
@@ -29,7 +29,7 @@ describe("Renderer", () => {
         outputFormat: "html",
         htmlStyleFormat: "css",
       });
-      // Check for HTML span tags and the content
+      
       expect(result).toContain("<span");
       expect(result).toContain("style=");
       expect(result).toContain("t</span>");
@@ -40,7 +40,7 @@ describe("Renderer", () => {
         outputFormat: "html",
         htmlStyleFormat: "className",
       });
-      // Check for HTML span tags with class names
+      
       expect(result).toContain("<span");
       expect(result).toContain("class=");
       expect(result).toContain("t</span>");
@@ -87,9 +87,9 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens, true); // Force colors for testing
+      const result = tokensToString(tokens, true); 
       expect(result).toContain("error");
-      expect(result).toContain("\x1b[31m"); // Red color ANSI code
+      expect(result).toContain("\x1b[31m"); 
     });
 
     test("applies multiple style codes to tokens", () => {
@@ -104,10 +104,10 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens, true); // Force colors for testing
+      const result = tokensToString(tokens, true); 
       expect(result).toContain("important");
-      expect(result).toContain("\x1b[1m"); // Bold
-      expect(result).toContain("\x1b[4m"); // Underline
+      expect(result).toContain("\x1b[1m"); 
+      expect(result).toContain("\x1b[4m"); 
     });
   });
 
@@ -193,7 +193,7 @@ describe("Renderer", () => {
     test("applyColor adds ANSI color codes", () => {
       const result = applyColor("text", "red");
       expect(result).toContain("text");
-      // Since the implementation returns objects, let's check the structure
+      
       expect(typeof result).toBe("string");
       expect(result).toMatch(/text/);
     });
@@ -221,7 +221,7 @@ describe("Renderer", () => {
     test("applyBackgroundColor adds ANSI background color", () => {
       const result = applyBackgroundColor("text", "blue");
       expect(result).toContain("text");
-      // Since the implementation returns objects, let's check the structure
+      
       expect(typeof result).toBe("string");
       expect(result).toMatch(/text/);
     });

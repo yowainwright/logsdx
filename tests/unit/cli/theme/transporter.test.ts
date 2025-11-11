@@ -8,19 +8,19 @@ import {
 } from "../../../../src/cli/theme/transporter";
 import type { Theme } from "../../../../src/types";
 
-// Create a temporary test directory
+
 const TEST_DIR = join(process.cwd(), ".test-themes");
 
 describe("Theme Transporter", () => {
   beforeEach(() => {
-    // Create test directory
+    
     if (!existsSync(TEST_DIR)) {
       mkdirSync(TEST_DIR, { recursive: true });
     }
   });
 
   afterEach(() => {
-    // Clean up test directory
+    
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });
     }
@@ -121,7 +121,7 @@ describe("Theme Transporter", () => {
     it("should validate imported theme", () => {
       const filePath = join(TEST_DIR, "invalid-theme.json");
       const invalidTheme = {
-        // Missing required fields
+        
         description: "Invalid theme",
       };
       writeFileSync(filePath, JSON.stringify(invalidTheme, null, 2));
@@ -144,7 +144,7 @@ describe("Theme Transporter", () => {
 
   describe("listThemeFiles", () => {
     it("should list theme files in directory", () => {
-      // Create some theme files
+      
       writeFileSync(join(TEST_DIR, "theme1.json"), JSON.stringify(sampleTheme));
       writeFileSync(join(TEST_DIR, "theme2.json"), JSON.stringify(sampleTheme));
       writeFileSync(
@@ -195,26 +195,26 @@ describe("Theme Transporter", () => {
     it("should round-trip theme through export and import", () => {
       const filePath = join(TEST_DIR, "round-trip.json");
 
-      // Export
+      
       exportThemeToFile(sampleTheme, filePath, "json");
 
-      // Import
+      
       const imported = importThemeFromFile(filePath);
 
-      // Verify
+      
       expect(imported).toEqual(sampleTheme);
     });
 
     it("should handle TypeScript round-trip", () => {
       const filePath = join(TEST_DIR, "round-trip.ts");
 
-      // Export as TypeScript
+      
       exportThemeToFile(sampleTheme, filePath, "typescript");
 
-      // Import
+      
       const imported = importThemeFromFile(filePath);
 
-      // Verify core properties (TS export adds formatting)
+      
       expect(imported.name).toBe(sampleTheme.name);
       expect(imported.description).toBe(sampleTheme.description);
       expect(imported.mode).toBe(sampleTheme.mode);

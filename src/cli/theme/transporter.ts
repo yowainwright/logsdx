@@ -100,8 +100,8 @@ export function importThemeFromFile(filePath: string): Theme {
   const fileContent = fs.readFileSync(filePath, "utf8");
 
   if (filePath.endsWith(".ts") || filePath.endsWith(".js")) {
-    // Try to extract JSON object from TypeScript/JavaScript file
-    // Look for patterns like: export const theme = {...} or export default {...}
+    
+    
     const patterns = [
       /export\s+const\s+\w+\s*:\s*\w+\s*=\s*(\{[\s\S]*?\})\s*;?\s*$/m,
       /export\s+default\s+(\{[\s\S]*?\})\s*;?\s*$/m,
@@ -112,10 +112,10 @@ export function importThemeFromFile(filePath: string): Theme {
       const match = fileContent.match(pattern);
       if (match) {
         try {
-          // Clean up the JSON string
+          
           const jsonStr = match[1]
-            .replace(/^\s+/gm, "") // Remove leading whitespace
-            .replace(/\s+$/gm, "") // Remove trailing whitespace
+            .replace(/^\s+/gm, "") 
+            .replace(/\s+$/gm, "") 
             .trim();
           return JSON.parse(jsonStr);
         } catch {
@@ -159,7 +159,7 @@ export async function importTheme(filename?: string): Promise<void> {
     const fileContent = fs.readFileSync(themeFile, "utf8");
     const themeData = JSON.parse(fileContent);
 
-    // Validate the theme structure
+    
     const validatedTheme = themePresetSchema.parse(themeData);
 
     ui.showInfo(`Importing theme: ${chalk.cyan(validatedTheme.name)}`);
@@ -167,7 +167,7 @@ export async function importTheme(filename?: string): Promise<void> {
       console.log(`Description: ${validatedTheme.description}`);
     }
 
-    // Check if theme already exists
+    
     const existingTheme = getTheme(validatedTheme.name);
     if (existingTheme) {
       const shouldOverwrite = await confirm({
@@ -185,7 +185,7 @@ export async function importTheme(filename?: string): Promise<void> {
       }
     }
 
-    // Preview the theme
+    
     const showPreview = await confirm({
       message: "Preview theme before importing?",
       default: true,
@@ -244,7 +244,7 @@ async function previewImportedTheme(theme: Theme) {
     "POST /api/login 401 Unauthorized 23ms",
   ];
 
-  // Temporarily register the theme for preview
+  
   const { LogsDX } = await import("../../index");
   registerTheme(theme);
   const logsDX = LogsDX.getInstance({

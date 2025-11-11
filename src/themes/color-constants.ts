@@ -1,6 +1,6 @@
-/**
- * Color palettes for WCAG theme utilities
- */
+
+
+
 
 export const colors = {
   gray: { 50: "#f9fafb", 100: "#f3f4f6", 800: "#1f2937", 900: "#111827" },

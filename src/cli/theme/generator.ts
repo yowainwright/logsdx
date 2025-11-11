@@ -391,21 +391,21 @@ export function validateColorInput(color: string): boolean | string {
     return false;
   }
 
-  // Check hex pattern - must start with #
+  
   if (color.match(/^[0-9a-fA-F]+$/)) {
-    return false; // Hex without # is invalid
+    return false; 
   }
 
   if (color.startsWith("#")) {
     return hexPattern.test(color);
   }
 
-  // Check RGB pattern
+  
   if (color.startsWith("rgb")) {
     return rgbPattern.test(color);
   }
 
-  // Check named colors
+  
   return namedColors.includes(color.toLowerCase());
 }
 
@@ -456,7 +456,7 @@ interface ThemeAnswers {
 }
 
 export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
-  // Map features to pattern presets
+  
   const patternPresets = answers.patterns || answers.patternPresets || [];
   if (answers.features && answers.features.includes("logLevels")) {
     patternPresets.push("log-levels");
@@ -478,12 +478,12 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
     theme.mode = answers.mode as Theme["mode"];
   }
 
-  // Ensure schema exists
+  
   if (!theme.schema) {
     theme.schema = {};
   }
 
-  // Add features that aren't in pattern presets
+  
   if (answers.features) {
     if (
       answers.features.includes("numbers") ||
@@ -495,7 +495,7 @@ export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
       theme.schema.matchWords.null = { color: "#808080" };
     }
     if (answers.features.includes("brackets")) {
-      // Initialize if not exists
+      
       theme.schema.matchStartsWith = theme.schema.matchStartsWith || {};
       theme.schema.matchEndsWith = theme.schema.matchEndsWith || {};
       theme.schema.matchStartsWith["["] = { color: "#ffff00" };

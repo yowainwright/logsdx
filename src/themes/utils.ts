@@ -1,31 +1,31 @@
-/**
- * Theme utility functions for color accessibility and contrast
- */
+
+
+
 
 import { colors } from "./color-constants";
 
-/**
- * Determine if a hex color is dark or light based on luminance
- */
+
+
+
 export function isDarkColor(hex: string): boolean {
-  // Remove # if present
+  
   const color = hex.replace("#", "");
 
-  // Convert to RGB
+  
   const r = parseInt(color.slice(0, 2), 16);
   const g = parseInt(color.slice(2, 4), 16);
   const b = parseInt(color.slice(4, 6), 16);
 
-  // Calculate relative luminance
+  
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
   return luminance < 0.5;
 }
 
-/**
- * Get accessible text colors for a given background
- * Returns Tailwind colors that meet WCAG contrast requirements
- */
+
+
+
+
 export function getAccessibleTextColors(
   backgroundColor: string,
   contrastLevel: "AAA" | "AA" = "AA",
@@ -33,7 +33,7 @@ export function getAccessibleTextColors(
   const isDark = isDarkColor(backgroundColor);
 
   if (isDark) {
-    // Dark background - use light colors
+    
     return {
       text: contrastLevel === "AAA" ? colors.gray[50] : colors.gray[100],
       info: contrastLevel === "AAA" ? colors.sky[300] : colors.sky[400],
@@ -45,7 +45,7 @@ export function getAccessibleTextColors(
       string: contrastLevel === "AAA" ? colors.lime[300] : colors.lime[400],
     };
   } else {
-    // Light background - use dark colors
+    
     return {
       text: contrastLevel === "AAA" ? colors.gray[900] : colors.gray[800],
       info: contrastLevel === "AAA" ? colors.sky[700] : colors.sky[600],
@@ -59,9 +59,9 @@ export function getAccessibleTextColors(
   }
 }
 
-/**
- * Map WCAG contrast ratio to compliance level
- */
+
+
+
 export function getWCAGLevel(
   ratio: number,
   isLargeText: boolean = false,
@@ -73,14 +73,14 @@ export function getWCAGLevel(
   } else {
     if (ratio >= 7) return "AAA";
     if (ratio >= 4.5) return "AA";
-    if (ratio >= 3) return "A"; // Only for large text
+    if (ratio >= 3) return "A"; 
     return "FAIL";
   }
 }
 
-/**
- * Get WCAG recommendations based on contrast ratio
- */
+
+
+
 export function getWCAGRecommendations(ratio: number): string[] {
   const recommendations: string[] = [];
 

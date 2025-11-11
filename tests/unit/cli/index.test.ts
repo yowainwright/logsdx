@@ -5,7 +5,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 
-// Using the imported CliOptions type from ./types
+
 
 describe("parseArgs", () => {
   test("should parse basic theme argument", () => {

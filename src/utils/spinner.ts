@@ -1,6 +1,6 @@
-/**
- * Lightweight spinner utility to replace ora
- */
+
+
+
 
 export interface Spinner {
   start(): Spinner;
@@ -30,7 +30,7 @@ export function spinner(initialText: string): Spinner {
       if (isSpinning) return instance;
 
       isSpinning = true;
-      process.stdout.write("\x1B[?25l"); // Hide cursor
+      process.stdout.write("\x1B[?25l"); 
 
       interval = setInterval(() => {
         const frame = frames[frameIndex];
@@ -61,8 +61,8 @@ export function spinner(initialText: string): Spinner {
         interval = null;
       }
       if (isSpinning) {
-        process.stdout.write("\r\x1B[K"); // Clear line
-        process.stdout.write("\x1B[?25h"); // Show cursor
+        process.stdout.write("\r\x1B[K"); 
+        process.stdout.write("\x1B[?25h"); 
         isSpinning = false;
       }
       return instance;

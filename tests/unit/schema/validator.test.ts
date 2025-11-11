@@ -125,7 +125,7 @@ describe("Schema Validator", () => {
     test("throws on invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        // Missing schema property
+        
       };
 
       expect(() => validateTheme(invalidTheme)).toThrow();
@@ -153,7 +153,7 @@ describe("Schema Validator", () => {
     test("returns error for invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        // Missing schema property
+        
       };
 
       const result = validateThemeSafe(invalidTheme);
@@ -167,11 +167,11 @@ describe("Schema Validator", () => {
       const jsonSchema = convertTokenSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      // The structure might be different than expected, check what's actually returned
+      
       expect(typeof jsonSchema).toBe("object");
 
-      // Looking at the implementation, the name is passed as an option to zodToJsonSchema
-      // but it might be stored differently in the output
+      
+      
       const hasNameReference = JSON.stringify(jsonSchema).includes("Token");
       expect(hasNameReference).toBe(true);
     });
@@ -182,11 +182,11 @@ describe("Schema Validator", () => {
       const jsonSchema = convertThemeSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      // The structure might be different than expected, check what's actually returned
+      
       expect(typeof jsonSchema).toBe("object");
 
-      // Looking at the implementation, the name is passed as an option to zodToJsonSchema
-      // but it might be stored differently in the output
+      
+      
       const hasNameReference = JSON.stringify(jsonSchema).includes("Theme");
       expect(hasNameReference).toBe(true);
     });

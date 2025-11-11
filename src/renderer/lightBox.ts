@@ -52,11 +52,11 @@ const DEFAULT_PADDING = 2;
 const DEFAULT_BORDER = true;
 const DEFAULT_BORDER_STYLE: BorderStyle = "rounded";
 
-/**
- * Get the background color for a theme
- * @param theme - Theme object or theme name string
- * @returns ANSI background color code
- */
+
+
+
+
+
 export function getThemeBackground(theme: Theme | string): string {
   const themeName = typeof theme === "string" ? theme : theme.name;
   return THEME_BACKGROUNDS[themeName] || DEFAULT_BACKGROUND;
@@ -132,13 +132,13 @@ function createPaddedLine(
   return `${backgroundColor}${content}${RESET}`;
 }
 
-/**
- * Render a line in a light box
- * @param line - The line to render
- * @param theme - Theme object or theme name string
- * @param options - Light box rendering options
- * @returns Rendered line string
- */
+
+
+
+
+
+
+
 export function renderLightBoxLine(
   line: string,
   theme: Theme | string,
@@ -163,14 +163,14 @@ export function renderLightBoxLine(
   );
 }
 
-/**
- * Render a complete light box with multiple lines
- * @param lines - Array of lines to render
- * @param theme - Theme object or theme name string
- * @param title - Optional title for the box
- * @param options - Light box rendering options
- * @returns Array of rendered line strings
- */
+
+
+
+
+
+
+
+
 export function renderLightBox(
   lines: ReadonlyArray<string>,
   theme: Theme | string,
@@ -199,11 +199,11 @@ export function renderLightBox(
   return result;
 }
 
-/**
- * Check if a theme is a light theme
- * @param theme - Theme object or theme name string
- * @returns True if the theme is a light theme
- */
+
+
+
+
+
 export function isLightTheme(theme: Theme | string): boolean {
   if (typeof theme === "object" && theme.mode) {
     return theme.mode === "light";
@@ -215,10 +215,10 @@ export function isLightTheme(theme: Theme | string): boolean {
   return lowerName.includes("light") || lowerName.includes("white");
 }
 
-/**
- * Check if terminal has dark background
- * @returns True if terminal background is dark
- */
+
+
+
+
 export function isTerminalDark(): boolean {
   return isDarkBackground();
 }

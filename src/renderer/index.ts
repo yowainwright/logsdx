@@ -109,12 +109,12 @@ export function tokenToString(token: Token, colorSupport: boolean): string {
   return result;
 }
 
-/**
- * Convert tokens to a styled string
- * @param tokens - The tokens to convert
- * @param forceColors - Force color output regardless of terminal detection
- * @returns A string with ANSI escape codes for styling
- */
+
+
+
+
+
+
 export function tokensToString(
   tokens: TokenList,
   forceColors?: boolean,
@@ -229,12 +229,12 @@ export function tokenToHtml(token: Token, options: RenderOptions): string {
   return wrapInSpan(content, css);
 }
 
-/**
- * Convert tokens to HTML with inline CSS styles
- * @param tokens - The tokens to convert
- * @param options - Render options
- * @returns HTML string with inline CSS styles
- */
+
+
+
+
+
+
 export function tokensToHtml(
   tokens: TokenList,
   options: RenderOptions = {},
@@ -306,12 +306,12 @@ export function tokenToClassName(token: Token, options: RenderOptions): string {
   return wrapInSpanWithClass(content, classes);
 }
 
-/**
- * Convert tokens to HTML with CSS class names
- * @param tokens - The tokens to convert
- * @param options - Render options
- * @returns HTML with CSS class names for styling
- */
+
+
+
+
+
+
 export function tokensToClassNames(
   tokens: TokenList,
   options: RenderOptions = {},
@@ -321,13 +321,13 @@ export function tokensToClassNames(
     .join(EMPTY_STRING);
 }
 
-/**
- * Render a line with the specified options
- * @param line - The line to render
- * @param theme - The theme to use
- * @param options - Rendering options
- * @returns The rendered line
- */
+
+
+
+
+
+
+
 export function renderLine(
   line: string,
   theme?: Theme,
@@ -346,21 +346,21 @@ export function renderLine(
   return tokensToString(styledTokens);
 }
 
-/**
- * Highlight a line (for line highlighting)
- * @param line - The line to highlight
- * @returns The highlighted line
- */
+
+
+
+
+
 export function highlightLine(line: string): string {
   return `${LINE_HIGHLIGHT_BG}${line}${RESET}`;
 }
 
-/**
- * Apply color to text using ANSI escape codes
- * @param text - The text to color
- * @param color - The color to apply
- * @returns The colored text
- */
+
+
+
+
+
+
 export function applyColor(text: string, color: string): string {
   const colorDef = getColorDefinition(color);
   if (!colorDef) {
@@ -369,48 +369,48 @@ export function applyColor(text: string, color: string): string {
   return `${colorDef.ansi}${text}${STYLE_CODES.resetColor}`;
 }
 
-/**
- * Apply bold style to text using ANSI escape codes
- * @param text - The text to style
- * @returns The styled text
- */
+
+
+
+
+
 export function applyBold(text: string): string {
   return `${STYLE_CODES.bold}${text}${STYLE_CODES.resetBold}`;
 }
 
-/**
- * Apply italic style to text using ANSI escape codes
- * @param text - The text to style
- * @returns The styled text
- */
+
+
+
+
+
 export function applyItalic(text: string): string {
   return `${STYLE_CODES.italic}${text}${STYLE_CODES.resetItalic}`;
 }
 
-/**
- * Apply underline style to text using ANSI escape codes
- * @param text - The text to style
- * @returns The styled text
- */
+
+
+
+
+
 export function applyUnderline(text: string): string {
   return `${STYLE_CODES.underline}${text}${STYLE_CODES.resetUnderline}`;
 }
 
-/**
- * Apply dim style to text using ANSI escape codes
- * @param text - The text to style
- * @returns The styled text
- */
+
+
+
+
+
 export function applyDim(text: string): string {
   return `${STYLE_CODES.dim}${text}${STYLE_CODES.resetDim}`;
 }
 
-/**
- * Apply background color to text using ANSI escape codes
- * @param text - The text to color
- * @param color - The color to apply
- * @returns The colored text
- */
+
+
+
+
+
+
 export function applyBackgroundColor(text: string, color: string): string {
   const colorDef = BACKGROUND_COLORS[color];
   if (!colorDef) {
@@ -419,33 +419,33 @@ export function applyBackgroundColor(text: string, color: string): string {
   return `${colorDef.ansi}${text}${STYLE_CODES.resetBackground}`;
 }
 
-/**
- * Creates a 256-color foreground color code
- * @param code Color code (0-255)
- * @returns ANSI color code string
- */
+
+
+
+
+
 export function fg256(code: number): string {
   return `\x1b[38;5;${code}m`;
 }
 
-/**
- * Creates a 24-bit RGB foreground color code
- * @param r Red (0-255)
- * @param g Green (0-255)
- * @param b Blue (0-255)
- * @returns ANSI color code string
- */
+
+
+
+
+
+
+
 export function fgRGB(r: number, g: number, b: number): string {
   return `\x1b[38;2;${r};${g};${b}m`;
 }
 
-/**
- * Render multiple lines with the specified options
- * @param lines - The lines to render
- * @param theme - The theme to use
- * @param options - Rendering options
- * @returns The rendered lines
- */
+
+
+
+
+
+
+
 export function renderLines(
   lines: ReadonlyArray<string>,
   theme?: Theme,

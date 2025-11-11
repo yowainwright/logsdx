@@ -3,7 +3,7 @@ import { logger } from "../../../src/utils/logger";
 
 describe("logger", () => {
   afterEach(() => {
-    // Restore all spies after each test
+    
   });
 
   test("info() logs with blue info icon", () => {
