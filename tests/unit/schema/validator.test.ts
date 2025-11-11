@@ -8,6 +8,7 @@ import {
   validateThemeSafe,
   convertTokenSchemaToJson,
   convertThemeSchemaToJson,
+  createThemeValidationError,
 } from "../../../src/schema/validator";
 import { z } from "zod";
 
@@ -183,6 +184,50 @@ describe("Schema Validator", () => {
 
       const hasNameReference = JSON.stringify(jsonSchema).includes("Theme");
       expect(hasNameReference).toBe(true);
+    });
+  });
+
+  describe("createThemeValidationError", () => {
+    test("returns Error object as is when given Error", () => {
+      const originalError = new Error("Custom error message");
+
+      const result = createThemeValidationError(originalError);
+
+      expect(result).toBe(originalError);
+      expect(result.message).toBe("Custom error message");
+    });
+
+    test("converts string to Error when given string", () => {
+      const errorString = "Something went wrong";
+
+      const result = createThemeValidationError(errorString);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe("Something went wrong");
+    });
+
+    test("converts number to Error when given number", () => {
+      const errorNumber = 404;
+
+      const result = createThemeValidationError(errorNumber);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe("404");
+    });
+
+    test("formats ZodError with validation message", () => {
+      const invalidTheme = {
+        name: "test",
+      };
+
+      try {
+        validateTheme(invalidTheme);
+      } catch (error) {
+        const result = createThemeValidationError(error);
+
+        expect(result).toBeInstanceOf(Error);
+        expect(result.message).toContain("Theme validation failed");
+      }
     });
   });
 });

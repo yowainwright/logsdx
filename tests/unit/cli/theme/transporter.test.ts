@@ -1,12 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
 import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "fs";
 import { join } from "path";
 import {
   exportThemeToFile,
   importThemeFromFile,
   listThemeFiles,
+  getThemeFiles,
+  listThemeFilesCommand,
 } from "../../../../src/cli/theme/transporter";
 import type { Theme } from "../../../../src/types";
+
+const originalLog = console.log;
 
 const TEST_DIR = join(process.cwd(), ".test-themes");
 
@@ -15,12 +19,14 @@ describe("Theme Transporter", () => {
     if (!existsSync(TEST_DIR)) {
       mkdirSync(TEST_DIR, { recursive: true });
     }
+    console.log = mock(() => {});
   });
 
   afterEach(() => {
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });
     }
+    console.log = originalLog;
   });
 
   const sampleTheme: Theme = {
@@ -210,6 +216,81 @@ describe("Theme Transporter", () => {
       expect(imported.schema.matchWords?.ERROR).toEqual(
         sampleTheme.schema.matchWords?.ERROR,
       );
+    });
+  });
+
+  describe("getThemeFiles", () => {
+    it("should be the same as listThemeFiles", () => {
+      expect(getThemeFiles).toBe(listThemeFiles);
+    });
+  });
+
+  describe("listThemeFilesCommand", () => {
+    it("should display no theme files message when directory is empty", () => {
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+    });
+
+    it("should list theme files with metadata", () => {
+      const themeFile = join(TEST_DIR, "test.theme.json");
+      writeFileSync(themeFile, JSON.stringify(sampleTheme, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("test-theme");
+      expect(allOutput).toContain("A test theme");
+    });
+
+    it("should handle invalid JSON theme files", () => {
+      const invalidFile = join(TEST_DIR, "invalid.theme.json");
+      writeFileSync(invalidFile, "{ invalid json }");
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("Error");
+    });
+
+    it("should display exportedAt timestamp if present", () => {
+      const themeWithExport = {
+        ...sampleTheme,
+        exportedAt: new Date().toISOString(),
+      };
+      const themeFile = join(TEST_DIR, "exported.theme.json");
+      writeFileSync(themeFile, JSON.stringify(themeWithExport, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("Exported");
+    });
+
+    it("should handle themes without description", () => {
+      const themeWithoutDesc = {
+        name: "minimal-theme",
+        schema: {},
+      };
+      const themeFile = join(TEST_DIR, "minimal.theme.json");
+      writeFileSync(themeFile, JSON.stringify(themeWithoutDesc, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("minimal-theme");
     });
   });
 });

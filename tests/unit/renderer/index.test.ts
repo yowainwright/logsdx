@@ -228,7 +228,21 @@ describe("Renderer", () => {
   });
 
   describe("edge cases", () => {
-    test("handles tokens with trimmed metadata", () => {
+    test("handles tokens with trimmed spaces without originalLength", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+          },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe("");
+    });
+
+    test("handles tokens with trimmed metadata and originalLength", () => {
       const tokens: TokenList = [
         {
           content: "  ",
@@ -281,6 +295,107 @@ describe("Renderer", () => {
         {
           content: "\t",
           metadata: { matchType: "tab" },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toContain("&nbsp;");
+    });
+
+    test("handles background color in styles", () => {
+      const tokens: TokenList = [
+        {
+          content: "text",
+          metadata: {
+            style: {
+              color: "#ff0000",
+              backgroundColor: "#000000",
+            },
+          },
+        },
+      ];
+      const result = tokensToString(tokens, true);
+      expect(result).toContain("text");
+    });
+
+    test("handles tokens without style metadata", () => {
+      const tokens: TokenList = [
+        {
+          content: "plain text",
+          metadata: {},
+        },
+      ];
+      const result = tokensToString(tokens, true);
+      expect(result).toBe("plain text");
+    });
+
+    test("handles single space match type", () => {
+      const tokens: TokenList = [
+        {
+          content: " ",
+          metadata: {
+            matchType: "space",
+          },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe(" ");
+    });
+
+    test("handles mixed token types", () => {
+      const tokens: TokenList = [
+        {
+          content: "text",
+          metadata: { matchType: "word" },
+        },
+        {
+          content: " ",
+          metadata: { matchType: "space" },
+        },
+        {
+          content: "more",
+          metadata: { matchType: "word" },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe("text more");
+    });
+
+    test("handles trimmed spaces in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+          },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toBe("&nbsp;");
+    });
+
+    test("handles trimmed token with TRIMMED_SPACE_MATCH_TYPES in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+            originalLength: 2,
+          },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toBe("&nbsp;");
+    });
+
+    test("handles spaces match type in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "   ",
+          metadata: {
+            matchType: "spaces",
+          },
         },
       ];
       const result = tokensToHtml(tokens);

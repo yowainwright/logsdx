@@ -392,6 +392,73 @@ describe("Tokenizer", () => {
       const content = tokens.map((t) => t.content).join("");
       expect(content).toBe(line);
     });
+
+    test("trims multiple spaces when whiteSpace is trim", () => {
+      const theme: Theme = {
+        name: "Trim Spaces",
+        schema: {
+          whiteSpace: "trim",
+        },
+      };
+      const line = "text   with   multiple   spaces";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+
+      const hasSpaceTokens = tokens.some(
+        (t) =>
+          t.metadata?.matchType === "spaces" ||
+          t.metadata?.matchType === "space",
+      );
+      expect(hasSpaceTokens).toBe(true);
+    });
+
+    test("trims single space when whiteSpace is trim", () => {
+      const theme: Theme = {
+        name: "Trim Space",
+        schema: {
+          whiteSpace: "trim",
+        },
+      };
+      const line = "text with space";
+      const tokens = tokenize(line, theme);
+
+      const spaceTokens = tokens.filter(
+        (t) =>
+          t.metadata?.matchType === "space" ||
+          t.metadata?.matchType === "spaces",
+      );
+      expect(spaceTokens.length).toBeGreaterThan(0);
+    });
+
+    test("handles newlines when newLine is trim", () => {
+      const theme: Theme = {
+        name: "Trim Newlines",
+        schema: {
+          newLine: "trim",
+        },
+      };
+      const line = "line1\nline2\nline3";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
+
+    test("handles carriage returns when newLine is trim", () => {
+      const theme: Theme = {
+        name: "Trim CR",
+        schema: {
+          newLine: "trim",
+        },
+      };
+      const line = "line1\r\nline2";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
   });
 
   describe("pattern matching with identifiers", () => {
