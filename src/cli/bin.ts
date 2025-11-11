@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { createCLI } from "../utils/cli";
+import { createCLI } from "./parser";
 import { main } from "./index";
 import type { CommanderOptions } from "./types";
 import { version } from "../../package.json";

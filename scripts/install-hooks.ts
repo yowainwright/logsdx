@@ -6,12 +6,12 @@ import { join } from "path";
 const HOOKS_DIR = ".git/hooks";
 
 const PRE_COMMIT = `#!/bin/sh
-cd "\$(git rev-parse --show-toplevel)" || exit 1
+cd "$(git rev-parse --show-toplevel)" || exit 1
 bun run format && bun run lint && bun test
 `;
 
 const POST_CHECKOUT = `#!/bin/sh
-changed=\$(git diff-tree -r --name-only --no-commit-id $1 $2 2>/dev/null)
+changed=$(git diff-tree -r --name-only --no-commit-id $1 $2 2>/dev/null)
 if echo "$changed" | grep -q "package.json\\|bun.lock"; then
   echo "Dependencies changed, running bun install..."
   bun install
@@ -19,7 +19,7 @@ fi
 `;
 
 const POST_MERGE = `#!/bin/sh
-changed=\$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null)
+changed=$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null)
 if echo "$changed" | grep -q "package.json\\|bun.lock"; then
   echo "Dependencies changed, running bun install..."
   bun install

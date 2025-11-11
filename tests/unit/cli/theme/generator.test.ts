@@ -5,11 +5,11 @@ import {
   generatePatternFromPreset,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "../../../../src/cli/theme/generator";
+} from "../../../../src/cli/theme-gen";
 import {
   COLOR_PALETTES,
   PATTERN_PRESETS,
-} from "../../../../src/themes/template";
+} from "../../../../src/themes/presets";
 
 const originalLog = console.log;
 const originalWarn = console.warn;

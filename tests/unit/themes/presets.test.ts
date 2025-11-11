@@ -10,7 +10,7 @@ import {
   generateTemplate,
   COLOR_PALETTES,
   PATTERN_PRESETS,
-} from "../../../src/themes/template";
+} from "../../../src/themes/presets";
 
 describe("Theme Generator Schemas", () => {
   test("colorPaletteSchema should validate valid palette", () => {

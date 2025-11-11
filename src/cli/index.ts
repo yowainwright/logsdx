@@ -1,4 +1,3 @@
-import { createCLI } from "../utils/cli";
 import fs from "fs";
 import path from "path";
 import { LogsDX, getThemeNames } from "../index";
@@ -15,8 +14,8 @@ import {
   runThemeGenerator,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "./theme/generator";
-import { exportTheme, importTheme, listThemeFiles } from "./theme/transporter";
+} from "./theme-gen";
+import { exportTheme, importTheme, listThemeFiles } from "./theme-gen";
 
 export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {

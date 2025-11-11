@@ -7,7 +7,7 @@ import {
   listThemeFiles,
   getThemeFiles,
   listThemeFilesCommand,
-} from "../../../../src/cli/theme/transporter";
+} from "../../../../src/cli/theme-gen";
 import type { Theme } from "../../../../src/types";
 
 const originalLog = console.log;

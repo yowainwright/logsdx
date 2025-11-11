@@ -1,16 +1,50 @@
-import type {
-  OptionDefinition,
-  ParsedOptions,
-  ArgumentDefinition,
-} from "./types";
-import { HELP_FLAGS, VERSION_FLAGS, BOOLEAN_FLAG_PREFIX } from "./constants";
-import {
-  camelCase,
-  findOption,
-  extractLongFlag,
-  expectsValue,
-  hasOptionalValue,
-} from "./utils";
+export interface OptionDefinition {
+  flags: string;
+  description: string;
+  defaultValue?: string | boolean | number;
+}
+
+export interface ParsedOptions {
+  [key: string]: string | boolean | number | undefined;
+}
+
+export interface ArgumentDefinition {
+  name: string;
+  description: string;
+  required: boolean;
+}
+
+export const HELP_FLAGS = ["--help", "-h"];
+export const VERSION_FLAGS = ["--version", "-v"];
+export const BOOLEAN_FLAG_PREFIX = "no-";
+
+export function camelCase(str: string): string {
+  return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+export function findOption(
+  options: OptionDefinition[],
+  flag: string,
+): OptionDefinition | undefined {
+  return options.find((o) => o.flags.includes(flag));
+}
+
+export function extractLongFlag(flags: string): string | null {
+  const match = flags.match(/--([a-z-]+)/);
+  return match ? match[1] : null;
+}
+
+export function expectsValue(flags: string): boolean {
+  return flags.includes("<");
+}
+
+export function hasOptionalValue(flags: string): boolean {
+  return flags.includes("[") && !flags.startsWith("[");
+}
+
+export function isBooleanFlag(flags: string): boolean {
+  return !expectsValue(flags) && !hasOptionalValue(flags);
+}
 
 export class CLI {
   private programName = "";
@@ -38,14 +72,14 @@ export class CLI {
     return this;
   }
 
-  option(flags: string, description: string, defaultValue?: any): this {
+  option(flags: string, description: string, defaultValue?: string | boolean | number): this {
     this.options.push({ flags, description, defaultValue });
     return this;
   }
 
   argument(name: string, description: string): this {
     const required = !name.startsWith("[");
-    const cleanName = name.replace(/[\[\]]/g, "");
+    const cleanName = name.replace(/[[\]]/g, "");
     this.argumentDef = { name: cleanName, description, required };
     return this;
   }
@@ -177,9 +211,4 @@ export function createCLI(): CLI {
   return new CLI();
 }
 
-export {
-  type OptionDefinition,
-  type ParsedOptions,
-  type ArgumentDefinition,
-} from "./types";
 export default CLI;

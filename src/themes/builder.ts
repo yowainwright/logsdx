@@ -229,12 +229,12 @@ export const THEME_PRESETS: Record<string, ThemePreset> = {
     patterns: [
       {
         name: "unix-path",
-        pattern: /\/[\w\-\.\/]+/g,
+        pattern: /\/[\w\-./]+/g,
         options: { color: "muted" },
       },
       {
         name: "windows-path",
-        pattern: /[A-Z]:\\[\w\-\.\\]+/g,
+        pattern: /[A-Z]:\\[\w\-.\\]+/g,
         options: { color: "muted" },
       },
     ],

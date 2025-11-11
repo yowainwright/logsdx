@@ -1,4 +1,4 @@
-import { colors } from "./color-constants";
+import { colors } from "./colors";
 
 export function isDarkColor(hex: string): boolean {
   const color = hex.replace("#", "");

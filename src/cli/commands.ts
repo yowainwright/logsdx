@@ -1,9 +1,9 @@
-import { createCLI, CLI } from "../../utils/cli";
-import { input, select, checkbox, confirm } from "../../utils/prompts";
-import spinner from "../../utils/spinner";
-import * as colorUtil from "../../utils/colors";
-import gradient from "../../utils/gradient";
-import boxen from "../../utils/boxen";
+import { createCLI, CLI } from "./parser";
+import { input, select, checkbox, confirm } from "../utils/prompts";
+import spinner from "../utils/spinner";
+import * as colorUtil from "../utils/colors";
+import gradient from "../utils/gradient";
+import boxen from "../utils/boxen";
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import {
@@ -11,10 +11,10 @@ import {
   checkWCAGCompliance,
   adjustThemeForAccessibility,
   SimpleThemeConfig,
-} from "../../themes/builder";
-import { registerTheme, getTheme, getThemeNames } from "../../themes";
-import { getLogsDX } from "../../index";
-import { Theme } from "../../types";
+} from "../themes/builder";
+import { registerTheme, getTheme, getThemeNames } from "../themes";
+import { getLogsDX } from "../index";
+import { Theme } from "../types";
 
 const SAMPLE_LOGS = [
   "INFO: Server started on port 3000",
