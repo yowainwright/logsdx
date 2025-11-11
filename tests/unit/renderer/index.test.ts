@@ -227,7 +227,6 @@ describe("Renderer", () => {
     });
   });
 
-
   describe("edge cases", () => {
     test("handles tokens with trimmed metadata", () => {
       const tokens: TokenList = [
