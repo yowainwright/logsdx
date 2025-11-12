@@ -103,7 +103,7 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     console.log("\n" + chalk.bold("🎬 Preview with your selected settings:"));
     const logsDX = LogsDX.getInstance({
       theme: finalTheme,
-      outputFormat,
+      outputFormat: outputFormat as "ansi" | "html",
     });
     const styledSample = logsDX.processLog(SAMPLE_LOG);
     ui.showThemePreview(

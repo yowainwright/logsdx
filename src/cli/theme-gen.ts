@@ -208,7 +208,7 @@ async function collectCustomPatterns(): Promise<
     patterns.push({
       name,
       pattern,
-      colorRole,
+      colorRole: colorRole as "primary" | "secondary" | "error" | "warning" | "info" | "success" | "muted" | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     });
 
@@ -259,7 +259,7 @@ async function collectCustomWords(): Promise<
     });
 
     words[word] = {
-      colorRole,
+      colorRole: colorRole as "primary" | "secondary" | "error" | "warning" | "info" | "success" | "muted" | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     };
 
@@ -793,9 +793,10 @@ async function previewImportedTheme(theme: Theme) {
   if (theme.description) {
     console.log(`  Description: ${theme.description}`);
   }
-  if ("exportedAt" in theme && (theme as any).exportedAt) {
+  const exportedTheme = theme as Theme & { exportedAt?: string };
+  if (exportedTheme.exportedAt) {
     console.log(
-      `  Exported: ${chalk.dim(new Date((theme as any).exportedAt).toLocaleString())}`,
+      `  Exported: ${chalk.dim(new Date(exportedTheme.exportedAt).toLocaleString())}`,
     );
   }
 

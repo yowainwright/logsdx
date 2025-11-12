@@ -56,7 +56,7 @@ export function supportsColors(): boolean {
 
   const term = process.env.TERM;
   if (!term) {
-    if (typeof Bun !== "undefined" || (globalThis as any).Deno !== undefined) {
+    if (typeof Bun !== "undefined" || "Deno" in globalThis) {
       return true;
     }
     return false;
