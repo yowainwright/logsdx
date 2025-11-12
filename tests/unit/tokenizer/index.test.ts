@@ -36,7 +36,6 @@ describe("Tokenizer", () => {
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
 
-      // The entire string should be tokenized
       const totalContent = tokens.map((t) => t.content).join("");
       expect(totalContent).toBe(line);
     });
@@ -45,15 +44,11 @@ describe("Tokenizer", () => {
       const line = "2023-01-01T12:00:00Z ERROR: Something went wrong";
       const tokens = tokenize(line);
 
-      // The default tokenizer might not identify timestamps and log levels
-      // Let's just check that the tokens contain the expected content
       const content = tokens.map((t) => t.content).join("");
       expect(content).toBe(line);
 
-      // Check that we have multiple tokens
       expect(tokens.length).toBeGreaterThan(1);
 
-      // Check that at least one token contains "ERROR"
       const hasError = tokens.some((t) => t.content.includes("ERROR"));
       expect(hasError).toBe(true);
     });
@@ -61,12 +56,10 @@ describe("Tokenizer", () => {
     test("handles whitespace according to theme preferences", () => {
       const line = "test  with  spaces";
 
-      // Default (preserve whitespace)
       const tokensPreserve = tokenize(line);
       const contentPreserve = tokensPreserve.map((t) => t.content).join("");
       expect(contentPreserve).toBe(line);
 
-      // Test with a theme that has whitespace trimming enabled
       const themeTrim: Theme = {
         name: "Trim Whitespace",
         schema: {
@@ -74,7 +67,6 @@ describe("Tokenizer", () => {
         },
       };
 
-      // Just verify that tokenization works with this theme
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
       expect(tokensTrim.length).toBeGreaterThan(0);
@@ -83,12 +75,10 @@ describe("Tokenizer", () => {
     test("handles newlines according to theme preferences", () => {
       const line = "line1\nline2";
 
-      // Default (preserve newlines)
       const tokensPreserve = tokenize(line);
       const hasNewline = tokensPreserve.some((t) => t.content === "\n");
       expect(hasNewline).toBe(true);
 
-      // Test with a theme that has newline trimming enabled
       const themeTrim: Theme = {
         name: "Trim Newlines",
         schema: {
@@ -96,14 +86,12 @@ describe("Tokenizer", () => {
         },
       };
 
-      // Just verify that tokenization works with this theme
       const tokensTrim = tokenize(line, themeTrim);
       expect(tokensTrim).toBeInstanceOf(Array);
       expect(tokensTrim.length).toBeGreaterThan(0);
     });
 
     test("applies theme-specific word matching", () => {
-      // Create a theme with a word matcher
       const theme: Theme = {
         name: "Word Theme",
         schema: {
@@ -113,7 +101,6 @@ describe("Tokenizer", () => {
         },
       };
 
-      // Create a token that should match the word
       const tokens: TokenList = [
         {
           content: "test",
@@ -124,15 +111,12 @@ describe("Tokenizer", () => {
         },
       ];
 
-      // Apply the theme to the tokens
       const styledTokens = applyTheme(tokens, theme);
 
-      // Check if the token has the style we expect
       expect(styledTokens[0].metadata?.style?.color).toBe("green");
     });
 
     test("applies theme-specific pattern matching", () => {
-      // Create tokens manually
       const tokens: TokenList = [
         {
           content: "123",
@@ -144,7 +128,6 @@ describe("Tokenizer", () => {
         },
       ];
 
-      // Create a theme
       const theme: Theme = {
         name: "Simple Pattern Theme",
         schema: {
@@ -158,18 +141,14 @@ describe("Tokenizer", () => {
         },
       };
 
-      // Apply the theme to the tokens
       const styledTokens = applyTheme(tokens, theme);
 
-      // Check if the token has the style we expect
       expect(styledTokens[0].metadata?.style?.color).toBe("blue");
     });
 
     test("handles invalid regex patterns gracefully", () => {
-      // Save original console.warn
       const originalWarn = console.warn;
 
-      // Temporarily silence console.warn
       console.warn = () => {};
 
       try {
@@ -370,6 +349,231 @@ describe("Tokenizer", () => {
 
       const styledTokens = applyTheme(tokens, theme);
       expect(styledTokens[0].metadata?.style).toEqual({ color: "white" });
+    });
+  });
+
+  describe("whitespace handling", () => {
+    test("handles tabs in text", () => {
+      const line = "text\twith\ttabs";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles carriage returns", () => {
+      const line = "line1\r\nline2\rline3";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles multiple spaces", () => {
+      const line = "text    with    multiple    spaces";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles tabs with trim whitespace", () => {
+      const theme: Theme = {
+        name: "Trim Tabs",
+        schema: {
+          whiteSpace: "trim",
+        },
+      };
+      const line = "text\twith\ttabs";
+      const tokens = tokenize(line, theme);
+      expect(tokens).toBeInstanceOf(Array);
+    });
+
+    test("handles mixed whitespace characters", () => {
+      const line = "text \t\r\n with  mixed   whitespace";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("trims multiple spaces when whiteSpace is trim", () => {
+      const theme: Theme = {
+        name: "Trim Spaces",
+        schema: {
+          whiteSpace: "trim",
+        },
+      };
+      const line = "text   with   multiple   spaces";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+
+      const hasSpaceTokens = tokens.some(
+        (t) =>
+          t.metadata?.matchType === "spaces" ||
+          t.metadata?.matchType === "space",
+      );
+      expect(hasSpaceTokens).toBe(true);
+    });
+
+    test("trims single space when whiteSpace is trim", () => {
+      const theme: Theme = {
+        name: "Trim Space",
+        schema: {
+          whiteSpace: "trim",
+        },
+      };
+      const line = "text with space";
+      const tokens = tokenize(line, theme);
+
+      const spaceTokens = tokens.filter(
+        (t) =>
+          t.metadata?.matchType === "space" ||
+          t.metadata?.matchType === "spaces",
+      );
+      expect(spaceTokens.length).toBeGreaterThan(0);
+    });
+
+    test("handles newlines when newLine is trim", () => {
+      const theme: Theme = {
+        name: "Trim Newlines",
+        schema: {
+          newLine: "trim",
+        },
+      };
+      const line = "line1\nline2\nline3";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
+
+    test("handles carriage returns when newLine is trim", () => {
+      const theme: Theme = {
+        name: "Trim CR",
+        schema: {
+          newLine: "trim",
+        },
+      };
+      const line = "line1\r\nline2";
+      const tokens = tokenize(line, theme);
+
+      expect(tokens).toBeInstanceOf(Array);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("pattern matching with identifiers", () => {
+    test("handles pattern matching with identifiers", () => {
+      const theme: Theme = {
+        name: "Identifier Theme",
+        schema: {
+          matchPatterns: [
+            {
+              name: "custom-pattern",
+              pattern: /\b[A-Z]+\b/g,
+              options: { color: "yellow" },
+            },
+          ],
+        },
+      };
+      const line = "ERROR WARNING INFO";
+      const tokens = tokenize(line, theme);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
+
+    test("validates pattern matches correctly", () => {
+      const theme: Theme = {
+        name: "Validation Theme",
+        schema: {
+          matchPatterns: [
+            {
+              name: "strict-match",
+              pattern: /^\d{4}-\d{2}-\d{2}$/,
+              options: { color: "green" },
+            },
+          ],
+        },
+      };
+      const line = "2024-01-15 is a date";
+      const tokens = tokenize(line, theme);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+  });
+
+  describe("complex scenarios", () => {
+    test("handles empty strings", () => {
+      const line = "";
+      const tokens = tokenize(line);
+      expect(tokens.length).toBeGreaterThanOrEqual(0);
+    });
+
+    test("handles strings with only whitespace", () => {
+      const line = "   \t  \n  ";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles unicode characters", () => {
+      const line = "Hello 世界 🌍";
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles very long lines", () => {
+      const line = "a".repeat(10000);
+      const tokens = tokenize(line);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles theme with both word and pattern matches", () => {
+      const theme: Theme = {
+        name: "Combined Theme",
+        schema: {
+          matchWords: {
+            ERROR: { color: "red" },
+            INFO: { color: "blue" },
+          },
+          matchPatterns: [
+            {
+              name: "timestamp",
+              pattern: /\d{2}:\d{2}:\d{2}/g,
+              options: { color: "gray" },
+            },
+          ],
+        },
+      };
+      const line = "12:00:00 ERROR Something went wrong INFO Check logs";
+      const tokens = tokenize(line, theme);
+      expect(tokens.length).toBeGreaterThan(0);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
+    });
+
+    test("handles overlapping patterns", () => {
+      const theme: Theme = {
+        name: "Overlap Theme",
+        schema: {
+          matchPatterns: [
+            {
+              name: "word",
+              pattern: /\w+/g,
+              options: { color: "blue" },
+            },
+            {
+              name: "number",
+              pattern: /\d+/g,
+              options: { color: "green" },
+            },
+          ],
+        },
+      };
+      const line = "test123 word456";
+      const tokens = tokenize(line, theme);
+      const content = tokens.map((t) => t.content).join("");
+      expect(content).toBe(line);
     });
   });
 });

@@ -88,10 +88,6 @@ function detectFromVSCode(): BackgroundInfo | undefined {
   });
 }
 
-/**
- * Detect terminal background using various methods
- * @returns Background information for terminal
- */
 export function detectTerminalBackground(): BackgroundInfo {
   const fromColorFgBg = detectFromColorFgBg();
   if (fromColorFgBg) {
@@ -120,10 +116,6 @@ function matchesColorScheme(scheme: "dark" | "light"): boolean {
   return query.matches;
 }
 
-/**
- * Detect browser background using media queries
- * @returns Background information for browser
- */
 export function detectBrowserBackground(): BackgroundInfo {
   if (!hasMatchMedia()) {
     return DEFAULT_AUTO_BACKGROUND;
@@ -188,10 +180,6 @@ function detectFromLinux(): BackgroundInfo | undefined {
   });
 }
 
-/**
- * Detect system background based on platform
- * @returns Background information for system
- */
 export function detectSystemBackground(): BackgroundInfo {
   const fromMacOS = detectFromMacOS();
   if (fromMacOS) {
@@ -221,10 +209,6 @@ function hasHigherConfidence(a: ConfidenceLevel, b: ConfidenceLevel): boolean {
   return confidenceOrder[a] >= confidenceOrder[b];
 }
 
-/**
- * Detect background from all available sources
- * @returns Background information
- */
 export function detectBackground(): BackgroundInfo {
   if (isBrowser()) {
     const browserInfo = detectBrowserBackground();
@@ -251,10 +235,6 @@ export function detectBackground(): BackgroundInfo {
     : systemInfo;
 }
 
-/**
- * Check if background is dark
- * @returns True if background is dark
- */
 export function isDarkBackground(): boolean {
   const info = detectBackground();
   const isDefaultAuto = info.scheme === "auto" && info.source === "default";
@@ -262,19 +242,11 @@ export function isDarkBackground(): boolean {
   return info.scheme === "dark" || isDefaultAuto;
 }
 
-/**
- * Check if background is light
- * @returns True if background is light
- */
 export function isLightBackground(): boolean {
   const info = detectBackground();
   return info.scheme === "light";
 }
 
-/**
- * Get recommended theme mode based on background
- * @returns Recommended theme mode
- */
 export function getRecommendedThemeMode(): "light" | "dark" {
   return isDarkBackground() ? "dark" : "light";
 }
@@ -316,11 +288,6 @@ function setupMediaQueryListeners(
   return () => {};
 }
 
-/**
- * Watch for background changes
- * @param callback - Callback function to be called when background changes
- * @returns Cleanup function to stop watching
- */
 export function watchBackgroundChanges(
   callback: (info: BackgroundInfo) => void,
 ): () => void {

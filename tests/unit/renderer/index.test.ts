@@ -17,7 +17,7 @@ describe("Renderer", () => {
   describe("renderLine", () => {
     test("renders a simple line with default options", () => {
       const result = renderLine("test line");
-      // We need to check for individual characters since they're styled separately
+
       expect(result).toContain("t");
       expect(result).toContain("e");
       expect(result).toContain("s");
@@ -29,7 +29,7 @@ describe("Renderer", () => {
         outputFormat: "html",
         htmlStyleFormat: "css",
       });
-      // Check for HTML span tags and the content
+
       expect(result).toContain("<span");
       expect(result).toContain("style=");
       expect(result).toContain("t</span>");
@@ -40,7 +40,7 @@ describe("Renderer", () => {
         outputFormat: "html",
         htmlStyleFormat: "className",
       });
-      // Check for HTML span tags with class names
+
       expect(result).toContain("<span");
       expect(result).toContain("class=");
       expect(result).toContain("t</span>");
@@ -87,9 +87,9 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens, true); // Force colors for testing
+      const result = tokensToString(tokens, true);
       expect(result).toContain("error");
-      expect(result).toContain("\x1b[31m"); // Red color ANSI code
+      expect(result).toContain("\x1b[31m");
     });
 
     test("applies multiple style codes to tokens", () => {
@@ -104,10 +104,10 @@ describe("Renderer", () => {
           },
         },
       ];
-      const result = tokensToString(tokens, true); // Force colors for testing
+      const result = tokensToString(tokens, true);
       expect(result).toContain("important");
-      expect(result).toContain("\x1b[1m"); // Bold
-      expect(result).toContain("\x1b[4m"); // Underline
+      expect(result).toContain("\x1b[1m");
+      expect(result).toContain("\x1b[4m");
     });
   });
 
@@ -193,7 +193,7 @@ describe("Renderer", () => {
     test("applyColor adds ANSI color codes", () => {
       const result = applyColor("text", "red");
       expect(result).toContain("text");
-      // Since the implementation returns objects, let's check the structure
+
       expect(typeof result).toBe("string");
       expect(result).toMatch(/text/);
     });
@@ -221,9 +221,185 @@ describe("Renderer", () => {
     test("applyBackgroundColor adds ANSI background color", () => {
       const result = applyBackgroundColor("text", "blue");
       expect(result).toContain("text");
-      // Since the implementation returns objects, let's check the structure
+
       expect(typeof result).toBe("string");
       expect(result).toMatch(/text/);
+    });
+  });
+
+  describe("edge cases", () => {
+    test("handles tokens with trimmed spaces without originalLength", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+          },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe("");
+    });
+
+    test("handles tokens with trimmed metadata and originalLength", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+            originalLength: 2,
+          },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe(" ");
+    });
+
+    test("handles tokens with all style codes", () => {
+      const tokens: TokenList = [
+        {
+          content: "text",
+          metadata: {
+            style: {
+              color: "#ff0000",
+              styleCodes: ["bold", "italic", "underline", "dim"],
+            },
+          },
+        },
+      ];
+      const resultAnsi = tokensToString(tokens, true);
+      expect(resultAnsi).toContain("text");
+
+      const resultHtml = tokensToHtml(tokens);
+      expect(resultHtml).toContain("text");
+      expect(resultHtml).toContain("font-weight: bold");
+      expect(resultHtml).toContain("font-style: italic");
+      expect(resultHtml).toContain("text-decoration: underline");
+    });
+
+    test("handles carriage return in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "\r",
+          metadata: { matchType: "carriage-return" },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toBe("");
+    });
+
+    test("handles tab tokens in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "\t",
+          metadata: { matchType: "tab" },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toContain("&nbsp;");
+    });
+
+    test("handles background color in styles", () => {
+      const tokens: TokenList = [
+        {
+          content: "text",
+          metadata: {
+            style: {
+              color: "#ff0000",
+              backgroundColor: "#000000",
+            },
+          },
+        },
+      ];
+      const result = tokensToString(tokens, true);
+      expect(result).toContain("text");
+    });
+
+    test("handles tokens without style metadata", () => {
+      const tokens: TokenList = [
+        {
+          content: "plain text",
+          metadata: {},
+        },
+      ];
+      const result = tokensToString(tokens, true);
+      expect(result).toBe("plain text");
+    });
+
+    test("handles single space match type", () => {
+      const tokens: TokenList = [
+        {
+          content: " ",
+          metadata: {
+            matchType: "space",
+          },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe(" ");
+    });
+
+    test("handles mixed token types", () => {
+      const tokens: TokenList = [
+        {
+          content: "text",
+          metadata: { matchType: "word" },
+        },
+        {
+          content: " ",
+          metadata: { matchType: "space" },
+        },
+        {
+          content: "more",
+          metadata: { matchType: "word" },
+        },
+      ];
+      const result = tokensToString(tokens);
+      expect(result).toBe("text more");
+    });
+
+    test("handles trimmed spaces in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+          },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toBe("&nbsp;");
+    });
+
+    test("handles trimmed token with TRIMMED_SPACE_MATCH_TYPES in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "  ",
+          metadata: {
+            matchType: "spaces",
+            trimmed: true,
+            originalLength: 2,
+          },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toBe("&nbsp;");
+    });
+
+    test("handles spaces match type in HTML", () => {
+      const tokens: TokenList = [
+        {
+          content: "   ",
+          metadata: {
+            matchType: "spaces",
+          },
+        },
+      ];
+      const result = tokensToHtml(tokens);
+      expect(result).toContain("&nbsp;");
     });
   });
 });

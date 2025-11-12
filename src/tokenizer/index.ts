@@ -354,11 +354,6 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
   }
 }
 
-/**
- * Create a lexer with theme-specific rules
- * @param theme - The theme to use for tokenization
- * @returns A lexer with theme-specific rules
- */
 export function createLexer(theme?: Theme): SimpleLexer {
   const lexer = new SimpleLexer();
 
@@ -465,12 +460,6 @@ export function convertLexerTokens(
   return lexerTokens.map(convertLexerToken);
 }
 
-/**
- * Tokenize a log line using theme-specific patterns
- * @param line - The log line to tokenize
- * @param theme - Optional theme to use for tokenization
- * @returns A list of tokens
- */
 export function tokenize(line: string, theme?: Theme): TokenList {
   try {
     if (shouldUseDefaultToken(theme)) {
@@ -643,12 +632,6 @@ export function applyTokenStyle(token: Token, theme: Theme): Token {
   return applyDefaultStyle(token, theme);
 }
 
-/**
- * Apply theme styling to tokens
- * @param tokens - The tokens to style
- * @param theme - The theme to apply
- * @returns The styled tokens
- */
 export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
   if (!theme || !theme.schema) {
     return tokens;

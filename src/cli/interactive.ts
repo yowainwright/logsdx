@@ -39,7 +39,6 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     ),
   );
 
-  // Theme selection
   const themeNames = getThemeNames();
   const themeChoices: ThemeChoice[] = themeNames.map((name: string) => ({
     name: chalk.cyan(name),
@@ -79,7 +78,6 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     });
   }
 
-  // Output format selection
   const outputFormat = await select({
     message: "📤 Choose output format:",
     choices: [
@@ -96,7 +94,6 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     ],
   });
 
-  // Preview confirmation
   const wantPreview = await confirm({
     message: "👀 Show a preview with your settings?",
     default: true,

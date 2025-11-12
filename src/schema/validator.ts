@@ -91,11 +91,6 @@ export function createThemeValidationError(error: unknown): Error {
   return createValidationError(message, error);
 }
 
-/**
- * Validates a theme configuration with enhanced error messages
- * @param theme The theme configuration to validate
- * @returns The validated theme configuration or throws an error
- */
 export function validateTheme(theme: unknown): Theme {
   try {
     return parseTheme(theme);
@@ -104,11 +99,6 @@ export function validateTheme(theme: unknown): Theme {
   }
 }
 
-/**
- * Safely validates a theme configuration
- * @param theme The theme configuration to validate
- * @returns An object with success flag and either the validated data or error
- */
 export function validateThemeSafe(theme: unknown): {
   success: boolean;
   data?: Theme;

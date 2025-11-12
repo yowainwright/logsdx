@@ -1,5 +1,4 @@
 import * as readline from "readline";
-import colors from "./colors";
 import { logger } from "./logger";
 
 interface BasePrompt {

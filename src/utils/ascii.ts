@@ -12,12 +12,10 @@ export function textSync(
     verticalLayout?: string;
   },
 ): string {
-  // For LogsDX, return the predefined ASCII art
   if (text === "LogsDX") {
     return LOGSDX_ASCII;
   }
 
-  // For other text, return as-is
   return text;
 }
 

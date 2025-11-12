@@ -17,12 +17,12 @@ LogsDX is a schema-based theming engine that applies consistent visual styling t
 
 ## Features
 
-- 🎨 **Unified Theming** - One theme works in terminal, browser, and CI/CD
-- 🚀 **Zero Dependencies** - Works with any existing logger
-- 📦 **8+ Built-in Themes** - Production-ready themes included
-- 🛠️ **CLI Tool** - Process log files with beautiful formatting
-- ♿ **Accessible** - WCAG compliance checking built-in
-- 🌓 **Light/Dark Mode** - Automatic theme adaptation
+- **Unified Theming** - One theme works in terminal, browser, and CI/CD
+- **Zero Dependencies** - Works with any existing logger
+- **8+ Built-in Themes** - Production-ready themes included
+- **CLI Tool** - Process log files with beautiful formatting
+- **Accessible** - WCAG compliance checking built-in
+- **Light/Dark Mode** - Automatic theme adaptation
 
 ## Installation
 
@@ -514,10 +514,10 @@ bun run format        # Format code
 
 The setup script will:
 
-- ✅ Install all dependencies
-- ✅ Build the main package
-- ✅ Configure git hooks (pre-commit, post-merge, post-checkout)
-- ✅ Verify your environment is ready
+- Install all dependencies
+- Build the main package
+- Configure git hooks (pre-commit, post-merge, post-checkout)
+- Verify your environment is ready
 
 ## License
 
@@ -525,6 +525,6 @@ MIT © LogsDX Contributors
 
 ## Support
 
-- 📘 [Documentation](https://jeffry.in/logsdx)
-- 🐛 [Report Issues](https://github.com/yowainwright/logsdx/issues)
-- 💬 [Discussions](https://github.com/yowainwright/logsdx/discussions)
+- [Documentation](https://jeffry.in/logsdx)
+- [Report Issues](https://github.com/yowainwright/logsdx/issues)
+- [Discussions](https://github.com/yowainwright/logsdx/discussions)

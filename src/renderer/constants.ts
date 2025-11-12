@@ -41,10 +41,6 @@ export const CLASS_ITALIC = "logsdx-italic";
 export const CLASS_UNDERLINE = "logsdx-underline";
 export const CLASS_DIM = "logsdx-dim";
 
-/**
- * Check if the terminal supports colors
- * @returns True if colors are supported
- */
 export function supportsColors(): boolean {
   if (process.env.NO_COLOR) {
     return false;
@@ -181,12 +177,6 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
   },
 };
 
-/**
- * Get color definition with theme-aware fallback
- * @param colorName - The color name from the theme
- * @param theme - Optional theme for theme-specific colors
- * @returns ColorDefinition or undefined if not found
- */
 export function getColorDefinition(
   colorName: string,
   theme?: Theme,
@@ -238,11 +228,6 @@ export function getColorDefinition(
   return undefined;
 }
 
-/**
- * Convert hex color to RGB values
- * @param hex - Hex color string (e.g., "#ff0000")
- * @returns RGB array [r, g, b]
- */
 function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result

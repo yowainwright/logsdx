@@ -45,7 +45,6 @@ describe("Color Support Detection", () => {
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     delete process.env.TERM;
 
-    // In Bun runtime, colors are supported even without TERM
     const expectedResult = typeof Bun !== "undefined" ? true : false;
     expect(supportsColors()).toBe(expectedResult);
   });

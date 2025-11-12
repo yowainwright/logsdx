@@ -13,7 +13,6 @@ export const cliOptionsSchema = z.object({
   noSpinner: z.boolean().optional().default(false),
   format: z.enum(["ansi", "html"]).optional(),
 
-  // Theme generation options
   generateTheme: z.boolean().optional().default(false),
   listPalettes: z.boolean().optional().default(false),
   listPatterns: z.boolean().optional().default(false),
@@ -25,7 +24,6 @@ export const cliOptionsSchema = z.object({
 export type CliOptions = z.infer<typeof cliOptionsSchema>;
 export type CommanderOptions = CliOptions;
 
-// UI Interfaces
 export interface SpinnerLike {
   start(): this;
   succeed(message?: string): this;

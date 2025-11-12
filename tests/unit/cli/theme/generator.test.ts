@@ -1,13 +1,28 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
 import {
   generateTemplateFromAnswers,
   validateColorInput,
   generatePatternFromPreset,
-} from "../../../../src/cli/theme/generator";
+  listColorPalettesCommand,
+  listPatternPresetsCommand,
+} from "../../../../src/cli/theme-gen";
 import {
   COLOR_PALETTES,
   PATTERN_PRESETS,
-} from "../../../../src/themes/template";
+} from "../../../../src/themes/presets";
+
+const originalLog = console.log;
+const originalWarn = console.warn;
+
+beforeEach(() => {
+  console.log = mock(() => {});
+  console.warn = mock(() => {});
+});
+
+afterEach(() => {
+  console.log = originalLog;
+  console.warn = originalWarn;
+});
 
 describe("Theme Generator", () => {
   describe("validateColorInput", () => {
@@ -22,13 +37,35 @@ describe("Theme Generator", () => {
     it("should validate rgb colors", () => {
       expect(validateColorInput("rgb(255, 0, 0)")).toBe(true);
       expect(validateColorInput("rgba(255, 0, 0, 0.5)")).toBe(true);
-      expect(validateColorInput("rgb(256, 0, 0)")).toBe(true); // Still valid format
+      expect(validateColorInput("rgb(256, 0, 0)")).toBe(true);
     });
 
     it("should validate named colors", () => {
       expect(validateColorInput("red")).toBe(true);
       expect(validateColorInput("blue")).toBe(true);
-      expect(validateColorInput("notacolor")).toBe(true); // We accept any string as a named color
+      expect(validateColorInput("notacolor")).toBe(true);
+    });
+
+    it("should reject empty or invalid strings", () => {
+      expect(validateColorInput("")).toBe(false);
+      expect(validateColorInput("   ")).toBe(false);
+      expect(validateColorInput(null as any)).toBe(false);
+      expect(validateColorInput(undefined as any)).toBe(false);
+    });
+
+    it("should reject hex without hash", () => {
+      expect(validateColorInput("aabbcc")).toBe(false);
+      expect(validateColorInput("123456")).toBe(false);
+    });
+
+    it("should validate various named colors", () => {
+      expect(validateColorInput("green")).toBe(true);
+      expect(validateColorInput("yellow")).toBe(true);
+      expect(validateColorInput("cyan")).toBe(true);
+      expect(validateColorInput("magenta")).toBe(true);
+      expect(validateColorInput("white")).toBe(true);
+      expect(validateColorInput("black")).toBe(true);
+      expect(validateColorInput("gray")).toBe(true);
     });
   });
 
@@ -54,6 +91,20 @@ describe("Theme Generator", () => {
           color: "info",
         },
       });
+    });
+
+    it("should generate UUID pattern", () => {
+      const pattern = generatePatternFromPreset("uuid");
+      expect(pattern).toHaveProperty("name", "uuid");
+      expect(pattern).toHaveProperty("pattern");
+      expect(pattern).toHaveProperty("options");
+    });
+
+    it("should generate URL pattern", () => {
+      const pattern = generatePatternFromPreset("url");
+      expect(pattern).toHaveProperty("name", "url");
+      expect(pattern).toHaveProperty("pattern");
+      expect(pattern).toHaveProperty("options");
     });
 
     it("should return empty object for unknown preset", () => {
@@ -120,13 +171,107 @@ describe("Theme Generator", () => {
       expect(theme.schema.matchWords).toHaveProperty("false");
       expect(theme.schema.matchWords).toHaveProperty("null");
 
-      // Check that matchStartsWith and matchEndsWith exist
       expect(theme.schema.matchStartsWith).toBeDefined();
       expect(theme.schema.matchEndsWith).toBeDefined();
 
-      // Check the bracket properties
       expect(theme.schema.matchStartsWith?.["["]).toBeDefined();
       expect(theme.schema.matchEndsWith?.["]"]).toBeDefined();
+    });
+
+    it("should handle httpStatus feature", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "http-theme",
+        mode: "dark",
+        palette: "github-dark",
+        features: ["httpStatus"],
+        patterns: [],
+      });
+
+      expect(theme.schema.matchWords).toHaveProperty("200");
+      expect(theme.schema.matchWords).toHaveProperty("404");
+      expect(theme.schema.matchWords).toHaveProperty("500");
+    });
+
+    it("should handle custom patterns in answers", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "custom-pattern-theme",
+        mode: "dark",
+        palette: "github-dark",
+        features: [],
+        patterns: [],
+        customPatterns: [
+          {
+            name: "test-pattern",
+            pattern: "\\d+",
+            color: "#ff0000",
+            styleCodes: ["bold"],
+          },
+        ],
+      });
+
+      expect(theme.schema).toBeDefined();
+    });
+
+    it("should handle custom words in answers", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "custom-words-theme",
+        mode: "dark",
+        palette: "github-dark",
+        features: [],
+        patterns: [],
+        customWords: {
+          CUSTOM: { colorRole: "error", styleCodes: ["bold"] },
+        },
+      });
+
+      expect(theme.schema).toBeDefined();
+    });
+
+    it("should use themeName field when name is not provided", () => {
+      const theme = generateTemplateFromAnswers({
+        themeName: "fallback-name",
+        mode: "dark",
+        palette: "github-dark",
+        features: [],
+        patterns: [],
+      });
+
+      expect(theme.name).toBe("fallback-name");
+    });
+
+    it("should use patternPresets field when patterns is not provided", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "preset-theme",
+        mode: "dark",
+        palette: "github-dark",
+        features: [],
+        patternPresets: ["log-levels"],
+      });
+
+      expect(theme.schema.matchPatterns).toBeDefined();
+    });
+
+    it("should handle empty mode", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "no-mode",
+        palette: "github-dark",
+        features: [],
+        patterns: [],
+      });
+
+      expect(theme.name).toBe("no-mode");
+    });
+
+    it("should add log-levels to patterns when logLevels feature is present", () => {
+      const theme = generateTemplateFromAnswers({
+        name: "log-levels-feature",
+        mode: "dark",
+        palette: "github-dark",
+        features: ["logLevels"],
+        patterns: [],
+      });
+
+      expect(theme.schema.matchWords).toHaveProperty("ERROR");
     });
   });
 
@@ -168,6 +313,51 @@ describe("Theme Generator", () => {
           expect(() => new RegExp(pattern.pattern)).not.toThrow();
         });
       });
+    });
+  });
+
+  describe("listColorPalettesCommand", () => {
+    it("should display all color palettes", () => {
+      listColorPalettesCommand();
+
+      expect(console.log).toHaveBeenCalled();
+    });
+
+    it("should display palette details", () => {
+      listColorPalettesCommand();
+
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("github-dark");
+      expect(allOutput).toContain("github-light");
+    });
+  });
+
+  describe("listPatternPresetsCommand", () => {
+    it("should display all pattern presets", () => {
+      listPatternPresetsCommand();
+
+      expect(console.log).toHaveBeenCalled();
+    });
+
+    it("should display presets grouped by category", () => {
+      listPatternPresetsCommand();
+
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("log-levels");
+    });
+
+    it("should show pattern and word match counts", () => {
+      listPatternPresetsCommand();
+
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("patterns");
+      expect(allOutput).toContain("word matches");
     });
   });
 });

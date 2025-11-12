@@ -2,9 +2,7 @@ import { describe, expect, test, spyOn, afterEach } from "bun:test";
 import { logger } from "../../../src/utils/logger";
 
 describe("logger", () => {
-  afterEach(() => {
-    // Restore all spies after each test
-  });
+  afterEach(() => {});
 
   test("info() logs with blue info icon", () => {
     const spy = spyOn(console, "log");

@@ -8,6 +8,7 @@ import {
   validateThemeSafe,
   convertTokenSchemaToJson,
   convertThemeSchemaToJson,
+  createThemeValidationError,
 } from "../../../src/schema/validator";
 import { z } from "zod";
 
@@ -125,7 +126,6 @@ describe("Schema Validator", () => {
     test("throws on invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        // Missing schema property
       };
 
       expect(() => validateTheme(invalidTheme)).toThrow();
@@ -153,7 +153,6 @@ describe("Schema Validator", () => {
     test("returns error for invalid theme", () => {
       const invalidTheme = {
         name: "Dark Theme",
-        // Missing schema property
       };
 
       const result = validateThemeSafe(invalidTheme);
@@ -167,11 +166,9 @@ describe("Schema Validator", () => {
       const jsonSchema = convertTokenSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      // The structure might be different than expected, check what's actually returned
+
       expect(typeof jsonSchema).toBe("object");
 
-      // Looking at the implementation, the name is passed as an option to zodToJsonSchema
-      // but it might be stored differently in the output
       const hasNameReference = JSON.stringify(jsonSchema).includes("Token");
       expect(hasNameReference).toBe(true);
     });
@@ -182,13 +179,55 @@ describe("Schema Validator", () => {
       const jsonSchema = convertThemeSchemaToJson();
 
       expect(jsonSchema).toHaveProperty("$schema");
-      // The structure might be different than expected, check what's actually returned
+
       expect(typeof jsonSchema).toBe("object");
 
-      // Looking at the implementation, the name is passed as an option to zodToJsonSchema
-      // but it might be stored differently in the output
       const hasNameReference = JSON.stringify(jsonSchema).includes("Theme");
       expect(hasNameReference).toBe(true);
+    });
+  });
+
+  describe("createThemeValidationError", () => {
+    test("returns Error object as is when given Error", () => {
+      const originalError = new Error("Custom error message");
+
+      const result = createThemeValidationError(originalError);
+
+      expect(result).toBe(originalError);
+      expect(result.message).toBe("Custom error message");
+    });
+
+    test("converts string to Error when given string", () => {
+      const errorString = "Something went wrong";
+
+      const result = createThemeValidationError(errorString);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe("Something went wrong");
+    });
+
+    test("converts number to Error when given number", () => {
+      const errorNumber = 404;
+
+      const result = createThemeValidationError(errorNumber);
+
+      expect(result).toBeInstanceOf(Error);
+      expect(result.message).toBe("404");
+    });
+
+    test("formats ZodError with validation message", () => {
+      const invalidTheme = {
+        name: "test",
+      };
+
+      try {
+        validateTheme(invalidTheme);
+      } catch (error) {
+        const result = createThemeValidationError(error);
+
+        expect(result).toBeInstanceOf(Error);
+        expect(result.message).toContain("Theme validation failed");
+      }
     });
   });
 });

@@ -1,3 +1,32 @@
+// ============================================================================
+// ASCII Art (from utils/ascii.ts)
+// ============================================================================
+
+const LOGSDX_ASCII = `
+  ╦  ┌─┐┌─┐┌─┐╔╦╗═╗ ╦
+  ║  │ ││ ┬└─┐ ║║╔╩╦╝
+  ╩═╝└─┘└─┘└─┘═╩╝╩ ╚═
+`;
+
+export function textSync(
+  text: string,
+  options?: {
+    font?: string;
+    horizontalLayout?: string;
+    verticalLayout?: string;
+  },
+): string {
+  if (text === "LogsDX") {
+    return LOGSDX_ASCII;
+  }
+
+  return text;
+}
+
+// ============================================================================
+// Boxen (from utils/boxen.ts)
+// ============================================================================
+
 interface BoxenOptions {
   padding?:
     | number
@@ -140,4 +169,24 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
   return result.join("\n");
 }
 
-export default boxen;
+// ============================================================================
+// Gradient (from utils/gradient.ts)
+// ============================================================================
+
+export function gradient(colors: string[]): {
+  (text: string): string;
+  multiline(text: string): string;
+} {
+  const applyGradient = (text: string) => `\x1B[36m${text}\x1B[0m`;
+
+  applyGradient.multiline = (text: string) => {
+    return text
+      .split("\n")
+      .map((line) => `\x1B[36m${line}\x1B[0m`)
+      .join("\n");
+  };
+
+  return applyGradient;
+}
+
+export default { textSync, boxen, gradient };

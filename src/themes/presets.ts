@@ -129,7 +129,6 @@ export const themeGeneratorConfigSchema = z.object({
 
 export type ThemeGeneratorConfig = z.infer<typeof themeGeneratorConfigSchema>;
 
-// Built-in color palettes with accessibility considerations
 export const COLOR_PALETTES: ColorPalette[] = [
   {
     name: "github-light",
@@ -254,7 +253,6 @@ export const COLOR_PALETTES: ColorPalette[] = [
   },
 ];
 
-// Common pattern presets for different log types
 export const PATTERN_PRESETS: PatternPreset[] = [
   {
     name: "http-api",

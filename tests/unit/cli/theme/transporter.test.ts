@@ -1,29 +1,32 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
 import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "fs";
 import { join } from "path";
 import {
   exportThemeToFile,
   importThemeFromFile,
   listThemeFiles,
-} from "../../../../src/cli/theme/transporter";
+  getThemeFiles,
+  listThemeFilesCommand,
+} from "../../../../src/cli/theme-gen";
 import type { Theme } from "../../../../src/types";
 
-// Create a temporary test directory
+const originalLog = console.log;
+
 const TEST_DIR = join(process.cwd(), ".test-themes");
 
 describe("Theme Transporter", () => {
   beforeEach(() => {
-    // Create test directory
     if (!existsSync(TEST_DIR)) {
       mkdirSync(TEST_DIR, { recursive: true });
     }
+    console.log = mock(() => {});
   });
 
   afterEach(() => {
-    // Clean up test directory
     if (existsSync(TEST_DIR)) {
       rmSync(TEST_DIR, { recursive: true, force: true });
     }
+    console.log = originalLog;
   });
 
   const sampleTheme: Theme = {
@@ -121,7 +124,6 @@ describe("Theme Transporter", () => {
     it("should validate imported theme", () => {
       const filePath = join(TEST_DIR, "invalid-theme.json");
       const invalidTheme = {
-        // Missing required fields
         description: "Invalid theme",
       };
       writeFileSync(filePath, JSON.stringify(invalidTheme, null, 2));
@@ -144,7 +146,6 @@ describe("Theme Transporter", () => {
 
   describe("listThemeFiles", () => {
     it("should list theme files in directory", () => {
-      // Create some theme files
       writeFileSync(join(TEST_DIR, "theme1.json"), JSON.stringify(sampleTheme));
       writeFileSync(join(TEST_DIR, "theme2.json"), JSON.stringify(sampleTheme));
       writeFileSync(
@@ -195,32 +196,101 @@ describe("Theme Transporter", () => {
     it("should round-trip theme through export and import", () => {
       const filePath = join(TEST_DIR, "round-trip.json");
 
-      // Export
       exportThemeToFile(sampleTheme, filePath, "json");
 
-      // Import
       const imported = importThemeFromFile(filePath);
 
-      // Verify
       expect(imported).toEqual(sampleTheme);
     });
 
     it("should handle TypeScript round-trip", () => {
       const filePath = join(TEST_DIR, "round-trip.ts");
 
-      // Export as TypeScript
       exportThemeToFile(sampleTheme, filePath, "typescript");
 
-      // Import
       const imported = importThemeFromFile(filePath);
 
-      // Verify core properties (TS export adds formatting)
       expect(imported.name).toBe(sampleTheme.name);
       expect(imported.description).toBe(sampleTheme.description);
       expect(imported.mode).toBe(sampleTheme.mode);
       expect(imported.schema.matchWords?.ERROR).toEqual(
         sampleTheme.schema.matchWords?.ERROR,
       );
+    });
+  });
+
+  describe("getThemeFiles", () => {
+    it("should be the same as listThemeFiles", () => {
+      expect(getThemeFiles).toBe(listThemeFiles);
+    });
+  });
+
+  describe("listThemeFilesCommand", () => {
+    it("should display no theme files message when directory is empty", () => {
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+    });
+
+    it("should list theme files with metadata", () => {
+      const themeFile = join(TEST_DIR, "test.theme.json");
+      writeFileSync(themeFile, JSON.stringify(sampleTheme, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("test-theme");
+      expect(allOutput).toContain("A test theme");
+    });
+
+    it("should handle invalid JSON theme files", () => {
+      const invalidFile = join(TEST_DIR, "invalid.theme.json");
+      writeFileSync(invalidFile, "{ invalid json }");
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("Error");
+    });
+
+    it("should display exportedAt timestamp if present", () => {
+      const themeWithExport = {
+        ...sampleTheme,
+        exportedAt: new Date().toISOString(),
+      };
+      const themeFile = join(TEST_DIR, "exported.theme.json");
+      writeFileSync(themeFile, JSON.stringify(themeWithExport, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("Exported");
+    });
+
+    it("should handle themes without description", () => {
+      const themeWithoutDesc = {
+        name: "minimal-theme",
+        schema: {},
+      };
+      const themeFile = join(TEST_DIR, "minimal.theme.json");
+      writeFileSync(themeFile, JSON.stringify(themeWithoutDesc, null, 2));
+
+      listThemeFilesCommand(TEST_DIR);
+
+      expect(console.log).toHaveBeenCalled();
+      const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+      const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+      expect(allOutput).toContain("minimal-theme");
     });
   });
 });

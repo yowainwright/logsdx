@@ -1,9 +1,9 @@
-import { createCLI, CLI } from "../../utils/cli";
-import { input, select, checkbox, confirm } from "../../utils/prompts";
-import spinner from "../../utils/spinner";
-import * as colorUtil from "../../utils/colors";
-import gradient from "../../utils/gradient";
-import boxen from "../../utils/boxen";
+import { createCLI, CLI } from "./parser";
+import { input, select, checkbox, confirm } from "../utils/prompts";
+import spinner from "../utils/spinner";
+import * as colorUtil from "../utils/colors";
+import gradient from "../utils/gradient";
+import boxen from "../utils/boxen";
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import {
@@ -11,12 +11,11 @@ import {
   checkWCAGCompliance,
   adjustThemeForAccessibility,
   SimpleThemeConfig,
-} from "../../themes/builder";
-import { registerTheme, getTheme, getThemeNames } from "../../themes";
-import { getLogsDX } from "../../index";
-import { Theme } from "../../types";
+} from "../themes/builder";
+import { registerTheme, getTheme, getThemeNames } from "../themes";
+import { getLogsDX } from "../index";
+import { Theme } from "../types";
 
-// Sample logs for preview
 const SAMPLE_LOGS = [
   "INFO: Server started on port 3000",
   "WARN: Memory usage high: 85%",
@@ -28,7 +27,6 @@ const SAMPLE_LOGS = [
   "Cache hit ratio: 92.5%",
 ];
 
-// Color presets
 const COLOR_PRESETS = {
   Vibrant: {
     primary: "#007acc",
@@ -105,7 +103,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     showBanner();
   }
 
-  // Basic info
   const name = await input({
     message: "Theme name:",
     validate: (inputValue: string) => {
@@ -138,7 +135,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     mode,
   };
 
-  // Color selection
   const preset = await select({
     message: "Choose a color preset:",
     choices: Object.keys(COLOR_PRESETS).map((name) => ({
@@ -211,7 +207,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     colors = { primary, error, warning, success, info, muted };
   }
 
-  // Feature presets
   const presets = await checkbox({
     message: "Select features to highlight:",
     choices: [
@@ -236,7 +231,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     ],
   });
 
-  // Create theme
   const createSpinner = spinner("Creating theme...").start();
 
   const config: SimpleThemeConfig = {
@@ -250,11 +244,9 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
   const theme = createTheme(config);
   createSpinner.succeed("Theme created!");
 
-  // Preview
   console.log("\n");
   renderPreview(theme, `✨ ${theme.name} Preview`);
 
-  // Accessibility check
   const checkAccessibility = await confirm({
     message: "Check accessibility compliance?",
     default: true,
@@ -301,7 +293,6 @@ async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
     }
   }
 
-  // Save options
   const saveOption = await select({
     message: "How would you like to save the theme?",
     choices: [

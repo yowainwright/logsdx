@@ -10,7 +10,7 @@ import {
   generateTemplate,
   COLOR_PALETTES,
   PATTERN_PRESETS,
-} from "../../../src/themes/template";
+} from "../../../src/themes/presets";
 
 describe("Theme Generator Schemas", () => {
   test("colorPaletteSchema should validate valid palette", () => {
@@ -239,7 +239,7 @@ describe("Theme Generation", () => {
 
     const theme = generateTemplate(config);
     expect(theme.schema.matchWords?.CUSTOM).toBeDefined();
-    expect(theme.schema.matchWords?.CUSTOM.color).toBe("#d1242f"); // github-light error color
+    expect(theme.schema.matchWords?.CUSTOM.color).toBe("#d1242f");
     expect(theme.schema.matchWords?.CUSTOM.styleCodes).toEqual(["bold"]);
   });
 
@@ -252,11 +252,9 @@ describe("Theme Generation", () => {
 
     const theme = generateTemplate(config);
 
-    // Should have words from both presets
-    expect(theme.schema.matchWords?.INFO).toBeDefined(); // from log-levels
-    expect(theme.schema.matchWords?.GET).toBeDefined(); // from http-api
+    expect(theme.schema.matchWords?.INFO).toBeDefined();
+    expect(theme.schema.matchWords?.GET).toBeDefined();
 
-    // Should have patterns from both presets
     const timestampPattern = theme.schema.matchPatterns?.find(
       (p) => p.name === "timestamp-iso",
     );
