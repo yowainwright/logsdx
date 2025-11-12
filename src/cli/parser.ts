@@ -72,7 +72,11 @@ export class CLI {
     return this;
   }
 
-  option(flags: string, description: string, defaultValue?: string | boolean | number): this {
+  option(
+    flags: string,
+    description: string,
+    defaultValue?: string | boolean | number,
+  ): this {
     this.options.push({ flags, description, defaultValue });
     return this;
   }
