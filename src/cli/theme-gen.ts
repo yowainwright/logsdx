@@ -208,7 +208,15 @@ async function collectCustomPatterns(): Promise<
     patterns.push({
       name,
       pattern,
-      colorRole: colorRole as "primary" | "secondary" | "error" | "warning" | "info" | "success" | "muted" | "accent",
+      colorRole: colorRole as
+        | "primary"
+        | "secondary"
+        | "error"
+        | "warning"
+        | "info"
+        | "success"
+        | "muted"
+        | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     });
 
@@ -259,7 +267,15 @@ async function collectCustomWords(): Promise<
     });
 
     words[word] = {
-      colorRole: colorRole as "primary" | "secondary" | "error" | "warning" | "info" | "success" | "muted" | "accent",
+      colorRole: colorRole as
+        | "primary"
+        | "secondary"
+        | "error"
+        | "warning"
+        | "info"
+        | "success"
+        | "muted"
+        | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     };
 

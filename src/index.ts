@@ -33,6 +33,19 @@ import {
   getRecommendedThemeMode,
 } from "./renderer";
 
+/**
+ * LogsDX - A powerful log processing and styling tool
+ *
+ * This class provides a singleton instance for processing and styling log files
+ * with customizable themes and output formats.
+ *
+ * @example
+ * ```typescript
+ * const logsdx = LogsDX.getInstance({ theme: 'dracula' });
+ * const styledLog = logsdx.processLine('[INFO] Application started');
+ * console.log(styledLog);
+ * ```
+ */
 export class LogsDX {
   private static instance: LogsDX | null = null;
   private options: Required<LogsDXOptions>;
@@ -162,6 +175,23 @@ export class LogsDX {
     }
   }
 
+  /**
+   * Get or create the singleton LogsDX instance
+   *
+   * @param options - Configuration options for LogsDX
+   * @param options.theme - Theme name, Theme object, or ThemePair to use
+   * @param options.outputFormat - Output format: 'ansi' (default) or 'html'
+   * @param options.htmlStyleFormat - HTML style format: 'css' (inline styles) or 'className'
+   * @param options.escapeHtml - Whether to escape HTML in output (default: true)
+   * @param options.debug - Enable debug logging (default: false)
+   * @param options.autoAdjustTerminal - Auto-adjust theme based on terminal background (default: true)
+   * @returns The LogsDX singleton instance
+   *
+   * @example
+   * ```typescript
+   * const logsdx = LogsDX.getInstance({ theme: 'nord', outputFormat: 'ansi' });
+   * ```
+   */
   static getInstance(options: LogsDXOptions = {}): LogsDX {
     if (!LogsDX.instance) {
       LogsDX.instance = new LogsDX(options);
@@ -180,10 +210,28 @@ export class LogsDX {
     return LogsDX.instance;
   }
 
+  /**
+   * Reset the LogsDX singleton instance
+   *
+   * Useful for testing or when you need to reconfigure LogsDX from scratch
+   */
   public static resetInstance(): void {
     LogsDX.instance = null;
   }
 
+  /**
+   * Process a single log line with the current theme and styling
+   *
+   * @param line - The log line to process
+   * @returns The styled log line as a string
+   *
+   * @example
+   * ```typescript
+   * const logsdx = LogsDX.getInstance({ theme: 'dracula' });
+   * const styled = logsdx.processLine('[ERROR] Connection timeout');
+   * console.log(styled); // Output with Dracula theme styling
+   * ```
+   */
   processLine(line: string): string {
     const renderOptions: RenderOptions = {
       theme: this.currentTheme,

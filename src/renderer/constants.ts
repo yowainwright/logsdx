@@ -1,9 +1,4 @@
-import type {
-  ColorDefinition,
-  BackgroundInfo,
-  BorderChars,
-  MatchType,
-} from "./types";
+import type { ColorDefinition, BackgroundInfo, MatchType } from "./types";
 import type { Theme } from "../types";
 
 export const DEFAULT_THEME_NAME = "default";

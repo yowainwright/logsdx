@@ -6,7 +6,9 @@
     "dev": "next dev -p 8573",
     "build": "next build",
     "start": "next start -p 8573",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
   },
   "dependencies": {
     "@docsearch/css": "^3.9.0",
@@ -50,10 +52,15 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.0.10",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
+    "happy-dom": "^20.0.10",
     "oxlint": "^1.8.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.5",

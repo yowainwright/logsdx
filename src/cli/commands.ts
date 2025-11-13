@@ -1,4 +1,3 @@
-import { createCLI, CLI } from "./parser";
 import { input, select, checkbox, confirm } from "../utils/prompts";
 import spinner from "../utils/spinner";
 import * as colorUtil from "../utils/colors";
@@ -12,7 +11,7 @@ import {
   adjustThemeForAccessibility,
   SimpleThemeConfig,
 } from "../themes/builder";
-import { registerTheme, getTheme, getThemeNames } from "../themes";
+import { registerTheme, getTheme } from "../themes";
 import { getLogsDX } from "../index";
 import { Theme } from "../types";
 
@@ -73,7 +72,7 @@ const COLOR_PRESETS = {
 
 function showBanner() {
   console.clear();
-  const grad = gradient(["#00ffff", "#ff00ff", "#ffff00"]);
+  const grad = gradient();
   console.log(
     grad.multiline(`
   ╦  ┌─┐┌─┐┌─┐╔╦╗═╗ ╦
@@ -98,7 +97,9 @@ function renderPreview(theme: Theme, title: string = "Theme Preview") {
   console.log(previewBox);
 }
 
-async function createInteractiveTheme(options: { skipIntro?: boolean } = {}) {
+export async function createInteractiveTheme(
+  options: { skipIntro?: boolean } = {},
+) {
   if (!options.skipIntro) {
     showBanner();
   }

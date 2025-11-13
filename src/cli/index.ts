@@ -7,7 +7,6 @@ import {
   cliOptionsSchema,
 } from "./types";
 import type { LogsDXOptions } from "../types";
-import { version } from "../../package.json";
 import { ui } from "./ui";
 import type { InteractiveConfig } from "./interactive";
 import {

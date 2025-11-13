@@ -10,7 +10,9 @@ interface InputPrompt {
 
 interface SelectPrompt {
   message: string;
-  choices: Array<{ name?: string; value: string; description?: string } | string>;
+  choices: Array<
+    { name?: string; value: string; description?: string } | string
+  >;
   default?: string;
 }
 

@@ -31,7 +31,9 @@ function createColorFunction(style: string) {
   return (text: string) => `${style}${text}${styles.reset}`;
 }
 
-function createChainableColor(appliedStyles: string[] = []): ChainableColorFunction {
+function createChainableColor(
+  appliedStyles: string[] = [],
+): ChainableColorFunction {
   const fn = ((text: string) => {
     const prefix = appliedStyles.join("");
     return `${prefix}${text}${styles.reset}`;

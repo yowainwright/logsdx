@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Monitor } from "lucide-react";
 import type { ThemeConfig, ThemePair, ColorMode } from "./types";
@@ -295,14 +295,17 @@ export function InteractiveExamplesSection() {
   const [selectedTheme, setSelectedTheme] = useState("GitHub");
   const [colorMode, setColorMode] = useState<ColorMode>("system");
   const [effectiveMode, setEffectiveMode] = useState<"light" | "dark">("dark");
+  const autoRotateRef = useRef(true);
 
   useEffect(() => {
     const themes = Object.keys(THEME_PAIRS);
     const interval = setInterval(() => {
-      setSelectedTheme((current) => {
-        const currentIndex = themes.indexOf(current);
-        return themes[(currentIndex + 1) % themes.length];
-      });
+      if (autoRotateRef.current) {
+        setSelectedTheme((current) => {
+          const currentIndex = themes.indexOf(current);
+          return themes[(currentIndex + 1) % themes.length];
+        });
+      }
     }, 3000);
 
     return () => clearInterval(interval);
@@ -363,7 +366,10 @@ export function InteractiveExamplesSection() {
                   key={theme}
                   variant={selectedTheme === theme ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedTheme(theme)}
+                  onClick={() => {
+                    setSelectedTheme(theme);
+                    autoRotateRef.current = false;
+                  }}
                 >
                   {theme}
                 </Button>

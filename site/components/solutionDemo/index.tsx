@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import type { DemoLog } from "./types";
 
@@ -30,7 +30,7 @@ logger.log('[WARN] Memory usage high: 85%');     // Styled in both`;
 export function ProblemSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showWithLogsDx, setShowWithLogsDx] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const isHoveredRef = useRef(false);
 
   // Cycle through logs for spotlight effect
   useEffect(() => {
@@ -42,13 +42,13 @@ export function ProblemSection() {
 
   // Toggle between with/without logsDx every 3 seconds (pause on hover)
   useEffect(() => {
-    if (isHovered) return; // Don't run interval when hovered
-
     const interval = setInterval(() => {
-      setShowWithLogsDx((prev) => !prev);
+      if (!isHoveredRef.current) {
+        setShowWithLogsDx((prev) => !prev);
+      }
     }, 3000);
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, []);
 
   return (
     <section id="problem" className="bg-slate-50 dark:bg-slate-900 py-24">
@@ -110,8 +110,12 @@ export function ProblemSection() {
               <Card
                 className="overflow-hidden bg-slate-900 border-slate-700 cursor-pointer transition-transform hover:scale-[1.01]"
                 onClick={() => setShowWithLogsDx((prev) => !prev)}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                onMouseEnter={() => {
+                  isHoveredRef.current = true;
+                }}
+                onMouseLeave={() => {
+                  isHoveredRef.current = false;
+                }}
               >
                 {/* Header */}
                 <div className="bg-slate-800 px-4 py-2 flex items-center justify-between">
