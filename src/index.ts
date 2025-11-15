@@ -83,7 +83,9 @@ export class LogsDX {
     this.currentTheme = theme;
   }
 
-  private async resolveTheme(theme: string | Theme | ThemePair | undefined): Promise<Theme> {
+  private async resolveTheme(
+    theme: string | Theme | ThemePair | undefined,
+  ): Promise<Theme> {
     if (!theme || theme === "none") {
       return {
         name: "none",
@@ -214,19 +216,22 @@ export class LogsDX {
     }
 
     LogsDX.instancePromise = (async () => {
-      const theme = await new LogsDX({}, {
-        name: "none",
-        description: "No styling applied",
-        mode: "auto",
-        schema: {
-          defaultStyle: { color: "" },
-          matchWords: {},
-          matchStartsWith: {},
-          matchEndsWith: {},
-          matchContains: {},
-          matchPatterns: [],
+      const theme = await new LogsDX(
+        {},
+        {
+          name: "none",
+          description: "No styling applied",
+          mode: "auto",
+          schema: {
+            defaultStyle: { color: "" },
+            matchWords: {},
+            matchStartsWith: {},
+            matchEndsWith: {},
+            matchContains: {},
+            matchPatterns: [],
+          },
         },
-      }).resolveTheme(options.theme || "oh-my-zsh");
+      ).resolveTheme(options.theme || "oh-my-zsh");
 
       const instance = new LogsDX(options, theme);
       LogsDX.instance = instance;

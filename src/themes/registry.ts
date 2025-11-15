@@ -139,10 +139,7 @@ export function registerTheme(theme: Theme): void {
   themeRegistry.registerTheme(theme);
 }
 
-export function registerThemeLoader(
-  name: string,
-  loader: ThemeLoader,
-): void {
+export function registerThemeLoader(name: string, loader: ThemeLoader): void {
   themeRegistry.registerThemeLoader(name, loader);
 }
 

@@ -42,8 +42,7 @@ export async function processFileStream(
           options.onLine(processedLine);
         }
       } catch (error) {
-        const err =
-          error instanceof Error ? error : new Error(String(error));
+        const err = error instanceof Error ? error : new Error(String(error));
         if (options.onError) {
           options.onError(err);
         }
@@ -109,8 +108,7 @@ export async function processStdinStream(
           }
         }
       } catch (error) {
-        const err =
-          error instanceof Error ? error : new Error(String(error));
+        const err = error instanceof Error ? error : new Error(String(error));
         if (options.onError) {
           options.onError(err);
         }
