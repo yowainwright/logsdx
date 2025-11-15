@@ -15,6 +15,7 @@ describe("themeUtils", () => {
   afterEach(() => {
     // Cleanup
   });
+
   describe("exportThemeToShareCode", () => {
     it("exports theme to base64 encoded string", () => {
       const shareCode = exportThemeToShareCode(

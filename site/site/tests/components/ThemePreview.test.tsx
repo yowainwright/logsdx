@@ -12,6 +12,7 @@ describe("ThemePreview", () => {
   afterEach(() => {
     cleanup();
   });
+
   it("renders preview header", () => {
     render(
       <ThemePreview
