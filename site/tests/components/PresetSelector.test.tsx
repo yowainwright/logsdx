@@ -21,7 +21,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={[]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     expect(screen.getByText("Pattern Presets")).toBeDefined();
@@ -36,7 +36,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={[]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     expect(screen.getByText("ERROR, WARN, INFO, DEBUG, SUCCESS")).toBeDefined();
@@ -50,13 +50,13 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={["logLevels", "numbers"]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
 
-    expect(checkboxes[0].checked).toBe(true);  // logLevels
-    expect(checkboxes[1].checked).toBe(true);  // numbers
+    expect(checkboxes[0].checked).toBe(true); // logLevels
+    expect(checkboxes[1].checked).toBe(true); // numbers
     expect(checkboxes[2].checked).toBe(false); // strings
   });
 
@@ -66,7 +66,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={[]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
@@ -81,7 +81,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={[]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
@@ -95,10 +95,12 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={["logLevels"]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
-    const updatedCheckboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
+    const updatedCheckboxes = screen.getAllByRole(
+      "checkbox",
+    ) as HTMLInputElement[];
     expect(updatedCheckboxes[0].checked).toBe(true);
 
     // Click again to unselect
@@ -112,7 +114,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={["logLevels", "numbers", "strings"]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
@@ -127,7 +129,7 @@ describe("PresetSelector", () => {
         presets={mockPresets}
         selectedPresets={[]}
         onToggle={mockOnToggle}
-      />
+      />,
     );
 
     const labels = screen.getAllByText("Log Levels");

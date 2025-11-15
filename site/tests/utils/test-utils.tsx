@@ -35,7 +35,10 @@ function AllTheProviders({ children }: AllTheProvidersProps) {
   );
 }
 
-function customRender(ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) {
+function customRender(
+  ui: ReactElement,
+  options?: Omit<RenderOptions, "wrapper">,
+) {
   return render(ui, { wrapper: AllTheProviders, ...options });
 }
 

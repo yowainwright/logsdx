@@ -18,7 +18,12 @@ describe("useThemeEditorStore", () => {
 
     expect(state.name).toBe("my-custom-theme");
     expect(state.colors).toEqual(DEFAULT_DARK_COLORS);
-    expect(state.presets).toEqual(["logLevels", "numbers", "strings", "brackets"]);
+    expect(state.presets).toEqual([
+      "logLevels",
+      "numbers",
+      "strings",
+      "brackets",
+    ]);
     expect(state.processedLogs).toEqual([]);
     expect(state.isProcessing).toBe(false);
   });
@@ -108,7 +113,8 @@ describe("useThemeEditorStore", () => {
   });
 
   it("resets to initial state", () => {
-    const { setName, setColor, togglePreset, reset } = useThemeEditorStore.getState();
+    const { setName, setColor, togglePreset, reset } =
+      useThemeEditorStore.getState();
 
     // Make changes
     setName("modified");
@@ -128,7 +134,12 @@ describe("useThemeEditorStore", () => {
     state = useThemeEditorStore.getState();
     expect(state.name).toBe("my-custom-theme");
     expect(state.colors).toEqual(DEFAULT_DARK_COLORS);
-    expect(state.presets).toEqual(["logLevels", "numbers", "strings", "brackets"]);
+    expect(state.presets).toEqual([
+      "logLevels",
+      "numbers",
+      "strings",
+      "brackets",
+    ]);
   });
 
   it("loads theme from parameters", () => {

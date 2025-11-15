@@ -23,7 +23,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     expect(screen.getByText("Colors")).toBeDefined();
@@ -40,7 +40,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     const primaryInputs = screen.getAllByDisplayValue("#bd93f9");
@@ -56,11 +56,13 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     const inputs = screen.getAllByDisplayValue("#bd93f9");
-    const textInput = inputs.find(input => (input as HTMLInputElement).type === "text");
+    const textInput = inputs.find(
+      (input) => (input as HTMLInputElement).type === "text",
+    );
 
     expect(textInput).toBeDefined();
     fireEvent.change(textInput!, { target: { value: "#ff0000" } });
@@ -74,7 +76,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     const colorPickers = screen.getAllByDisplayValue("#bd93f9");
@@ -91,7 +93,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     const resetButton = screen.getByRole("button", { name: /reset/i });
@@ -106,7 +108,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     const colorInputs = screen.getAllByDisplayValue("#bd93f9");
@@ -120,7 +122,7 @@ describe("ThemeColorPicker", () => {
         colors={mockColors}
         onColorChange={mockOnColorChange}
         onReset={mockOnReset}
-      />
+      />,
     );
 
     Object.entries(mockColors).forEach(([key, value]) => {

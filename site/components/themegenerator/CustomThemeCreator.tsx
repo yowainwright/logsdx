@@ -6,7 +6,11 @@ import { ChevronDown, ChevronRight, Download, Copy } from "lucide-react";
 import { useThemeEditorStore } from "@/stores/useThemeEditorStore";
 import { useLogPreview } from "@/hooks/useLogPreview";
 import { useCreateTheme } from "@/hooks/useThemes";
-import { generateThemeCode, exportThemeToShareCode, generateShareUrl } from "@/lib/themeUtils";
+import {
+  generateThemeCode,
+  exportThemeToShareCode,
+  generateShareUrl,
+} from "@/lib/themeUtils";
 import { PRESET_OPTIONS } from "./constants";
 import { ThemeColorPicker } from "./ThemeColorPicker";
 import { ThemePreview } from "./ThemePreview";
@@ -82,7 +86,9 @@ export function CustomThemeCreator() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <h3 className="text-xl font-semibold">Theme Basics</h3>
             <div>
-              <label className="block text-sm font-medium mb-2">Theme Name</label>
+              <label className="block text-sm font-medium mb-2">
+                Theme Name
+              </label>
               <input
                 type="text"
                 value={name}
@@ -94,7 +100,11 @@ export function CustomThemeCreator() {
           </div>
 
           {/* Colors */}
-          <ThemeColorPicker colors={colors} onColorChange={setColor} onReset={reset} />
+          <ThemeColorPicker
+            colors={colors}
+            onColorChange={setColor}
+            onReset={reset}
+          />
 
           {/* Presets */}
           <PresetSelector
@@ -105,7 +115,10 @@ export function CustomThemeCreator() {
         </div>
 
         {/* Right: Preview & Export */}
-        <div className="lg:sticky lg:top-24 space-y-6" style={{ maxHeight: "calc(100vh - 8rem)", overflowY: "auto" }}>
+        <div
+          className="lg:sticky lg:top-24 space-y-6"
+          style={{ maxHeight: "calc(100vh - 8rem)", overflowY: "auto" }}
+        >
           {/* Live Preview */}
           <ThemePreview
             processedLogs={processedLogs}
@@ -121,18 +134,34 @@ export function CustomThemeCreator() {
                 <Copy className="h-4 w-4" />
                 {copiedCode ? "Copied!" : "Copy Code"}
               </Button>
-              <Button variant="outline" className="w-full gap-2" onClick={handleCopyConfig}>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleCopyConfig}
+              >
                 <Copy className="h-4 w-4" />
                 {copiedConfig ? "Copied!" : "Copy Config JSON"}
               </Button>
-              <Button variant="outline" className="w-full gap-2" onClick={handleDownload}>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleDownload}
+              >
                 <Download className="h-4 w-4" />
                 Download Theme File
               </Button>
-              <Button variant="outline" className="w-full gap-2" onClick={handleSave}>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleSave}
+              >
                 Save Theme
               </Button>
-              <Button variant="outline" className="w-full gap-2" onClick={handleShare}>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={handleShare}
+              >
                 Share Theme
               </Button>
             </div>
@@ -142,8 +171,16 @@ export function CustomThemeCreator() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold">Generated Code</h3>
-              <Button variant="ghost" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
-                {showAdvanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+              >
+                {showAdvanced ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </Button>
             </div>
             {showAdvanced && (

@@ -29,7 +29,9 @@ const initialState: ThemeEditorState = {
   isProcessing: false,
 };
 
-export const useThemeEditorStore = create<ThemeEditorState & ThemeEditorActions>()(
+export const useThemeEditorStore = create<
+  ThemeEditorState & ThemeEditorActions
+>()(
   immer((set) => ({
     ...initialState,
 

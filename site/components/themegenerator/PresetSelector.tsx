@@ -6,7 +6,11 @@ interface PresetSelectorProps {
   onToggle: (presetId: string) => void;
 }
 
-export function PresetSelector({ presets, selectedPresets, onToggle }: PresetSelectorProps) {
+export function PresetSelector({
+  presets,
+  selectedPresets,
+  onToggle,
+}: PresetSelectorProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
       <h3 className="text-xl font-semibold">Pattern Presets</h3>
@@ -24,7 +28,9 @@ export function PresetSelector({ presets, selectedPresets, onToggle }: PresetSel
             />
             <div className="flex-1">
               <div className="font-medium">{preset.label}</div>
-              <div className="text-sm text-muted-foreground">{preset.description}</div>
+              <div className="text-sm text-muted-foreground">
+                {preset.description}
+              </div>
             </div>
           </label>
         ))}

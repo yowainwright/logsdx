@@ -17,22 +17,19 @@ describe("themeUtils", () => {
   });
   describe("exportThemeToShareCode", () => {
     it("exports theme to base64 encoded string", () => {
-      const shareCode = exportThemeToShareCode(
-        "test-theme",
-        mockColors,
-        ["logLevels", "numbers"]
-      );
+      const shareCode = exportThemeToShareCode("test-theme", mockColors, [
+        "logLevels",
+        "numbers",
+      ]);
 
       expect(typeof shareCode).toBe("string");
       expect(shareCode.length).toBeGreaterThan(0);
     });
 
     it("creates valid base64", () => {
-      const shareCode = exportThemeToShareCode(
-        "test-theme",
-        mockColors,
-        ["logLevels"]
-      );
+      const shareCode = exportThemeToShareCode("test-theme", mockColors, [
+        "logLevels",
+      ]);
 
       // Should be decodeable
       const decoded = atob(shareCode);
@@ -40,11 +37,10 @@ describe("themeUtils", () => {
     });
 
     it("includes theme data in export", () => {
-      const shareCode = exportThemeToShareCode(
-        "my-theme",
-        mockColors,
-        ["logLevels", "numbers"]
-      );
+      const shareCode = exportThemeToShareCode("my-theme", mockColors, [
+        "logLevels",
+        "numbers",
+      ]);
 
       const decoded = JSON.parse(atob(shareCode));
 
@@ -57,11 +53,10 @@ describe("themeUtils", () => {
 
   describe("importThemeFromShareCode", () => {
     it("imports valid theme from share code", () => {
-      const shareCode = exportThemeToShareCode(
-        "imported-theme",
-        mockColors,
-        ["strings", "brackets"]
-      );
+      const shareCode = exportThemeToShareCode("imported-theme", mockColors, [
+        "strings",
+        "brackets",
+      ]);
 
       const imported = importThemeFromShareCode(shareCode);
 
@@ -97,7 +92,7 @@ describe("themeUtils", () => {
       const shareCode = exportThemeToShareCode(
         original.name,
         original.colors,
-        original.presets
+        original.presets,
       );
 
       const imported = importThemeFromShareCode(shareCode);
@@ -152,7 +147,10 @@ describe("themeUtils", () => {
     });
 
     it("includes preset configuration", () => {
-      const code = generateThemeCode("test", mockColors, ["logLevels", "numbers"]);
+      const code = generateThemeCode("test", mockColors, [
+        "logLevels",
+        "numbers",
+      ]);
 
       expect(code).toContain("logLevels");
       expect(code).toContain("numbers");

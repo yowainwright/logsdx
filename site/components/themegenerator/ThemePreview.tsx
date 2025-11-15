@@ -6,7 +6,11 @@ interface ThemePreviewProps {
   colors: ThemeColors;
 }
 
-export function ThemePreview({ processedLogs, isProcessing, colors }: ThemePreviewProps) {
+export function ThemePreview({
+  processedLogs,
+  isProcessing,
+  colors,
+}: ThemePreviewProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg p-6 space-y-4">
       <div className="flex items-center justify-between">

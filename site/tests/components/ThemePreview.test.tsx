@@ -6,7 +6,7 @@ import { mockColors } from "../utils/theme-mocks";
 describe("ThemePreview", () => {
   beforeEach(() => {
     // Clear any lingering DOM state
-    document.body.innerHTML = '';
+    document.body.innerHTML = "";
   });
 
   afterEach(() => {
@@ -18,7 +18,7 @@ describe("ThemePreview", () => {
         processedLogs={[]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     expect(screen.getByText("Live Preview")).toBeDefined();
@@ -31,7 +31,7 @@ describe("ThemePreview", () => {
         processedLogs={[]}
         isProcessing={true}
         colors={mockColors}
-      />
+      />,
     );
 
     const processingText = screen.getAllByText("Processing logs...");
@@ -44,7 +44,7 @@ describe("ThemePreview", () => {
         processedLogs={[]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     const emptyText = screen.getAllByText("No logs to display");
@@ -63,7 +63,7 @@ describe("ThemePreview", () => {
         processedLogs={mockProcessedLogs}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     // The logs are rendered as HTML, so we check for the container
@@ -78,7 +78,7 @@ describe("ThemePreview", () => {
         processedLogs={["test log"]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     const previewDiv = container.querySelector('[style*="background"]');
@@ -87,9 +87,9 @@ describe("ThemePreview", () => {
 
   it("renders duplicate logs for scrolling animation", () => {
     const mockProcessedLogs = [
-      '<span>Log 1</span>',
-      '<span>Log 2</span>',
-      '<span>Log 3</span>',
+      "<span>Log 1</span>",
+      "<span>Log 2</span>",
+      "<span>Log 3</span>",
     ];
 
     const { container } = render(
@@ -97,7 +97,7 @@ describe("ThemePreview", () => {
         processedLogs={mockProcessedLogs}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     // Should have 2 sets of logs for seamless scrolling
@@ -115,7 +115,7 @@ describe("ThemePreview", () => {
         processedLogs={["test"]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     const scrollWrapper = container.querySelector(".log-scroll-wrapper");
@@ -132,7 +132,7 @@ describe("ThemePreview", () => {
         processedLogs={[]}
         isProcessing={true}
         colors={mockColors}
-      />
+      />,
     );
 
     const processingTexts = screen.getAllByText("Processing logs...");
@@ -140,10 +140,10 @@ describe("ThemePreview", () => {
 
     rerender(
       <ThemePreview
-        processedLogs={['<span>Log ready</span>']}
+        processedLogs={["<span>Log ready</span>"]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     // Should now show the log scroll wrapper with logs
@@ -158,7 +158,7 @@ describe("ThemePreview", () => {
         processedLogs={["test"]}
         isProcessing={false}
         colors={mockColors}
-      />
+      />,
     );
 
     const previewContainer = container.querySelector(".font-mono");

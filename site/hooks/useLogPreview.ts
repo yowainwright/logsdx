@@ -7,7 +7,9 @@ import { SAMPLE_LOGS } from "@/components/themegenerator/constants";
 export function useLogPreview() {
   const colors = useThemeEditorStore((state) => state.colors);
   const presets = useThemeEditorStore((state) => state.presets);
-  const setProcessedLogs = useThemeEditorStore((state) => state.setProcessedLogs);
+  const setProcessedLogs = useThemeEditorStore(
+    (state) => state.setProcessedLogs,
+  );
   const setIsProcessing = useThemeEditorStore((state) => state.setIsProcessing);
 
   const debouncedProcessLogs = useDebouncedCallback(async () => {
