@@ -1,13 +1,17 @@
 import { renderLine } from "./renderer";
 import {
   getTheme,
+  getThemeAsync,
   getAllThemes,
   getThemeNames,
+  preloadTheme,
+  preloadAllThemes,
+  registerTheme,
+  registerThemeLoader,
   ThemeBuilder,
   createTheme,
   createSimpleTheme,
   extendTheme,
-  registerTheme,
   THEME_PRESETS,
 } from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
@@ -48,6 +52,7 @@ import {
  */
 export class LogsDX {
   private static instance: LogsDX | null = null;
+  private static instancePromise: Promise<LogsDX> | null = null;
   private options: Required<LogsDXOptions>;
   private currentTheme: Theme = {
     name: "none",
@@ -63,7 +68,7 @@ export class LogsDX {
     },
   };
 
-  private constructor(options = {}) {
+  private constructor(options = {}, theme: Theme) {
     this.options = {
       theme: "none",
       outputFormat: "ansi",
@@ -75,10 +80,10 @@ export class LogsDX {
       ...options,
     };
 
-    this.currentTheme = this.resolveTheme(this.options.theme);
+    this.currentTheme = theme;
   }
 
-  private resolveTheme(theme: string | Theme | ThemePair | undefined): Theme {
+  private async resolveTheme(theme: string | Theme | ThemePair | undefined): Promise<Theme> {
     if (!theme || theme === "none") {
       return {
         name: "none",
@@ -96,7 +101,7 @@ export class LogsDX {
     }
 
     if (typeof theme === "string") {
-      const baseTheme = getTheme(theme);
+      const baseTheme = await getTheme(theme);
 
       if (
         this.options.outputFormat === "ansi" &&
@@ -138,14 +143,14 @@ export class LogsDX {
           recommendedMode === "light" ? themePair.light : themePair.dark;
 
         if (typeof selectedTheme === "string") {
-          return getTheme(selectedTheme);
+          return await getTheme(selectedTheme);
         } else {
           return selectedTheme;
         }
       } else {
         const selectedTheme = themePair.dark;
         if (typeof selectedTheme === "string") {
-          return getTheme(selectedTheme);
+          return await getTheme(selectedTheme);
         } else {
           return selectedTheme;
         }
@@ -189,25 +194,46 @@ export class LogsDX {
    *
    * @example
    * ```typescript
-   * const logsdx = LogsDX.getInstance({ theme: 'nord', outputFormat: 'ansi' });
+   * const logsdx = await LogsDX.getInstance({ theme: 'nord', outputFormat: 'ansi' });
    * ```
    */
-  static getInstance(options: LogsDXOptions = {}): LogsDX {
-    if (!LogsDX.instance) {
-      LogsDX.instance = new LogsDX(options);
-    } else if (Object.keys(options).length > 0) {
-      LogsDX.instance.options = {
-        ...LogsDX.instance.options,
-        ...options,
-      };
+  static async getInstance(options: LogsDXOptions = {}): Promise<LogsDX> {
+    if (LogsDX.instancePromise) {
+      const instance = await LogsDX.instancePromise;
+      if (Object.keys(options).length > 0) {
+        instance.options = {
+          ...instance.options,
+          ...options,
+        };
 
-      if (options.theme) {
-        LogsDX.instance.currentTheme = LogsDX.instance.resolveTheme(
-          options.theme,
-        );
+        if (options.theme) {
+          instance.currentTheme = await instance.resolveTheme(options.theme);
+        }
       }
+      return instance;
     }
-    return LogsDX.instance;
+
+    LogsDX.instancePromise = (async () => {
+      const theme = await new LogsDX({}, {
+        name: "none",
+        description: "No styling applied",
+        mode: "auto",
+        schema: {
+          defaultStyle: { color: "" },
+          matchWords: {},
+          matchStartsWith: {},
+          matchEndsWith: {},
+          matchContains: {},
+          matchPatterns: [],
+        },
+      }).resolveTheme(options.theme || "oh-my-zsh");
+
+      const instance = new LogsDX(options, theme);
+      LogsDX.instance = instance;
+      return instance;
+    })();
+
+    return LogsDX.instancePromise;
   }
 
   /**
@@ -217,6 +243,7 @@ export class LogsDX {
    */
   public static resetInstance(): void {
     LogsDX.instance = null;
+    LogsDX.instancePromise = null;
   }
 
   /**
@@ -269,10 +296,10 @@ export class LogsDX {
     return tokenize(line, this.currentTheme);
   }
 
-  setTheme(theme: string | Theme | ThemePair): boolean {
+  async setTheme(theme: string | Theme | ThemePair): Promise<boolean> {
     try {
       this.options.theme = theme;
-      this.currentTheme = this.resolveTheme(theme);
+      this.currentTheme = await this.resolveTheme(theme);
       return true;
     } catch (error) {
       if (this.options.debug) {
@@ -311,7 +338,7 @@ export class LogsDX {
   }
 }
 
-export function getLogsDX(options?: LogsDXOptions): LogsDX {
+export async function getLogsDX(options?: LogsDXOptions): Promise<LogsDX> {
   return LogsDX.getInstance(options);
 }
 
@@ -326,15 +353,19 @@ export type {
 
 export {
   getTheme,
+  getThemeAsync,
   getAllThemes,
   getThemeNames,
+  preloadTheme,
+  preloadAllThemes,
+  registerTheme,
+  registerThemeLoader,
   validateTheme,
   validateThemeSafe,
   ThemeBuilder,
   createTheme,
   createSimpleTheme,
   extendTheme,
-  registerTheme,
   THEME_PRESETS,
 };
 

@@ -273,7 +273,7 @@ export async function main(
   const outputFormat =
     options.format || (options.output?.endsWith(".html") ? "html" : "ansi");
 
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: options.theme || config.theme,
     debug: options.debug || config.debug,
     customRules: config.customRules,
@@ -283,7 +283,7 @@ export async function main(
   if (options.listThemes) {
     if (options.preview) {
       const { showThemeList } = await import("./interactive");
-      showThemeList();
+      await showThemeList();
     } else if (!options.quiet) {
       ui.showInfo("Available themes:");
       getThemeNames().forEach((theme) => {

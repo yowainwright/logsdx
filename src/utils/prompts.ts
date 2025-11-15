@@ -4,7 +4,7 @@ import { logger } from "./logger";
 interface InputPrompt {
   message: string;
   default?: string;
-  validate?: (value: string) => boolean | string;
+  validate?: (value: string) => boolean | string | Promise<boolean | string>;
   transformer?: (value: string) => string;
 }
 
@@ -48,7 +48,7 @@ export async function input(options: InputPrompt): Promise<string> {
     const value = answer.trim() || options.default || "";
 
     if (options.validate) {
-      const validation = options.validate(value);
+      const validation = await Promise.resolve(options.validate(value));
       if (validation === true) {
         return value;
       }

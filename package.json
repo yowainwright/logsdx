@@ -18,8 +18,33 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
+    },
+    "./themes": {
+      "types": "./dist/themes/index.d.ts",
+      "import": "./dist/themes/index.mjs",
+      "require": "./dist/themes/index.cjs",
+      "default": "./dist/themes/index.mjs"
+    },
+    "./themes/*": {
+      "types": "./dist/themes/presets/*.d.ts",
+      "import": "./dist/themes/presets/*.mjs",
+      "require": "./dist/themes/presets/*.cjs",
+      "default": "./dist/themes/presets/*.mjs"
+    },
+    "./renderer": {
+      "types": "./dist/renderer/index.d.ts",
+      "import": "./dist/renderer/index.mjs",
+      "require": "./dist/renderer/index.cjs",
+      "default": "./dist/renderer/index.mjs"
+    },
+    "./fast": {
+      "types": "./dist/renderer/fast-mode.d.ts",
+      "import": "./dist/renderer/fast-mode.mjs",
+      "require": "./dist/renderer/fast-mode.cjs",
+      "default": "./dist/renderer/fast-mode.mjs"
     }
   },
+  "sideEffects": false,
   "files": [
     "dist/"
   ],

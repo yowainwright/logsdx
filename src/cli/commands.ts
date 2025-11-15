@@ -83,8 +83,8 @@ function showBanner() {
   console.log(colorUtil.dim("  Theme Creator v1.0.0\n"));
 }
 
-function renderPreview(theme: Theme, title: string = "Theme Preview") {
-  const logsDX = getLogsDX({ theme, outputFormat: "ansi" });
+async function renderPreview(theme: Theme, title: string = "Theme Preview") {
+  const logsDX = await getLogsDX({ theme, outputFormat: "ansi" });
   const previewBox = boxen(
     SAMPLE_LOGS.map((log) => logsDX.processLine(log)).join("\n"),
     {
@@ -106,10 +106,14 @@ export async function createInteractiveTheme(
 
   const name = await input({
     message: "Theme name:",
-    validate: (inputValue: string) => {
+    validate: async (inputValue: string) => {
       if (!inputValue.trim()) return "Theme name is required";
-      if (getTheme(inputValue)) return "A theme with this name already exists";
-      return true;
+      try {
+        await getTheme(inputValue);
+        return "A theme with this name already exists";
+      } catch {
+        return true;
+      }
     },
     transformer: (inputValue: string) =>
       inputValue.trim().toLowerCase().replace(/\s+/g, "-"),
@@ -246,7 +250,7 @@ export async function createInteractiveTheme(
   createSpinner.succeed("Theme created!");
 
   console.log("\n");
-  renderPreview(theme, `✨ ${theme.name} Preview`);
+  await renderPreview(theme, `✨ ${theme.name} Preview`);
 
   const checkAccessibility = await confirm({
     message: "Check accessibility compliance?",

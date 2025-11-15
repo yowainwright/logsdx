@@ -304,7 +304,7 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
   ];
 
   registerTheme(theme);
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: theme.name,
     outputFormat: "ansi",
   });
@@ -581,7 +581,7 @@ export async function exportTheme(themeName?: string): Promise<void> {
       })),
     }));
 
-  const theme = getTheme(themeToExport);
+  const theme = await getTheme(themeToExport);
   if (!theme) {
     ui.showError(`Theme "${themeToExport}" not found`);
     return;
@@ -719,7 +719,7 @@ export async function importTheme(filename?: string): Promise<void> {
       console.log(`Description: ${validatedTheme.description}`);
     }
 
-    const existingTheme = getTheme(validatedTheme.name);
+    const existingTheme = await getTheme(validatedTheme.name);
     if (existingTheme) {
       const shouldOverwrite = await confirm({
         message: `Theme "${validatedTheme.name}" already exists. Overwrite?`,
@@ -795,7 +795,7 @@ async function previewImportedTheme(theme: Theme) {
   ];
 
   registerTheme(theme);
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: theme.name,
     outputFormat: "ansi",
   });
