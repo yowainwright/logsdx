@@ -208,7 +208,15 @@ async function collectCustomPatterns(): Promise<
     patterns.push({
       name,
       pattern,
-      colorRole,
+      colorRole: colorRole as
+        | "primary"
+        | "secondary"
+        | "error"
+        | "warning"
+        | "info"
+        | "success"
+        | "muted"
+        | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     });
 
@@ -259,7 +267,15 @@ async function collectCustomWords(): Promise<
     });
 
     words[word] = {
-      colorRole,
+      colorRole: colorRole as
+        | "primary"
+        | "secondary"
+        | "error"
+        | "warning"
+        | "info"
+        | "success"
+        | "muted"
+        | "accent",
       styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
     };
 
@@ -288,7 +304,7 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
   ];
 
   registerTheme(theme);
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: theme.name,
     outputFormat: "ansi",
   });
@@ -565,7 +581,7 @@ export async function exportTheme(themeName?: string): Promise<void> {
       })),
     }));
 
-  const theme = getTheme(themeToExport);
+  const theme = await getTheme(themeToExport);
   if (!theme) {
     ui.showError(`Theme "${themeToExport}" not found`);
     return;
@@ -703,7 +719,7 @@ export async function importTheme(filename?: string): Promise<void> {
       console.log(`Description: ${validatedTheme.description}`);
     }
 
-    const existingTheme = getTheme(validatedTheme.name);
+    const existingTheme = await getTheme(validatedTheme.name);
     if (existingTheme) {
       const shouldOverwrite = await confirm({
         message: `Theme "${validatedTheme.name}" already exists. Overwrite?`,
@@ -779,7 +795,7 @@ async function previewImportedTheme(theme: Theme) {
   ];
 
   registerTheme(theme);
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: theme.name,
     outputFormat: "ansi",
   });
@@ -793,9 +809,10 @@ async function previewImportedTheme(theme: Theme) {
   if (theme.description) {
     console.log(`  Description: ${theme.description}`);
   }
-  if ("exportedAt" in theme && (theme as any).exportedAt) {
+  const exportedTheme = theme as Theme & { exportedAt?: string };
+  if (exportedTheme.exportedAt) {
     console.log(
-      `  Exported: ${chalk.dim(new Date((theme as any).exportedAt).toLocaleString())}`,
+      `  Exported: ${chalk.dim(new Date(exportedTheme.exportedAt).toLocaleString())}`,
     );
   }
 

@@ -1,4 +1,4 @@
-export function gradient(colors: string[]): {
+export function gradient(): {
   (text: string): string;
   multiline(text: string): string;
 } {

@@ -40,18 +40,9 @@ export class CliUI {
   }
 
   showHeader() {
-    const title = ascii.textSync("LogsDX", {
-      font: "Small",
-      horizontalLayout: "default",
-      verticalLayout: "default",
-    });
+    const title = ascii.textSync("LogsDX");
 
-    const gradientTitle = gradient([
-      "#42d392",
-      "#647eff",
-      "#A463BF",
-      "#bf6399",
-    ])(title);
+    const gradientTitle = gradient()(title);
 
     console.log(
       boxen(gradientTitle, {

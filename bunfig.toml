@@ -8,3 +8,6 @@ logsdx = "https://registry.npmjs.org/"
 sourcemap = "external"
 minify = true
 target = "node"
+
+[test]
+root = "tests/"

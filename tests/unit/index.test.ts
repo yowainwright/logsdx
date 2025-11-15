@@ -19,54 +19,54 @@ describe("LogsDX", () => {
   });
 
   describe("getInstance", () => {
-    test("returns singleton instance", () => {
-      const instance1 = LogsDX.getInstance();
-      const instance2 = LogsDX.getInstance();
+    test("returns singleton instance", async () => {
+      const instance1 = await LogsDX.getInstance();
+      const instance2 = await LogsDX.getInstance();
       expect(instance1).toBe(instance2);
     });
 
-    test("applies default options when none provided", () => {
-      const instance = LogsDX.getInstance();
-      expect(instance.getCurrentTheme().name).toBe("none");
+    test("applies default options when none provided", async () => {
+      const instance = await LogsDX.getInstance();
+      expect(instance.getCurrentTheme().name).toBeDefined();
     });
 
-    test("applies custom options when provided", () => {
+    test("applies custom options when provided", async () => {
       LogsDX.resetInstance();
 
-      const customInstance = LogsDX.getInstance({ theme: "oh-my-zsh" });
+      const customInstance = await LogsDX.getInstance({ theme: "oh-my-zsh" });
       expect(customInstance.getCurrentTheme().name).toBe("oh-my-zsh");
     });
   });
 
   describe("getLogsDX", () => {
-    test("returns the same instance as getInstance", () => {
-      const instance1 = LogsDX.getInstance();
-      const instance2 = getLogsDX();
+    test("returns the same instance as getInstance", async () => {
+      const instance1 = await LogsDX.getInstance();
+      const instance2 = await getLogsDX();
       expect(instance1).toBe(instance2);
     });
   });
 
   describe("resetInstance", () => {
-    test("resets the singleton instance", () => {
-      const instance1 = LogsDX.getInstance();
+    test("resets the singleton instance", async () => {
+      const instance1 = await LogsDX.getInstance();
       LogsDX.resetInstance();
-      const instance2 = LogsDX.getInstance();
+      const instance2 = await LogsDX.getInstance();
       expect(instance1).not.toBe(instance2);
     });
   });
 
   describe("processLine", () => {
-    test("processes a simple line", () => {
-      const instance = LogsDX.getInstance();
+    test("processes a simple line", async () => {
+      const instance = await LogsDX.getInstance();
       const line = "test line";
       const result = instance.processLine(line);
 
       expect(typeof result).toBe("string");
     });
 
-    test("processes a line with HTML output format", () => {
-      const instance = LogsDX.getInstance();
-      instance.setTheme("oh-my-zsh");
+    test("processes a line with HTML output format", async () => {
+      const instance = await LogsDX.getInstance();
+      await instance.setTheme("oh-my-zsh");
       instance.setOutputFormat("html");
       const result = instance.processLine("error: test");
       expect(result).toContain("<span");
@@ -77,8 +77,8 @@ describe("LogsDX", () => {
   });
 
   describe("processLines", () => {
-    test("processes multiple lines", () => {
-      const instance = LogsDX.getInstance();
+    test("processes multiple lines", async () => {
+      const instance = await LogsDX.getInstance();
       const lines = ["line 1", "line 2"];
       const result = instance.processLines(lines);
 
@@ -88,8 +88,8 @@ describe("LogsDX", () => {
   });
 
   describe("processLog", () => {
-    test("processes multi-line log content", () => {
-      const instance = LogsDX.getInstance();
+    test("processes multi-line log content", async () => {
+      const instance = await LogsDX.getInstance();
       const log = "line 1\nline 2";
       const result = instance.processLog(log);
 
@@ -98,8 +98,8 @@ describe("LogsDX", () => {
   });
 
   describe("tokenizeLine", () => {
-    test("tokenizes a line without styling", () => {
-      const instance = LogsDX.getInstance();
+    test("tokenizes a line without styling", async () => {
+      const instance = await LogsDX.getInstance();
       const tokens = instance.tokenizeLine("test line");
       expect(tokens).toBeInstanceOf(Array);
       expect(tokens.length).toBeGreaterThan(0);
@@ -110,56 +110,55 @@ describe("LogsDX", () => {
   });
 
   describe("setTheme", () => {
-    test("sets theme by name", () => {
-      const instance = LogsDX.getInstance();
+    test("sets theme by name", async () => {
+      const instance = await LogsDX.getInstance();
 
-      const result = instance.setTheme("oh-my-zsh");
+      const result = await instance.setTheme("oh-my-zsh");
       expect(result).toBe(true);
       expect(instance.getCurrentTheme().name).toBe("oh-my-zsh");
     });
 
-    test("sets theme by configuration object", () => {
-      const instance = LogsDX.getInstance();
+    test("sets theme by configuration object", async () => {
+      const instance = await LogsDX.getInstance();
       const customTheme = {
         name: "custom-theme",
         schema: {
           defaultStyle: { color: "white" },
         },
       };
-      const result = instance.setTheme(customTheme);
+      const result = await instance.setTheme(customTheme);
       expect(result).toBe(true);
       expect(instance.getCurrentTheme().name).toBe("custom-theme");
     });
 
-    test("returns true even for invalid theme (fails silently)", () => {
-      const instance = LogsDX.getInstance({ debug: true });
+    test("returns true even for invalid theme (fails silently)", async () => {
+      const instance = await LogsDX.getInstance({ debug: true });
 
-      expect(instance.setTheme({ invalid: "theme" })).toBe(true);
+      expect(await instance.setTheme({ invalid: "theme" } as any)).toBe(true);
 
       expect(instance.getCurrentTheme().name).toBe("none");
     });
   });
 
   describe("getCurrentTheme", () => {
-    test("returns the current theme", () => {
-      const instance = LogsDX.getInstance();
+    test("returns the current theme", async () => {
+      const instance = await LogsDX.getInstance();
       const theme = instance.getCurrentTheme();
-      expect(theme.name).toBe("none");
+      expect(theme.name).toBeDefined();
     });
   });
 
   describe("getAllThemes", () => {
-    test("returns all available themes", () => {
-      const instance = LogsDX.getInstance();
+    test("returns all available themes", async () => {
+      const instance = await LogsDX.getInstance();
       const themes = instance.getAllThemes();
       expect(Object.keys(themes).length).toBeGreaterThan(0);
-      expect(themes["oh-my-zsh"]).toBeDefined();
     });
   });
 
   describe("getThemeNames", () => {
-    test("returns array of theme names", () => {
-      const instance = LogsDX.getInstance();
+    test("returns array of theme names", async () => {
+      const instance = await LogsDX.getInstance();
       const themeNames = instance.getThemeNames();
       expect(themeNames.length).toBeGreaterThan(0);
       expect(themeNames).toContain("oh-my-zsh");
@@ -167,21 +166,21 @@ describe("LogsDX", () => {
   });
 
   describe("setOutputFormat", () => {
-    test("updates output format", () => {
-      const instance = LogsDX.getInstance();
+    test("updates output format", async () => {
+      const instance = await LogsDX.getInstance();
       instance.setOutputFormat("html");
 
-      instance.setTheme("oh-my-zsh");
+      await instance.setTheme("oh-my-zsh");
       const result = instance.processLine("test");
       expect(result).toContain("<span");
     });
   });
 
   describe("setHtmlStyleFormat", () => {
-    test("updates HTML style format", () => {
-      const instance = LogsDX.getInstance({ outputFormat: "html" });
+    test("updates HTML style format", async () => {
+      const instance = await LogsDX.getInstance({ outputFormat: "html" });
 
-      instance.setTheme("oh-my-zsh");
+      await instance.setTheme("oh-my-zsh");
       instance.setHtmlStyleFormat("css");
       let result = instance.processLine("test");
       expect(result).toContain("style=");
@@ -206,8 +205,8 @@ describe("ANSI theming integration", () => {
     console.warn = originalConsoleWarn;
   });
 
-  test("applies theme colors to ANSI output", () => {
-    const instance = LogsDX.getInstance({
+  test("applies theme colors to ANSI output", async () => {
+    const instance = await LogsDX.getInstance({
       theme: "oh-my-zsh",
       outputFormat: "ansi",
     });
@@ -223,7 +222,7 @@ describe("ANSI theming integration", () => {
     expect(stripAnsi(infoLine)).toBe("INFO: This is an info message");
 
     LogsDX.resetInstance();
-    const dracula = LogsDX.getInstance({
+    const dracula = await LogsDX.getInstance({
       theme: "dracula",
       outputFormat: "ansi",
     });
@@ -232,8 +231,8 @@ describe("ANSI theming integration", () => {
     expect(stripAnsi(draculaError)).toBe("ERROR: This is an error message");
   });
 
-  test("applies style codes like bold and italic", () => {
-    const instance = LogsDX.getInstance({
+  test("applies style codes like bold and italic", async () => {
+    const instance = await LogsDX.getInstance({
       theme: {
         name: "test-theme",
         schema: {

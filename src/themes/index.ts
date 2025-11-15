@@ -1,5 +1,5 @@
 import type { Theme } from "../types";
-import { THEMES, DEFAULT_THEME } from "./constants";
+import { DEFAULT_THEME } from "./constants";
 import {
   createTheme,
   createSimpleTheme,
@@ -10,21 +10,35 @@ import {
   adjustThemeForAccessibility,
 } from "./builder";
 import type { ColorPalette, SimpleThemeConfig } from "./builder";
+import {
+  themeRegistry,
+  getTheme as loadThemeAsync,
+  registerTheme as registerThemeRegistry,
+  getThemeNames as getThemeNamesRegistry,
+  getAllLoadedThemes,
+  preloadTheme,
+  preloadAllThemes,
+  registerThemeLoader,
+} from "./registry";
 
-export function getTheme(themeName: string): Theme {
-  return THEMES[themeName] || (THEMES[DEFAULT_THEME] as Theme);
+export async function getTheme(themeName: string): Promise<Theme> {
+  return loadThemeAsync(themeName);
+}
+
+export async function getThemeAsync(themeName: string): Promise<Theme> {
+  return loadThemeAsync(themeName);
 }
 
 export function getAllThemes(): Record<string, Theme> {
-  return THEMES;
+  return getAllLoadedThemes();
 }
 
 export function getThemeNames(): string[] {
-  return Object.keys(THEMES);
+  return getThemeNamesRegistry();
 }
 
 export function registerTheme(theme: Theme): void {
-  THEMES[theme.name] = theme;
+  registerThemeRegistry(theme);
 }
 
 export {
@@ -35,6 +49,10 @@ export {
   ThemeBuilder,
   checkWCAGCompliance,
   adjustThemeForAccessibility,
+  preloadTheme,
+  preloadAllThemes,
+  registerThemeLoader,
+  themeRegistry,
   type ColorPalette,
   type SimpleThemeConfig,
 };

@@ -29,9 +29,8 @@ program
     "[input]",
     "Input file (optional, reads from stdin if not provided)",
   )
-  .action(
-    async (input: string | undefined, options: any) =>
-      await main(input, options as CommanderOptions),
+  .action(async (input: string | undefined, options: unknown) =>
+    main(input, options as CommanderOptions),
   );
 
 program.parse();

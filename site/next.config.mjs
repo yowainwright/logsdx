@@ -9,6 +9,7 @@ const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   reactStrictMode: true,
   swcMinify: true,
+  transpilePackages: ["logsdx"],
   output: process.env.NODE_ENV === "production" ? "export" : undefined,
   images: {
     unoptimized: true,

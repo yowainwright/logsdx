@@ -230,6 +230,76 @@ describe("Tokenizer", () => {
         fail("Should not throw an error, but return a fallback token");
       }
     });
+
+    test("handles invalid regex patterns gracefully", () => {
+      const theme: Theme = {
+        name: "Invalid Pattern Theme",
+        schema: {
+          matchPatterns: [
+            {
+              name: "invalid",
+              pattern: "[invalid(regex",
+              options: { color: "red" },
+            },
+          ],
+        },
+      };
+
+      const line = "test invalid regex";
+      expect(() => tokenize(line, theme)).not.toThrow();
+      const tokens = tokenize(line, theme);
+      expect(tokens.length).toBeGreaterThan(0);
+    });
+
+    test("handles pattern with identifier validation", () => {
+      const theme: Theme = {
+        name: "Identifier Theme",
+        schema: {
+          matchPatterns: [
+            {
+              name: "phone-number",
+              pattern: /\d{3}-\d{3}-\d{4}/,
+              identifier: "\\d{3}",
+              options: { color: "blue" },
+            },
+          ],
+        },
+      };
+
+      const line = "Call me at 555-123-4567";
+      const tokens = tokenize(line, theme);
+      expect(tokens.length).toBeGreaterThan(0);
+
+      const phoneToken = tokens.find((t) => t.content.includes("555-123-4567"));
+      expect(phoneToken).toBeDefined();
+    });
+
+    test("handles extremely long input", () => {
+      const longLine = "ERROR ".repeat(1000) + "end";
+      const tokens = tokenize(longLine);
+
+      expect(tokens.length).toBeGreaterThan(0);
+      const totalContent = tokens.map((t) => t.content).join("");
+      expect(totalContent).toBe(longLine);
+    });
+
+    test("handles unicode characters", () => {
+      const line = "ERROR: ❌ Something went wrong 🔥";
+      const tokens = tokenize(line);
+
+      expect(tokens.length).toBeGreaterThan(0);
+      const totalContent = tokens.map((t) => t.content).join("");
+      expect(totalContent).toBe(line);
+    });
+
+    test("handles tabs and special whitespace", () => {
+      const line = "test\twith\ttabs\rand\nspecial\rchars";
+      const tokens = tokenize(line);
+
+      expect(tokens.length).toBeGreaterThan(0);
+      const totalContent = tokens.map((t) => t.content).join("");
+      expect(totalContent).toBe(line);
+    });
   });
 
   describe("applyTheme", () => {
