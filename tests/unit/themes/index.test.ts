@@ -1,9 +1,13 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
 import {
   getTheme,
+  getThemeAsync,
   getAllThemes,
   getThemeNames,
   registerTheme,
+  preloadTheme,
+  preloadAllThemes,
+  registerThemeLoader,
 } from "../../../src/themes/index";
 import { THEMES, DEFAULT_THEME } from "../../../src/themes/constants";
 
@@ -107,6 +111,51 @@ describe("Theme Management", () => {
       const theme = await getTheme("overwrite-test");
       expect(theme).toEqual(secondTheme);
       expect(theme.description).toBe("Second version");
+    });
+  });
+
+  describe("getThemeAsync", () => {
+    test("returns the requested theme (alias for getTheme)", async () => {
+      const theme = await getThemeAsync(DEFAULT_THEME);
+      expect(theme.name).toBe(DEFAULT_THEME);
+    });
+
+    test("returns same result as getTheme", async () => {
+      const theme1 = await getTheme("dracula");
+      const theme2 = await getThemeAsync("dracula");
+      expect(theme1.name).toBe(theme2.name);
+    });
+  });
+
+  describe("preloadTheme", () => {
+    test("preloads a theme for later sync access", async () => {
+      await preloadTheme("nord");
+      const themes = getAllThemes();
+      expect(themes["nord"]).toBeDefined();
+    });
+  });
+
+  describe("preloadAllThemes", () => {
+    test("preloads all available themes", async () => {
+      await preloadAllThemes();
+      const themes = getAllThemes();
+      expect(Object.keys(themes).length).toBeGreaterThanOrEqual(8);
+    });
+  });
+
+  describe("registerThemeLoader", () => {
+    test("registers a lazy loader", async () => {
+      const lazyTheme = {
+        name: "index-lazy-theme",
+        schema: { defaultStyle: { color: "#abc" } },
+      };
+
+      registerThemeLoader("index-lazy-theme", async () => ({
+        default: lazyTheme,
+      }));
+
+      const theme = await getTheme("index-lazy-theme");
+      expect(theme.name).toBe("index-lazy-theme");
     });
   });
 });
