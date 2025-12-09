@@ -1,18 +1,12 @@
-import { createQueryDBCollection } from "@tanstack/query-db-collection";
-import { db, type SavedTheme } from "./schema";
+import { getDB, type SavedTheme } from "./schema";
 import type { ThemeColors } from "@/components/themegenerator/types";
-
-export const themesCollection = createQueryDBCollection({
-  db,
-  storeName: "themes",
-  queryKey: ["themes"],
-});
 
 export async function createTheme(
   name: string,
   colors: ThemeColors,
   presets: string[],
 ): Promise<SavedTheme> {
+  const db = await getDB();
   const theme: SavedTheme = {
     id: `theme-${Date.now()}`,
     name,
@@ -22,7 +16,7 @@ export async function createTheme(
     updatedAt: Date.now(),
   };
 
-  await themesCollection.put(theme);
+  await db.put("themes", theme);
   return theme;
 }
 
@@ -30,7 +24,8 @@ export async function updateTheme(
   id: string,
   updates: Partial<Omit<SavedTheme, "id" | "createdAt">>,
 ): Promise<SavedTheme | undefined> {
-  const existing = await themesCollection.get(id);
+  const db = await getDB();
+  const existing = await db.get("themes", id);
   if (!existing) return undefined;
 
   const updated: SavedTheme = {
@@ -39,19 +34,22 @@ export async function updateTheme(
     updatedAt: Date.now(),
   };
 
-  await themesCollection.put(updated);
+  await db.put("themes", updated);
   return updated;
 }
 
 export async function deleteTheme(id: string): Promise<void> {
-  await themesCollection.delete(id);
+  const db = await getDB();
+  await db.delete("themes", id);
 }
 
 export async function getTheme(id: string): Promise<SavedTheme | undefined> {
-  return themesCollection.get(id);
+  const db = await getDB();
+  return db.get("themes", id);
 }
 
 export async function getAllThemes(): Promise<SavedTheme[]> {
-  const themes = await themesCollection.getAll();
+  const db = await getDB();
+  const themes = await db.getAll("themes");
   return themes.sort((a, b) => b.updatedAt - a.updatedAt);
 }

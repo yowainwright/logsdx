@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, Download, Copy } from "lucide-react";
-import { useThemeEditorStore } from "@/stores/useThemeEditorStore";
+import {
+  useThemeEditorStore,
+  themeEditorActions,
+} from "@/stores/useThemeEditorStore";
 import { useLogPreview } from "@/hooks/useLogPreview";
 import { useCreateTheme } from "@/hooks/useThemes";
 import {
@@ -20,10 +23,7 @@ export function CustomThemeCreator() {
   const name = useThemeEditorStore((state) => state.name);
   const colors = useThemeEditorStore((state) => state.colors);
   const presets = useThemeEditorStore((state) => state.presets);
-  const setName = useThemeEditorStore((state) => state.setName);
-  const setColor = useThemeEditorStore((state) => state.setColor);
-  const togglePreset = useThemeEditorStore((state) => state.togglePreset);
-  const reset = useThemeEditorStore((state) => state.reset);
+  const { setName, setColor, togglePreset, reset } = themeEditorActions;
 
   const { processedLogs, isProcessing } = useLogPreview();
   const { mutate: saveTheme } = useCreateTheme();

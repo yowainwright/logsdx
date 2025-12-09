@@ -125,7 +125,7 @@ describe("ThemeColorPicker", () => {
       />,
     );
 
-    Object.entries(mockColors).forEach(([key, value]) => {
+    Object.entries(mockColors).forEach(([, value]) => {
       const inputs = screen.getAllByDisplayValue(value);
       expect(inputs.length).toBeGreaterThan(0);
     });

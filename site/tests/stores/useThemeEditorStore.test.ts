@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { useThemeEditorStore } from "@/stores/useThemeEditorStore";
+import {
+  themeEditorStore,
+  themeEditorActions,
+} from "@/stores/useThemeEditorStore";
 import { DEFAULT_DARK_COLORS } from "@/components/themegenerator/constants";
 
 describe("useThemeEditorStore", () => {
   beforeEach(() => {
-    // Reset store to initial state
-    useThemeEditorStore.getState().reset();
+    themeEditorActions.reset();
   });
 
   afterEach(() => {
-    // Ensure clean state for next test
-    useThemeEditorStore.getState().reset();
+    themeEditorActions.reset();
   });
 
   it("initializes with default state", () => {
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
 
     expect(state.name).toBe("my-custom-theme");
     expect(state.colors).toEqual(DEFAULT_DARK_COLORS);
@@ -29,109 +30,82 @@ describe("useThemeEditorStore", () => {
   });
 
   it("updates theme name", () => {
-    const { setName } = useThemeEditorStore.getState();
+    themeEditorActions.setName("New Theme Name");
 
-    setName("New Theme Name");
-
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.name).toBe("new-theme-name");
   });
 
   it("converts theme name to kebab-case", () => {
-    const { setName } = useThemeEditorStore.getState();
+    themeEditorActions.setName("My Awesome Theme");
 
-    setName("My Awesome Theme");
-
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.name).toBe("my-awesome-theme");
   });
 
   it("updates individual colors", () => {
-    const { setColor } = useThemeEditorStore.getState();
+    themeEditorActions.setColor("primary", "#ff0000");
 
-    setColor("primary", "#ff0000");
-
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.colors.primary).toBe("#ff0000");
-    expect(state.colors.secondary).toBe(DEFAULT_DARK_COLORS.secondary); // Others unchanged
+    expect(state.colors.secondary).toBe(DEFAULT_DARK_COLORS.secondary);
   });
 
   it("toggles presets on", () => {
-    const { reset, togglePreset } = useThemeEditorStore.getState();
+    themeEditorActions.reset();
 
-    reset();
-    const initialState = useThemeEditorStore.getState();
-    const initialPresets = initialState.presets;
+    themeEditorActions.togglePreset("numbers");
+    expect(themeEditorStore.state.presets).not.toContain("numbers");
 
-    // Remove a preset first
-    togglePreset("numbers");
-    expect(useThemeEditorStore.getState().presets).not.toContain("numbers");
-
-    // Add it back
-    togglePreset("numbers");
-    expect(useThemeEditorStore.getState().presets).toContain("numbers");
+    themeEditorActions.togglePreset("numbers");
+    expect(themeEditorStore.state.presets).toContain("numbers");
   });
 
   it("toggles presets off", () => {
-    const { togglePreset } = useThemeEditorStore.getState();
+    themeEditorActions.togglePreset("logLevels");
 
-    togglePreset("logLevels");
-
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.presets).not.toContain("logLevels");
   });
 
   it("handles multiple preset toggles", () => {
-    const { togglePreset } = useThemeEditorStore.getState();
+    themeEditorActions.togglePreset("logLevels");
+    themeEditorActions.togglePreset("numbers");
+    themeEditorActions.togglePreset("strings");
 
-    togglePreset("logLevels");
-    togglePreset("numbers");
-    togglePreset("strings");
-
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.presets).toEqual(["brackets"]);
   });
 
   it("updates processed logs", () => {
-    const { setProcessedLogs } = useThemeEditorStore.getState();
-
     const mockLogs = ["<span>Log 1</span>", "<span>Log 2</span>"];
-    setProcessedLogs(mockLogs);
+    themeEditorActions.setProcessedLogs(mockLogs);
 
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.processedLogs).toEqual(mockLogs);
   });
 
   it("updates processing state", () => {
-    const { setIsProcessing } = useThemeEditorStore.getState();
+    themeEditorActions.setIsProcessing(true);
+    expect(themeEditorStore.state.isProcessing).toBe(true);
 
-    setIsProcessing(true);
-    expect(useThemeEditorStore.getState().isProcessing).toBe(true);
-
-    setIsProcessing(false);
-    expect(useThemeEditorStore.getState().isProcessing).toBe(false);
+    themeEditorActions.setIsProcessing(false);
+    expect(themeEditorStore.state.isProcessing).toBe(false);
   });
 
   it("resets to initial state", () => {
-    const { setName, setColor, togglePreset, reset } =
-      useThemeEditorStore.getState();
+    themeEditorActions.setName("modified");
+    themeEditorActions.setColor("primary", "#ff0000");
+    themeEditorActions.togglePreset("logLevels");
 
-    // Make changes
-    setName("modified");
-    setColor("primary", "#ff0000");
-    togglePreset("logLevels");
-
-    // Verify changes
-    let state = useThemeEditorStore.getState();
+    let state = themeEditorStore.state;
     expect(state.name).toBe("modified");
     expect(state.colors.primary).toBe("#ff0000");
     expect(state.presets).not.toContain("logLevels");
 
-    // Reset
-    reset();
+    themeEditorActions.reset();
 
-    // Verify reset
-    state = useThemeEditorStore.getState();
+    state = themeEditorStore.state;
     expect(state.name).toBe("my-custom-theme");
     expect(state.colors).toEqual(DEFAULT_DARK_COLORS);
     expect(state.presets).toEqual([
@@ -143,31 +117,26 @@ describe("useThemeEditorStore", () => {
   });
 
   it("loads theme from parameters", () => {
-    const { loadTheme } = useThemeEditorStore.getState();
-
     const customColors = {
       ...DEFAULT_DARK_COLORS,
       primary: "#custom",
     };
 
-    loadTheme("loaded-theme", customColors, ["logLevels"]);
+    themeEditorActions.loadTheme("loaded-theme", customColors, ["logLevels"]);
 
-    const state = useThemeEditorStore.getState();
+    const state = themeEditorStore.state;
     expect(state.name).toBe("loaded-theme");
     expect(state.colors.primary).toBe("#custom");
     expect(state.presets).toEqual(["logLevels"]);
   });
 
-  it("maintains immutability with immer", () => {
-    const { setColor } = useThemeEditorStore.getState();
+  it("maintains immutability", () => {
+    const initialColors = themeEditorStore.state.colors;
 
-    const initialColors = useThemeEditorStore.getState().colors;
+    themeEditorActions.setColor("primary", "#new-color");
 
-    setColor("primary", "#new-color");
+    const updatedColors = themeEditorStore.state.colors;
 
-    const updatedColors = useThemeEditorStore.getState().colors;
-
-    // Colors object should be different reference (immutability)
     expect(initialColors).not.toBe(updatedColors);
     expect(initialColors.primary).not.toBe(updatedColors.primary);
   });

@@ -1,8 +1,10 @@
-import { describe, test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { describe, test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@/tests/utils/test-utils";
 import { ProblemSection } from "../index";
 
 describe("ProblemSection", () => {
+  afterEach(cleanup);
+
   test("renders problem description", () => {
     render(<ProblemSection />);
 

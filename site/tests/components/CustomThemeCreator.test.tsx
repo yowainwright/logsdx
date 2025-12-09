@@ -1,6 +1,25 @@
-import { describe, it, expect, vi, beforeEach, mock } from "bun:test";
-import { render, screen, fireEvent, waitFor } from "../utils/test-utils";
-import { useThemeEditorStore } from "@/stores/useThemeEditorStore";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  mock,
+} from "bun:test";
+import React from "react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "../utils/test-utils";
+import {
+  themeEditorStore,
+  themeEditorActions,
+} from "@/stores/useThemeEditorStore";
 
 // Mock logsdx before any imports that use it
 mock.module("logsdx", () => ({
@@ -30,14 +49,21 @@ mock.module("@/hooks/useThemes", () => ({
   }),
 }));
 
-// Import after mocks
-const { CustomThemeCreator } = await import("@/components/themegenerator/CustomThemeCreator");
+// Import after mocks - using dynamic import inside describe
+let CustomThemeCreator: React.ComponentType;
 
 describe("CustomThemeCreator - Integration Tests", () => {
-  beforeEach(() => {
-    // Reset the store before each test
-    useThemeEditorStore.getState().reset();
+  beforeAll(async () => {
+    const module = await import(
+      "@/components/themegenerator/CustomThemeCreator"
+    );
+    CustomThemeCreator = module.CustomThemeCreator;
   });
+  beforeEach(() => {
+    themeEditorActions.reset();
+  });
+
+  afterEach(cleanup);
 
   it("renders all major sections", () => {
     render(<CustomThemeCreator />);
@@ -66,7 +92,7 @@ describe("CustomThemeCreator - Integration Tests", () => {
     const nameInput = screen.getByPlaceholderText("my-awesome-theme");
     fireEvent.change(nameInput, { target: { value: "New Theme" } });
 
-    const storeState = useThemeEditorStore.getState();
+    const storeState = themeEditorStore.state;
     expect(storeState.name).toBe("new-theme");
   });
 
@@ -93,7 +119,7 @@ describe("CustomThemeCreator - Integration Tests", () => {
 
     fireEvent.change(primaryColorInput, { target: { value: "#ff0000" } });
 
-    const storeState = useThemeEditorStore.getState();
+    const storeState = themeEditorStore.state;
     expect(storeState.colors.primary).toBe("#ff0000");
   });
 
@@ -121,9 +147,11 @@ describe("CustomThemeCreator - Integration Tests", () => {
   it("provides download functionality", () => {
     render(<CustomThemeCreator />);
 
-    const downloadButton = screen.getByRole("button", { name: /download theme file/i });
+    const downloadButton = screen.getByRole("button", {
+      name: /download theme file/i,
+    });
     expect(downloadButton).toBeDefined();
-    expect(downloadButton).toBeEnabled();
+    expect((downloadButton as HTMLButtonElement).disabled).toBe(false);
   });
 
   it("resets theme when reset button is clicked", () => {
@@ -133,14 +161,12 @@ describe("CustomThemeCreator - Integration Tests", () => {
     const nameInput = screen.getByPlaceholderText("my-awesome-theme");
     fireEvent.change(nameInput, { target: { value: "modified" } });
 
-    expect(useThemeEditorStore.getState().name).toBe("modified");
+    expect(themeEditorStore.state.name).toBe("modified");
 
-    // Click reset button
     const resetButton = screen.getByRole("button", { name: /reset/i });
     fireEvent.click(resetButton);
 
-    // Should be back to default
-    expect(useThemeEditorStore.getState().name).toBe("my-custom-theme");
+    expect(themeEditorStore.state.name).toBe("my-custom-theme");
   });
 
   it("shows theme preview with processed logs", () => {
@@ -183,7 +209,8 @@ describe("CustomThemeCreator - Integration Tests", () => {
   it("toggles advanced code view", () => {
     render(<CustomThemeCreator />);
 
-    const toggleButton = screen.getByText("Generated Code")
+    const toggleButton = screen
+      .getByText("Generated Code")
       .parentElement?.querySelector("button");
 
     expect(toggleButton).toBeDefined();
@@ -215,8 +242,12 @@ describe("CustomThemeCreator - Integration Tests", () => {
     render(<CustomThemeCreator />);
 
     expect(screen.getByRole("button", { name: /copy code/i })).toBeDefined();
-    expect(screen.getByRole("button", { name: /copy config json/i })).toBeDefined();
-    expect(screen.getByRole("button", { name: /download theme file/i })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /copy config json/i }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /download theme file/i }),
+    ).toBeDefined();
     expect(screen.getByRole("button", { name: /save theme/i })).toBeDefined();
     expect(screen.getByRole("button", { name: /share theme/i })).toBeDefined();
   });

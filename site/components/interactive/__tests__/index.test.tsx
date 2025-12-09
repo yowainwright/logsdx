@@ -1,9 +1,11 @@
-import { describe, test, expect } from "bun:test";
-import { render, screen } from "@testing-library/react";
+import { describe, test, expect, afterEach } from "bun:test";
+import { render, screen, cleanup } from "@/tests/utils/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { InteractiveExamplesSection } from "../index";
 
 describe("InteractiveExamplesSection", () => {
+  afterEach(cleanup);
+
   test("renders section heading", () => {
     render(<InteractiveExamplesSection />);
 

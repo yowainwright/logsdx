@@ -2,6 +2,8 @@ import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
 import type { ThemeColors, SampleLog } from "@/components/themegenerator/types";
 import type { LogsDXInstance } from "@/types/logsdx";
 
+type ColorPalette = ThemeColors & { [key: string]: string | undefined };
+
 const createFallbackLog = (text: string, textColor: string): string =>
   `<span style="color: ${textColor}">${text}</span>`;
 
@@ -24,7 +26,7 @@ export async function processLogs(
 ): Promise<string[]> {
   try {
     const themeName = `preview-${Date.now()}`;
-    const theme = createSimpleTheme(themeName, colors, {
+    const theme = createSimpleTheme(themeName, colors as ColorPalette, {
       mode: "dark",
       presets,
     });

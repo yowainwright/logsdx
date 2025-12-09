@@ -1,4 +1,4 @@
-import { createDB } from "@tanstack/react-db";
+import { openDB, type IDBPDatabase, type DBSchema } from "idb";
 import type { ThemeColors } from "@/components/themegenerator/types";
 
 export interface SavedTheme {
@@ -11,22 +11,28 @@ export interface SavedTheme {
   shareCode?: string;
 }
 
-export const db = createDB({
-  name: "logsdx",
-  version: 1,
-  stores: {
-    themes: {
-      keyPath: "id",
-      indexes: {
-        byDate: {
-          keyPath: "updatedAt",
-        },
-        byName: {
-          keyPath: "name",
-        },
-      },
-    },
-  },
-});
+interface LogsDXDBSchema extends DBSchema {
+  themes: {
+    key: string;
+    value: SavedTheme;
+    indexes: {
+      byDate: number;
+      byName: string;
+    };
+  };
+}
 
-export type LogsDXDB = typeof db;
+let dbPromise: Promise<IDBPDatabase<LogsDXDBSchema>> | null = null;
+
+export function getDB(): Promise<IDBPDatabase<LogsDXDBSchema>> {
+  if (!dbPromise) {
+    dbPromise = openDB<LogsDXDBSchema>("logsdx", 1, {
+      upgrade(db) {
+        const store = db.createObjectStore("themes", { keyPath: "id" });
+        store.createIndex("byDate", "updatedAt");
+        store.createIndex("byName", "name");
+      },
+    });
+  }
+  return dbPromise;
+}
