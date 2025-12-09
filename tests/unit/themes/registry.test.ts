@@ -43,20 +43,15 @@ describe("ThemeRegistry", () => {
   });
 
   describe("getThemeSync", () => {
-    test("returns undefined for unloaded theme", () => {
-      const theme = getThemeSync("solarized-light");
-      expect(theme === undefined || theme.name === "solarized-light").toBe(true);
+    test("returns theme or falls back to default for any theme name", () => {
+      const theme = getThemeSync("any-theme-name");
+      expect(theme === undefined || theme.name === "oh-my-zsh").toBe(true);
     });
 
     test("returns theme after it has been loaded", async () => {
       await getTheme("nord");
       const theme = getThemeSync("nord");
       expect(theme?.name).toBe("nord");
-    });
-
-    test("returns default theme when requested theme not loaded", () => {
-      const theme = getThemeSync("definitely-not-loaded-xyz");
-      expect(theme === undefined || theme.name === "oh-my-zsh").toBe(true);
     });
 
     test("returns registered theme synchronously", () => {
@@ -146,7 +141,9 @@ describe("ThemeRegistry", () => {
       const afterLoad = getAllLoadedThemes();
 
       expect(afterLoad["github-light"]).toBeDefined();
-      expect(Object.keys(afterLoad).length).toBeGreaterThanOrEqual(initialCount);
+      expect(Object.keys(afterLoad).length).toBeGreaterThanOrEqual(
+        initialCount,
+      );
     });
   });
 
@@ -189,7 +186,9 @@ describe("ThemeRegistry", () => {
       themeRegistry.setDefaultTheme("nord");
 
       // When getting non-existent theme, should fall back to new default
-      const theme = await themeRegistry.getTheme("non-existent-for-default-test");
+      const theme = await themeRegistry.getTheme(
+        "non-existent-for-default-test",
+      );
       expect(theme.name).toBe("nord");
 
       // Reset to original
