@@ -1,0 +1,261 @@
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  mock,
+} from "bun:test";
+import React from "react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "../utils/test-utils";
+import {
+  themeEditorStore,
+  themeEditorActions,
+} from "@/stores/useThemeEditorStore";
+
+// Mock logsdx before any imports that use it
+mock.module("logsdx", () => ({
+  createSimpleTheme: vi.fn((name: string) => ({ name, schema: {} })),
+  registerTheme: vi.fn(),
+  getLogsDX: vi.fn().mockResolvedValue({
+    processLine: (line: string) => `<span>${line}</span>`,
+  }),
+}));
+
+// Mock the log preview hook to avoid actual LogsDX processing in tests
+mock.module("@/hooks/useLogPreview", () => ({
+  useLogPreview: () => ({
+    processedLogs: [
+      '<span style="color: #ff5555">[ERROR] Test error</span>',
+      '<span style="color: #8be9fd">[INFO] Test info</span>',
+    ],
+    isProcessing: false,
+  }),
+}));
+
+// Mock theme creation hook
+mock.module("@/hooks/useThemes", () => ({
+  useCreateTheme: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
+// Import after mocks - using dynamic import inside describe
+let CustomThemeCreator: React.ComponentType;
+
+describe("CustomThemeCreator - Integration Tests", () => {
+  beforeAll(async () => {
+    const module = await import(
+      "@/components/themegenerator/CustomThemeCreator"
+    );
+    CustomThemeCreator = module.CustomThemeCreator;
+  });
+  beforeEach(() => {
+    themeEditorActions.reset();
+  });
+
+  afterEach(cleanup);
+
+  it("renders all major sections", () => {
+    render(<CustomThemeCreator />);
+
+    expect(screen.getByText("Create Your Custom Theme")).toBeDefined();
+    expect(screen.getByText("Theme Basics")).toBeDefined();
+    expect(screen.getByText("Colors")).toBeDefined();
+    expect(screen.getByText("Pattern Presets")).toBeDefined();
+    expect(screen.getByText("Live Preview")).toBeDefined();
+    expect(screen.getByText("Export Theme")).toBeDefined();
+  });
+
+  it("allows editing theme name", () => {
+    render(<CustomThemeCreator />);
+
+    const nameInput = screen.getByPlaceholderText("my-awesome-theme");
+    fireEvent.change(nameInput, { target: { value: "Custom Theme" } });
+
+    // Should convert to kebab-case
+    expect((nameInput as HTMLInputElement).value).toBe("custom-theme");
+  });
+
+  it("updates store when theme name changes", () => {
+    render(<CustomThemeCreator />);
+
+    const nameInput = screen.getByPlaceholderText("my-awesome-theme");
+    fireEvent.change(nameInput, { target: { value: "New Theme" } });
+
+    const storeState = themeEditorStore.state;
+    expect(storeState.name).toBe("new-theme");
+  });
+
+  it("allows toggling presets", () => {
+    render(<CustomThemeCreator />);
+
+    const checkboxes = screen.getAllByRole("checkbox");
+    const firstCheckbox = checkboxes[0] as HTMLInputElement;
+
+    const initialState = firstCheckbox.checked;
+    fireEvent.click(firstCheckbox);
+
+    waitFor(() => {
+      expect(firstCheckbox.checked).toBe(!initialState);
+    });
+  });
+
+  it("updates colors via color picker", () => {
+    render(<CustomThemeCreator />);
+
+    // Find a color input (there should be multiple)
+    const colorInputs = screen.getAllByDisplayValue(/#[0-9a-f]{6}/i);
+    const primaryColorInput = colorInputs[0];
+
+    fireEvent.change(primaryColorInput, { target: { value: "#ff0000" } });
+
+    const storeState = themeEditorStore.state;
+    expect(storeState.colors.primary).toBe("#ff0000");
+  });
+
+  it("provides copy code functionality", async () => {
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: mockWriteText,
+      },
+      writable: true,
+      configurable: true,
+    });
+
+    render(<CustomThemeCreator />);
+
+    const copyButton = screen.getByRole("button", { name: /copy code/i });
+    fireEvent.click(copyButton);
+
+    await waitFor(() => {
+      expect(mockWriteText).toHaveBeenCalled();
+      expect(screen.getByText("Copied!")).toBeDefined();
+    });
+  });
+
+  it("provides download functionality", () => {
+    render(<CustomThemeCreator />);
+
+    const downloadButton = screen.getByRole("button", {
+      name: /download theme file/i,
+    });
+    expect(downloadButton).toBeDefined();
+    expect((downloadButton as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("resets theme when reset button is clicked", () => {
+    render(<CustomThemeCreator />);
+
+    // First, change the theme
+    const nameInput = screen.getByPlaceholderText("my-awesome-theme");
+    fireEvent.change(nameInput, { target: { value: "modified" } });
+
+    expect(themeEditorStore.state.name).toBe("modified");
+
+    const resetButton = screen.getByRole("button", { name: /reset/i });
+    fireEvent.click(resetButton);
+
+    expect(themeEditorStore.state.name).toBe("my-custom-theme");
+  });
+
+  it("shows theme preview with processed logs", () => {
+    render(<CustomThemeCreator />);
+
+    expect(screen.getByText("Live Preview")).toBeDefined();
+    expect(screen.getByText("Powered by LogsDX")).toBeDefined();
+  });
+
+  it("provides save theme functionality", () => {
+    render(<CustomThemeCreator />);
+
+    const saveButton = screen.getByRole("button", { name: /save theme/i });
+    expect(saveButton).toBeDefined();
+
+    fireEvent.click(saveButton);
+    // Mutation should be called (mocked in this test)
+  });
+
+  it("provides share theme functionality", async () => {
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: mockWriteText,
+      },
+      writable: true,
+      configurable: true,
+    });
+
+    render(<CustomThemeCreator />);
+
+    const shareButton = screen.getByRole("button", { name: /share theme/i });
+    fireEvent.click(shareButton);
+
+    await waitFor(() => {
+      expect(mockWriteText).toHaveBeenCalled();
+    });
+  });
+
+  it("toggles advanced code view", () => {
+    render(<CustomThemeCreator />);
+
+    const toggleButton = screen
+      .getByText("Generated Code")
+      .parentElement?.querySelector("button");
+
+    expect(toggleButton).toBeDefined();
+
+    // Should not show code initially
+    expect(screen.queryByText(/import.*createSimpleTheme/)).toBeNull();
+
+    fireEvent.click(toggleButton!);
+
+    // Should show code after clicking
+    waitFor(() => {
+      expect(screen.getByText(/import.*createSimpleTheme/)).toBeDefined();
+    });
+  });
+
+  it("maintains theme state across re-renders", () => {
+    const { rerender } = render(<CustomThemeCreator />);
+
+    const nameInput = screen.getByPlaceholderText("my-awesome-theme");
+    fireEvent.change(nameInput, { target: { value: "persistent" } });
+
+    rerender(<CustomThemeCreator />);
+
+    const updatedInput = screen.getByPlaceholderText("my-awesome-theme");
+    expect((updatedInput as HTMLInputElement).value).toBe("persistent");
+  });
+
+  it("displays all export options", () => {
+    render(<CustomThemeCreator />);
+
+    expect(screen.getByRole("button", { name: /copy code/i })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /copy config json/i }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /download theme file/i }),
+    ).toBeDefined();
+    expect(screen.getByRole("button", { name: /save theme/i })).toBeDefined();
+    expect(screen.getByRole("button", { name: /share theme/i })).toBeDefined();
+  });
+
+  it("renders responsive layout", () => {
+    const { container } = render(<CustomThemeCreator />);
+
+    const gridLayout = container.querySelector(".lg\\:grid-cols-2");
+    expect(gridLayout).toBeDefined();
+  });
+});

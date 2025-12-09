@@ -1,9 +1,4 @@
-import type {
-  ColorDefinition,
-  BackgroundInfo,
-  BorderChars,
-  MatchType,
-} from "./types";
+import type { ColorDefinition, BackgroundInfo, MatchType } from "./types";
 import type { Theme } from "../types";
 
 export const DEFAULT_THEME_NAME = "default";
@@ -56,7 +51,7 @@ export function supportsColors(): boolean {
 
   const term = process.env.TERM;
   if (!term) {
-    if (typeof Bun !== "undefined" || (globalThis as any).Deno !== undefined) {
+    if (typeof Bun !== "undefined" || "Deno" in globalThis) {
       return true;
     }
     return false;

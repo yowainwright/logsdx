@@ -123,8 +123,11 @@ function extractCodeContent(children: ReactNode): string | null {
     return null;
   }
 
-  if ("props" in children && children.props?.children) {
-    return extractCodeContent(children.props.children);
+  if ("props" in children) {
+    const element = children as React.ReactElement<{ children?: ReactNode }>;
+    if (element.props?.children) {
+      return extractCodeContent(element.props.children);
+    }
   }
 
   if (Array.isArray(children)) {

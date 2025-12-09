@@ -1,27 +1,28 @@
 import * as readline from "readline";
 import { logger } from "./logger";
 
-interface BasePrompt {
+interface InputPrompt {
   message: string;
-  default?: any;
-}
-
-interface InputPrompt extends BasePrompt {
   default?: string;
-  validate?: (value: string) => boolean | string;
+  validate?: (value: string) => boolean | string | Promise<boolean | string>;
   transformer?: (value: string) => string;
 }
 
-interface SelectPrompt extends BasePrompt {
-  choices: Array<{ name?: string; value: any; description?: string } | string>;
+interface SelectPrompt {
+  message: string;
+  choices: Array<
+    { name?: string; value: string; description?: string } | string
+  >;
   default?: string;
 }
 
-interface CheckboxPrompt extends BasePrompt {
+interface CheckboxPrompt {
+  message: string;
   choices: Array<{ name: string; value: string; checked?: boolean }>;
 }
 
-interface ConfirmPrompt extends BasePrompt {
+interface ConfirmPrompt {
+  message: string;
   default?: boolean;
 }
 
@@ -47,7 +48,7 @@ export async function input(options: InputPrompt): Promise<string> {
     const value = answer.trim() || options.default || "";
 
     if (options.validate) {
-      const validation = options.validate(value);
+      const validation = await Promise.resolve(options.validate(value));
       if (validation === true) {
         return value;
       }
@@ -61,7 +62,7 @@ export async function input(options: InputPrompt): Promise<string> {
   }
 }
 
-export async function select(options: SelectPrompt): Promise<any> {
+export async function select(options: SelectPrompt): Promise<string> {
   const choices = options.choices.map((choice) =>
     typeof choice === "string" ? { name: choice, value: choice } : choice,
   );

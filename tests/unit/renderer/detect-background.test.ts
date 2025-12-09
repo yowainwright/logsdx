@@ -283,6 +283,7 @@ describe("detectBackground", () => {
   });
 
   test("uses medium confidence terminal over low confidence system", () => {
+    delete process.env.COLORFGBG;
     process.env.TERM_PROGRAM = "iTerm.app";
     const result = detectBackground();
     expect(result.scheme).toBe("dark");

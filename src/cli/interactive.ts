@@ -40,11 +40,14 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
   );
 
   const themeNames = getThemeNames();
-  const themeChoices: ThemeChoice[] = themeNames.map((name: string) => ({
-    name: chalk.cyan(name),
-    value: name,
-    description: getTheme(name)?.description || "No description available",
-  }));
+  const themeChoices: ThemeChoice[] = await Promise.all(
+    themeNames.map(async (name: string) => ({
+      name: chalk.cyan(name),
+      value: name,
+      description:
+        (await getTheme(name))?.description || "No description available",
+    })),
+  );
 
   const selectedTheme = await select({
     message: "🎨 Choose a theme:",
@@ -64,7 +67,7 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     ui.showInfo("Theme Previews:\n");
 
     for (const themeName of themeNames) {
-      const logsDX = LogsDX.getInstance({
+      const logsDX = await LogsDX.getInstance({
         theme: themeName,
         outputFormat: "ansi",
       });
@@ -101,9 +104,9 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
 
   if (wantPreview) {
     console.log("\n" + chalk.bold("🎬 Preview with your selected settings:"));
-    const logsDX = LogsDX.getInstance({
+    const logsDX = await LogsDX.getInstance({
       theme: finalTheme,
-      outputFormat,
+      outputFormat: outputFormat as "ansi" | "html",
     });
     const styledSample = logsDX.processLog(SAMPLE_LOG);
     ui.showThemePreview(
@@ -142,17 +145,18 @@ export async function selectThemeInteractively(): Promise<string> {
   });
 }
 
-export function showThemeList(): void {
+export async function showThemeList(): Promise<void> {
   ui.showInfo("Available Themes:\n");
 
   const themeNames = getThemeNames();
-  const logsDX = LogsDX.getInstance({
+  const logsDX = await LogsDX.getInstance({
     theme: themeNames[0],
     outputFormat: "ansi",
   });
 
-  themeNames.forEach((themeName: string, index: number) => {
-    const theme = getTheme(themeName);
+  for (const themeName of themeNames) {
+    const theme = await getTheme(themeName);
+    const index = themeNames.indexOf(themeName);
     const sample = `${index + 1}. ${themeName}`;
     const styledSample = logsDX.processLine(
       `INFO Sample log with ${themeName} theme - GET /api/test 200 OK`,
@@ -163,7 +167,7 @@ export function showThemeList(): void {
       console.log(chalk.dim(`   ${theme.description}`));
     }
     console.log(`   ${styledSample}`);
-  });
+  }
 
   console.log(
     chalk.yellow("\n💡 Use --interactive for guided theme selection"),

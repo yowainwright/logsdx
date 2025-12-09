@@ -1,3 +1,5 @@
+import type { StyleName, ChainableColorFunction } from "./types";
+
 const styles = {
   black: "\x1B[30m",
   red: "\x1B[31m",
@@ -25,17 +27,17 @@ const styles = {
   reset: "\x1B[0m",
 };
 
-type StyleName = keyof typeof styles;
-
 function createColorFunction(style: string) {
   return (text: string) => `${style}${text}${styles.reset}`;
 }
 
-function createChainableColor(appliedStyles: string[] = []): any {
-  const fn = (text: string) => {
+function createChainableColor(
+  appliedStyles: string[] = [],
+): ChainableColorFunction {
+  const fn = ((text: string) => {
     const prefix = appliedStyles.join("");
     return `${prefix}${text}${styles.reset}`;
-  };
+  }) as ChainableColorFunction;
 
   Object.keys(styles).forEach((key) => {
     if (key === "reset") return;

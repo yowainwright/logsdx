@@ -24,7 +24,6 @@ import {
   TOKEN_TYPE_CHAR,
   MATCH_TYPE_WORD,
   MATCH_TYPE_REGEX,
-  MATCH_TYPE_DEFAULT,
   WHITESPACE_TRIM,
   NEWLINE_TRIM,
 } from "./constants";
@@ -35,7 +34,6 @@ import {
   extractStyle,
   extractPattern,
   hasStyleMetadata,
-  isTrimmedWhitespace,
   createSafeRegex,
   isValidMatchPatternsArray,
 } from "./utils";
