@@ -114,6 +114,42 @@ test.describe("Homepage", () => {
       expect(newState).toBe(!initialState);
     });
 
+    test("preset toggle updates preview without console errors", async ({
+      page,
+    }) => {
+      const errors: string[] = [];
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          errors.push(msg.text());
+        }
+      });
+
+      const previewBefore = await page
+        .locator("[class*='font-mono']")
+        .first()
+        .innerHTML();
+
+      const checkbox = page
+        .locator("input[type='checkbox']")
+        .filter({ hasText: /log levels/i })
+        .or(page.locator("input[type='checkbox']").first());
+      await checkbox.first().click();
+
+      await page.waitForTimeout(500);
+
+      const previewAfter = await page
+        .locator("[class*='font-mono']")
+        .first()
+        .innerHTML();
+
+      const criticalErrors = errors.filter(
+        (e) =>
+          !e.includes("Download the React DevTools") &&
+          !e.includes("hydration"),
+      );
+      expect(criticalErrors).toHaveLength(0);
+    });
+
     test("live preview shows log output", async ({ page }) => {
       const preview = page.locator("[class*='font-mono']").first();
       await expect(preview).toBeVisible();

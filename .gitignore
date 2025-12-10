@@ -152,3 +152,8 @@ site/SPECIFICATION.md
 site/DESIGN.md
 site/ARCHITECTURE.md .claude/settings.json
 tmp
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
