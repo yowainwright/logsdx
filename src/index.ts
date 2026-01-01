@@ -16,6 +16,7 @@ import {
 } from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
 import { tokenize, applyTheme } from "./tokenizer";
+import { createLogger } from "./utils/logger";
 import type { TokenList } from "./schema/types";
 import type { RenderOptions } from "./renderer/types";
 import type {
@@ -36,6 +37,8 @@ import {
   isDarkBackground,
   getRecommendedThemeMode,
 } from "./renderer";
+
+const log = createLogger("logsdx");
 
 /**
  * LogsDX - A powerful log processing and styling tool
@@ -161,9 +164,7 @@ export class LogsDX {
       try {
         return validateTheme(theme as Theme);
       } catch (error) {
-        if (this.options.debug) {
-          console.warn("Invalid custom theme:", error);
-        }
+        log.debug(`Invalid custom theme: ${error}`);
 
         return {
           name: "none",
@@ -307,9 +308,7 @@ export class LogsDX {
       this.currentTheme = await this.resolveTheme(theme);
       return true;
     } catch (error) {
-      if (this.options.debug) {
-        console.warn("Invalid theme:", error);
-      }
+      log.debug(`Invalid theme: ${error}`);
       return false;
     }
   }

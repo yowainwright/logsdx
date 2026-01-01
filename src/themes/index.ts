@@ -1,5 +1,4 @@
 import type { Theme } from "../types";
-import { DEFAULT_THEME } from "./constants";
 import {
   createTheme,
   createSimpleTheme,

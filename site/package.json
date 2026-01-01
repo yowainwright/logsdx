@@ -32,6 +32,7 @@
     "ansi-to-html": "^0.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "ghostty-web": "^0.4.0",
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "idb": "^8.0.3",

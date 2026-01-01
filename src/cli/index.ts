@@ -15,6 +15,9 @@ import {
   listPatternPresetsCommand,
 } from "./theme-gen";
 import { exportTheme, importTheme, listThemeFiles } from "./theme-gen";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("cli");
 
 export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {
@@ -41,7 +44,7 @@ export function loadConfig(configPath?: string): LogsDXOptions {
       }
     }
   } catch (error) {
-    console.warn(`Failed to load config: ${error}`);
+    log.debug(`Failed to load config: ${error}`);
   }
 
   return defaultConfig;

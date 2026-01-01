@@ -1,6 +1,7 @@
-import type { Token, TokenList } from "../schema/types";
+import type { Token, TokenList, StyleOptions } from "../schema/types";
 import type { Theme } from "../types";
 import type { MatcherType } from "./types";
+import { createLogger } from "../utils/logger";
 import {
   TIMESTAMP_PATTERN,
   LOG_LEVEL_PATTERN,
@@ -37,6 +38,8 @@ import {
   createSafeRegex,
   isValidMatchPatternsArray,
 } from "./utils";
+
+const log = createLogger("tokenizer");
 
 export class TokenContext {
   public value?: unknown;
@@ -269,7 +272,7 @@ export function addPatternMatchRules(
     pattern: string | RegExp;
     name?: string;
     identifier?: string;
-    options?: unknown;
+    options?: StyleOptions;
   }>,
 ): void {
   for (let index = 0; index < matchPatterns.length; index++) {
@@ -302,7 +305,7 @@ export function addPatternMatchRules(
         : patternObj.pattern;
 
     if (!regex) {
-      console.warn(`Invalid regex pattern in theme: ${patternObj.pattern}`);
+      log.debug(`Invalid regex pattern in theme: ${patternObj.pattern}`);
       continue;
     }
 
@@ -348,7 +351,7 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
       }>,
     );
   } else if (schema.matchPatterns) {
-    console.warn("matchPatterns is not an array in theme schema");
+    log.debug("matchPatterns is not an array in theme schema");
   }
 }
 
@@ -468,7 +471,7 @@ export function tokenize(line: string, theme?: Theme): TokenList {
     const lexerTokens = lexer.tokenize(line);
     return convertLexerTokens(lexerTokens);
   } catch (error) {
-    console.warn("Tokenization failed:", error);
+    log.debug(`Tokenization failed: ${error}`);
     return [createDefaultToken(line)];
   }
 }
