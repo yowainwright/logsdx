@@ -1,28 +1,23 @@
 import { select, confirm } from "../utils/prompts";
 import { LogsDX, getThemeNames, getTheme } from "../index";
 import { ui } from "./ui";
-import chalk from "chalk";
-import { z } from "zod";
+import colors from "../utils/colors";
 
-export const interactiveConfigSchema = z.object({
-  theme: z.string(),
-  outputFormat: z.enum(["ansi", "html"]),
-  preview: z.boolean(),
-});
+export type InteractiveConfig = {
+  theme: string;
+  outputFormat: "ansi" | "html";
+  preview: boolean;
+};
 
-export type InteractiveConfig = z.infer<typeof interactiveConfigSchema>;
-
-export const themeChoiceSchema = z.object({
-  name: z.string(),
-  value: z.string(),
-  description: z.string(),
-});
-
-export type ThemeChoice = z.infer<typeof themeChoiceSchema>;
+export type ThemeChoice = {
+  name: string;
+  value: string;
+  description: string;
+};
 
 const SAMPLE_LOG = `2024-01-15 10:30:45 INFO [server] Application started successfully
 2024-01-15 10:30:46 DEBUG [auth] Loading user credentials from /etc/config
-2024-01-15 10:30:47 WARN [database] Connection pool at 80% capacity  
+2024-01-15 10:30:47 WARN [database] Connection pool at 80% capacity
 2024-01-15 10:30:48 ERROR [api] Failed to process request: /users/123/profile
 2024-01-15 10:30:49 INFO [cache] Cache hit ratio: 94.5%
 GET /api/users/123 200 142ms - "Mozilla/5.0"
@@ -31,10 +26,10 @@ POST /api/auth/login 401 23ms - Invalid credentials
 
 export async function runInteractiveMode(): Promise<InteractiveConfig> {
   ui.showHeader();
-  ui.showInfo("Welcome to LogsDX Interactive Mode! 🚀");
+  ui.showInfo("Welcome to LogsDX Interactive Mode!");
 
   console.log(
-    chalk.dim(
+    colors.dim(
       "This wizard will help you select the perfect theme and settings for your logs.\n",
     ),
   );
@@ -42,7 +37,7 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
   const themeNames = getThemeNames();
   const themeChoices: ThemeChoice[] = await Promise.all(
     themeNames.map(async (name: string) => ({
-      name: chalk.cyan(name),
+      name: colors.cyan(name),
       value: name,
       description:
         (await getTheme(name))?.description || "No description available",
@@ -50,11 +45,11 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
   );
 
   const selectedTheme = await select({
-    message: "🎨 Choose a theme:",
+    message: "Choose a theme:",
     choices: [
       ...themeChoices,
       {
-        name: chalk.yellow("🔍 Preview themes"),
+        name: colors.yellow("Preview themes"),
         value: "__preview__",
         description: "See how each theme looks with sample logs",
       },
@@ -76,21 +71,21 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     }
 
     finalTheme = await select({
-      message: "🎨 Now choose your theme:",
+      message: "Now choose your theme:",
       choices: themeChoices,
     });
   }
 
   const outputFormat = await select({
-    message: "📤 Choose output format:",
+    message: "Choose output format:",
     choices: [
       {
-        name: chalk.green("ANSI") + chalk.dim(" (terminal colors)"),
+        name: colors.green("ANSI") + colors.dim(" (terminal colors)"),
         value: "ansi" as const,
         description: "Perfect for terminal output with colors and styling",
       },
       {
-        name: chalk.blue("HTML") + chalk.dim(" (web/browser)"),
+        name: colors.blue("HTML") + colors.dim(" (web/browser)"),
         value: "html" as const,
         description: "Generates HTML with inline styles for web display",
       },
@@ -98,12 +93,12 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
   });
 
   const wantPreview = await confirm({
-    message: "👀 Show a preview with your settings?",
+    message: "Show a preview with your settings?",
     default: true,
   });
 
   if (wantPreview) {
-    console.log("\n" + chalk.bold("🎬 Preview with your selected settings:"));
+    console.log("\n" + colors.bold("Preview with your selected settings:"));
     const logsDX = await LogsDX.getInstance({
       theme: finalTheme,
       outputFormat: outputFormat as "ansi" | "html",
@@ -116,7 +111,7 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
   }
 
   const saveConfig = await confirm({
-    message: "💾 Save these settings as default?",
+    message: "Save these settings as default?",
     default: false,
   });
 
@@ -124,22 +119,20 @@ export async function runInteractiveMode(): Promise<InteractiveConfig> {
     ui.showInfo("Configuration saved to ~/.logsdxrc.json");
   }
 
-  const result = interactiveConfigSchema.parse({
+  return {
     theme: finalTheme,
-    outputFormat,
+    outputFormat: outputFormat as "ansi" | "html",
     preview: wantPreview,
-  });
-
-  return result;
+  };
 }
 
 export async function selectThemeInteractively(): Promise<string> {
   const themeNames = getThemeNames();
 
   return await select({
-    message: "🎨 Select a theme:",
+    message: "Select a theme:",
     choices: themeNames.map((name: string) => ({
-      name: chalk.cyan(name),
+      name: colors.cyan(name),
       value: name,
     })),
   });
@@ -162,17 +155,17 @@ export async function showThemeList(): Promise<void> {
       `INFO Sample log with ${themeName} theme - GET /api/test 200 OK`,
     );
 
-    console.log(chalk.bold.cyan(`\n${sample}:`));
+    console.log(colors.bold.cyan(`\n${sample}:`));
     if (theme?.description) {
-      console.log(chalk.dim(`   ${theme.description}`));
+      console.log(colors.dim(`   ${theme.description}`));
     }
     console.log(`   ${styledSample}`);
   }
 
   console.log(
-    chalk.yellow("\n💡 Use --interactive for guided theme selection"),
+    colors.yellow("\nUse --interactive for guided theme selection"),
   );
   console.log(
-    chalk.yellow("💡 Use --preview to see all themes with sample logs"),
+    colors.yellow("Use --preview to see all themes with sample logs"),
   );
 }

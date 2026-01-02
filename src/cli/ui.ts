@@ -56,22 +56,22 @@ export class CliUI {
   }
 
   showSuccess(message: string) {
-    console.log(colors.green("✅"), colors.bold(message));
+    console.log(colors.green("[ok]"), colors.bold(message));
   }
 
   showError(message: string, suggestion?: string) {
-    console.log(colors.red("❌"), colors.bold.red("Error:"), message);
+    console.log(colors.red("[error]"), colors.bold.red(message));
     if (suggestion) {
-      console.log(colors.yellow("💡"), colors.italic(suggestion));
+      console.log(colors.yellow("  hint:"), colors.italic(suggestion));
     }
   }
 
   showWarning(message: string) {
-    console.log(colors.yellow("⚠️"), colors.bold.yellow("Warning:"), message);
+    console.log(colors.yellow("[warn]"), colors.bold.yellow(message));
   }
 
   showInfo(message: string) {
-    console.log(colors.blue("ℹ️"), message);
+    console.log(colors.blue("[info]"), message);
   }
 
   showThemePreview(themeName: string, sample: string) {
@@ -87,9 +87,9 @@ export class CliUI {
 
   showFileStats(filename: string, lineCount: number, fileSize: number) {
     const stats = [
-      `📄 File: ${colors.cyan(filename)}`,
-      `📊 Lines: ${colors.yellow(lineCount.toLocaleString())}`,
-      `📐 Size: ${colors.green(this.formatFileSize(fileSize))}`,
+      `File: ${colors.cyan(filename)}`,
+      `Lines: ${colors.yellow(lineCount.toLocaleString())}`,
+      `Size: ${colors.green(this.formatFileSize(fileSize))}`,
     ].join("  ");
 
     console.log(

@@ -1,6 +1,6 @@
 import { select, input, checkbox, confirm } from "../utils/prompts";
 import { ui } from "./ui";
-import chalk from "chalk";
+import colors, { hex } from "../utils/colors";
 import fs from "fs";
 import path from "path";
 import {
@@ -13,15 +13,15 @@ import {
 } from "../themes/presets";
 import { registerTheme, getAllThemes, getTheme } from "../themes";
 import type { Theme, PatternMatch } from "../types";
-import { themePresetSchema } from "../schema";
+import { parseTheme } from "../schema";
 import { LogsDX } from "../index";
 
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
-  ui.showInfo("🎨 Welcome to the LogsDX Theme Generator!");
+  ui.showInfo("Welcome to the LogsDX Theme Generator");
 
   console.log(
-    chalk.dim(
+    colors.dim(
       "Create custom themes by combining color palettes with pattern presets.\n",
     ),
   );
@@ -43,9 +43,9 @@ export async function runThemeGenerator(): Promise<void> {
 
   const palettes = listColorPalettes();
   const selectedPalette = await select({
-    message: "🎨 Choose a color palette:",
+    message: "Choose a color palette:",
     choices: palettes.map((palette) => ({
-      name: `${chalk.bold(palette.name)} - ${palette.description}`,
+      name: `${colors.bold(palette.name)} - ${palette.description}`,
       value: palette.name,
       description: `Contrast: ${palette.accessibility.contrastRatio.toFixed(1)}, ${
         palette.accessibility.colorBlindSafe
@@ -66,7 +66,7 @@ export async function runThemeGenerator(): Promise<void> {
   );
 
   const selectedPresets = await checkbox({
-    message: "📋 Select pattern presets to include:",
+    message: "Select pattern presets to include:",
     choices: Object.entries(presetsByCategory).flatMap(
       ([category, categoryPresets]) =>
         categoryPresets.map((preset) => ({
@@ -79,7 +79,7 @@ export async function runThemeGenerator(): Promise<void> {
   const filteredPresets = selectedPresets;
 
   const addCustomPatterns = await confirm({
-    message: "➕ Add custom patterns?",
+    message: "Add custom patterns?",
     default: false,
   });
 
@@ -89,7 +89,7 @@ export async function runThemeGenerator(): Promise<void> {
   }
 
   const addCustomWords = await confirm({
-    message: "➕ Add custom word matches?",
+    message: "Add custom word matches?",
     default: false,
   });
 
@@ -115,7 +115,7 @@ export async function runThemeGenerator(): Promise<void> {
   await showThemePreview(theme, palette);
 
   const shouldSave = await confirm({
-    message: "💾 Save this theme?",
+    message: "Save this theme?",
     default: true,
   });
 
@@ -146,11 +146,11 @@ export async function runThemeGenerator(): Promise<void> {
     if (saveLocation === "file" || saveLocation === "both") {
       const filename = `${themeName}.theme.json`;
       fs.writeFileSync(filename, JSON.stringify(theme, null, 2));
-      ui.showSuccess(`Theme saved to ${chalk.cyan(filename)}`);
+      ui.showSuccess(`Theme saved to ${colors.cyan(filename)}`);
     }
 
     console.log(
-      chalk.green(
+      colors.green(
         `\n✨ Your theme "${themeName}" is ready to use!\nTry it with: logsdx --theme ${themeName} your-log-file.log`,
       ),
     );
@@ -291,7 +291,7 @@ async function collectCustomWords(): Promise<
 }
 
 async function showThemePreview(theme: Theme, palette: ColorPalette) {
-  console.log(chalk.bold("\n🎬 Theme Preview:\n"));
+  console.log(colors.bold("\nTheme Preview:\n"));
 
   const sampleLogs = [
     "2024-01-15 10:30:45 INFO API server started on port 3000",
@@ -313,53 +313,53 @@ async function showThemePreview(theme: Theme, palette: ColorPalette) {
     console.log(`  ${logsDX.processLine(log)}`);
   });
 
-  console.log(chalk.bold("\n📊 Color Palette Details:"));
-  console.log(`  Name: ${chalk.cyan(palette.name)}`);
+  console.log(colors.bold("\nColor Palette Details:"));
+  console.log(`  Name: ${colors.cyan(palette.name)}`);
   console.log(`  Description: ${palette.description}`);
   console.log(
-    `  Contrast Ratio: ${chalk.yellow(palette.accessibility.contrastRatio.toFixed(1))}`,
+    `  Contrast Ratio: ${colors.yellow(palette.accessibility.contrastRatio.toFixed(1))}`,
   );
   console.log(
     `  Color-blind Safe: ${
       palette.accessibility.colorBlindSafe
-        ? chalk.green("Yes")
-        : chalk.red("No")
+        ? colors.green("Yes")
+        : colors.red("No")
     }`,
   );
   console.log(
-    `  Mode: ${palette.accessibility.darkMode ? chalk.blue("Dark") : chalk.yellow("Light")}`,
+    `  Mode: ${palette.accessibility.darkMode ? colors.blue("Dark") : colors.yellow("Light")}`,
   );
 }
 
 export function listColorPalettesCommand(): void {
-  ui.showInfo("🎨 Available Color Palettes:\n");
+  ui.showInfo("Available Color Palettes:\n");
 
   const palettes = listColorPalettes();
   palettes.forEach((palette, index) => {
-    console.log(chalk.bold.cyan(`${index + 1}. ${palette.name}`));
+    console.log(colors.bold.cyan(`${index + 1}. ${palette.name}`));
     console.log(`   ${palette.description}`);
     console.log(
-      `   ${chalk.dim(`Contrast: ${palette.accessibility.contrastRatio.toFixed(1)}`)} ${chalk.dim(
+      `   ${colors.dim(`Contrast: ${palette.accessibility.contrastRatio.toFixed(1)}`)} ${colors.dim(
         `| ${palette.accessibility.colorBlindSafe ? "Color-blind safe" : "Not color-blind safe"}`,
-      )} ${chalk.dim(`| ${palette.accessibility.darkMode ? "Dark" : "Light"} mode`)}`,
+      )} ${colors.dim(`| ${palette.accessibility.darkMode ? "Dark" : "Light"} mode`)}`,
     );
 
     console.log("   Colors:");
     Object.entries(palette.colors).forEach(([role, color]) => {
-      console.log(`     ${role}: ${chalk.hex(color)(color)}`);
+      console.log(`     ${role}: ${hex(color)(color)}`);
     });
     console.log();
   });
 
   console.log(
-    chalk.yellow(
-      "💡 Use --generate-theme to create a theme with these palettes",
+    colors.yellow(
+      "Use --generate-theme to create a theme with these palettes",
     ),
   );
 }
 
 export function listPatternPresetsCommand(): void {
-  ui.showInfo("📋 Available Pattern Presets:\n");
+  ui.showInfo("Available Pattern Presets:\n");
 
   const presets = listPatternPresets();
   const presetsByCategory = presets.reduce(
@@ -372,19 +372,19 @@ export function listPatternPresetsCommand(): void {
   );
 
   Object.entries(presetsByCategory).forEach(([category, categoryPresets]) => {
-    console.log(chalk.bold.yellow(`\n${category.toUpperCase()}:`));
+    console.log(colors.bold.yellow(`\n${category.toUpperCase()}:`));
     categoryPresets.forEach((preset) => {
-      console.log(chalk.bold.cyan(`  ${preset.name}`));
+      console.log(colors.bold.cyan(`  ${preset.name}`));
       console.log(`    ${preset.description}`);
       console.log(
-        `    ${chalk.dim(`${preset.patterns.length} patterns, ${Object.keys(preset.matchWords).length} word matches`)}`,
+        `    ${colors.dim(`${preset.patterns.length} patterns, ${Object.keys(preset.matchWords).length} word matches`)}`,
       );
     });
   });
 
   console.log(
-    chalk.yellow(
-      "\n💡 Use --generate-theme to create a theme with these presets",
+    colors.yellow(
+      "\nUse --generate-theme to create a theme with these presets",
     ),
   );
 }
@@ -576,7 +576,7 @@ export async function exportTheme(themeName?: string): Promise<void> {
     (await select({
       message: "Select theme to export:",
       choices: availableThemes.map((name) => ({
-        name: chalk.cyan(name),
+        name: colors.cyan(name),
         value: name,
       })),
     }));
@@ -608,7 +608,7 @@ export async function exportTheme(themeName?: string): Promise<void> {
 
     fs.writeFileSync(filename, JSON.stringify(exportData, null, 2));
     ui.showSuccess(
-      `Theme "${themeToExport}" exported to ${chalk.cyan(filename)}`,
+      `Theme "${themeToExport}" exported to ${colors.cyan(filename)}`,
     );
 
     const showPreview = await confirm({
@@ -617,10 +617,10 @@ export async function exportTheme(themeName?: string): Promise<void> {
     });
 
     if (showPreview) {
-      console.log(chalk.dim("\nFile contents:"));
-      console.log(chalk.dim("─".repeat(50)));
+      console.log(colors.dim("\nFile contents:"));
+      console.log(colors.dim("─".repeat(50)));
       console.log(JSON.stringify(exportData, null, 2));
-      console.log(chalk.dim("─".repeat(50)));
+      console.log(colors.dim("─".repeat(50)));
     }
   } catch (error) {
     ui.showError(
@@ -712,9 +712,9 @@ export async function importTheme(filename?: string): Promise<void> {
     const fileContent = fs.readFileSync(themeFile, "utf8");
     const themeData = JSON.parse(fileContent);
 
-    const validatedTheme = themePresetSchema.parse(themeData);
+    const validatedTheme = parseTheme(themeData);
 
-    ui.showInfo(`Importing theme: ${chalk.cyan(validatedTheme.name)}`);
+    ui.showInfo(`Importing theme: ${colors.cyan(validatedTheme.name)}`);
     if (validatedTheme.description) {
       console.log(`Description: ${validatedTheme.description}`);
     }
@@ -754,7 +754,7 @@ export async function importTheme(filename?: string): Promise<void> {
       registerTheme(validatedTheme);
       ui.showSuccess(`Theme "${validatedTheme.name}" imported successfully!`);
       console.log(
-        chalk.green(
+        colors.green(
           `\n✨ Use your imported theme with: logsdx --theme ${validatedTheme.name} your-log-file.log`,
         ),
       );
@@ -783,7 +783,7 @@ export async function importTheme(filename?: string): Promise<void> {
 }
 
 async function previewImportedTheme(theme: Theme) {
-  console.log(chalk.bold("\n🎬 Theme Preview:\n"));
+  console.log(colors.bold("\nTheme Preview:\n"));
 
   const sampleLogs = [
     "2024-01-15 10:30:45 INFO Starting application server",
@@ -804,22 +804,22 @@ async function previewImportedTheme(theme: Theme) {
     console.log(`  ${logsDX.processLine(log)}`);
   });
 
-  console.log(chalk.bold("\n📋 Theme Details:"));
-  console.log(`  Name: ${chalk.cyan(theme.name)}`);
+  console.log(colors.bold("\nTheme Details:"));
+  console.log(`  Name: ${colors.cyan(theme.name)}`);
   if (theme.description) {
     console.log(`  Description: ${theme.description}`);
   }
   const exportedTheme = theme as Theme & { exportedAt?: string };
   if (exportedTheme.exportedAt) {
     console.log(
-      `  Exported: ${chalk.dim(new Date(exportedTheme.exportedAt).toLocaleString())}`,
+      `  Exported: ${colors.dim(new Date(exportedTheme.exportedAt).toLocaleString())}`,
     );
   }
 
   const wordCount = Object.keys(theme.schema.matchWords || {}).length;
   const patternCount = (theme.schema.matchPatterns || []).length;
   console.log(
-    `  Patterns: ${chalk.yellow(patternCount)}, Words: ${chalk.yellow(wordCount)}`,
+    `  Patterns: ${colors.yellow(patternCount)}, Words: ${colors.yellow(wordCount)}`,
   );
 }
 
@@ -867,7 +867,7 @@ export function listThemeFilesCommand(directory = "."): void {
     if (files.length === 0) {
       ui.showInfo("No theme files found in current directory");
       console.log(
-        chalk.dim("Theme files should have the extension .theme.json"),
+        colors.dim("Theme files should have the extension .theme.json"),
       );
       return;
     }
@@ -879,28 +879,28 @@ export function listThemeFilesCommand(directory = "."): void {
         const content = fs.readFileSync(file, "utf8");
         const themeData = JSON.parse(content);
 
-        console.log(chalk.bold.cyan(`${index + 1}. ${path.basename(file)}`));
+        console.log(colors.bold.cyan(`${index + 1}. ${path.basename(file)}`));
         console.log(`   Theme: ${themeData.name || "Unknown"}`);
         if (themeData.description) {
           console.log(`   Description: ${themeData.description}`);
         }
         if (themeData.exportedAt) {
           console.log(
-            `   Exported: ${chalk.dim(new Date(themeData.exportedAt).toLocaleString())}`,
+            `   Exported: ${colors.dim(new Date(themeData.exportedAt).toLocaleString())}`,
           );
         }
-        console.log(`   File: ${chalk.dim(file)}`);
+        console.log(`   File: ${colors.dim(file)}`);
         console.log();
       } catch {
-        console.log(chalk.bold.red(`${index + 1}. ${path.basename(file)}`));
-        console.log(chalk.red(`   Error: Invalid theme file`));
-        console.log(`   File: ${chalk.dim(file)}`);
+        console.log(colors.bold.red(`${index + 1}. ${path.basename(file)}`));
+        console.log(colors.red(`   Error: Invalid theme file`));
+        console.log(`   File: ${colors.dim(file)}`);
         console.log();
       }
     });
 
     console.log(
-      chalk.yellow("💡 Use --import-theme <filename> to import a theme"),
+      colors.yellow("Use --import-theme <filename> to import a theme"),
     );
   } catch (error) {
     ui.showError(

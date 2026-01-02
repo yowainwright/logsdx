@@ -13,52 +13,52 @@ describe("logger", () => {
     setLogLevel(originalLevel);
   });
 
-  test("info() logs with blue info icon", () => {
+  test("info() logs with blue info label", () => {
     const spy = spyOn(console, "log");
     logger.info("test message");
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("ℹ"),
+      expect.stringContaining("[info]"),
       "test message",
     );
     spy.mockRestore();
   });
 
-  test("success() logs with green check icon", () => {
+  test("success() logs with green ok label", () => {
     const spy = spyOn(console, "log");
     logger.success("operation completed");
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("✔"),
+      expect.stringContaining("[ok]"),
       "operation completed",
     );
     spy.mockRestore();
   });
 
-  test("warn() logs with yellow warning icon", () => {
+  test("warn() logs with yellow warn label", () => {
     const spy = spyOn(console, "log");
     logger.warn("warning message");
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("⚠"),
+      expect.stringContaining("[warn]"),
       "warning message",
     );
     spy.mockRestore();
   });
 
-  test("error() logs with red X icon", () => {
+  test("error() logs with red error label", () => {
     const spy = spyOn(console, "error");
     logger.error("error message");
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("✖"),
+      expect.stringContaining("[error]"),
       "error message",
     );
     spy.mockRestore();
   });
 
-  test("debug() logs with gray gear icon when log level is debug", () => {
+  test("debug() logs with gray debug label when log level is debug", () => {
     setLogLevel("debug");
     const spy = spyOn(console, "log");
     logger.debug("debug message");
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("⚙"),
+      expect.stringContaining("[debug]"),
       "debug message",
     );
     spy.mockRestore();
@@ -96,7 +96,7 @@ describe("logger", () => {
 
     logger.info(multiline);
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining("ℹ"),
+      expect.stringContaining("[info]"),
       multiline,
     );
 

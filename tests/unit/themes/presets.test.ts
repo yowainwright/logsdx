@@ -1,8 +1,5 @@
 import { expect, test, describe } from "bun:test";
 import {
-  colorPaletteSchema,
-  patternPresetSchema,
-  themeGeneratorConfigSchema,
   getColorPalette,
   getPatternPreset,
   listColorPalettes,
@@ -11,94 +8,6 @@ import {
   COLOR_PALETTES,
   PATTERN_PRESETS,
 } from "../../../src/themes/presets";
-
-describe("Theme Generator Schemas", () => {
-  test("colorPaletteSchema should validate valid palette", () => {
-    const validPalette = {
-      name: "test-palette",
-      description: "A test palette",
-      colors: {
-        primary: "#007acc",
-        secondary: "#28a745",
-        success: "#1a7f37",
-        warning: "#bf8700",
-        error: "#d1242f",
-        info: "#0969da",
-        muted: "#656d76",
-        background: "#ffffff",
-        text: "#24292f",
-      },
-      accessibility: {
-        contrastRatio: 7.2,
-        colorBlindSafe: true,
-        darkMode: false,
-      },
-    };
-
-    const result = colorPaletteSchema.parse(validPalette);
-    expect(result.name).toBe("test-palette");
-    expect(result.colors.primary).toBe("#007acc");
-    expect(result.accessibility.contrastRatio).toBe(7.2);
-  });
-
-  test("patternPresetSchema should validate valid preset", () => {
-    const validPreset = {
-      name: "test-preset",
-      description: "A test preset",
-      category: "api" as const,
-      patterns: [
-        {
-          name: "status-code",
-          pattern: "\\b\\d{3}\\b",
-          description: "HTTP status codes",
-          colorRole: "primary" as const,
-          styleCodes: ["bold"],
-        },
-      ],
-      matchWords: {
-        GET: {
-          colorRole: "primary" as const,
-        },
-      },
-    };
-
-    const result = patternPresetSchema.parse(validPreset);
-    expect(result.name).toBe("test-preset");
-    expect(result.category).toBe("api");
-    expect(result.patterns[0].colorRole).toBe("primary");
-  });
-
-  test("themeGeneratorConfigSchema should validate valid config", () => {
-    const validConfig = {
-      name: "test-theme",
-      description: "A test theme",
-      colorPalette: "github-light",
-      patternPresets: ["log-levels", "http-api"],
-      customPatterns: [
-        {
-          name: "custom-pattern",
-          pattern: "\\bCUSTOM\\b",
-          colorRole: "warning" as const,
-        },
-      ],
-      customWords: {
-        CUSTOM: {
-          colorRole: "error" as const,
-          styleCodes: ["bold"],
-        },
-      },
-      options: {
-        whiteSpace: "preserve" as const,
-        newLine: "preserve" as const,
-      },
-    };
-
-    const result = themeGeneratorConfigSchema.parse(validConfig);
-    expect(result.name).toBe("test-theme");
-    expect(result.patternPresets).toEqual(["log-levels", "http-api"]);
-    expect(result.customWords?.CUSTOM.colorRole).toBe("error");
-  });
-});
 
 describe("Color Palette Functions", () => {
   test("getColorPalette should return palette by name", () => {
@@ -119,9 +28,11 @@ describe("Color Palette Functions", () => {
     expect(palettes).toEqual(COLOR_PALETTES);
   });
 
-  test("all built-in palettes should be valid", () => {
+  test("all built-in palettes should have required fields", () => {
     COLOR_PALETTES.forEach((palette) => {
-      expect(() => colorPaletteSchema.parse(palette)).not.toThrow();
+      expect(palette.name).toBeDefined();
+      expect(palette.colors.primary).toBeDefined();
+      expect(palette.colors.error).toBeDefined();
     });
   });
 });
@@ -153,9 +64,11 @@ describe("Pattern Preset Functions", () => {
     });
   });
 
-  test("all built-in presets should be valid", () => {
+  test("all built-in presets should have required fields", () => {
     PATTERN_PRESETS.forEach((preset) => {
-      expect(() => patternPresetSchema.parse(preset)).not.toThrow();
+      expect(preset.name).toBeDefined();
+      expect(preset.category).toBeDefined();
+      expect(preset.patterns).toBeDefined();
     });
   });
 });

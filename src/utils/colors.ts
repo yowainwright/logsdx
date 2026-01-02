@@ -28,15 +28,15 @@ const styles = {
 };
 
 function createColorFunction(style: string) {
-  return (text: string) => `${style}${text}${styles.reset}`;
+  return (text: unknown) => `${style}${String(text)}${styles.reset}`;
 }
 
 function createChainableColor(
   appliedStyles: string[] = [],
 ): ChainableColorFunction {
-  const fn = ((text: string) => {
+  const fn = ((text: unknown) => {
     const prefix = appliedStyles.join("");
-    return `${prefix}${text}${styles.reset}`;
+    return `${prefix}${String(text)}${styles.reset}`;
   }) as ChainableColorFunction;
 
   Object.keys(styles).forEach((key) => {
@@ -66,5 +66,13 @@ export const white = createColorFunction(styles.white);
 export const gray = createColorFunction(styles.gray);
 export const dim = createColorFunction(styles.dim);
 export const bold = createColorFunction(styles.bold);
+
+export function hex(color: string): (text: string) => string {
+  const c = color.startsWith("#") ? color.slice(1) : color;
+  const r = parseInt(c.slice(0, 2), 16);
+  const g = parseInt(c.slice(2, 4), 16);
+  const b = parseInt(c.slice(4, 6), 16);
+  return (text: string) => `\x1B[38;2;${r};${g};${b}m${text}${styles.reset}`;
+}
 
 export default colors;

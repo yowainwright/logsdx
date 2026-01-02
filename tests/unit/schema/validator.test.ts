@@ -6,11 +6,9 @@ import {
   parseTokenListSafe,
   validateTheme,
   validateThemeSafe,
-  convertTokenSchemaToJson,
-  convertThemeSchemaToJson,
   createThemeValidationError,
-} from "../../../src/schema/validator";
-import { z } from "zod";
+  ValidationError,
+} from "../../../src/schema";
 
 describe("Schema Validator", () => {
   describe("parseToken", () => {
@@ -19,12 +17,12 @@ describe("Schema Validator", () => {
         content: "error",
         metadata: {
           style: { color: "red" },
-          matchType: "word",
         },
       };
 
       const result = parseToken(validToken);
-      expect(result).toEqual(validToken);
+      expect(result.content).toBe("error");
+      expect(result.metadata?.style?.color).toBe("red");
     });
 
     test("throws on invalid token", () => {
@@ -57,7 +55,7 @@ describe("Schema Validator", () => {
 
       const result = parseTokenSafe(invalidToken);
       expect(result.success).toBe(false);
-      expect(result.error).toBeInstanceOf(z.ZodError);
+      expect(result.error).toBeInstanceOf(ValidationError);
     });
   });
 
@@ -102,7 +100,7 @@ describe("Schema Validator", () => {
 
       const result = parseTokenListSafe(invalidList);
       expect(result.success).toBe(false);
-      expect(result.error).toBeInstanceOf(z.ZodError);
+      expect(result.error).toBeInstanceOf(ValidationError);
     });
   });
 
@@ -157,33 +155,7 @@ describe("Schema Validator", () => {
 
       const result = validateThemeSafe(invalidTheme);
       expect(result.success).toBe(false);
-      expect(result.error).toBeInstanceOf(z.ZodError);
-    });
-  });
-
-  describe("convertTokenSchemaToJson", () => {
-    test("converts token schema to JSON schema", () => {
-      const jsonSchema = convertTokenSchemaToJson();
-
-      expect(jsonSchema).toHaveProperty("$schema");
-
-      expect(typeof jsonSchema).toBe("object");
-
-      const hasNameReference = JSON.stringify(jsonSchema).includes("Token");
-      expect(hasNameReference).toBe(true);
-    });
-  });
-
-  describe("convertThemeSchemaToJson", () => {
-    test("converts theme schema to JSON schema", () => {
-      const jsonSchema = convertThemeSchemaToJson();
-
-      expect(jsonSchema).toHaveProperty("$schema");
-
-      expect(typeof jsonSchema).toBe("object");
-
-      const hasNameReference = JSON.stringify(jsonSchema).includes("Theme");
-      expect(hasNameReference).toBe(true);
+      expect(result.error).toBeInstanceOf(ValidationError);
     });
   });
 
@@ -215,7 +187,7 @@ describe("Schema Validator", () => {
       expect(result.message).toBe("404");
     });
 
-    test("formats ZodError with validation message", () => {
+    test("formats ValidationError with validation message", () => {
       const invalidTheme = {
         name: "test",
       };

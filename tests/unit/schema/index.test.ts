@@ -1,129 +1,75 @@
 import { expect, test, describe } from "bun:test";
 import {
-  styleOptionsSchema,
-  tokenMetadataSchema,
-  patternMatchSchema,
-  schemaConfigSchema,
-  themePresetSchema,
-  tokenSchema,
-  tokenListSchema,
+  parseToken,
+  parseTokenSafe,
+  parseTokenList,
+  parseTokenListSafe,
+  parseTheme,
+  parseThemeSafe,
+  ValidationError,
 } from "../../../src/schema/index";
 
 describe("Schema Definitions", () => {
-  describe("styleOptionsSchema", () => {
-    test("validates valid style options", () => {
-      const validStyle = {
-        color: "red",
-        styleCodes: ["bold", "underline"],
-        htmlStyleFormat: "css",
+  describe("parseToken", () => {
+    test("validates token with style", () => {
+      const validToken = {
+        content: "error",
+        metadata: {
+          style: { color: "red" },
+        },
       };
 
-      const result = styleOptionsSchema.safeParse(validStyle);
+      const result = parseTokenSafe(validToken);
       expect(result.success).toBe(true);
     });
 
-    test("requires color property", () => {
-      const invalidStyle = {
-        styleCodes: ["bold"],
+    test("requires content property", () => {
+      const missingContent = {
+        metadata: { style: { color: "red" } },
       };
 
-      const result = styleOptionsSchema.safeParse(invalidStyle);
+      const result = parseTokenSafe(missingContent);
       expect(result.success).toBe(false);
     });
 
-    test("validates htmlStyleFormat enum values", () => {
-      const validStyle = { color: "blue", htmlStyleFormat: "className" };
-      const invalidStyle = { color: "blue", htmlStyleFormat: "invalid" };
-
-      expect(styleOptionsSchema.safeParse(validStyle).success).toBe(true);
-      expect(styleOptionsSchema.safeParse(invalidStyle).success).toBe(false);
-    });
-  });
-
-  describe("tokenMetadataSchema", () => {
-    test("validates metadata with style", () => {
-      const validMetadata = {
-        style: { color: "green" },
-        matchType: "word",
+    test("validates token without metadata", () => {
+      const tokenWithoutMetadata = {
+        content: "just content",
       };
 
-      const result = tokenMetadataSchema.safeParse(validMetadata);
-      expect(result.success).toBe(true);
-    });
-
-    test("allows additional properties", () => {
-      const metadataWithExtra = {
-        style: { color: "blue" },
-        customField: "value",
-        matchType: "regex",
-      };
-
-      const result = tokenMetadataSchema.safeParse(metadataWithExtra);
+      const result = parseTokenSafe(tokenWithoutMetadata);
       expect(result.success).toBe(true);
     });
   });
 
-  describe("patternMatchSchema", () => {
-    test("validates pattern match definition", () => {
-      const validPattern = {
-        name: "errorPattern",
-        pattern: "Error:\\s.*",
-        options: { color: "red" },
-      };
+  describe("parseTokenList", () => {
+    test("validates token list", () => {
+      const validList = [
+        { content: "error", metadata: { style: { color: "red" } } },
+        { content: " message", metadata: { style: { color: "white" } } },
+      ];
 
-      const result = patternMatchSchema.safeParse(validPattern);
+      const result = parseTokenListSafe(validList);
       expect(result.success).toBe(true);
     });
 
-    test("requires all properties", () => {
-      const missingOptions = {
-        name: "errorPattern",
-        pattern: "Error:\\s.*",
-      };
+    test("validates empty list", () => {
+      const result = parseTokenListSafe([]);
+      expect(result.success).toBe(true);
+    });
 
-      const result = patternMatchSchema.safeParse(missingOptions);
+    test("fails on invalid tokens", () => {
+      const invalidList = [
+        { content: "valid" },
+        { invalidProp: "not a token" },
+      ];
+
+      const result = parseTokenListSafe(invalidList);
       expect(result.success).toBe(false);
     });
   });
 
-  describe("schemaConfigSchema", () => {
-    test("validates empty config", () => {
-      const result = schemaConfigSchema.safeParse({});
-      expect(result.success).toBe(true);
-    });
-
-    test("validates full config", () => {
-      const fullConfig = {
-        defaultStyle: { color: "white" },
-        matchWords: { error: { color: "red" } },
-        matchStartsWith: { "[ERR]": { color: "red" } },
-        matchEndsWith: { failed: { color: "red" } },
-        matchContains: { warning: { color: "yellow" } },
-        matchPatterns: [
-          {
-            name: "timestamp",
-            pattern: "\\d{4}-\\d{2}-\\d{2}",
-            options: { color: "blue" },
-          },
-        ],
-        whiteSpace: "preserve",
-        newLine: "trim",
-      };
-
-      const result = schemaConfigSchema.safeParse(fullConfig);
-      expect(result.success).toBe(true);
-    });
-
-    test("validates default values", () => {
-      const emptyConfig = {};
-      const result = schemaConfigSchema.parse(emptyConfig);
-
-      expect(result.whiteSpace).toBe("preserve");
-      expect(result.newLine).toBe("preserve");
-    });
-  });
-
-  describe("themePresetSchema", () => {
+  describe("parseTheme", () => {
     test("validates theme preset", () => {
       const validTheme = {
         name: "Dark Theme",
@@ -134,7 +80,7 @@ describe("Schema Definitions", () => {
         },
       };
 
-      const result = themePresetSchema.safeParse(validTheme);
+      const result = parseThemeSafe(validTheme);
       expect(result.success).toBe(true);
     });
 
@@ -143,58 +89,131 @@ describe("Schema Definitions", () => {
         name: "Dark Theme",
       };
 
-      const result = themePresetSchema.safeParse(missingSchema);
+      const result = parseThemeSafe(missingSchema);
       expect(result.success).toBe(false);
     });
-  });
 
-  describe("tokenSchema", () => {
-    test("validates token", () => {
-      const validToken = {
-        content: "error",
-        metadata: {
-          style: { color: "red" },
-          matchType: "word",
+    test("validates full config", () => {
+      const fullConfig = {
+        name: "Full Theme",
+        schema: {
+          defaultStyle: { color: "white" },
+          matchWords: { error: { color: "red" } },
+          matchStartsWith: { "[ERR]": { color: "red" } },
+          matchEndsWith: { failed: { color: "red" } },
+          matchContains: { warning: { color: "yellow" } },
+          matchPatterns: [
+            {
+              name: "timestamp",
+              pattern: "\\d{4}-\\d{2}-\\d{2}",
+              options: { color: "blue" },
+            },
+          ],
+          whiteSpace: "preserve",
+          newLine: "trim",
         },
       };
 
-      const result = tokenSchema.safeParse(validToken);
+      const result = parseThemeSafe(fullConfig);
       expect(result.success).toBe(true);
     });
 
-    test("requires content property", () => {
-      const missingContent = {
-        metadata: { style: { color: "red" } },
+    test("validates default values for whiteSpace and newLine", () => {
+      const minimalTheme = {
+        name: "Minimal",
+        schema: {},
       };
+      const result = parseTheme(minimalTheme);
 
-      const result = tokenSchema.safeParse(missingContent);
-      expect(result.success).toBe(false);
+      expect(result.schema.whiteSpace).toBe("preserve");
+      expect(result.schema.newLine).toBe("preserve");
     });
   });
 
-  describe("tokenListSchema", () => {
-    test("validates token list", () => {
-      const validList = [
-        { content: "error", metadata: { style: { color: "red" } } },
-        { content: " message", metadata: { style: { color: "white" } } },
-      ];
+  describe("Style validation", () => {
+    test("validates valid style in token", () => {
+      const validToken = {
+        content: "test",
+        metadata: {
+          style: {
+            color: "red",
+            styleCodes: ["bold", "underline"],
+            htmlStyleFormat: "css",
+          },
+        },
+      };
 
-      const result = tokenListSchema.safeParse(validList);
+      const result = parseTokenSafe(validToken);
       expect(result.success).toBe(true);
     });
 
-    test("validates empty list", () => {
-      const result = tokenListSchema.safeParse([]);
+    test("requires color in style", () => {
+      const invalidToken = {
+        content: "test",
+        metadata: {
+          style: {
+            styleCodes: ["bold"],
+          },
+        },
+      };
+
+      const result = parseTokenSafe(invalidToken);
+      expect(result.success).toBe(false);
+    });
+
+    test("validates htmlStyleFormat enum values", () => {
+      const validCss = {
+        content: "test",
+        metadata: { style: { color: "blue", htmlStyleFormat: "css" } },
+      };
+      const validClassName = {
+        content: "test",
+        metadata: { style: { color: "blue", htmlStyleFormat: "className" } },
+      };
+      const invalidFormat = {
+        content: "test",
+        metadata: { style: { color: "blue", htmlStyleFormat: "invalid" } },
+      };
+
+      expect(parseTokenSafe(validCss).success).toBe(true);
+      expect(parseTokenSafe(validClassName).success).toBe(true);
+      expect(parseTokenSafe(invalidFormat).success).toBe(false);
+    });
+  });
+
+  describe("Pattern match validation", () => {
+    test("validates pattern match in theme", () => {
+      const theme = {
+        name: "Test",
+        schema: {
+          matchPatterns: [
+            {
+              name: "errorPattern",
+              pattern: "Error:\\s.*",
+              options: { color: "red" },
+            },
+          ],
+        },
+      };
+
+      const result = parseThemeSafe(theme);
       expect(result.success).toBe(true);
     });
 
-    test("fails on invalid tokens", () => {
-      const invalidList = [
-        { content: "valid" },
-        { invalidProp: "not a token" },
-      ];
+    test("requires all pattern match properties", () => {
+      const theme = {
+        name: "Test",
+        schema: {
+          matchPatterns: [
+            {
+              name: "errorPattern",
+              pattern: "Error:\\s.*",
+            },
+          ],
+        },
+      };
 
-      const result = tokenListSchema.safeParse(invalidList);
+      const result = parseThemeSafe(theme);
       expect(result.success).toBe(false);
     });
   });

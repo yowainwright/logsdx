@@ -27,6 +27,6 @@ const styles = {
 
 export type StyleName = keyof typeof styles;
 
-export type ChainableColorFunction = ((text: string) => string) & {
+export type ChainableColorFunction = ((text: unknown) => string) & {
   [K in Exclude<StyleName, "reset">]: ChainableColorFunction;
 };

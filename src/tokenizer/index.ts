@@ -347,7 +347,7 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
         pattern: string | RegExp;
         name?: string;
         identifier?: string;
-        options?: unknown;
+        options?: StyleOptions;
       }>,
     );
   } else if (schema.matchPatterns) {

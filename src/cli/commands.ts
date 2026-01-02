@@ -127,9 +127,9 @@ export async function createInteractiveTheme(
   const mode = await select({
     message: "Theme mode:",
     choices: [
-      { name: "🌙 Dark (for dark terminals)", value: "dark" },
-      { name: "☀️  Light (for light terminals)", value: "light" },
-      { name: "🔄 Auto (system preference)", value: "auto" },
+      { name: "Dark (for dark terminals)", value: "dark" },
+      { name: "Light (for light terminals)", value: "light" },
+      { name: "Auto (system preference)", value: "auto" },
     ],
     default: "dark",
   });
@@ -143,7 +143,7 @@ export async function createInteractiveTheme(
   const preset = await select({
     message: "Choose a color preset:",
     choices: Object.keys(COLOR_PRESETS).map((name) => ({
-      name: name === "Custom" ? "🎨 Custom (define your own)" : `🎨 ${name}`,
+      name: name === "Custom" ? "Custom (define your own)" : name,
       value: name,
     })),
   });
@@ -215,24 +215,12 @@ export async function createInteractiveTheme(
   const presets = await checkbox({
     message: "Select features to highlight:",
     choices: [
-      {
-        name: "📊 Log levels (ERROR, WARN, INFO)",
-        value: "logLevels",
-        checked: true,
-      },
-      {
-        name: "🔢 Numbers and numeric values",
-        value: "numbers",
-        checked: true,
-      },
-      { name: "📅 Dates and timestamps", value: "dates", checked: true },
-      { name: "✅ Boolean values", value: "booleans", checked: true },
-      {
-        name: "🔤 Brackets and punctuation",
-        value: "brackets",
-        checked: true,
-      },
-      { name: "💬 Quoted strings", value: "strings", checked: false },
+      { name: "Log levels (ERROR, WARN, INFO)", value: "logLevels", checked: true },
+      { name: "Numbers and numeric values", value: "numbers", checked: true },
+      { name: "Dates and timestamps", value: "dates", checked: true },
+      { name: "Boolean values", value: "booleans", checked: true },
+      { name: "Brackets and punctuation", value: "brackets", checked: true },
+      { name: "Quoted strings", value: "strings", checked: false },
     ],
   });
 
@@ -250,7 +238,7 @@ export async function createInteractiveTheme(
   createSpinner.succeed("Theme created!");
 
   console.log("\n");
-  await renderPreview(theme, `✨ ${theme.name} Preview`);
+  await renderPreview(theme, `${theme.name} Preview`);
 
   const checkAccessibility = await confirm({
     message: "Check accessibility compliance?",
@@ -263,14 +251,14 @@ export async function createInteractiveTheme(
     accessSpinner.stop();
 
     const accessBox = boxen(
-      `WCAG Level: ${result.level} ${result.level === "AAA" ? "🏆" : result.level === "AA" ? "✅" : result.level === "A" ? "⚠️" : "❌"}\n` +
+      `WCAG Level: ${result.level}\n` +
         `Min Contrast Ratio: ${result.details.normalText.ratio.toFixed(2)}\n` +
         (result.recommendations.length > 0
           ? "\nRecommendations:\n" +
-            result.recommendations.map((r: string) => `• ${r}`).join("\n")
-          : "\n✅ No issues found!"),
+            result.recommendations.map((r: string) => `- ${r}`).join("\n")
+          : "\nNo issues found"),
       {
-        title: "♿ Accessibility Report",
+        title: "Accessibility Report",
         padding: 1,
         borderStyle: "round",
         borderColor:
@@ -301,11 +289,11 @@ export async function createInteractiveTheme(
   const saveOption = await select({
     message: "How would you like to save the theme?",
     choices: [
-      { name: "💾 Export as JSON file", value: "json" },
-      { name: "📝 Export as TypeScript file", value: "typescript" },
-      { name: "📋 Copy to clipboard", value: "clipboard" },
-      { name: "🚀 Register for immediate use", value: "register" },
-      { name: "❌ Don't save", value: "none" },
+      { name: "Export as JSON file", value: "json" },
+      { name: "Export as TypeScript file", value: "typescript" },
+      { name: "Copy to clipboard", value: "clipboard" },
+      { name: "Register for immediate use", value: "register" },
+      { name: "Don't save", value: "none" },
     ],
   });
 
@@ -315,7 +303,7 @@ export async function createInteractiveTheme(
 
   console.log(
     boxen(
-      colorUtil.green("🎉 Theme creation complete!\n\n") +
+      colorUtil.green("Theme creation complete!\n\n") +
         colorUtil.dim(
           `Use your theme with: ${colorUtil.cyan(`logsdx --theme ${theme.name}`)}`,
         ),
@@ -353,7 +341,7 @@ async function saveTheme(theme: Theme, saveOption: string) {
     }
 
     writeFileSync(filepath, JSON.stringify(themeData, null, 2));
-    console.log(colorUtil.green(`✅ Saved to ${filepath}`));
+    console.log(colorUtil.green(`Saved to ${filepath}`));
   } else if (saveOption === "typescript") {
     const filepath = await input({
       message: "Save as:",
@@ -371,6 +359,6 @@ export const ${theme.name.replace(/[^a-zA-Z0-9]/g, "_")}Theme: Theme = ${JSON.st
 `;
 
     writeFileSync(filepath, tsContent);
-    console.log(colorUtil.green(`✅ Saved to ${filepath}`));
+    console.log(colorUtil.green(`Saved to ${filepath}`));
   }
 }

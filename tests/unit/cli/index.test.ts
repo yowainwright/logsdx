@@ -1,6 +1,5 @@
 import { expect, test, describe } from "bun:test";
 import { parseArgs, loadConfig } from "../../../src/cli/index";
-import { cliOptionsSchema } from "../../../src/cli/types";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -303,54 +302,3 @@ describe("loadConfig", () => {
   });
 });
 
-describe("Zod schema validation", () => {
-  test("cliOptionsSchema should validate valid options", () => {
-    const validOptions = {
-      theme: "dracula",
-      debug: true,
-      output: "result.log",
-      format: "ansi" as const,
-    };
-
-    const result = cliOptionsSchema.parse(validOptions);
-    expect(result.theme).toBe("dracula");
-    expect(result.debug).toBe(true);
-    expect(result.output).toBe("result.log");
-    expect(result.format).toBe("ansi");
-  });
-
-  test("cliOptionsSchema should apply defaults", () => {
-    const minimalOptions = {};
-
-    const result = cliOptionsSchema.parse(minimalOptions);
-    expect(result.debug).toBe(false);
-    expect(result.quiet).toBe(false);
-    expect(result.listThemes).toBe(false);
-    expect(result.interactive).toBe(false);
-    expect(result.preview).toBe(false);
-    expect(result.noSpinner).toBe(false);
-  });
-
-  test("cliOptionsSchema should reject invalid format", () => {
-    const invalidOptions = {
-      format: "invalid",
-    };
-
-    expect(() => cliOptionsSchema.parse(invalidOptions)).toThrow();
-  });
-
-  test("cliOptionsSchema should validate commander options", () => {
-    const commanderOptions = {
-      theme: "oh-my-zsh",
-      debug: true,
-      interactive: false,
-      format: "html",
-    };
-
-    const result = cliOptionsSchema.parse(commanderOptions);
-    expect(result.theme).toBe("oh-my-zsh");
-    expect(result.debug).toBe(true);
-    expect(result.interactive).toBe(false);
-    expect(result.format).toBe("html");
-  });
-});

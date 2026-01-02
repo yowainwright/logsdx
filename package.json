@@ -51,7 +51,7 @@
   "scripts": {
     "setup": "bash scripts/setup.sh",
     "clean": "rm -rf dist node_modules/.bun site/node_modules",
-    "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types && bun run generate-schema",
+    "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
     "build:cli": "bun build src/cli/bin.ts --outfile dist/cli.js --format cjs --minify --target node",
@@ -66,7 +66,6 @@
     "format:check": "bun run prettier --check .",
     "check": "bun run lint && bun run format:check && bun run test",
     "generate-css": "bun run scripts/generate-css.ts",
-    "generate-schema": "bun run scripts/generate-schema.ts",
     "demo": "bun run demo-dracula-consistency.js",
     "turbo:build": "turbo run build",
     "turbo:dev": "turbo run dev",
@@ -91,10 +90,7 @@
     "oxlint": "^0.15.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.6",
-    "typescript": "^5.0.0",
-    "zod-to-json-schema": "^3.24.6"
+    "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "zod": "^3.25.74"
-  }
+  "dependencies": {}
 }

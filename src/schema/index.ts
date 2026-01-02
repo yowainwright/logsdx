@@ -1,7 +1,6 @@
-import { z } from "zod";
+import { v, ValidationError, isValidationError, formatValidationIssues } from "../lib/validate";
 import {
   COLOR_VALIDATION_MESSAGE,
-  EMPTY_COLOR_MESSAGE,
   STYLE_CODES,
   WHITESPACE_OPTIONS,
   NEWLINE_OPTIONS,
@@ -9,61 +8,113 @@ import {
   HTML_STYLE_FORMATS,
   DEFAULT_WHITESPACE,
   DEFAULT_NEWLINE,
-  THEME_MODE_DESCRIPTION,
-  TOKEN_CONTENT_DESCRIPTION,
-  TOKEN_METADATA_DESCRIPTION,
-  TOKEN_STYLE_DESCRIPTION,
-  HTML_STYLE_FORMAT_DESCRIPTION,
 } from "./constants";
 import { isValidColorFormat } from "./utils";
+import type { StyleOptions, PatternMatch, SchemaConfig, Theme } from "../types";
 
-export const styleOptionsSchema = z.object({
-  color: z.string().min(1, EMPTY_COLOR_MESSAGE).refine(isValidColorFormat, {
-    message: COLOR_VALIDATION_MESSAGE,
-  }),
-  styleCodes: z.array(z.enum(STYLE_CODES)).optional(),
-  htmlStyleFormat: z
-    .enum(HTML_STYLE_FORMATS)
-    .optional()
-    .describe(HTML_STYLE_FORMAT_DESCRIPTION),
+const styleOptionsValidator = v.object({
+  color: v.refine(v.string(), isValidColorFormat, COLOR_VALIDATION_MESSAGE),
+  styleCodes: v.array(v.enum(STYLE_CODES)).optional(),
+  htmlStyleFormat: v.enum(HTML_STYLE_FORMATS).optional(),
 });
 
-export const tokenMetadataSchema = z
-  .object({
-    style: styleOptionsSchema.optional().describe(TOKEN_STYLE_DESCRIPTION),
-  })
-  .catchall(z.unknown())
-  .optional();
-
-export const patternMatchSchema = z.object({
-  name: z.string(),
-  pattern: z.string(),
-  options: styleOptionsSchema,
+const patternMatchValidator = v.object({
+  name: v.string(),
+  pattern: v.string(),
+  options: styleOptionsValidator,
 });
 
-export const schemaConfigSchema = z.object({
-  defaultStyle: styleOptionsSchema.optional(),
-  matchWords: z.record(z.string(), styleOptionsSchema).optional(),
-  matchStartsWith: z.record(z.string(), styleOptionsSchema).optional(),
-  matchEndsWith: z.record(z.string(), styleOptionsSchema).optional(),
-  matchContains: z.record(z.string(), styleOptionsSchema).optional(),
-  matchPatterns: z.array(patternMatchSchema).optional(),
-  whiteSpace: z.enum(WHITESPACE_OPTIONS).optional().default(DEFAULT_WHITESPACE),
-  newLine: z.enum(NEWLINE_OPTIONS).optional().default(DEFAULT_NEWLINE),
+const schemaConfigValidator = v.object({
+  defaultStyle: styleOptionsValidator.optional(),
+  matchWords: v.record(styleOptionsValidator).optional(),
+  matchStartsWith: v.record(styleOptionsValidator).optional(),
+  matchEndsWith: v.record(styleOptionsValidator).optional(),
+  matchContains: v.record(styleOptionsValidator).optional(),
+  matchPatterns: v.array(patternMatchValidator).optional(),
+  whiteSpace: v.withDefault(v.enum(WHITESPACE_OPTIONS), DEFAULT_WHITESPACE),
+  newLine: v.withDefault(v.enum(NEWLINE_OPTIONS), DEFAULT_NEWLINE),
 });
 
-export const themePresetSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  mode: z.enum(THEME_MODES).optional().describe(THEME_MODE_DESCRIPTION),
-  schema: schemaConfigSchema,
+const themePresetValidator = v.object({
+  name: v.string(),
+  description: v.string().optional(),
+  mode: v.enum(THEME_MODES).optional(),
+  schema: schemaConfigValidator,
 });
 
-export const tokenSchema = z.object({
-  content: z.string().describe(TOKEN_CONTENT_DESCRIPTION),
-  metadata: tokenMetadataSchema.describe(TOKEN_METADATA_DESCRIPTION),
+const tokenMetadataValidator = v.object({
+  style: styleOptionsValidator.optional(),
+}).optional();
+
+const tokenValidator = v.object({
+  content: v.string(),
+  metadata: tokenMetadataValidator,
 });
 
-export const tokenListSchema = z.array(tokenSchema);
+const tokenListValidator = v.array(tokenValidator);
 
-export * from "./validator";
+export type TokenMetadata = {
+  style?: StyleOptions;
+  matchType?: string;
+  matchPattern?: string;
+  pattern?: string | RegExp;
+  trimmed?: boolean;
+  originalLength?: number;
+};
+
+export type Token = { content: string; metadata?: TokenMetadata };
+export type TokenList = Token[];
+
+export function parseToken(token: unknown): Token {
+  return tokenValidator.parse(token) as Token;
+}
+
+export function parseTokenSafe(token: unknown): { success: boolean; data?: Token; error?: ValidationError } {
+  const result = tokenValidator.safeParse(token);
+  if (result.success) return { success: true, data: result.data as Token };
+  return { success: false, error: result.error };
+}
+
+export function parseTokenList(tokens: unknown): TokenList {
+  return tokenListValidator.parse(tokens) as TokenList;
+}
+
+export function parseTokenListSafe(tokens: unknown): { success: boolean; data?: TokenList; error?: ValidationError } {
+  const result = tokenListValidator.safeParse(tokens);
+  if (result.success) return { success: true, data: result.data as TokenList };
+  return { success: false, error: result.error };
+}
+
+export function parseTheme(theme: unknown): Theme {
+  return themePresetValidator.parse(theme) as Theme;
+}
+
+export function parseThemeSafe(theme: unknown): { success: boolean; data?: Theme; error?: ValidationError } {
+  const result = themePresetValidator.safeParse(theme);
+  if (result.success) return { success: true, data: result.data as Theme };
+  return { success: false, error: result.error };
+}
+
+export function createThemeValidationError(error: unknown): Error {
+  if (!isValidationError(error)) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+  const message = `Theme validation failed: ${formatValidationIssues(error.issues)}`;
+  const err = new Error(message);
+  err.cause = error;
+  return err;
+}
+
+export function validateTheme(theme: unknown): Theme {
+  try {
+    return parseTheme(theme);
+  } catch (error) {
+    throw createThemeValidationError(error);
+  }
+}
+
+export function validateThemeSafe(theme: unknown): { success: boolean; data?: Theme; error?: ValidationError } {
+  return parseThemeSafe(theme);
+}
+
+export { isValidationError, formatValidationIssues, ValidationError };

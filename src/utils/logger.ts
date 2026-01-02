@@ -41,31 +41,31 @@ export function createLogger(prefix?: string) {
   return {
     info(message: string): void {
       if (shouldLog("info")) {
-        console.log(colors.blue("ℹ"), formatMessage(prefix, message));
+        console.log(colors.blue("[info]"), formatMessage(prefix, message));
       }
     },
 
     success(message: string): void {
       if (shouldLog("info")) {
-        console.log(colors.green("✔"), formatMessage(prefix, message));
+        console.log(colors.green("[ok]"), formatMessage(prefix, message));
       }
     },
 
     warn(message: string): void {
       if (shouldLog("warn")) {
-        console.log(colors.yellow("⚠"), formatMessage(prefix, message));
+        console.log(colors.yellow("[warn]"), formatMessage(prefix, message));
       }
     },
 
     error(message: string): void {
       if (shouldLog("error")) {
-        console.error(colors.red("✖"), formatMessage(prefix, message));
+        console.error(colors.red("[error]"), formatMessage(prefix, message));
       }
     },
 
     debug(message: string): void {
       if (shouldLog("debug")) {
-        console.log(colors.gray("⚙"), formatMessage(prefix, message));
+        console.log(colors.gray("[debug]"), formatMessage(prefix, message));
       }
     },
   };
