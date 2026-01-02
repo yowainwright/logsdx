@@ -1,5 +1,9 @@
 import { COLOR_PATTERN } from "./constants";
-import { ValidationError, isValidationError, formatValidationIssues } from "../lib/validate";
+import {
+  ValidationError,
+  isValidationError,
+  formatValidationIssues,
+} from "../lib/validate";
 
 export function isValidColorFormat(color: string): boolean {
   return COLOR_PATTERN.test(color);

@@ -1,5 +1,9 @@
 import { expect, test, describe } from "bun:test";
-import { showThemeList, InteractiveConfig, ThemeChoice } from "../../../src/cli/interactive";
+import {
+  showThemeList,
+  InteractiveConfig,
+  ThemeChoice,
+} from "../../../src/cli/interactive";
 
 describe("showThemeList", () => {
   test("should not throw when called", () => {

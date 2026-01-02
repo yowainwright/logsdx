@@ -1,4 +1,9 @@
-import { v, ValidationError, isValidationError, formatValidationIssues } from "../lib/validate";
+import {
+  v,
+  ValidationError,
+  isValidationError,
+  formatValidationIssues,
+} from "../lib/validate";
 import {
   COLOR_VALIDATION_MESSAGE,
   STYLE_CODES,
@@ -42,9 +47,11 @@ const themePresetValidator = v.object({
   schema: schemaConfigValidator,
 });
 
-const tokenMetadataValidator = v.object({
-  style: styleOptionsValidator.optional(),
-}).optional();
+const tokenMetadataValidator = v
+  .object({
+    style: styleOptionsValidator.optional(),
+  })
+  .optional();
 
 const tokenValidator = v.object({
   content: v.string(),
@@ -69,7 +76,11 @@ export function parseToken(token: unknown): Token {
   return tokenValidator.parse(token) as Token;
 }
 
-export function parseTokenSafe(token: unknown): { success: boolean; data?: Token; error?: ValidationError } {
+export function parseTokenSafe(token: unknown): {
+  success: boolean;
+  data?: Token;
+  error?: ValidationError;
+} {
   const result = tokenValidator.safeParse(token);
   if (result.success) return { success: true, data: result.data as Token };
   return { success: false, error: result.error };
@@ -79,7 +90,11 @@ export function parseTokenList(tokens: unknown): TokenList {
   return tokenListValidator.parse(tokens) as TokenList;
 }
 
-export function parseTokenListSafe(tokens: unknown): { success: boolean; data?: TokenList; error?: ValidationError } {
+export function parseTokenListSafe(tokens: unknown): {
+  success: boolean;
+  data?: TokenList;
+  error?: ValidationError;
+} {
   const result = tokenListValidator.safeParse(tokens);
   if (result.success) return { success: true, data: result.data as TokenList };
   return { success: false, error: result.error };
@@ -89,7 +104,11 @@ export function parseTheme(theme: unknown): Theme {
   return themePresetValidator.parse(theme) as Theme;
 }
 
-export function parseThemeSafe(theme: unknown): { success: boolean; data?: Theme; error?: ValidationError } {
+export function parseThemeSafe(theme: unknown): {
+  success: boolean;
+  data?: Theme;
+  error?: ValidationError;
+} {
   const result = themePresetValidator.safeParse(theme);
   if (result.success) return { success: true, data: result.data as Theme };
   return { success: false, error: result.error };
@@ -113,7 +132,11 @@ export function validateTheme(theme: unknown): Theme {
   }
 }
 
-export function validateThemeSafe(theme: unknown): { success: boolean; data?: Theme; error?: ValidationError } {
+export function validateThemeSafe(theme: unknown): {
+  success: boolean;
+  data?: Theme;
+  error?: ValidationError;
+} {
   return parseThemeSafe(theme);
 }
 

@@ -352,9 +352,7 @@ export function listColorPalettesCommand(): void {
   });
 
   console.log(
-    colors.yellow(
-      "Use --generate-theme to create a theme with these palettes",
-    ),
+    colors.yellow("Use --generate-theme to create a theme with these palettes"),
   );
 }
 

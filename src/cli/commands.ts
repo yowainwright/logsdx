@@ -215,7 +215,11 @@ export async function createInteractiveTheme(
   const presets = await checkbox({
     message: "Select features to highlight:",
     choices: [
-      { name: "Log levels (ERROR, WARN, INFO)", value: "logLevels", checked: true },
+      {
+        name: "Log levels (ERROR, WARN, INFO)",
+        value: "logLevels",
+        checked: true,
+      },
       { name: "Numbers and numeric values", value: "numbers", checked: true },
       { name: "Dates and timestamps", value: "dates", checked: true },
       { name: "Boolean values", value: "booleans", checked: true },

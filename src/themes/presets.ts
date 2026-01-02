@@ -1,7 +1,15 @@
 import type { ThemePreset, StyleOptions, PatternMatch } from "../types";
 import { filterStyleCodes } from "../types";
 
-type ColorRole = "primary" | "secondary" | "success" | "warning" | "error" | "info" | "muted" | "accent";
+type ColorRole =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "error"
+  | "info"
+  | "muted"
+  | "accent";
 
 export type ColorPalette = {
   name: string;
@@ -28,7 +36,13 @@ export type ColorPalette = {
 export type PatternPreset = {
   name: string;
   description: string;
-  category: "api" | "system" | "application" | "security" | "database" | "generic";
+  category:
+    | "api"
+    | "system"
+    | "application"
+    | "security"
+    | "database"
+    | "generic";
   patterns: {
     name: string;
     pattern: string;

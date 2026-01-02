@@ -162,9 +162,7 @@ export async function showThemeList(): Promise<void> {
     console.log(`   ${styledSample}`);
   }
 
-  console.log(
-    colors.yellow("\nUse --interactive for guided theme selection"),
-  );
+  console.log(colors.yellow("\nUse --interactive for guided theme selection"));
   console.log(
     colors.yellow("Use --preview to see all themes with sample logs"),
   );
