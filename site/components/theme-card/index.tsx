@@ -5,12 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useThemeProcessor } from "@/hooks/useThemeProcessor";
 import { LogPane } from "./LogPane";
 import { formatThemeName } from "./utils";
-import { SAMPLE_LOGS, THEME_BACKGROUNDS, DEFAULT_BACKGROUND } from "./constants";
+import {
+  SAMPLE_LOGS,
+  THEME_BACKGROUNDS,
+  DEFAULT_BACKGROUND,
+} from "./constants";
 import type { ThemeCardProps } from "./types";
 
 export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
   const logs = useMemo(() => SAMPLE_LOGS, []);
-  const { processedLogs, isLoading, theme } = useThemeProcessor(themeName, logs);
+  const { processedLogs, isLoading, theme } = useThemeProcessor(
+    themeName,
+    logs,
+  );
   const colors = THEME_BACKGROUNDS[themeName] || DEFAULT_BACKGROUND;
 
   if (!isVisible) return null;

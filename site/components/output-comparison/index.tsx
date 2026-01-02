@@ -15,13 +15,11 @@ const GhosttyTerminal = dynamic(
         Loading terminal...
       </div>
     ),
-  }
+  },
 );
 
 function escapeAnsiForDisplay(ansi: string): string {
-  return ansi
-    .replace(/\x1b/g, "\\x1b")
-    .replace(/\[/g, "[");
+  return ansi.replace(/\x1b/g, "\\x1b").replace(/\[/g, "[");
 }
 
 function escapeHtmlForDisplay(html: string): string {
@@ -108,7 +106,10 @@ export function OutputComparison() {
         return (
           <div className="space-y-1">
             {outputs.map((output, i) => (
-              <div key={i} className="font-mono text-sm text-amber-400 break-all">
+              <div
+                key={i}
+                className="font-mono text-sm text-amber-400 break-all"
+              >
                 {output.ansiVisible}
               </div>
             ))}
@@ -127,7 +128,10 @@ export function OutputComparison() {
         return (
           <div className="space-y-2">
             {outputs.map((output, i) => (
-              <div key={i} className="font-mono text-xs text-emerald-400 break-all">
+              <div
+                key={i}
+                className="font-mono text-xs text-emerald-400 break-all"
+              >
                 {escapeHtmlForDisplay(output.html)}
               </div>
             ))}
@@ -288,4 +292,8 @@ export function OutputComparison() {
 }
 
 export { GhosttyTerminal } from "./GhosttyTerminal";
-export type { OutputComparisonProps, OutputTab, GhosttyTerminalProps } from "./types";
+export type {
+  OutputComparisonProps,
+  OutputTab,
+  GhosttyTerminalProps,
+} from "./types";

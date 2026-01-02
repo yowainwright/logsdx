@@ -28,14 +28,20 @@ describe("SchemaVisualization", () => {
 
   it("shows Theme section by default", () => {
     render(<SchemaVisualization />);
-    expect(screen.getByText("Root theme object that defines styling rules")).toBeDefined();
+    expect(
+      screen.getByText("Root theme object that defines styling rules"),
+    ).toBeDefined();
   });
 
   it("switches sections when tab is clicked", () => {
     render(<SchemaVisualization />);
-    const schemaConfigButton = screen.getByRole("button", { name: "SchemaConfig" });
+    const schemaConfigButton = screen.getByRole("button", {
+      name: "SchemaConfig",
+    });
     fireEvent.click(schemaConfigButton);
-    expect(screen.getByText("Defines how log content is matched and styled")).toBeDefined();
+    expect(
+      screen.getByText("Defines how log content is matched and styled"),
+    ).toBeDefined();
   });
 
   it("renders matching priority list", () => {

@@ -20,7 +20,9 @@ let globalConfig: LoggerConfig = {
 };
 
 function shouldLog(messageLevel: LogLevel): boolean {
-  return LOG_LEVEL_PRIORITY[messageLevel] <= LOG_LEVEL_PRIORITY[globalConfig.level];
+  return (
+    LOG_LEVEL_PRIORITY[messageLevel] <= LOG_LEVEL_PRIORITY[globalConfig.level]
+  );
 }
 
 function formatMessage(prefix: string | undefined, message: string): string {

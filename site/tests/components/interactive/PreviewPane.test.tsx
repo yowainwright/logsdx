@@ -53,7 +53,9 @@ describe("PreviewPane", () => {
   });
 
   it("renders with showBorder prop", () => {
-    const { container } = render(<PreviewPane {...defaultProps} showBorder={true} />);
+    const { container } = render(
+      <PreviewPane {...defaultProps} showBorder={true} />,
+    );
     expect(container.firstChild).toBeDefined();
   });
 

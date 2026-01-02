@@ -68,7 +68,9 @@ export function useThemeProcessor(
         setProcessedLogs(results);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to process logs");
+          setError(
+            err instanceof Error ? err.message : "Failed to process logs",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -125,7 +127,7 @@ export function useLogProcessor() {
             outputFormat: format,
             htmlStyleFormat: "css",
             escapeHtml: true,
-          })
+          }),
         );
       } finally {
         setIsProcessing(false);

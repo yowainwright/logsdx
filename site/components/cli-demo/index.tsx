@@ -115,21 +115,39 @@ export function CliDemo() {
                   {activeFeature === 0 && (
                     <TerminalOutput
                       lines={[
-                        { text: "INFO: Server started on port 3000", color: "#7aa2f7" },
-                        { text: "WARN: Memory usage high: 85%", color: "#e0af68" },
+                        {
+                          text: "INFO: Server started on port 3000",
+                          color: "#7aa2f7",
+                        },
+                        {
+                          text: "WARN: Memory usage high: 85%",
+                          color: "#e0af68",
+                        },
                         { text: "ERROR: Connection timeout", color: "#f7768e" },
-                        { text: "DEBUG: Cache hit ratio: 92%", color: "#787c99" },
-                        { text: "SUCCESS: Request completed ✓", color: "#9ece6a" },
+                        {
+                          text: "DEBUG: Cache hit ratio: 92%",
+                          color: "#787c99",
+                        },
+                        {
+                          text: "SUCCESS: Request completed ✓",
+                          color: "#9ece6a",
+                        },
                       ]}
                     />
                   )}
                   {activeFeature === 1 && (
                     <TerminalOutput
                       lines={[
-                        { text: "Processing app.log...", color: TERMINAL_COLORS.text },
+                        {
+                          text: "Processing app.log...",
+                          color: TERMINAL_COLORS.text,
+                        },
                         { text: "✓ 1,234 lines processed", color: "#9ece6a" },
                         { text: "✓ Theme: github-dark", color: "#9ece6a" },
-                        { text: "✓ Output saved to app.styled.log", color: "#9ece6a" },
+                        {
+                          text: "✓ Output saved to app.styled.log",
+                          color: "#9ece6a",
+                        },
                       ]}
                     />
                   )}
@@ -140,32 +158,74 @@ export function CliDemo() {
                         { text: "║  │ ││ ┬└─┐ ║║╔╩╦╝", color: "#bb9af7" },
                         { text: "╩═╝└─┘└─┘└─┘═╩╝╩ ╚═", color: "#9ece6a" },
                         { text: "", color: "" },
-                        { text: "? Theme name: my-custom-theme", color: TERMINAL_COLORS.text },
-                        { text: "? Theme mode: 🌙 Dark", color: TERMINAL_COLORS.text },
-                        { text: "? Color preset: 🎨 Vibrant", color: TERMINAL_COLORS.text },
+                        {
+                          text: "? Theme name: my-custom-theme",
+                          color: TERMINAL_COLORS.text,
+                        },
+                        {
+                          text: "? Theme mode: 🌙 Dark",
+                          color: TERMINAL_COLORS.text,
+                        },
+                        {
+                          text: "? Color preset: 🎨 Vibrant",
+                          color: TERMINAL_COLORS.text,
+                        },
                       ]}
                     />
                   )}
                   {activeFeature === 3 && (
                     <TerminalOutput
                       lines={[
-                        { text: "┌─────────────────────────────┐", color: "#7aa2f7" },
-                        { text: "│  Theme Preview: nord        │", color: "#7aa2f7" },
-                        { text: "├─────────────────────────────┤", color: "#7aa2f7" },
-                        { text: "│ INFO: Server started        │", color: "#88c0d0" },
-                        { text: "│ WARN: High memory usage     │", color: "#ebcb8b" },
-                        { text: "│ ERROR: Connection failed    │", color: "#bf616a" },
-                        { text: "└─────────────────────────────┘", color: "#7aa2f7" },
+                        {
+                          text: "┌─────────────────────────────┐",
+                          color: "#7aa2f7",
+                        },
+                        {
+                          text: "│  Theme Preview: nord        │",
+                          color: "#7aa2f7",
+                        },
+                        {
+                          text: "├─────────────────────────────┤",
+                          color: "#7aa2f7",
+                        },
+                        {
+                          text: "│ INFO: Server started        │",
+                          color: "#88c0d0",
+                        },
+                        {
+                          text: "│ WARN: High memory usage     │",
+                          color: "#ebcb8b",
+                        },
+                        {
+                          text: "│ ERROR: Connection failed    │",
+                          color: "#bf616a",
+                        },
+                        {
+                          text: "└─────────────────────────────┘",
+                          color: "#7aa2f7",
+                        },
                       ]}
                     />
                   )}
                   {activeFeature === 4 && (
                     <TerminalOutput
                       lines={[
-                        { text: "[10:23:45] Request received from 192.168.1.1", color: "#7aa2f7" },
-                        { text: "[10:23:46] Processing request id=abc123", color: "#787c99" },
-                        { text: "[10:23:47] Response sent: 200 OK (45ms)", color: "#9ece6a" },
-                        { text: "[10:23:48] New connection established", color: "#7aa2f7" },
+                        {
+                          text: "[10:23:45] Request received from 192.168.1.1",
+                          color: "#7aa2f7",
+                        },
+                        {
+                          text: "[10:23:46] Processing request id=abc123",
+                          color: "#787c99",
+                        },
+                        {
+                          text: "[10:23:47] Response sent: 200 OK (45ms)",
+                          color: "#9ece6a",
+                        },
+                        {
+                          text: "[10:23:48] New connection established",
+                          color: "#7aa2f7",
+                        },
                         { text: "█", color: TERMINAL_COLORS.text, blink: true },
                       ]}
                     />
@@ -173,7 +233,10 @@ export function CliDemo() {
                   {activeFeature === 5 && (
                     <TerminalOutput
                       lines={[
-                        { text: "Available Themes:", color: TERMINAL_COLORS.text },
+                        {
+                          text: "Available Themes:",
+                          color: TERMINAL_COLORS.text,
+                        },
                         { text: "", color: "" },
                         { text: "  • dracula", color: "#bd93f9" },
                         { text: "  • github-dark", color: "#7aa2f7" },
@@ -205,7 +268,11 @@ function TerminalOutput({ lines }: { lines: TerminalLine[] }) {
   return (
     <>
       {lines.map((line, i) => (
-        <div key={i} style={{ color: line.color }} className={line.blink ? "animate-pulse" : ""}>
+        <div
+          key={i}
+          style={{ color: line.color }}
+          className={line.blink ? "animate-pulse" : ""}
+        >
           {line.text}
         </div>
       ))}

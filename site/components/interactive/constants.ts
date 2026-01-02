@@ -22,7 +22,10 @@ export const THEME_PAIRS: Record<string, ThemePair> = {
   "Oh My Zsh": { light: "oh-my-zsh", dark: "oh-my-zsh" },
 };
 
-export const THEME_BACKGROUNDS: Record<string, { bg: string; headerBg: string; border: string }> = {
+export const THEME_BACKGROUNDS: Record<
+  string,
+  { bg: string; headerBg: string; border: string }
+> = {
   "github-light": { bg: "#ffffff", headerBg: "#f6f8fa", border: "#d1d9e0" },
   "github-dark": { bg: "#0d1117", headerBg: "#161b22", border: "#30363d" },
   "solarized-light": { bg: "#fdf6e3", headerBg: "#eee8d5", border: "#eee8d5" },

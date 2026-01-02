@@ -8,7 +8,11 @@ export const SAMPLE_LOGS = [
   "[SUCCESS] Deploy complete ✓",
 ];
 
-export const OUTPUT_TABS: { id: OutputTab; label: string; description: string }[] = [
+export const OUTPUT_TABS: {
+  id: OutputTab;
+  label: string;
+  description: string;
+}[] = [
   {
     id: "ansi-raw",
     label: "ANSI (Raw)",

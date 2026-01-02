@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
-import { render, screen, cleanup, fireEvent } from "../../utils/test-utils";
-import { LogPlayground } from "@/components/log-playground";
 
 mock.module("@/hooks/useThemeProcessor", () => ({
   useThemeProcessor: () => ({
@@ -12,6 +10,9 @@ mock.module("@/hooks/useThemeProcessor", () => ({
     theme: { name: "dracula", mode: "dark" },
   }),
 }));
+
+import { render, screen, cleanup, fireEvent } from "../../utils/test-utils";
+import { LogPlayground } from "@/components/log-playground";
 
 describe("LogPlayground", () => {
   beforeEach(() => {

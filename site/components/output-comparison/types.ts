@@ -8,7 +8,11 @@ export interface ProcessedOutput {
   ansiVisible: string;
 }
 
-export type OutputTab = "ansi-raw" | "ansi-rendered" | "html-raw" | "html-rendered";
+export type OutputTab =
+  | "ansi-raw"
+  | "ansi-rendered"
+  | "html-raw"
+  | "html-rendered";
 
 export interface GhosttyTerminalProps {
   ansiOutputs: string[];

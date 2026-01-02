@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
-import { render, screen, cleanup } from "../../utils/test-utils";
-import { ThemeCard } from "@/components/theme-card";
 
 mock.module("@/hooks/useThemeProcessor", () => ({
   useThemeProcessor: () => ({
@@ -13,6 +11,9 @@ mock.module("@/hooks/useThemeProcessor", () => ({
     theme: { name: "dracula", mode: "dark" },
   }),
 }));
+
+import { render, screen, cleanup } from "../../utils/test-utils";
+import { ThemeCard } from "@/components/theme-card";
 
 describe("ThemeCard", () => {
   beforeEach(() => {
@@ -40,7 +41,9 @@ describe("ThemeCard", () => {
   });
 
   it("returns null when not visible", () => {
-    const { container } = render(<ThemeCard themeName="dracula" isVisible={false} />);
+    const { container } = render(
+      <ThemeCard themeName="dracula" isVisible={false} />,
+    );
     expect(container.firstChild).toBeNull();
   });
 

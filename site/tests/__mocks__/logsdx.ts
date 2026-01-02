@@ -1,7 +1,7 @@
-import { vi } from "bun:test";
+import { mock } from "bun:test";
 
-export const createSimpleTheme = vi.fn(
-  (name: string, colors: any, options?: any) => ({
+export const createSimpleTheme = mock(
+  (name: string, colors: unknown, options?: { mode?: string }) => ({
     name,
     colors,
     mode: options?.mode || "dark",
@@ -9,16 +9,30 @@ export const createSimpleTheme = vi.fn(
   }),
 );
 
-export const registerTheme = vi.fn();
+export const registerTheme = mock(() => {});
 
-export const getLogsDX = vi.fn().mockResolvedValue({
+export const getLogsDX = mock(async () => ({
   processLine: (line: string) => `<span style="color: #f8f8f2">${line}</span>`,
   processLines: (lines: string[]) =>
     lines.map((line) => `<span>${line}</span>`),
-  setTheme: vi.fn(),
-  getCurrentTheme: vi.fn(),
-});
+  setTheme: mock(() => {}),
+  getCurrentTheme: mock(() => {}),
+}));
 
-export const getTheme = vi.fn();
-export const getAllThemes = vi.fn(() => ({}));
-export const getThemeNames = vi.fn(() => []);
+export const getTheme = mock(async () => ({
+  name: "mock-theme",
+  mode: "dark",
+  schema: { defaultStyle: { color: "#f8f8f2" } },
+}));
+
+export const renderLine = mock(
+  (line: string, _theme: unknown, options?: { outputFormat?: string }) => {
+    if (options?.outputFormat === "html") {
+      return `<span style="color: #f8f8f2">${line}</span>`;
+    }
+    return line;
+  },
+);
+
+export const getAllThemes = mock(() => ({}));
+export const getThemeNames = mock(() => []);

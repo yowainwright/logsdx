@@ -21,7 +21,8 @@ export default function DemosPage() {
               Demos
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-400">
-              See logsDX in action with real terminal and browser output comparisons
+              See logsDX in action with real terminal and browser output
+              comparisons
             </p>
           </div>
         </div>

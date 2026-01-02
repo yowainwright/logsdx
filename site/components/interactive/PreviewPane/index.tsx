@@ -21,9 +21,15 @@ export function PreviewPane({
         style={{ backgroundColor: headerBg }}
       >
         <div className="flex gap-1.5">
-          <div className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.close}`} />
-          <div className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.minimize}`} />
-          <div className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.maximize}`} />
+          <div
+            className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.close}`}
+          />
+          <div
+            className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.minimize}`}
+          />
+          <div
+            className={`w-3 h-3 rounded-full ${WINDOW_BUTTON_COLORS.maximize}`}
+          />
         </div>
         <span className="text-xs text-white/70">{title}</span>
       </div>
@@ -40,7 +46,11 @@ export function PreviewPane({
             <div
               key={i}
               className="leading-relaxed"
-              style={showBorder ? { borderBottom: `1px solid ${borderColor}` } : undefined}
+              style={
+                showBorder
+                  ? { borderBottom: `1px solid ${borderColor}` }
+                  : undefined
+              }
               dangerouslySetInnerHTML={{ __html: log }}
             />
           ))

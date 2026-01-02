@@ -3,7 +3,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { GhosttyTerminalProps } from "./types";
 
-export function GhosttyTerminal({ ansiOutputs, isLoading }: GhosttyTerminalProps) {
+export function GhosttyTerminal({
+  ansiOutputs,
+  isLoading,
+}: GhosttyTerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<unknown>(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -56,7 +59,9 @@ export function GhosttyTerminal({ ansiOutputs, isLoading }: GhosttyTerminalProps
         setIsInitialized(true);
       } catch (err) {
         console.error("Failed to initialize Ghostty terminal:", err);
-        setError(err instanceof Error ? err.message : "Failed to load terminal");
+        setError(
+          err instanceof Error ? err.message : "Failed to load terminal",
+        );
       }
     }
 
@@ -64,7 +69,11 @@ export function GhosttyTerminal({ ansiOutputs, isLoading }: GhosttyTerminalProps
 
     return () => {
       mounted = false;
-      if (terminalRef.current && typeof (terminalRef.current as { dispose?: () => void }).dispose === "function") {
+      if (
+        terminalRef.current &&
+        typeof (terminalRef.current as { dispose?: () => void }).dispose ===
+          "function"
+      ) {
         (terminalRef.current as { dispose: () => void }).dispose();
       }
     };
@@ -73,7 +82,10 @@ export function GhosttyTerminal({ ansiOutputs, isLoading }: GhosttyTerminalProps
   useEffect(() => {
     if (!isInitialized || !terminalRef.current || isLoading) return;
 
-    const term = terminalRef.current as { write: (data: string) => void; clear: () => void };
+    const term = terminalRef.current as {
+      write: (data: string) => void;
+      clear: () => void;
+    };
 
     term.clear();
 

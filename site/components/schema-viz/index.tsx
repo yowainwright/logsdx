@@ -132,7 +132,8 @@ export function SchemaVisualization() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-purple-500">2.</span>
-                    Each token is checked against matching rules in priority order
+                    Each token is checked against matching rules in priority
+                    order
                   </li>
                   <li className="flex gap-2">
                     <span className="text-purple-500">3.</span>

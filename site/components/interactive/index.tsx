@@ -32,7 +32,9 @@ export function InteractiveExamplesSection() {
   useEffect(() => {
     const detectMode = () => {
       if (colorMode === "system") {
-        const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
         setEffectiveMode(isDark ? "dark" : "light");
       } else {
         setEffectiveMode(colorMode as "light" | "dark");
@@ -51,19 +53,24 @@ export function InteractiveExamplesSection() {
     }
   }, [colorMode]);
 
-  const currentThemePair = THEME_PAIRS[selectedTheme as keyof typeof THEME_PAIRS];
+  const currentThemePair =
+    THEME_PAIRS[selectedTheme as keyof typeof THEME_PAIRS];
   const currentThemeName = currentThemePair[effectiveMode];
   const isDarkOnly = currentThemePair.light === currentThemePair.dark;
 
   const logs = useMemo(() => SAMPLE_LOGS, []);
-  const { processedLogs, isLoading } = useThemeProcessor(currentThemeName, logs);
+  const { processedLogs, isLoading } = useThemeProcessor(
+    currentThemeName,
+    logs,
+  );
 
   const handleThemeChange = (theme: string) => {
     setSelectedTheme(theme);
     autoRotateRef.current = false;
   };
 
-  const bg = THEME_BACKGROUNDS[currentThemeName] || THEME_BACKGROUNDS["github-dark"];
+  const bg =
+    THEME_BACKGROUNDS[currentThemeName] || THEME_BACKGROUNDS["github-dark"];
   const htmlLogs = processedLogs.map((p) => p.html);
 
   return (

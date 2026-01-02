@@ -33,7 +33,9 @@ describe("OutputComparison", () => {
 
   it("renders custom log input", () => {
     render(<OutputComparison />);
-    expect(screen.getByPlaceholderText("Paste your own logs here...")).toBeDefined();
+    expect(
+      screen.getByPlaceholderText("Paste your own logs here..."),
+    ).toBeDefined();
   });
 
   it("switches tabs when clicked", () => {

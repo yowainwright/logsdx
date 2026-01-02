@@ -50,7 +50,9 @@ describe("ThemeControls", () => {
   });
 
   it("hides color mode buttons when dark only", () => {
-    const { container } = render(<ThemeControls {...defaultProps} isDarkOnly={true} />);
+    const { container } = render(
+      <ThemeControls {...defaultProps} isDarkOnly={true} />,
+    );
     const iconButtons = container.querySelectorAll("button.h-8.w-8");
     expect(iconButtons.length).toBe(0);
   });
