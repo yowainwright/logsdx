@@ -50,7 +50,7 @@ pnpm add logsdx
 import { getLogsDX } from "logsdx";
 
 // Initialize with a built-in theme
-const logger = getLogsDX("dracula");
+const logger = await getLogsDX({ theme: "dracula" });
 
 // Style a log line
 console.log(
@@ -78,22 +78,28 @@ styledLogs.forEach((line) => console.log(line));
 ### 3. Browser Integration (React Example)
 
 ```jsx
-import { LogsDX } from "logsdx";
+import { useEffect, useState } from "react";
+import { getLogsDX } from "logsdx";
 
 function LogViewer({ logs }) {
-  const logger = LogsDX.getInstance({
-    theme: "dracula",
-    outputFormat: "html",
-    htmlStyleFormat: "css",
-  });
+  const [styledLogs, setStyledLogs] = useState([]);
+
+  useEffect(() => {
+    async function styleLogs() {
+      const logger = await getLogsDX({
+        theme: "dracula",
+        outputFormat: "html",
+        htmlStyleFormat: "css",
+      });
+      setStyledLogs(logs.map((log) => logger.processLine(log)));
+    }
+    styleLogs();
+  }, [logs]);
 
   return (
     <div className="log-container">
-      {logs.map((log, i) => (
-        <div
-          key={i}
-          dangerouslySetInnerHTML={{ __html: logger.processLine(log) }}
-        />
+      {styledLogs.map((log, i) => (
+        <div key={i} dangerouslySetInnerHTML={{ __html: log }} />
       ))}
     </div>
   );
@@ -104,18 +110,21 @@ function LogViewer({ logs }) {
 
 ```javascript
 // Terminal output with ANSI colors
-const terminalLogger = getLogsDX("dracula", {
+const terminalLogger = await getLogsDX({
+  theme: "dracula",
   outputFormat: "ansi",
 });
 
 // HTML with inline styles
-const htmlLogger = getLogsDX("dracula", {
+const htmlLogger = await getLogsDX({
+  theme: "dracula",
   outputFormat: "html",
   htmlStyleFormat: "css",
 });
 
 // HTML with CSS classes
-const classLogger = getLogsDX("dracula", {
+const classLogger = await getLogsDX({
+  theme: "dracula",
   outputFormat: "html",
   htmlStyleFormat: "className",
 });

@@ -36,44 +36,32 @@ export const CLASS_ITALIC = "logsdx-italic";
 export const CLASS_UNDERLINE = "logsdx-underline";
 export const CLASS_DIM = "logsdx-dim";
 
+function getEnv(key: string): string | undefined {
+  const hasProcess = typeof process !== "undefined" && process.env;
+  return hasProcess ? process.env[key] : undefined;
+}
+
+function isTTY(): boolean {
+  const hasProcess = typeof process !== "undefined" && process.stdout;
+  return hasProcess ? process.stdout.isTTY !== false : true;
+}
+
+function isColorTerm(term: string): boolean {
+  const colorTerms = ["xterm", "screen", "tmux"];
+  const hasColorKeyword = term.includes("color") || term.includes("256") || term.includes("ansi");
+  return hasColorKeyword || colorTerms.includes(term) || Boolean(getEnv("COLORTERM"));
+}
+
 export function supportsColors(): boolean {
-  if (process.env.NO_COLOR) {
-    return false;
-  }
+  if (getEnv("NO_COLOR")) return false;
+  if (getEnv("FORCE_COLOR")) return true;
+  if (!isTTY()) return false;
 
-  if (process.env.FORCE_COLOR) {
-    return true;
-  }
+  const term = getEnv("TERM");
+  if (!term) return true;
+  if (term === "dumb") return false;
 
-  if (process.stdout && process.stdout.isTTY === false) {
-    return false;
-  }
-
-  const term = process.env.TERM;
-  if (!term) {
-    if (typeof Bun !== "undefined" || "Deno" in globalThis) {
-      return true;
-    }
-    return false;
-  }
-
-  if (term === "dumb") {
-    return false;
-  }
-
-  if (
-    term.includes("color") ||
-    term.includes("256") ||
-    term.includes("ansi") ||
-    term === "xterm" ||
-    term === "screen" ||
-    term === "tmux" ||
-    process.env.COLORTERM
-  ) {
-    return true;
-  }
-
-  return false;
+  return isColorTerm(term);
 }
 
 export const DARK_TERMINALS: ReadonlyArray<string> = [

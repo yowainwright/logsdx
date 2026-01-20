@@ -18,7 +18,13 @@ import { validateTheme, validateThemeSafe } from "./schema/validator";
 import { tokenize, applyTheme } from "./tokenizer";
 import { createLogger } from "./utils/logger";
 import type { TokenList } from "./schema/types";
-import type { RenderOptions } from "./renderer/types";
+import type {
+  RenderOptions,
+  OutputFormat,
+  HtmlStyleFormat,
+  MatchType,
+  TokenWithStyle,
+} from "./renderer/types";
 import type {
   LineParser,
   ParsedLine,
@@ -353,7 +359,10 @@ export type {
   TokenList,
   LineParser,
   ParsedLine,
+  LogsDXOptions,
 };
+
+export type { OutputFormat, HtmlStyleFormat, MatchType, TokenWithStyle, RenderOptions };
 
 export {
   getTheme,
@@ -373,6 +382,8 @@ export {
   THEME_PRESETS,
 };
 
+export { isValidationError, formatValidationIssues, ValidationError } from "./schema";
+
 export { tokenize, applyTheme };
 
 export {
@@ -380,6 +391,7 @@ export {
   renderLightBox,
   renderLightBoxLine,
   isLightThemeRenderer as isLightThemeStyle,
+  isLightThemeRenderer as isLightTheme,
 };
 
 export {

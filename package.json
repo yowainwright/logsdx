@@ -19,6 +19,12 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
     },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.cjs",
+      "default": "./dist/core.mjs"
+    },
     "./themes": {
       "types": "./dist/themes/index.d.ts",
       "import": "./dist/themes/index.mjs",
@@ -30,6 +36,12 @@
       "import": "./dist/themes/presets/*.mjs",
       "require": "./dist/themes/presets/*.cjs",
       "default": "./dist/themes/presets/*.mjs"
+    },
+    "./tokenizer": {
+      "types": "./dist/tokenizer/index.d.ts",
+      "import": "./dist/tokenizer/index.mjs",
+      "require": "./dist/tokenizer/index.cjs",
+      "default": "./dist/tokenizer/index.mjs"
     },
     "./renderer": {
       "types": "./dist/renderer/index.d.ts",
@@ -51,9 +63,10 @@
   "scripts": {
     "setup": "bash scripts/setup.sh",
     "clean": "rm -rf dist node_modules/.bun site/node_modules",
-    "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types",
+    "build": "bun run build:cjs && bun run build:esm && bun run build:core && bun run build:cli && bun run build:types",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
+    "build:core": "bun build src/core.ts --outfile dist/core.mjs --format esm --minify && bun build src/core.ts --outfile dist/core.cjs --format cjs --minify",
     "build:cli": "bun build src/cli/bin.ts --outfile dist/cli.js --format cjs --minify --target node",
     "build:types": "tsc -p tsconfig.build.json",
     "test": "bun test tests/",

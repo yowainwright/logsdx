@@ -189,3 +189,40 @@
 pre span[style] {
   font-weight: inherit;
 }
+
+/* Prose code blocks - Light mode */
+.prose pre {
+  background-color: #f8fafc !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1e293b;
+}
+
+.prose code {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Prose code blocks - Dark mode */
+.dark .prose pre {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.dark .prose code {
+  background-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .prose pre code {
+  background-color: transparent;
+}

@@ -29,6 +29,7 @@ export const docsNavigation: NavItem[] = [
     items: [
       { title: "Custom Themes", href: "/docs/guides/custom-themes" },
       { title: "CLI Usage", href: "/docs/guides/cli-usage" },
+      { title: "Theme Schema", href: "/docs/guides/theme-schema" },
       { title: "Integrations", href: "/docs/guides/integrations" },
     ],
   },

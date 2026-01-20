@@ -25,12 +25,13 @@ describe("LogPlayground", () => {
 
   it("renders the playground title", () => {
     render(<LogPlayground />);
-    expect(screen.getByText("Live Log Playground")).toBeDefined();
+    expect(screen.getByText("Live")).toBeDefined();
+    expect(screen.getByText("Log Playground")).toBeDefined();
   });
 
   it("renders theme selector", () => {
     render(<LogPlayground />);
-    expect(screen.getByLabelText("Theme:")).toBeDefined();
+    expect(screen.getByRole("combobox")).toBeDefined();
   });
 
   it("renders input textarea", () => {
@@ -56,7 +57,7 @@ describe("LogPlayground", () => {
 
   it("uses default theme from props", () => {
     render(<LogPlayground defaultTheme="nord" />);
-    const select = screen.getByLabelText("Theme:") as HTMLSelectElement;
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
     expect(select.value).toBe("nord");
   });
 });

@@ -1,290 +1,282 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { getTheme, renderLine } from "logsdx";
-import { SAMPLE_LOGS, OUTPUT_TABS, THEME_OPTIONS } from "./constants";
-import type { OutputTab, ProcessedOutput } from "./types";
+import { getTheme } from "logsdx";
+import { SAMPLE_LOGS, THEME_OPTIONS, TEXT, CLASSES, STYLES, DEFAULT_GHOSTTY_THEME } from "./constants";
+import { themeToGhostty, processLogsWithTheme } from "./utils";
+import type { ViewMode, ProcessedOutput, GhosttyTheme } from "./types";
+
+const TerminalLoader = () => (
+  <div className="flex items-center justify-center h-64 text-slate-500">
+    {TEXT.labels.loadingTerminal}
+  </div>
+);
 
 const GhosttyTerminal = dynamic(
   () => import("./GhosttyTerminal").then((mod) => mod.GhosttyTerminal),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-64 text-slate-500">
-        Loading terminal...
-      </div>
-    ),
-  },
+  { ssr: false, loading: TerminalLoader },
 );
 
-function escapeAnsiForDisplay(ansi: string): string {
-  return ansi.replace(/\x1b/g, "\\x1b").replace(/\[/g, "[");
-}
-
 function escapeHtmlForDisplay(html: string): string {
-  return html
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-export function OutputComparison() {
-  const [theme, setTheme] = useState("dracula");
-  const [activeTab, setActiveTab] = useState<OutputTab>("ansi-raw");
+const WINDOW_DOTS = ["red", "yellow", "green"] as const;
+const MODE_BUTTONS = [{ id: "rendered", label: "Rendered" }, { id: "source", label: "Source" }] as const;
+
+interface TerminalWindowProps {
+  title: string;
+  mode: ViewMode;
+  onModeChange: (mode: ViewMode) => void;
+  bgColor: string;
+  children: React.ReactNode;
+}
+
+function TerminalWindowDots() {
+  const dots = WINDOW_DOTS.map((color) => {
+    const dotClass = CLASSES.terminal.dot[color];
+    return <div key={color} className={dotClass} />;
+  });
+  return <div className={CLASSES.terminal.dots}>{dots}</div>;
+}
+
+interface ModeButtonsProps {
+  mode: ViewMode;
+  onModeChange: (mode: ViewMode) => void;
+}
+
+function getModeButtonClass(isActive: boolean): string {
+  const base = "px-2 py-1 text-xs rounded transition-colors";
+  if (isActive) return `${base} bg-white/20 text-white`;
+  return `${base} text-white/60 hover:text-white hover:bg-white/10`;
+}
+
+function ModeButtons({ mode, onModeChange }: ModeButtonsProps) {
+  const buttons = MODE_BUTTONS.map(({ id, label }) => {
+    const isActive = mode === id;
+    const className = getModeButtonClass(isActive);
+    const handleClick = () => onModeChange(id as ViewMode);
+    return <button key={id} onClick={handleClick} className={className}>{label}</button>;
+  });
+  return <div className="ml-auto flex gap-1">{buttons}</div>;
+}
+
+function TerminalWindow({ title, mode, onModeChange, bgColor, children }: TerminalWindowProps) {
+  const wrapperClass = `${CLASSES.terminal.wrapper} h-full flex flex-col`;
+  const contentClass = `${CLASSES.terminal.content} flex-1`;
+  const contentStyle = { backgroundColor: bgColor };
+
+  return (
+    <div className={wrapperClass}>
+      <div className={CLASSES.terminal.header}>
+        <TerminalWindowDots />
+        <span className={CLASSES.terminal.title}>{title}</span>
+        <ModeButtons mode={mode} onModeChange={onModeChange} />
+      </div>
+      <div className={contentClass} style={contentStyle}>{children}</div>
+    </div>
+  );
+}
+
+interface ThemeButtonProps {
+  theme: string;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+function getThemeButtonClass(isSelected: boolean): string {
+  const base = "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors";
+  const selected = "bg-blue-600 text-white font-medium";
+  const unselected = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
+  if (isSelected) return `${base} ${selected}`;
+  return `${base} ${unselected}`;
+}
+
+function ThemeButton({ theme, isSelected, onClick }: ThemeButtonProps) {
+  const buttonClass = getThemeButtonClass(isSelected);
+  return <button onClick={onClick} className={buttonClass}>{theme}</button>;
+}
+
+interface ThemeSidebarProps {
+  themeName: string;
+  onThemeChange: (theme: string) => void;
+}
+
+function ThemeSidebar({ themeName, onThemeChange }: ThemeSidebarProps) {
+  const themeButtons = THEME_OPTIONS.map((t) => {
+    const isSelected = themeName === t;
+    const handleClick = () => onThemeChange(t);
+    return <ThemeButton key={t} theme={t} isSelected={isSelected} onClick={handleClick} />;
+  });
+
+  return (
+    <div className={CLASSES.sidebar}>
+      <div>
+        <label className={CLASSES.label}>{TEXT.labels.theme}</label>
+        <div className="flex flex-col gap-1.5">{themeButtons}</div>
+      </div>
+      <p className={CLASSES.significanceText}>{TEXT.labels.significance}</p>
+    </div>
+  );
+}
+
+interface TerminalContentProps {
+  isLoading: boolean;
+  mode: ViewMode;
+  outputs: ProcessedOutput[];
+  ghosttyTheme: GhosttyTheme;
+}
+
+function TerminalContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
+  const items = outputs.map((output, i) => (
+    <div key={i} className="font-mono text-sm text-amber-400 break-all">{output.ansiVisible}</div>
+  ));
+  return <div className="space-y-1 p-4">{items}</div>;
+}
+
+function TerminalContent({ isLoading, mode, outputs, ghosttyTheme }: TerminalContentProps) {
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-64 text-slate-500">{TEXT.labels.processing}</div>;
+  }
+  if (mode === "rendered") {
+    const ansiOutputs = outputs.map((o) => o.ansi);
+    return <GhosttyTerminal ansiOutputs={ansiOutputs} isLoading={isLoading} theme={ghosttyTheme} />;
+  }
+  return <TerminalContentSource outputs={outputs} />;
+}
+
+interface BrowserContentProps {
+  isLoading: boolean;
+  mode: ViewMode;
+  outputs: ProcessedOutput[];
+}
+
+function BrowserContentRendered({ outputs }: { outputs: ProcessedOutput[] }) {
+  const items = outputs.map((output, i) => {
+    const htmlContent = { __html: output.html };
+    return <div key={i} className="font-mono text-sm" dangerouslySetInnerHTML={htmlContent} />;
+  });
+  return <div className="space-y-1 p-4 h-full min-h-[300px]">{items}</div>;
+}
+
+function BrowserContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
+  const items = outputs.map((output, i) => {
+    const escaped = escapeHtmlForDisplay(output.html);
+    return <div key={i} className="font-mono text-xs text-emerald-400 break-all">{escaped}</div>;
+  });
+  return <div className="space-y-2 p-4 h-full min-h-[300px]">{items}</div>;
+}
+
+function BrowserContent({ isLoading, mode, outputs }: BrowserContentProps) {
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-full min-h-[300px] text-slate-500">{TEXT.labels.processing}</div>;
+  }
+  if (mode === "rendered") {
+    return <BrowserContentRendered outputs={outputs} />;
+  }
+  return <BrowserContentSource outputs={outputs} />;
+}
+
+function useThemeLoader(themeName: string) {
   const [outputs, setOutputs] = useState<ProcessedOutput[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [customLog, setCustomLog] = useState("");
-
-  const logs = useMemo(() => {
-    if (customLog.trim()) {
-      return customLog.split("\n").filter(Boolean);
-    }
-    return SAMPLE_LOGS;
-  }, [customLog]);
+  const [ghosttyTheme, setGhosttyTheme] = useState(DEFAULT_GHOSTTY_THEME);
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoading(true);
 
-    async function processLogs() {
-      setIsLoading(true);
-      try {
-        const loadedTheme = await getTheme(theme);
-
+    getTheme(themeName)
+      .then((loadedTheme) => {
         if (cancelled) return;
+        setGhosttyTheme(themeToGhostty(loadedTheme));
+        setOutputs(processLogsWithTheme(SAMPLE_LOGS, loadedTheme));
+      })
+      .catch((err) => !cancelled && console.error("Failed to process logs:", err))
+      .finally(() => !cancelled && setIsLoading(false));
 
-        const results: ProcessedOutput[] = logs.map((log) => {
-          const ansi = renderLine(log, loadedTheme, {
-            outputFormat: "ansi",
-          });
+    return () => { cancelled = true; };
+  }, [themeName]);
 
-          const html = renderLine(log, loadedTheme, {
-            outputFormat: "html",
-            htmlStyleFormat: "css",
-            escapeHtml: true,
-          });
+  return { outputs, isLoading, ghosttyTheme };
+}
 
-          return {
-            ansi,
-            html,
-            ansiVisible: escapeAnsiForDisplay(ansi),
-          };
-        });
+function SectionHeader() {
+  const headerStyle = { filter: STYLES.headerDropShadow };
+  return (
+    <>
+      <h2 className={CLASSES.header.title} style={headerStyle}>
+        <span className={CLASSES.header.gradient}>{TEXT.title.highlight}</span> {TEXT.title.rest}
+      </h2>
+      <p className={CLASSES.header.description}>{TEXT.description}</p>
+    </>
+  );
+}
 
-        if (!cancelled) {
-          setOutputs(results);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Failed to process logs:", err);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
+interface OutputPanelsProps {
+  terminalMode: ViewMode;
+  browserMode: ViewMode;
+  onTerminalModeChange: (mode: ViewMode) => void;
+  onBrowserModeChange: (mode: ViewMode) => void;
+  outputs: ProcessedOutput[];
+  isLoading: boolean;
+  ghosttyTheme: GhosttyTheme;
+}
 
-    processLogs();
+function OutputPanels({ terminalMode, browserMode, onTerminalModeChange, onBrowserModeChange, outputs, isLoading, ghosttyTheme }: OutputPanelsProps) {
+  const bgColor = ghosttyTheme.background;
+  return (
+    <div className={CLASSES.content}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        <TerminalWindow title="Terminal (ANSI)" mode={terminalMode} onModeChange={onTerminalModeChange} bgColor={bgColor}>
+          <TerminalContent isLoading={isLoading} mode={terminalMode} outputs={outputs} ghosttyTheme={ghosttyTheme} />
+        </TerminalWindow>
+        <TerminalWindow title="Browser (HTML)" mode={browserMode} onModeChange={onBrowserModeChange} bgColor={bgColor}>
+          <BrowserContent isLoading={isLoading} mode={browserMode} outputs={outputs} />
+        </TerminalWindow>
+      </div>
+    </div>
+  );
+}
 
-    return () => {
-      cancelled = true;
-    };
-  }, [theme, logs]);
+function useOutputComparisonState() {
+  const [themeName, setThemeName] = useState("dracula");
+  const [terminalMode, setTerminalMode] = useState<ViewMode>("rendered");
+  const [browserMode, setBrowserMode] = useState<ViewMode>("rendered");
+  const themeData = useThemeLoader(themeName);
+  return { themeName, setThemeName, terminalMode, setTerminalMode, browserMode, setBrowserMode, ...themeData };
+}
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex items-center justify-center h-64 text-slate-500">
-          Processing...
-        </div>
-      );
-    }
-
-    switch (activeTab) {
-      case "ansi-raw":
-        return (
-          <div className="space-y-1">
-            {outputs.map((output, i) => (
-              <div
-                key={i}
-                className="font-mono text-sm text-amber-400 break-all"
-              >
-                {output.ansiVisible}
-              </div>
-            ))}
-          </div>
-        );
-
-      case "ansi-rendered":
-        return (
-          <GhosttyTerminal
-            ansiOutputs={outputs.map((o) => o.ansi)}
-            isLoading={isLoading}
-          />
-        );
-
-      case "html-raw":
-        return (
-          <div className="space-y-2">
-            {outputs.map((output, i) => (
-              <div
-                key={i}
-                className="font-mono text-xs text-emerald-400 break-all"
-              >
-                {escapeHtmlForDisplay(output.html)}
-              </div>
-            ))}
-          </div>
-        );
-
-      case "html-rendered":
-        return (
-          <div className="space-y-1">
-            {outputs.map((output, i) => (
-              <div
-                key={i}
-                className="font-mono text-sm"
-                dangerouslySetInnerHTML={{ __html: output.html }}
-              />
-            ))}
-          </div>
-        );
-    }
+function buildPanelProps(state: ReturnType<typeof useOutputComparisonState>): OutputPanelsProps {
+  return {
+    terminalMode: state.terminalMode, browserMode: state.browserMode,
+    onTerminalModeChange: state.setTerminalMode, onBrowserModeChange: state.setBrowserMode,
+    outputs: state.outputs, isLoading: state.isLoading, ghosttyTheme: state.ghosttyTheme,
   };
+}
+
+function OutputComparisonContent() {
+  const state = useOutputComparisonState();
+  const panelProps = buildPanelProps(state);
 
   return (
-    <section id="output-comparison" className="py-24">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center text-5xl lg:text-6xl font-bold">
-            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
-              Real
-            </span>{" "}
-            Output Comparison
-          </h2>
-          <p className="mb-12 text-center text-xl text-slate-600 dark:text-slate-400">
-            See exactly what logsDX outputs for terminal vs browser
-          </p>
+    <>
+      <SectionHeader />
+      <div className={CLASSES.grid}>
+        <ThemeSidebar themeName={state.themeName} onThemeChange={state.setThemeName} />
+        <OutputPanels {...panelProps} />
+      </div>
+    </>
+  );
+}
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            <div className="lg:col-span-1 space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">
-                  Theme
-                </label>
-                <select
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                >
-                  {THEME_OPTIONS.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">
-                  Custom Log (optional)
-                </label>
-                <textarea
-                  value={customLog}
-                  onChange={(e) => setCustomLog(e.target.value)}
-                  placeholder="Paste your own logs here..."
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-sm h-32 resize-none"
-                />
-              </div>
-
-              <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4">
-                <h4 className="font-semibold mb-3 text-slate-900 dark:text-white">
-                  Output Formats
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex gap-2">
-                    <span className="text-orange-500 font-bold">ANSI:</span>
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Escape codes for terminals
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="text-emerald-500 font-bold">HTML:</span>
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Styled spans for browsers
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-2">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {OUTPUT_TABS.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === tab.id
-                        ? "bg-orange-500 text-white"
-                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                {OUTPUT_TABS.find((t) => t.id === activeTab)?.description}
-              </p>
-
-              <div className="rounded-lg overflow-hidden border border-slate-700">
-                <div className="bg-slate-800 px-4 py-2 flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                  <span className="text-xs text-white/60 ml-2">
-                    {activeTab.includes("ansi") ? "Terminal" : "Browser"}
-                  </span>
-                </div>
-                <div
-                  className="p-4 min-h-[300px] overflow-auto"
-                  style={{ backgroundColor: "#1e1e1e" }}
-                >
-                  {renderContent()}
-                </div>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4">
-                  <h5 className="text-sm font-semibold mb-2 text-orange-500">
-                    Terminal Output
-                  </h5>
-                  <code className="text-xs text-slate-600 dark:text-slate-400 block">
-                    logsdx.processLine(log)
-                  </code>
-                  <p className="text-xs text-slate-500 mt-2">
-                    outputFormat: &quot;ansi&quot;
-                  </p>
-                </div>
-                <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4">
-                  <h5 className="text-sm font-semibold mb-2 text-emerald-500">
-                    Browser Output
-                  </h5>
-                  <code className="text-xs text-slate-600 dark:text-slate-400 block">
-                    logsdx.processLine(log)
-                  </code>
-                  <p className="text-xs text-slate-500 mt-2">
-                    outputFormat: &quot;html&quot;
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+export function OutputComparison() {
+  return (
+    <section id="output-comparison" className={CLASSES.section}>
+      <div className={CLASSES.container}>
+        <div className={CLASSES.wrapper}>
+          <OutputComparisonContent />
         </div>
       </div>
     </section>
@@ -294,6 +286,7 @@ export function OutputComparison() {
 export { GhosttyTerminal } from "./GhosttyTerminal";
 export type {
   OutputComparisonProps,
-  OutputTab,
+  OutputView,
+  ViewMode,
   GhosttyTerminalProps,
 } from "./types";

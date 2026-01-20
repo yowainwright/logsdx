@@ -1,0 +1,98 @@
+---
+title: Theme Schema
+description: Understand how themes work under the hood
+---
+
+## Overview
+
+Themes in logsDX use a JSON schema to define how log content is matched and styled. This guide explains each part of the theme schema.
+
+## Theme Object
+
+The root theme object defines the overall theme configuration:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | `string` | Yes | Unique identifier for the theme |
+| `description` | `string` | No | Human-readable description |
+| `mode` | `"light" \| "dark" \| "auto"` | No | Theme color mode for terminal detection |
+| `schema` | `SchemaConfig` | Yes | Matching rules and styling definitions |
+| `colors` | `Record<string, string>` | No | Named color palette for the theme |
+
+## SchemaConfig
+
+Defines how log content is matched and styled:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `defaultStyle` | `StyleOptions` | Default styling for unmatched content |
+| `matchWords` | `Record<string, StyleOptions>` | Exact word matches (case-insensitive) |
+| `matchStartsWith` | `Record<string, StyleOptions>` | Match tokens starting with a prefix |
+| `matchEndsWith` | `Record<string, StyleOptions>` | Match tokens ending with a suffix |
+| `matchContains` | `Record<string, StyleOptions>` | Match tokens containing a substring |
+| `matchPatterns` | `PatternMatch[]` | Regex patterns for complex matching |
+
+## StyleOptions
+
+Styling applied to matched content:
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `color` | `string` | Yes | Hex color code for the text |
+| `styleCodes` | `StyleCode[]` | No | Text decorations: bold, italic, underline, dim, etc. |
+| `htmlStyleFormat` | `"css" \| "className"` | No | HTML output format preference |
+
+## Matching Priority
+
+When a token is being styled, matchers are checked in this order:
+
+1. **matchPatterns** - Checked first, highest priority
+2. **matchWords** - Exact word match
+3. **matchStartsWith** - Prefix match
+4. **matchEndsWith** - Suffix match
+5. **matchContains** - Substring match
+6. **defaultStyle** - Fallback for unmatched tokens
+
+## How Matching Works
+
+1. Log line is tokenized into individual words and symbols
+2. Each token is checked against matching rules in priority order
+3. First matching rule determines the token's style
+4. Unmatched tokens use defaultStyle
+5. Styled tokens are rendered as ANSI or HTML
+
+## Example Theme
+
+```json
+{
+  "name": "my-theme",
+  "mode": "dark",
+  "schema": {
+    "defaultStyle": { "color": "#f8f8f2" },
+    "matchWords": {
+      "ERROR": { "color": "#ff5555", "styleCodes": ["bold"] },
+      "WARN": { "color": "#ffb86c" },
+      "INFO": { "color": "#8be9fd" }
+    },
+    "matchPatterns": [
+      {
+        "pattern": "\\d{4}-\\d{2}-\\d{2}",
+        "options": { "color": "#6272a4" }
+      }
+    ]
+  }
+}
+```
+
+## Style Codes
+
+Available style codes for text decoration:
+
+- `bold` - Bold text
+- `dim` - Dimmed text
+- `italic` - Italic text
+- `underline` - Underlined text
+- `blink` - Blinking text (terminal only)
+- `inverse` - Inverted colors
+- `hidden` - Hidden text
+- `strikethrough` - Strikethrough text

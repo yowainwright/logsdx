@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CLI_FEATURES, INSTALL_COMMANDS, TERMINAL_COLORS } from "./constants";
+import { CLI_FEATURES, INSTALL_COMMANDS, TERMINAL_COLORS, TEXT, CLASSES, STYLES } from "./constants";
 
 type PackageManager = keyof typeof INSTALL_COMMANDS;
 
@@ -12,29 +12,32 @@ export function CliDemo() {
   const feature = CLI_FEATURES[activeFeature];
 
   return (
-    <section id="cli" className="py-24 bg-slate-50 dark:bg-slate-900">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center text-5xl lg:text-6xl font-bold">
-            <span className="bg-gradient-to-r from-green-500 to-teal-500 bg-clip-text text-transparent">
-              Powerful
+    <section id="cli" className={CLASSES.section}>
+      <div className={CLASSES.container}>
+        <div className={CLASSES.wrapper}>
+          <h2
+            className={CLASSES.header.title}
+            style={{ filter: STYLES.headerDropShadow }}
+          >
+            <span className={CLASSES.header.gradient}>
+              {TEXT.title.highlight}
             </span>{" "}
-            CLI
+            {TEXT.title.rest}
           </h2>
-          <p className="mb-12 text-center text-xl text-slate-600 dark:text-slate-400">
-            Style your logs from anywhere with a single command
+          <p className={CLASSES.header.description}>
+            {TEXT.description}
           </p>
 
           <div className="mb-12">
-            <div className="flex justify-center gap-2 mb-4">
+            <div className={CLASSES.packageManager.wrapper}>
               {(Object.keys(INSTALL_COMMANDS) as PackageManager[]).map((pm) => (
                 <button
                   key={pm}
                   onClick={() => setPackageManager(pm)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`${CLASSES.packageManager.button.base} ${
                     packageManager === pm
-                      ? "bg-green-500 text-white"
-                      : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600"
+                      ? CLASSES.packageManager.button.active
+                      : CLASSES.packageManager.button.inactive
                   }`}
                 >
                   {pm}
@@ -42,7 +45,7 @@ export function CliDemo() {
               ))}
             </div>
             <div
-              className="rounded-lg p-4 font-mono text-center"
+              className={CLASSES.packageManager.command}
               style={{
                 backgroundColor: TERMINAL_COLORS.bg,
                 color: TERMINAL_COLORS.text,
@@ -55,28 +58,28 @@ export function CliDemo() {
             </div>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div className="space-y-3">
+          <div className={CLASSES.grid}>
+            <div className={CLASSES.featureList}>
               {CLI_FEATURES.map((f, i) => (
                 <button
                   key={f.title}
                   onClick={() => setActiveFeature(i)}
-                  className={`w-full text-left p-4 rounded-lg transition-all ${
+                  className={`${CLASSES.featureButton.base} ${
                     activeFeature === i
-                      ? "bg-green-500/10 border-2 border-green-500"
-                      : "bg-white dark:bg-slate-800 border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600"
+                      ? CLASSES.featureButton.active
+                      : CLASSES.featureButton.inactive
                   }`}
                 >
                   <h3
-                    className={`font-semibold mb-1 ${
+                    className={`${CLASSES.featureButton.titleWrapper} ${
                       activeFeature === i
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-slate-900 dark:text-white"
+                        ? CLASSES.featureButton.title.active
+                        : CLASSES.featureButton.title.inactive
                     }`}
                   >
                     {f.title}
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                  <p className={CLASSES.featureButton.description}>
                     {f.description}
                   </p>
                 </button>
@@ -88,28 +91,28 @@ export function CliDemo() {
               style={{ border: `1px solid ${TERMINAL_COLORS.border}` }}
             >
               <div
-                className="px-4 py-2 flex items-center gap-2"
+                className={CLASSES.terminal.header}
                 style={{ backgroundColor: TERMINAL_COLORS.headerBg }}
               >
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                <div className={CLASSES.terminal.dots}>
+                  <div className={CLASSES.terminal.dot.red} />
+                  <div className={CLASSES.terminal.dot.yellow} />
+                  <div className={CLASSES.terminal.dot.green} />
                 </div>
-                <span className="text-xs text-white/60 ml-2">Terminal</span>
+                <span className={CLASSES.terminal.title}>{TEXT.labels.terminal}</span>
               </div>
               <div
-                className="p-6 font-mono min-h-[300px]"
+                className={CLASSES.terminal.content}
                 style={{ backgroundColor: TERMINAL_COLORS.bg }}
               >
-                <div className="mb-4">
+                <div className={CLASSES.terminal.prompt}>
                   <span style={{ color: TERMINAL_COLORS.prompt }}>~ $ </span>
                   <span style={{ color: TERMINAL_COLORS.command }}>
                     {feature.command}
                   </span>
                 </div>
                 <div
-                  className="text-sm leading-relaxed"
+                  className={CLASSES.terminal.output}
                   style={{ color: TERMINAL_COLORS.output }}
                 >
                   {activeFeature === 0 && (

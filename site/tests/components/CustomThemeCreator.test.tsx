@@ -2,11 +2,10 @@ import {
   describe,
   it,
   expect,
-  vi,
+  mock,
   beforeEach,
   afterEach,
   beforeAll,
-  mock,
 } from "bun:test";
 import React from "react";
 import {
@@ -21,14 +20,7 @@ import {
   themeEditorActions,
 } from "@/stores/useThemeEditorStore";
 
-// Mock logsdx before any imports that use it
-mock.module("logsdx", () => ({
-  createSimpleTheme: vi.fn((name: string) => ({ name, schema: {} })),
-  registerTheme: vi.fn(),
-  getLogsDX: vi.fn().mockResolvedValue({
-    processLine: (line: string) => `<span>${line}</span>`,
-  }),
-}));
+// logsdx mock is handled by test-setup.ts preload
 
 // Mock the log preview hook to avoid actual LogsDX processing in tests
 mock.module("@/hooks/useLogPreview", () => ({
@@ -44,7 +36,7 @@ mock.module("@/hooks/useLogPreview", () => ({
 // Mock theme creation hook
 mock.module("@/hooks/useThemes", () => ({
   useCreateTheme: () => ({
-    mutate: vi.fn(),
+    mutate: () => {},
     isPending: false,
   }),
 }));
@@ -124,7 +116,7 @@ describe("CustomThemeCreator - Integration Tests", () => {
   });
 
   it("provides copy code functionality", async () => {
-    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    const mockWriteText = mock(() => Promise.resolve(undefined));
     Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: mockWriteText,
@@ -187,7 +179,7 @@ describe("CustomThemeCreator - Integration Tests", () => {
   });
 
   it("provides share theme functionality", async () => {
-    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    const mockWriteText = mock(() => Promise.resolve(undefined));
     Object.defineProperty(navigator, "clipboard", {
       value: {
         writeText: mockWriteText,

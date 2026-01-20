@@ -17,12 +17,16 @@ describe("OutputComparison", () => {
     expect(screen.getByText("Output Comparison")).toBeDefined();
   });
 
-  it("renders all output tabs", () => {
+  it("renders Terminal and HTML view tabs", () => {
     render(<OutputComparison />);
-    expect(screen.getByText("ANSI (Raw)")).toBeDefined();
-    expect(screen.getByText("ANSI (Terminal)")).toBeDefined();
-    expect(screen.getByText("HTML (Source)")).toBeDefined();
-    expect(screen.getByText("HTML (Browser)")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Terminal" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "HTML" })).toBeDefined();
+  });
+
+  it("renders Rendered and Source mode tabs", () => {
+    render(<OutputComparison />);
+    expect(screen.getByRole("button", { name: "Rendered" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Source" })).toBeDefined();
   });
 
   it("renders theme selector", () => {
@@ -38,11 +42,11 @@ describe("OutputComparison", () => {
     ).toBeDefined();
   });
 
-  it("switches tabs when clicked", () => {
+  it("switches to HTML view when clicked", () => {
     render(<OutputComparison />);
-    const htmlRawTab = screen.getByText("HTML (Source)");
-    fireEvent.click(htmlRawTab);
-    expect(screen.getByText("Raw HTML markup")).toBeDefined();
+    const htmlTab = screen.getByRole("button", { name: "HTML" });
+    fireEvent.click(htmlTab);
+    expect(screen.getByText("Browser")).toBeDefined();
   });
 
   it("shows format descriptions", () => {

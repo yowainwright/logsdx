@@ -12,80 +12,58 @@ import {
   DEFAULT_AUTO_BACKGROUND,
 } from "./constants";
 
+function getEnv(key: string): string | undefined {
+  const hasProcess = typeof process !== "undefined" && process.env;
+  return hasProcess ? process.env[key] : undefined;
+}
+
+function getPlatform(): string | undefined {
+  const hasProcess = typeof process !== "undefined";
+  return hasProcess ? process.platform : undefined;
+}
+
 function createBackgroundInfo(
   scheme: ColorScheme,
   confidence: ConfidenceLevel,
   source: BackgroundInfo["source"],
   details?: BackgroundInfo["details"],
 ): BackgroundInfo {
-  return {
-    scheme,
-    confidence,
-    source,
-    ...(details && { details }),
-  } as const;
+  return { scheme, confidence, source, ...(details && { details }) } as const;
 }
 
 function detectFromColorFgBg(): BackgroundInfo | undefined {
-  const colorFgBg = process.env.COLORFGBG;
-
-  if (!colorFgBg) {
-    return undefined;
-  }
+  const colorFgBg = getEnv("COLORFGBG");
+  if (!colorFgBg) return undefined;
 
   const bgColor = parseColorFgBg(colorFgBg);
-
-  if (bgColor === undefined) {
-    return undefined;
-  }
+  if (bgColor === undefined) return undefined;
 
   const scheme = isLightBgColor(bgColor) ? "light" : "dark";
-
   return createBackgroundInfo(scheme, "high", "terminal", { colorFgBg });
 }
 
-function isTerminalInList(
-  termProgram: string,
-  list: ReadonlyArray<string>,
-): boolean {
-  return list.includes(termProgram);
-}
-
 function detectFromTermProgram(): BackgroundInfo | undefined {
-  const termProgram = process.env.TERM_PROGRAM;
+  const termProgram = getEnv("TERM_PROGRAM");
+  if (!termProgram) return undefined;
 
-  if (!termProgram) {
-    return undefined;
-  }
-
-  if (isTerminalInList(termProgram, DARK_TERMINALS)) {
+  if (DARK_TERMINALS.includes(termProgram)) {
     return createBackgroundInfo("dark", "medium", "terminal", { termProgram });
   }
-
-  if (isTerminalInList(termProgram, LIGHT_TERMINALS)) {
+  if (LIGHT_TERMINALS.includes(termProgram)) {
     return createBackgroundInfo("light", "medium", "terminal", { termProgram });
   }
-
   return undefined;
 }
 
 function isVSCode(): boolean {
-  const hasVscodePid = Boolean(process.env.VSCODE_PID);
-  const hasVscodeVersion = Boolean(
-    process.env.TERM_PROGRAM_VERSION?.includes("vscode"),
-  );
-
-  return hasVscodePid || hasVscodeVersion;
+  const hasVscodePid = Boolean(getEnv("VSCODE_PID"));
+  const versionStr = getEnv("TERM_PROGRAM_VERSION") || "";
+  return hasVscodePid || versionStr.includes("vscode");
 }
 
 function detectFromVSCode(): BackgroundInfo | undefined {
-  if (!isVSCode()) {
-    return undefined;
-  }
-
-  return createBackgroundInfo("auto", "low", "terminal", {
-    termProgram: "vscode",
-  });
+  if (!isVSCode()) return undefined;
+  return createBackgroundInfo("auto", "low", "terminal", { termProgram: "vscode" });
 }
 
 export function detectTerminalBackground(): BackgroundInfo {
@@ -141,40 +119,25 @@ export function detectBrowserBackground(): BackgroundInfo {
 }
 
 function detectFromMacOS(): BackgroundInfo | undefined {
-  if (process.platform !== "darwin") {
-    return undefined;
-  }
+  if (getPlatform() !== "darwin") return undefined;
 
-  const appleInterfaceStyle = process.env.APPLE_INTERFACE_STYLE;
+  const appleInterfaceStyle = getEnv("APPLE_INTERFACE_STYLE");
+  if (!appleInterfaceStyle) return undefined;
 
-  if (!appleInterfaceStyle) {
-    return undefined;
-  }
-
-  const scheme =
-    appleInterfaceStyle.toLowerCase() === "dark" ? "dark" : "light";
-
-  return createBackgroundInfo(scheme, "high", "system", {
-    systemPreference: appleInterfaceStyle,
-  });
+  const scheme = appleInterfaceStyle.toLowerCase() === "dark" ? "dark" : "light";
+  return createBackgroundInfo(scheme, "high", "system", { systemPreference: appleInterfaceStyle });
 }
 
 function detectFromWindows(): BackgroundInfo | undefined {
-  if (process.platform !== "win32") {
-    return undefined;
-  }
-
+  if (getPlatform() !== "win32") return undefined;
   return createBackgroundInfo("auto", "low", "system");
 }
 
 function detectFromLinux(): BackgroundInfo | undefined {
-  const desktopSession = process.env.DESKTOP_SESSION;
-  const xdgCurrentDesktop = process.env.XDG_CURRENT_DESKTOP;
+  const desktopSession = getEnv("DESKTOP_SESSION");
+  const xdgCurrentDesktop = getEnv("XDG_CURRENT_DESKTOP");
 
-  if (!desktopSession && !xdgCurrentDesktop) {
-    return undefined;
-  }
-
+  if (!desktopSession && !xdgCurrentDesktop) return undefined;
   return createBackgroundInfo("auto", "medium", "system", {
     systemPreference: desktopSession || xdgCurrentDesktop,
   });
