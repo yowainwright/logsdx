@@ -57,9 +57,7 @@ describe("v.number()", () => {
   });
 
   it("should throw for non-number", () => {
-    expect(() => v.number().parse("42")).toThrow(
-      "Expected number, got string",
-    );
+    expect(() => v.number().parse("42")).toThrow("Expected number, got string");
   });
 });
 
@@ -172,9 +170,7 @@ describe("v.object()", () => {
         name: v.string(),
       }),
     });
-    expect(() =>
-      validator.parse({ user: { name: 123 } }),
-    ).toThrow();
+    expect(() => validator.parse({ user: { name: 123 } })).toThrow();
   });
 
   it("should handle optional fields", () => {
@@ -261,7 +257,9 @@ describe("v.refine()", () => {
       (s) => s.length >= 3,
       "Must be at least 3 characters",
     );
-    expect(() => validator.parse("hi")).toThrow("Must be at least 3 characters");
+    expect(() => validator.parse("hi")).toThrow(
+      "Must be at least 3 characters",
+    );
   });
 
   it("should throw base validator error first", () => {
