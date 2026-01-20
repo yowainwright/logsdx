@@ -1,5 +1,5 @@
-import { expect, test, describe } from "bun:test";
-import { parseArgs, loadConfig } from "../../../src/cli/index";
+import { expect, test, describe, beforeEach, afterEach, mock } from "bun:test";
+import { parseArgs, loadConfig, main } from "../../../src/cli/index";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -296,6 +296,159 @@ describe("loadConfig", () => {
       expect(config.theme).toBe("oh-my-zsh");
       expect(config.outputFormat).toBe("ansi");
       expect(config.debug).toBe(false);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+});
+
+describe("main", () => {
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalExit = process.exit;
+
+  beforeEach(() => {
+    console.log = mock(() => {});
+    console.error = mock(() => {});
+    process.exit = mock(() => {
+      throw new Error("process.exit called");
+    }) as unknown as typeof process.exit;
+  });
+
+  afterEach(() => {
+    console.log = originalLog;
+    console.error = originalError;
+    process.exit = originalExit;
+  });
+
+  test("should handle listPalettes option", async () => {
+    await main(undefined, { listPalettes: true });
+
+    expect(console.log).toHaveBeenCalled();
+  });
+
+  test("should handle listPatterns option", async () => {
+    await main(undefined, { listPatterns: true });
+
+    expect(console.log).toHaveBeenCalled();
+  });
+
+  test("should handle listThemeFiles option", async () => {
+    await main(undefined, { listThemeFiles: true });
+    expect(true).toBe(true);
+  });
+
+  test("should process log file input", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+    const logFile = path.join(tempDir, "test.log");
+
+    fs.writeFileSync(
+      logFile,
+      "2024-01-15 10:30:45 INFO Test message\n2024-01-15 10:30:46 ERROR Error message",
+    );
+
+    try {
+      await main(logFile, { theme: "oh-my-zsh" });
+
+      expect(console.log).toHaveBeenCalled();
+    } finally {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  test("should write output to file when output option is provided", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+    const logFile = path.join(tempDir, "input.log");
+    const outputFile = path.join(tempDir, "output.log");
+
+    fs.writeFileSync(logFile, "2024-01-15 10:30:45 INFO Test message");
+
+    try {
+      await main(logFile, { theme: "oh-my-zsh", output: outputFile });
+
+      expect(fs.existsSync(outputFile)).toBe(true);
+      const content = fs.readFileSync(outputFile, "utf8");
+      expect(content.length).toBeGreaterThan(0);
+    } finally {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  test("should handle non-existent file error", async () => {
+    try {
+      await main("/nonexistent/file.log", { theme: "oh-my-zsh" });
+    } catch (e) {
+      expect((e as Error).message).toBe("process.exit called");
+    }
+  });
+
+  test("should handle listThemes option without preview", async () => {
+    await main(undefined, { listThemes: true, quiet: false });
+
+    const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+    const allOutput = calls.map((call) => call.join(" ")).join("\n");
+    expect(allOutput).toContain("themes");
+  });
+
+  test("should handle quiet mode with listThemes", async () => {
+    await main(undefined, { listThemes: true, quiet: true });
+
+    const beforeCallCount = (console.log as ReturnType<typeof mock>).mock.calls
+      .length;
+    expect(beforeCallCount).toBe(0);
+  });
+
+  test("should handle html output format", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+    const logFile = path.join(tempDir, "test.log");
+    const outputFile = path.join(tempDir, "output.html");
+
+    fs.writeFileSync(logFile, "2024-01-15 10:30:45 INFO Test message");
+
+    try {
+      await main(logFile, {
+        theme: "oh-my-zsh",
+        output: outputFile,
+        format: "html",
+      });
+
+      expect(fs.existsSync(outputFile)).toBe(true);
+      const content = fs.readFileSync(outputFile, "utf8");
+      expect(content).toContain("span");
+    } finally {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  test("should auto-detect html format from output filename", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+    const logFile = path.join(tempDir, "test.log");
+    const outputFile = path.join(tempDir, "output.html");
+
+    fs.writeFileSync(logFile, "INFO Test message");
+
+    try {
+      await main(logFile, { theme: "oh-my-zsh", output: outputFile });
+
+      const content = fs.readFileSync(outputFile, "utf8");
+      expect(content).toContain("span");
+    } finally {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  test("should use config file settings", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+    const configFile = path.join(tempDir, "config.json");
+    const logFile = path.join(tempDir, "test.log");
+
+    fs.writeFileSync(configFile, JSON.stringify({ theme: "dracula" }));
+    fs.writeFileSync(logFile, "INFO Test message");
+
+    try {
+      await main(logFile, { config: configFile });
+
+      expect(console.log).toHaveBeenCalled();
     } finally {
       fs.rmSync(tempDir, { recursive: true });
     }

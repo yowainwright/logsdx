@@ -9,6 +9,10 @@ import {
   createThemeValidationError,
   ValidationError,
 } from "../../../src/schema";
+import {
+  createTokenJsonSchemaOptions,
+  createThemeJsonSchemaOptions,
+} from "../../../src/schema/validator";
 
 describe("Schema Validator", () => {
   describe("parseToken", () => {
@@ -200,6 +204,28 @@ describe("Schema Validator", () => {
         expect(result).toBeInstanceOf(Error);
         expect(result.message).toContain("Theme validation failed");
       }
+    });
+  });
+
+  describe("createTokenJsonSchemaOptions", () => {
+    test("returns token schema options", () => {
+      const options = createTokenJsonSchemaOptions();
+
+      expect(options).toHaveProperty("name");
+      expect(options).toHaveProperty("description");
+      expect(typeof options.name).toBe("string");
+      expect(typeof options.description).toBe("string");
+    });
+  });
+
+  describe("createThemeJsonSchemaOptions", () => {
+    test("returns theme schema options", () => {
+      const options = createThemeJsonSchemaOptions();
+
+      expect(options).toHaveProperty("name");
+      expect(options).toHaveProperty("description");
+      expect(typeof options.name).toBe("string");
+      expect(typeof options.description).toBe("string");
     });
   });
 });
