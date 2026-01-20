@@ -14,9 +14,9 @@ logsDX provides utilities for loading built-in themes, registering custom themes
 Load a theme by name (async).
 
 ```typescript
-import { getTheme } from 'logsdx';
+import { getTheme } from "logsdx";
 
-const theme = await getTheme('dracula');
+const theme = await getTheme("dracula");
 ```
 
 ### getAllThemes()
@@ -24,7 +24,7 @@ const theme = await getTheme('dracula');
 Get all loaded themes.
 
 ```typescript
-import { getAllThemes } from 'logsdx';
+import { getAllThemes } from "logsdx";
 
 const themes = getAllThemes();
 // { dracula: Theme, nord: Theme, ... }
@@ -35,7 +35,7 @@ const themes = getAllThemes();
 Get list of available theme names.
 
 ```typescript
-import { getThemeNames } from 'logsdx';
+import { getThemeNames } from "logsdx";
 
 const names = getThemeNames();
 // ['dracula', 'nord', 'monokai', ...]
@@ -48,9 +48,9 @@ const names = getThemeNames();
 Preload a theme for faster access.
 
 ```typescript
-import { preloadTheme } from 'logsdx';
+import { preloadTheme } from "logsdx";
 
-await preloadTheme('dracula');
+await preloadTheme("dracula");
 ```
 
 ### preloadAllThemes()
@@ -58,7 +58,7 @@ await preloadTheme('dracula');
 Preload all built-in themes.
 
 ```typescript
-import { preloadAllThemes } from 'logsdx';
+import { preloadAllThemes } from "logsdx";
 
 await preloadAllThemes();
 ```
@@ -70,15 +70,15 @@ await preloadAllThemes();
 Register a custom theme.
 
 ```typescript
-import { registerTheme } from 'logsdx';
+import { registerTheme } from "logsdx";
 
 registerTheme({
-  name: 'my-theme',
-  mode: 'dark',
+  name: "my-theme",
+  mode: "dark",
   schema: {
-    defaultStyle: { color: '#f8f8f2' },
+    defaultStyle: { color: "#f8f8f2" },
     matchWords: {
-      ERROR: { color: '#ff5555', styleCodes: ['bold'] },
+      ERROR: { color: "#ff5555", styleCodes: ["bold"] },
     },
   },
 });
@@ -89,10 +89,10 @@ registerTheme({
 Register a lazy-loaded theme.
 
 ```typescript
-import { registerThemeLoader } from 'logsdx';
+import { registerThemeLoader } from "logsdx";
 
-registerThemeLoader('my-theme', async () => {
-  const response = await fetch('/themes/my-theme.json');
+registerThemeLoader("my-theme", async () => {
+  const response = await fetch("/themes/my-theme.json");
   return response.json();
 });
 ```
@@ -104,15 +104,15 @@ registerThemeLoader('my-theme', async () => {
 Fluent API for building themes.
 
 ```typescript
-import { ThemeBuilder } from 'logsdx';
+import { ThemeBuilder } from "logsdx";
 
-const theme = new ThemeBuilder('my-theme')
-  .mode('dark')
-  .defaultStyle({ color: '#f8f8f2' })
-  .matchWord('ERROR', { color: '#ff5555', styleCodes: ['bold'] })
-  .matchWord('WARN', { color: '#ffb86c' })
-  .matchWord('INFO', { color: '#8be9fd' })
-  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: '#6272a4' })
+const theme = new ThemeBuilder("my-theme")
+  .mode("dark")
+  .defaultStyle({ color: "#f8f8f2" })
+  .matchWord("ERROR", { color: "#ff5555", styleCodes: ["bold"] })
+  .matchWord("WARN", { color: "#ffb86c" })
+  .matchWord("INFO", { color: "#8be9fd" })
+  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: "#6272a4" })
   .build();
 ```
 
@@ -121,20 +121,20 @@ const theme = new ThemeBuilder('my-theme')
 Create a theme from configuration.
 
 ```typescript
-import { createTheme } from 'logsdx';
+import { createTheme } from "logsdx";
 
 const theme = createTheme({
-  name: 'my-theme',
-  mode: 'dark',
+  name: "my-theme",
+  mode: "dark",
   colors: {
-    error: '#ff5555',
-    warning: '#ffb86c',
-    info: '#8be9fd',
+    error: "#ff5555",
+    warning: "#ffb86c",
+    info: "#8be9fd",
   },
   schema: {
-    defaultStyle: { color: '#f8f8f2' },
+    defaultStyle: { color: "#f8f8f2" },
     matchWords: {
-      ERROR: { color: '#ff5555' },
+      ERROR: { color: "#ff5555" },
     },
   },
 });
@@ -145,17 +145,17 @@ const theme = createTheme({
 Create a theme with simplified configuration.
 
 ```typescript
-import { createSimpleTheme } from 'logsdx';
+import { createSimpleTheme } from "logsdx";
 
 const theme = createSimpleTheme({
-  name: 'simple',
-  mode: 'dark',
+  name: "simple",
+  mode: "dark",
   colors: {
-    error: '#ff0000',
-    warning: '#ffff00',
-    info: '#00ffff',
-    success: '#00ff00',
-    debug: '#808080',
+    error: "#ff0000",
+    warning: "#ffff00",
+    info: "#00ffff",
+    success: "#00ff00",
+    debug: "#808080",
   },
 });
 ```
@@ -165,14 +165,14 @@ const theme = createSimpleTheme({
 Extend an existing theme.
 
 ```typescript
-import { extendTheme, getTheme } from 'logsdx';
+import { extendTheme, getTheme } from "logsdx";
 
-const dracula = await getTheme('dracula');
+const dracula = await getTheme("dracula");
 const customDracula = extendTheme(dracula, {
-  name: 'dracula-custom',
+  name: "dracula-custom",
   schema: {
     matchWords: {
-      CUSTOM: { color: '#ff79c6' },
+      CUSTOM: { color: "#ff79c6" },
     },
   },
 });
@@ -180,16 +180,16 @@ const customDracula = extendTheme(dracula, {
 
 ## Built-in Themes
 
-| Theme | Mode | Description |
-|-------|------|-------------|
-| `dracula` | dark | Vibrant dark theme |
-| `github-dark` | dark | GitHub dark mode |
-| `github-light` | light | GitHub light mode |
-| `nord` | dark | Arctic color palette |
-| `monokai` | dark | Classic Monokai |
-| `solarized-dark` | dark | Solarized dark |
-| `solarized-light` | light | Solarized light |
-| `oh-my-zsh` | dark | Oh My Zsh inspired |
+| Theme             | Mode  | Description          |
+| ----------------- | ----- | -------------------- |
+| `dracula`         | dark  | Vibrant dark theme   |
+| `github-dark`     | dark  | GitHub dark mode     |
+| `github-light`    | light | GitHub light mode    |
+| `nord`            | dark  | Arctic color palette |
+| `monokai`         | dark  | Classic Monokai      |
+| `solarized-dark`  | dark  | Solarized dark       |
+| `solarized-light` | light | Solarized light      |
+| `oh-my-zsh`       | dark  | Oh My Zsh inspired   |
 
 ## Theme Validation
 
@@ -198,7 +198,7 @@ const customDracula = extendTheme(dracula, {
 Validate a theme object.
 
 ```typescript
-import { validateTheme } from 'logsdx';
+import { validateTheme } from "logsdx";
 
 const validated = validateTheme(myTheme);
 ```
@@ -208,7 +208,7 @@ const validated = validateTheme(myTheme);
 Validate without throwing errors.
 
 ```typescript
-import { validateThemeSafe } from 'logsdx';
+import { validateThemeSafe } from "logsdx";
 
 const result = validateThemeSafe(myTheme);
 if (result.success) {

@@ -48,8 +48,11 @@ function isTTY(): boolean {
 
 function isColorTerm(term: string): boolean {
   const colorTerms = ["xterm", "screen", "tmux"];
-  const hasColorKeyword = term.includes("color") || term.includes("256") || term.includes("ansi");
-  return hasColorKeyword || colorTerms.includes(term) || Boolean(getEnv("COLORTERM"));
+  const hasColorKeyword =
+    term.includes("color") || term.includes("256") || term.includes("ansi");
+  return (
+    hasColorKeyword || colorTerms.includes(term) || Boolean(getEnv("COLORTERM"))
+  );
 }
 
 export function supportsColors(): boolean {

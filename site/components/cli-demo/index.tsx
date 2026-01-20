@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { CLI_FEATURES, INSTALL_COMMANDS, TERMINAL_COLORS, TEXT, CLASSES, STYLES } from "./constants";
+import {
+  CLI_FEATURES,
+  INSTALL_COMMANDS,
+  TERMINAL_COLORS,
+  TEXT,
+  CLASSES,
+  STYLES,
+} from "./constants";
 
 type PackageManager = keyof typeof INSTALL_COMMANDS;
 
@@ -24,9 +31,7 @@ export function CliDemo() {
             </span>{" "}
             {TEXT.title.rest}
           </h2>
-          <p className={CLASSES.header.description}>
-            {TEXT.description}
-          </p>
+          <p className={CLASSES.header.description}>{TEXT.description}</p>
 
           <div className="mb-12">
             <div className={CLASSES.packageManager.wrapper}>
@@ -99,7 +104,9 @@ export function CliDemo() {
                   <div className={CLASSES.terminal.dot.yellow} />
                   <div className={CLASSES.terminal.dot.green} />
                 </div>
-                <span className={CLASSES.terminal.title}>{TEXT.labels.terminal}</span>
+                <span className={CLASSES.terminal.title}>
+                  {TEXT.labels.terminal}
+                </span>
               </div>
               <div
                 className={CLASSES.terminal.content}

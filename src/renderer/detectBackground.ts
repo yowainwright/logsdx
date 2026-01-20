@@ -63,7 +63,9 @@ function isVSCode(): boolean {
 
 function detectFromVSCode(): BackgroundInfo | undefined {
   if (!isVSCode()) return undefined;
-  return createBackgroundInfo("auto", "low", "terminal", { termProgram: "vscode" });
+  return createBackgroundInfo("auto", "low", "terminal", {
+    termProgram: "vscode",
+  });
 }
 
 export function detectTerminalBackground(): BackgroundInfo {
@@ -124,8 +126,11 @@ function detectFromMacOS(): BackgroundInfo | undefined {
   const appleInterfaceStyle = getEnv("APPLE_INTERFACE_STYLE");
   if (!appleInterfaceStyle) return undefined;
 
-  const scheme = appleInterfaceStyle.toLowerCase() === "dark" ? "dark" : "light";
-  return createBackgroundInfo(scheme, "high", "system", { systemPreference: appleInterfaceStyle });
+  const scheme =
+    appleInterfaceStyle.toLowerCase() === "dark" ? "dark" : "light";
+  return createBackgroundInfo(scheme, "high", "system", {
+    systemPreference: appleInterfaceStyle,
+  });
 }
 
 function detectFromWindows(): BackgroundInfo | undefined {

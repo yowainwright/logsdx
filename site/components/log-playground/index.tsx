@@ -64,10 +64,22 @@ function OutputPaneLoading({ backgroundColor }: { backgroundColor: string }) {
   );
 }
 
-function OutputPaneItems({ content, backgroundColor }: { content: string[]; backgroundColor: string }) {
+function OutputPaneItems({
+  content,
+  backgroundColor,
+}: {
+  content: string[];
+  backgroundColor: string;
+}) {
   const items = content.map((line, i) => {
     const htmlContent = { __html: line };
-    return <div key={i} className="leading-relaxed" dangerouslySetInnerHTML={htmlContent} />;
+    return (
+      <div
+        key={i}
+        className="leading-relaxed"
+        dangerouslySetInnerHTML={htmlContent}
+      />
+    );
   });
   return (
     <div className={CLASS_OUTPUT_CONTENT} style={{ backgroundColor }}>
@@ -76,28 +88,49 @@ function OutputPaneItems({ content, backgroundColor }: { content: string[]; back
   );
 }
 
-function OutputPaneContent({ content, backgroundColor, isLoading }: Omit<OutputPaneProps, "title">) {
+function OutputPaneContent({
+  content,
+  backgroundColor,
+  isLoading,
+}: Omit<OutputPaneProps, "title">) {
   if (isLoading) return <OutputPaneLoading backgroundColor={backgroundColor} />;
-  return <OutputPaneItems content={content} backgroundColor={backgroundColor} />;
+  return (
+    <OutputPaneItems content={content} backgroundColor={backgroundColor} />
+  );
 }
 
-function OutputPane({ title, content, backgroundColor, isLoading }: OutputPaneProps) {
+function OutputPane({
+  title,
+  content,
+  backgroundColor,
+  isLoading,
+}: OutputPaneProps) {
   const wrapperClass = `${CLASS_PANE_WRAPPER} flex flex-col h-full`;
   return (
     <div className={wrapperClass}>
       <OutputPaneHeader title={title} />
-      <OutputPaneContent content={content} backgroundColor={backgroundColor} isLoading={isLoading} />
+      <OutputPaneContent
+        content={content}
+        backgroundColor={backgroundColor}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
 
 function InputPane({ value, onChange, placeholder }: InputPaneProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value);
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    onChange(e.target.value);
   const wrapperClass = `${CLASS_PANE_WRAPPER} flex flex-col h-full`;
   return (
     <div className={wrapperClass}>
       <div className={CLASS_PANE_HEADER}>{TEXT_LABEL_INPUT_LOGS}</div>
-      <textarea value={value} onChange={handleChange} className={CLASS_TEXTAREA} placeholder={placeholder} />
+      <textarea
+        value={value}
+        onChange={handleChange}
+        className={CLASS_TEXTAREA}
+        placeholder={placeholder}
+      />
     </div>
   );
 }
@@ -106,7 +139,8 @@ function SectionHeader() {
   return (
     <div className="text-center mb-12">
       <h2 className={CLASS_HEADER_TITLE} style={HEADER_STYLE}>
-        <span className={CLASS_HEADER_GRADIENT}>{TEXT_TITLE_HIGHLIGHT}</span> {TEXT_TITLE_REST}
+        <span className={CLASS_HEADER_GRADIENT}>{TEXT_TITLE_HIGHLIGHT}</span>{" "}
+        {TEXT_TITLE_REST}
       </h2>
       <p className={CLASS_HEADER_DESCRIPTION}>{TEXT_DESCRIPTION}</p>
     </div>
@@ -118,7 +152,9 @@ function getBackgroundColor(mode: string | undefined): string {
   return DARK_BG;
 }
 
-function convertToGhosttyTheme(theme: ReturnType<typeof useThemeProcessor>["theme"]): GhosttyTheme | null {
+function convertToGhosttyTheme(
+  theme: ReturnType<typeof useThemeProcessor>["theme"],
+): GhosttyTheme | null {
   if (!theme) return null;
   return themeToGhostty(theme);
 }
@@ -126,17 +162,47 @@ function convertToGhosttyTheme(theme: ReturnType<typeof useThemeProcessor>["them
 function usePlaygroundState(defaultLogs: string, defaultTheme: string) {
   const [inputText, setInputText] = useState(defaultLogs);
   const [selectedTheme, setSelectedTheme] = useState(defaultTheme);
-  const logs = useMemo(() => inputText.split("\n").filter((line) => line.trim()), [inputText]);
-  const { processedLogs, isLoading, theme } = useThemeProcessor(selectedTheme, logs);
-  const handleReset = useCallback(() => setInputText(defaultLogs), [defaultLogs]);
-  const htmlContent = useMemo(() => processedLogs.map((p) => p.html), [processedLogs]);
-  const ansiContent = useMemo(() => processedLogs.map((p) => p.ansi), [processedLogs]);
+  const logs = useMemo(
+    () => inputText.split("\n").filter((line) => line.trim()),
+    [inputText],
+  );
+  const { processedLogs, isLoading, theme } = useThemeProcessor(
+    selectedTheme,
+    logs,
+  );
+  const handleReset = useCallback(
+    () => setInputText(defaultLogs),
+    [defaultLogs],
+  );
+  const htmlContent = useMemo(
+    () => processedLogs.map((p) => p.html),
+    [processedLogs],
+  );
+  const ansiContent = useMemo(
+    () => processedLogs.map((p) => p.ansi),
+    [processedLogs],
+  );
   const bgColor = getBackgroundColor(theme?.mode);
   const ghosttyTheme = useMemo(() => convertToGhosttyTheme(theme), [theme]);
-  return { inputText, setInputText, selectedTheme, setSelectedTheme, htmlContent, ansiContent, isLoading, handleReset, bgColor, ghosttyTheme };
+  return {
+    inputText,
+    setInputText,
+    selectedTheme,
+    setSelectedTheme,
+    htmlContent,
+    ansiContent,
+    isLoading,
+    handleReset,
+    bgColor,
+    ghosttyTheme,
+  };
 }
 
-function CardControls({ selectedTheme, onThemeChange, onReset }: CardControlsProps) {
+function CardControls({
+  selectedTheme,
+  onThemeChange,
+  onReset,
+}: CardControlsProps) {
   return (
     <div className={CLASS_CARD_CONTROLS}>
       <ThemeSelector value={selectedTheme} onChange={onThemeChange} />
@@ -158,7 +224,12 @@ function TerminalPaneLoading({ bgColor }: { bgColor: string }) {
   );
 }
 
-function TerminalPane({ ansiContent, ghosttyTheme, isLoading, bgColor }: TerminalPaneProps) {
+function TerminalPane({
+  ansiContent,
+  ghosttyTheme,
+  isLoading,
+  bgColor,
+}: TerminalPaneProps) {
   const wrapperClass = `${CLASS_PANE_WRAPPER} flex flex-col h-full`;
   const showLoading = !ghosttyTheme || isLoading;
 
@@ -168,24 +239,53 @@ function TerminalPane({ ansiContent, ghosttyTheme, isLoading, bgColor }: Termina
       {showLoading && <TerminalPaneLoading bgColor={bgColor} />}
       {ghosttyTheme && !isLoading && (
         <div className="flex-1 min-h-[400px]">
-          <GhosttyTerminal ansiOutputs={ansiContent} isLoading={isLoading} theme={ghosttyTheme} />
+          <GhosttyTerminal
+            ansiOutputs={ansiContent}
+            isLoading={isLoading}
+            theme={ghosttyTheme}
+          />
         </div>
       )}
     </div>
   );
 }
 
-function PlaygroundPanels({ inputText, onInputChange, htmlContent, ansiContent, ghosttyTheme, bgColor, isLoading }: PlaygroundPanelsProps) {
+function PlaygroundPanels({
+  inputText,
+  onInputChange,
+  htmlContent,
+  ansiContent,
+  ghosttyTheme,
+  bgColor,
+  isLoading,
+}: PlaygroundPanelsProps) {
   return (
     <div className={CLASS_MAIN_GRID}>
-      <InputPane value={inputText} onChange={onInputChange} placeholder={TEXT_LABEL_INPUT_PLACEHOLDER} />
-      <OutputPane title={TEXT_LABEL_BROWSER_CONSOLE} content={htmlContent} backgroundColor={bgColor} isLoading={isLoading} />
-      <TerminalPane ansiContent={ansiContent} ghosttyTheme={ghosttyTheme} isLoading={isLoading} bgColor={bgColor} />
+      <InputPane
+        value={inputText}
+        onChange={onInputChange}
+        placeholder={TEXT_LABEL_INPUT_PLACEHOLDER}
+      />
+      <OutputPane
+        title={TEXT_LABEL_BROWSER_CONSOLE}
+        content={htmlContent}
+        backgroundColor={bgColor}
+        isLoading={isLoading}
+      />
+      <TerminalPane
+        ansiContent={ansiContent}
+        ghosttyTheme={ghosttyTheme}
+        isLoading={isLoading}
+        bgColor={bgColor}
+      />
     </div>
   );
 }
 
-export function LogPlayground({ defaultTheme = "dracula", defaultLogs = DEFAULT_LOGS }: LogPlaygroundProps) {
+export function LogPlayground({
+  defaultTheme = "dracula",
+  defaultLogs = DEFAULT_LOGS,
+}: LogPlaygroundProps) {
   const state = usePlaygroundState(defaultLogs, defaultTheme);
 
   return (
@@ -195,8 +295,14 @@ export function LogPlayground({ defaultTheme = "dracula", defaultLogs = DEFAULT_
           <SectionHeader />
           <Card>
             <CardHeader className={CLASS_CARD_HEADER}>
-              <CardTitle className={CLASS_CARD_TITLE}>{TEXT_CARD_TITLE}</CardTitle>
-              <CardControls selectedTheme={state.selectedTheme} onThemeChange={state.setSelectedTheme} onReset={state.handleReset} />
+              <CardTitle className={CLASS_CARD_TITLE}>
+                {TEXT_CARD_TITLE}
+              </CardTitle>
+              <CardControls
+                selectedTheme={state.selectedTheme}
+                onThemeChange={state.setSelectedTheme}
+                onReset={state.handleReset}
+              />
             </CardHeader>
             <CardContent className={CLASS_CARD_CONTENT}>
               <PlaygroundPanels

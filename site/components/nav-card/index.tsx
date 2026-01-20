@@ -10,7 +10,12 @@ function PreviewPlaceholder() {
   return <div className={CLASSES.placeholder}>Preview</div>;
 }
 
-export function NavCard({ title, href, previewLight, previewDark }: NavCardProps) {
+export function NavCard({
+  title,
+  href,
+  previewLight,
+  previewDark,
+}: NavCardProps) {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
 
@@ -30,9 +35,17 @@ export function NavCard({ title, href, previewLight, previewDark }: NavCardProps
   const isDark = mounted && resolvedTheme === "dark";
   const preview = isDark ? darkSrc : lightSrc;
 
-  const previewContent = preview
-    ? <Image src={preview} alt={title} width={400} height={225} className={CLASSES.image} />
-    : <PreviewPlaceholder />;
+  const previewContent = preview ? (
+    <Image
+      src={preview}
+      alt={title}
+      width={400}
+      height={225}
+      className={CLASSES.image}
+    />
+  ) : (
+    <PreviewPlaceholder />
+  );
 
   return (
     <button type="button" onClick={handleClick} className={CLASSES.card}>

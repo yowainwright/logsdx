@@ -15,7 +15,7 @@ A theme consists of:
 interface Theme {
   name: string;
   description?: string;
-  mode?: 'light' | 'dark' | 'auto';
+  mode?: "light" | "dark" | "auto";
   schema: SchemaConfig;
   colors?: Record<string, string>;
 }
@@ -28,19 +28,19 @@ interface Theme {
 The easiest way to create a theme:
 
 ```typescript
-import { ThemeBuilder } from 'logsdx';
+import { ThemeBuilder } from "logsdx";
 
-const theme = new ThemeBuilder('my-theme')
-  .mode('dark')
-  .description('My custom dark theme')
-  .defaultStyle({ color: '#f8f8f2' })
-  .matchWord('ERROR', { color: '#ff5555', styleCodes: ['bold'] })
-  .matchWord('WARN', { color: '#ffb86c' })
-  .matchWord('INFO', { color: '#8be9fd' })
-  .matchWord('DEBUG', { color: '#6272a4' })
-  .matchWord('SUCCESS', { color: '#50fa7b' })
-  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: '#6272a4' })
-  .matchPattern(/\d{2}:\d{2}:\d{2}/, { color: '#6272a4' })
+const theme = new ThemeBuilder("my-theme")
+  .mode("dark")
+  .description("My custom dark theme")
+  .defaultStyle({ color: "#f8f8f2" })
+  .matchWord("ERROR", { color: "#ff5555", styleCodes: ["bold"] })
+  .matchWord("WARN", { color: "#ffb86c" })
+  .matchWord("INFO", { color: "#8be9fd" })
+  .matchWord("DEBUG", { color: "#6272a4" })
+  .matchWord("SUCCESS", { color: "#50fa7b" })
+  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: "#6272a4" })
+  .matchPattern(/\d{2}:\d{2}:\d{2}/, { color: "#6272a4" })
   .build();
 ```
 
@@ -125,21 +125,21 @@ Regex patterns for complex matching:
 ```typescript
 matchPatterns: [
   {
-    name: 'timestamp',
-    pattern: '\\d{4}-\\d{2}-\\d{2}',
-    options: { color: '#6272a4' }
+    name: "timestamp",
+    pattern: "\\d{4}-\\d{2}-\\d{2}",
+    options: { color: "#6272a4" },
   },
   {
-    name: 'ip-address',
-    pattern: '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',
-    options: { color: '#bd93f9' }
+    name: "ip-address",
+    pattern: "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
+    options: { color: "#bd93f9" },
   },
   {
-    name: 'uuid',
-    pattern: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
-    options: { color: '#ff79c6' }
-  }
-]
+    name: "uuid",
+    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    options: { color: "#ff79c6" },
+  },
+];
 ```
 
 ## Style Options
@@ -148,19 +148,19 @@ Each match can have these style options:
 
 ```typescript
 interface StyleOptions {
-  color: string;           // Hex color code
-  styleCodes?: StyleCode[];  // Text decorations
-  htmlStyleFormat?: 'css' | 'className';
+  color: string; // Hex color code
+  styleCodes?: StyleCode[]; // Text decorations
+  htmlStyleFormat?: "css" | "className";
 }
 
 type StyleCode =
-  | 'bold'
-  | 'italic'
-  | 'underline'
-  | 'dim'
-  | 'blink'
-  | 'reverse'
-  | 'strikethrough';
+  | "bold"
+  | "italic"
+  | "underline"
+  | "dim"
+  | "blink"
+  | "reverse"
+  | "strikethrough";
 ```
 
 ## Extending Themes
@@ -168,16 +168,16 @@ type StyleCode =
 Extend an existing theme:
 
 ```typescript
-import { extendTheme, getTheme } from 'logsdx';
+import { extendTheme, getTheme } from "logsdx";
 
-const dracula = await getTheme('dracula');
+const dracula = await getTheme("dracula");
 
 const myTheme = extendTheme(dracula, {
-  name: 'dracula-extended',
+  name: "dracula-extended",
   schema: {
     matchWords: {
-      CUSTOM: { color: '#ff79c6' },
-      SPECIAL: { color: '#50fa7b', styleCodes: ['bold'] },
+      CUSTOM: { color: "#ff79c6" },
+      SPECIAL: { color: "#50fa7b", styleCodes: ["bold"] },
     },
   },
 });
@@ -188,7 +188,7 @@ const myTheme = extendTheme(dracula, {
 ### Register Immediately
 
 ```typescript
-import { registerTheme } from 'logsdx';
+import { registerTheme } from "logsdx";
 
 registerTheme(myTheme);
 ```
@@ -196,10 +196,10 @@ registerTheme(myTheme);
 ### Lazy Loading
 
 ```typescript
-import { registerThemeLoader } from 'logsdx';
+import { registerThemeLoader } from "logsdx";
 
-registerThemeLoader('my-theme', async () => {
-  const response = await fetch('/themes/my-theme.json');
+registerThemeLoader("my-theme", async () => {
+  const response = await fetch("/themes/my-theme.json");
   return response.json();
 });
 ```
@@ -210,20 +210,20 @@ Define reusable colors:
 
 ```typescript
 const theme = {
-  name: 'my-theme',
+  name: "my-theme",
   colors: {
-    background: '#282a36',
-    foreground: '#f8f8f2',
-    error: '#ff5555',
-    warning: '#ffb86c',
-    info: '#8be9fd',
-    success: '#50fa7b',
-    debug: '#6272a4',
+    background: "#282a36",
+    foreground: "#f8f8f2",
+    error: "#ff5555",
+    warning: "#ffb86c",
+    info: "#8be9fd",
+    success: "#50fa7b",
+    debug: "#6272a4",
   },
   schema: {
-    defaultStyle: { color: '#f8f8f2' },
+    defaultStyle: { color: "#f8f8f2" },
     matchWords: {
-      ERROR: { color: '#ff5555' },
+      ERROR: { color: "#ff5555" },
       // Use colors from palette
     },
   },

@@ -3,7 +3,14 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { getTheme } from "logsdx";
-import { SAMPLE_LOGS, THEME_OPTIONS, TEXT, CLASSES, STYLES, DEFAULT_GHOSTTY_THEME } from "./constants";
+import {
+  SAMPLE_LOGS,
+  THEME_OPTIONS,
+  TEXT,
+  CLASSES,
+  STYLES,
+  DEFAULT_GHOSTTY_THEME,
+} from "./constants";
 import { themeToGhostty, processLogsWithTheme } from "./utils";
 import type { ViewMode, ProcessedOutput, GhosttyTheme } from "./types";
 
@@ -19,11 +26,17 @@ const GhosttyTerminal = dynamic(
 );
 
 function escapeHtmlForDisplay(html: string): string {
-  return html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return html
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 const WINDOW_DOTS = ["red", "yellow", "green"] as const;
-const MODE_BUTTONS = [{ id: "rendered", label: "Rendered" }, { id: "source", label: "Source" }] as const;
+const MODE_BUTTONS = [
+  { id: "rendered", label: "Rendered" },
+  { id: "source", label: "Source" },
+] as const;
 
 interface TerminalWindowProps {
   title: string;
@@ -57,12 +70,22 @@ function ModeButtons({ mode, onModeChange }: ModeButtonsProps) {
     const isActive = mode === id;
     const className = getModeButtonClass(isActive);
     const handleClick = () => onModeChange(id as ViewMode);
-    return <button key={id} onClick={handleClick} className={className}>{label}</button>;
+    return (
+      <button key={id} onClick={handleClick} className={className}>
+        {label}
+      </button>
+    );
   });
   return <div className="ml-auto flex gap-1">{buttons}</div>;
 }
 
-function TerminalWindow({ title, mode, onModeChange, bgColor, children }: TerminalWindowProps) {
+function TerminalWindow({
+  title,
+  mode,
+  onModeChange,
+  bgColor,
+  children,
+}: TerminalWindowProps) {
   const wrapperClass = `${CLASSES.terminal.wrapper} h-full flex flex-col`;
   const contentClass = `${CLASSES.terminal.content} flex-1`;
   const contentStyle = { backgroundColor: bgColor };
@@ -74,7 +97,9 @@ function TerminalWindow({ title, mode, onModeChange, bgColor, children }: Termin
         <span className={CLASSES.terminal.title}>{title}</span>
         <ModeButtons mode={mode} onModeChange={onModeChange} />
       </div>
-      <div className={contentClass} style={contentStyle}>{children}</div>
+      <div className={contentClass} style={contentStyle}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -86,16 +111,22 @@ interface ThemeButtonProps {
 }
 
 function getThemeButtonClass(isSelected: boolean): string {
-  const base = "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors";
+  const base =
+    "w-full px-3 py-2 text-left text-sm rounded-lg transition-colors";
   const selected = "bg-blue-600 text-white font-medium";
-  const unselected = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
+  const unselected =
+    "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
   if (isSelected) return `${base} ${selected}`;
   return `${base} ${unselected}`;
 }
 
 function ThemeButton({ theme, isSelected, onClick }: ThemeButtonProps) {
   const buttonClass = getThemeButtonClass(isSelected);
-  return <button onClick={onClick} className={buttonClass}>{theme}</button>;
+  return (
+    <button onClick={onClick} className={buttonClass}>
+      {theme}
+    </button>
+  );
 }
 
 interface ThemeSidebarProps {
@@ -107,7 +138,14 @@ function ThemeSidebar({ themeName, onThemeChange }: ThemeSidebarProps) {
   const themeButtons = THEME_OPTIONS.map((t) => {
     const isSelected = themeName === t;
     const handleClick = () => onThemeChange(t);
-    return <ThemeButton key={t} theme={t} isSelected={isSelected} onClick={handleClick} />;
+    return (
+      <ThemeButton
+        key={t}
+        theme={t}
+        isSelected={isSelected}
+        onClick={handleClick}
+      />
+    );
   });
 
   return (
@@ -130,18 +168,35 @@ interface TerminalContentProps {
 
 function TerminalContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
   const items = outputs.map((output, i) => (
-    <div key={i} className="font-mono text-sm text-amber-400 break-all">{output.ansiVisible}</div>
+    <div key={i} className="font-mono text-sm text-amber-400 break-all">
+      {output.ansiVisible}
+    </div>
   ));
   return <div className="space-y-1 p-4">{items}</div>;
 }
 
-function TerminalContent({ isLoading, mode, outputs, ghosttyTheme }: TerminalContentProps) {
+function TerminalContent({
+  isLoading,
+  mode,
+  outputs,
+  ghosttyTheme,
+}: TerminalContentProps) {
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64 text-slate-500">{TEXT.labels.processing}</div>;
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-500">
+        {TEXT.labels.processing}
+      </div>
+    );
   }
   if (mode === "rendered") {
     const ansiOutputs = outputs.map((o) => o.ansi);
-    return <GhosttyTerminal ansiOutputs={ansiOutputs} isLoading={isLoading} theme={ghosttyTheme} />;
+    return (
+      <GhosttyTerminal
+        ansiOutputs={ansiOutputs}
+        isLoading={isLoading}
+        theme={ghosttyTheme}
+      />
+    );
   }
   return <TerminalContentSource outputs={outputs} />;
 }
@@ -155,7 +210,13 @@ interface BrowserContentProps {
 function BrowserContentRendered({ outputs }: { outputs: ProcessedOutput[] }) {
   const items = outputs.map((output, i) => {
     const htmlContent = { __html: output.html };
-    return <div key={i} className="font-mono text-sm" dangerouslySetInnerHTML={htmlContent} />;
+    return (
+      <div
+        key={i}
+        className="font-mono text-sm"
+        dangerouslySetInnerHTML={htmlContent}
+      />
+    );
   });
   return <div className="space-y-1 p-4 h-full min-h-[300px]">{items}</div>;
 }
@@ -163,14 +224,22 @@ function BrowserContentRendered({ outputs }: { outputs: ProcessedOutput[] }) {
 function BrowserContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
   const items = outputs.map((output, i) => {
     const escaped = escapeHtmlForDisplay(output.html);
-    return <div key={i} className="font-mono text-xs text-emerald-400 break-all">{escaped}</div>;
+    return (
+      <div key={i} className="font-mono text-xs text-emerald-400 break-all">
+        {escaped}
+      </div>
+    );
   });
   return <div className="space-y-2 p-4 h-full min-h-[300px]">{items}</div>;
 }
 
 function BrowserContent({ isLoading, mode, outputs }: BrowserContentProps) {
   if (isLoading) {
-    return <div className="flex items-center justify-center h-full min-h-[300px] text-slate-500">{TEXT.labels.processing}</div>;
+    return (
+      <div className="flex items-center justify-center h-full min-h-[300px] text-slate-500">
+        {TEXT.labels.processing}
+      </div>
+    );
   }
   if (mode === "rendered") {
     return <BrowserContentRendered outputs={outputs} />;
@@ -193,10 +262,14 @@ function useThemeLoader(themeName: string) {
         setGhosttyTheme(themeToGhostty(loadedTheme));
         setOutputs(processLogsWithTheme(SAMPLE_LOGS, loadedTheme));
       })
-      .catch((err) => !cancelled && console.error("Failed to process logs:", err))
+      .catch(
+        (err) => !cancelled && console.error("Failed to process logs:", err),
+      )
       .finally(() => !cancelled && setIsLoading(false));
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [themeName]);
 
   return { outputs, isLoading, ghosttyTheme };
@@ -207,7 +280,8 @@ function SectionHeader() {
   return (
     <>
       <h2 className={CLASSES.header.title} style={headerStyle}>
-        <span className={CLASSES.header.gradient}>{TEXT.title.highlight}</span> {TEXT.title.rest}
+        <span className={CLASSES.header.gradient}>{TEXT.title.highlight}</span>{" "}
+        {TEXT.title.rest}
       </h2>
       <p className={CLASSES.header.description}>{TEXT.description}</p>
     </>
@@ -224,16 +298,43 @@ interface OutputPanelsProps {
   ghosttyTheme: GhosttyTheme;
 }
 
-function OutputPanels({ terminalMode, browserMode, onTerminalModeChange, onBrowserModeChange, outputs, isLoading, ghosttyTheme }: OutputPanelsProps) {
+function OutputPanels({
+  terminalMode,
+  browserMode,
+  onTerminalModeChange,
+  onBrowserModeChange,
+  outputs,
+  isLoading,
+  ghosttyTheme,
+}: OutputPanelsProps) {
   const bgColor = ghosttyTheme.background;
   return (
     <div className={CLASSES.content}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-        <TerminalWindow title="Terminal (ANSI)" mode={terminalMode} onModeChange={onTerminalModeChange} bgColor={bgColor}>
-          <TerminalContent isLoading={isLoading} mode={terminalMode} outputs={outputs} ghosttyTheme={ghosttyTheme} />
+        <TerminalWindow
+          title="Terminal (ANSI)"
+          mode={terminalMode}
+          onModeChange={onTerminalModeChange}
+          bgColor={bgColor}
+        >
+          <TerminalContent
+            isLoading={isLoading}
+            mode={terminalMode}
+            outputs={outputs}
+            ghosttyTheme={ghosttyTheme}
+          />
         </TerminalWindow>
-        <TerminalWindow title="Browser (HTML)" mode={browserMode} onModeChange={onBrowserModeChange} bgColor={bgColor}>
-          <BrowserContent isLoading={isLoading} mode={browserMode} outputs={outputs} />
+        <TerminalWindow
+          title="Browser (HTML)"
+          mode={browserMode}
+          onModeChange={onBrowserModeChange}
+          bgColor={bgColor}
+        >
+          <BrowserContent
+            isLoading={isLoading}
+            mode={browserMode}
+            outputs={outputs}
+          />
         </TerminalWindow>
       </div>
     </div>
@@ -245,14 +346,28 @@ function useOutputComparisonState() {
   const [terminalMode, setTerminalMode] = useState<ViewMode>("rendered");
   const [browserMode, setBrowserMode] = useState<ViewMode>("rendered");
   const themeData = useThemeLoader(themeName);
-  return { themeName, setThemeName, terminalMode, setTerminalMode, browserMode, setBrowserMode, ...themeData };
+  return {
+    themeName,
+    setThemeName,
+    terminalMode,
+    setTerminalMode,
+    browserMode,
+    setBrowserMode,
+    ...themeData,
+  };
 }
 
-function buildPanelProps(state: ReturnType<typeof useOutputComparisonState>): OutputPanelsProps {
+function buildPanelProps(
+  state: ReturnType<typeof useOutputComparisonState>,
+): OutputPanelsProps {
   return {
-    terminalMode: state.terminalMode, browserMode: state.browserMode,
-    onTerminalModeChange: state.setTerminalMode, onBrowserModeChange: state.setBrowserMode,
-    outputs: state.outputs, isLoading: state.isLoading, ghosttyTheme: state.ghosttyTheme,
+    terminalMode: state.terminalMode,
+    browserMode: state.browserMode,
+    onTerminalModeChange: state.setTerminalMode,
+    onBrowserModeChange: state.setBrowserMode,
+    outputs: state.outputs,
+    isLoading: state.isLoading,
+    ghosttyTheme: state.ghosttyTheme,
   };
 }
 
@@ -264,7 +379,10 @@ function OutputComparisonContent() {
     <>
       <SectionHeader />
       <div className={CLASSES.grid}>
-        <ThemeSidebar themeName={state.themeName} onThemeChange={state.setThemeName} />
+        <ThemeSidebar
+          themeName={state.themeName}
+          onThemeChange={state.setThemeName}
+        />
         <OutputPanels {...panelProps} />
       </div>
     </>

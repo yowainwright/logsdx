@@ -14,9 +14,9 @@ The tokenizer breaks log lines into tokens and applies theme-based styling. This
 Tokenize a log line into individual tokens.
 
 ```typescript
-import { tokenize } from 'logsdx';
+import { tokenize } from "logsdx";
 
-const tokens = tokenize('[INFO] Server started', theme);
+const tokens = tokenize("[INFO] Server started", theme);
 // Returns TokenList array
 ```
 
@@ -25,7 +25,7 @@ const tokens = tokenize('[INFO] Server started', theme);
 Apply theme styling to tokens.
 
 ```typescript
-import { tokenize, applyTheme } from 'logsdx';
+import { tokenize, applyTheme } from "logsdx";
 
 const tokens = tokenize(line, theme);
 const styledTokens = applyTheme(tokens, theme);
@@ -52,17 +52,17 @@ type TokenList = Token[];
 
 Tokens are categorized by how they were matched:
 
-| Type | Description |
-|------|-------------|
-| `word` | Matched via `matchWords` |
-| `regex` | Matched via `matchPatterns` |
-| `timestamp` | Timestamp pattern |
-| `level` | Log level (INFO, ERROR, etc.) |
-| `space` | Single space |
-| `spaces` | Multiple spaces |
-| `tab` | Tab character |
-| `newline` | Newline character |
-| `default` | No specific match |
+| Type        | Description                   |
+| ----------- | ----------------------------- |
+| `word`      | Matched via `matchWords`      |
+| `regex`     | Matched via `matchPatterns`   |
+| `timestamp` | Timestamp pattern             |
+| `level`     | Log level (INFO, ERROR, etc.) |
+| `space`     | Single space                  |
+| `spaces`    | Multiple spaces               |
+| `tab`       | Tab character                 |
+| `newline`   | Newline character             |
+| `default`   | No specific match             |
 
 ## Lexer API
 
@@ -73,7 +73,7 @@ For advanced use cases, you can create custom lexers:
 Create a lexer instance.
 
 ```typescript
-import { createLexer } from 'logsdx/tokenizer';
+import { createLexer } from "logsdx/tokenizer";
 
 const lexer = createLexer(theme);
 const tokens = lexer.tokenize(line);
@@ -84,21 +84,21 @@ const tokens = lexer.tokenize(line);
 Low-level lexer class.
 
 ```typescript
-import { SimpleLexer } from 'logsdx/tokenizer';
+import { SimpleLexer } from "logsdx/tokenizer";
 
 const lexer = new SimpleLexer();
 
 // Add rules
 lexer.rule(/\d+/, (ctx) => {
-  ctx.accept('number');
+  ctx.accept("number");
 });
 
 lexer.rule(/[a-z]+/i, (ctx) => {
-  ctx.accept('word');
+  ctx.accept("word");
 });
 
 // Tokenize
-const tokens = lexer.tokenize('hello 123 world');
+const tokens = lexer.tokenize("hello 123 world");
 ```
 
 ### Adding Rules
@@ -109,12 +109,12 @@ import {
   addDefaultLogRules,
   addWordMatchRules,
   addPatternMatchRules,
-} from 'logsdx/tokenizer';
+} from "logsdx/tokenizer";
 
 const lexer = new SimpleLexer();
 addWhitespaceRules(lexer);
 addDefaultLogRules(lexer);
-addWordMatchRules(lexer, { ERROR: { color: '#ff0000' } });
+addWordMatchRules(lexer, { ERROR: { color: "#ff0000" } });
 ```
 
 ## Pattern Matching Priority
@@ -131,26 +131,26 @@ When tokenizing, patterns are matched in this order:
 ## Example: Custom Tokenization
 
 ```typescript
-import { tokenize, applyTheme } from 'logsdx';
+import { tokenize, applyTheme } from "logsdx";
 
 const theme = {
-  name: 'custom',
+  name: "custom",
   schema: {
-    defaultStyle: { color: '#ffffff' },
+    defaultStyle: { color: "#ffffff" },
     matchWords: {
-      ERROR: { color: '#ff0000', styleCodes: ['bold'] },
-      WARN: { color: '#ffff00' },
+      ERROR: { color: "#ff0000", styleCodes: ["bold"] },
+      WARN: { color: "#ffff00" },
     },
     matchPatterns: [
       {
-        pattern: '\\d{4}-\\d{2}-\\d{2}',
-        options: { color: '#888888' },
+        pattern: "\\d{4}-\\d{2}-\\d{2}",
+        options: { color: "#888888" },
       },
     ],
   },
 };
 
-const line = '[2024-01-15] ERROR: Connection failed';
+const line = "[2024-01-15] ERROR: Connection failed";
 const tokens = tokenize(line, theme);
 const styled = applyTheme(tokens, theme);
 
@@ -160,9 +160,5 @@ const styled = applyTheme(tokens, theme);
 ## TypeScript Types
 
 ```typescript
-import type {
-  Token,
-  TokenList,
-  MatcherType,
-} from 'logsdx';
+import type { Token, TokenList, MatcherType } from "logsdx";
 ```

@@ -17,7 +17,8 @@ export const CLASSES = {
   wrapper: "mx-auto max-w-6xl",
   header: {
     title: "mb-4 text-center text-5xl lg:text-6xl font-bold",
-    gradient: "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+    gradient:
+      "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
     description: "mb-12 text-center text-xl text-slate-600 dark:text-slate-400",
   },
   packageManager: {
@@ -25,7 +26,8 @@ export const CLASSES = {
     button: {
       base: "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
       active: "bg-blue-600 text-white",
-      inactive: "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
+      inactive:
+        "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
     },
     command: "rounded-lg p-4 font-mono text-center",
   },
@@ -34,7 +36,8 @@ export const CLASSES = {
   featureButton: {
     base: "w-full text-left p-4 rounded-lg transition-all",
     active: "bg-blue-600/10 border-2 border-blue-600",
-    inactive: "bg-white dark:bg-slate-800 border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600",
+    inactive:
+      "bg-white dark:bg-slate-800 border-2 border-transparent hover:border-slate-300 dark:hover:border-slate-600",
     title: {
       active: "text-blue-600 dark:text-blue-400",
       inactive: "text-slate-900 dark:text-white",

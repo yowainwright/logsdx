@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { SCHEMA_SECTIONS, MATCHING_PRIORITY, EXAMPLE_THEME, TEXT, CLASSES, STYLES } from "./constants";
+import {
+  SCHEMA_SECTIONS,
+  MATCHING_PRIORITY,
+  EXAMPLE_THEME,
+  TEXT,
+  CLASSES,
+  STYLES,
+} from "./constants";
 
 export function SchemaVisualization() {
   const [activeSection, setActiveSection] = useState(0);
@@ -20,9 +27,7 @@ export function SchemaVisualization() {
             </span>{" "}
             {TEXT.title.rest}
           </h2>
-          <p className={CLASSES.header.description}>
-            {TEXT.description}
-          </p>
+          <p className={CLASSES.header.description}>{TEXT.description}</p>
 
           <div className={CLASSES.grid}>
             <div>
@@ -43,19 +48,14 @@ export function SchemaVisualization() {
               </div>
 
               <div className={CLASSES.card}>
-                <h3 className={CLASSES.sectionTitle}>
-                  {section.title}
-                </h3>
+                <h3 className={CLASSES.sectionTitle}>{section.title}</h3>
                 <p className={CLASSES.sectionDescription}>
                   {section.description}
                 </p>
 
                 <div className={CLASSES.propertyList}>
                   {section.properties.map((prop) => (
-                    <div
-                      key={prop.name}
-                      className={CLASSES.property.wrapper}
-                    >
+                    <div key={prop.name} className={CLASSES.property.wrapper}>
                       <div className={CLASSES.property.header}>
                         <code className={CLASSES.property.name}>
                           {prop.name}
@@ -89,12 +89,8 @@ export function SchemaVisualization() {
                 <div className={CLASSES.priority.wrapper}>
                   {MATCHING_PRIORITY.map((item, i) => (
                     <div key={item.name} className={CLASSES.priority.item}>
-                      <span className={CLASSES.priority.number}>
-                        {i + 1}
-                      </span>
-                      <code className={CLASSES.priority.name}>
-                        {item.name}
-                      </code>
+                      <span className={CLASSES.priority.number}>{i + 1}</span>
+                      <code className={CLASSES.priority.name}>{item.name}</code>
                       <span className={CLASSES.priority.description}>
                         {item.description}
                       </span>
@@ -131,7 +127,9 @@ export function SchemaVisualization() {
                 <ol className={CLASSES.howMatching.list}>
                   {TEXT.matchingSteps.map((step, i) => (
                     <li key={i} className={CLASSES.howMatching.item}>
-                      <span className={CLASSES.howMatching.number}>{i + 1}.</span>
+                      <span className={CLASSES.howMatching.number}>
+                        {i + 1}.
+                      </span>
                       {step}
                     </li>
                   ))}

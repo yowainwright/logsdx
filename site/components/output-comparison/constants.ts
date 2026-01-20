@@ -12,7 +12,8 @@ export const TEXT = {
     browserOutput: "Browser Output",
     processing: "Processing...",
     loadingTerminal: "Loading terminal...",
-    significance: "The Terminal panel uses Ghostty, a real WebAssembly terminal emulator—not fake styling. What you see is exactly how these logs render in an actual terminal.",
+    significance:
+      "The Terminal panel uses Ghostty, a real WebAssembly terminal emulator—not fake styling. What you see is exactly how these logs render in an actual terminal.",
   },
 } as const;
 
@@ -22,18 +23,21 @@ export const CLASSES = {
   wrapper: "mx-auto max-w-6xl",
   header: {
     title: "mb-4 text-center text-5xl lg:text-6xl font-bold",
-    gradient: "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+    gradient:
+      "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
     description: "mb-12 text-center text-xl text-slate-600 dark:text-slate-400",
   },
   grid: "grid gap-8 lg:grid-cols-3",
   sidebar: "lg:col-span-1 space-y-6",
   content: "lg:col-span-2",
   label: "block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300",
-  significanceText: "text-sm text-slate-500 dark:text-slate-400 mt-4 leading-relaxed",
+  significanceText:
+    "text-sm text-slate-500 dark:text-slate-400 mt-4 leading-relaxed",
   tab: {
     base: "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
     active: "bg-blue-600 text-white",
-    inactive: "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
+    inactive:
+      "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
   },
   tabDescription: "text-sm text-slate-500 dark:text-slate-400 mb-4",
   terminal: {
@@ -101,9 +105,25 @@ export const ANSI_ESCAPE_REPLACEMENTS: [RegExp, string][] = [
 ];
 
 export const DEFAULT_GHOSTTY_THEME: GhosttyTheme = {
-  background: "#282a36", foreground: "#f8f8f2", cursor: "#f8f8f2", cursorAccent: "#282a36",
-  selectionBackground: "#44475a", black: "#000000", red: "#ff5555", green: "#50fa7b",
-  yellow: "#ffb86c", blue: "#ff79c6", magenta: "#bd93f9", cyan: "#8be9fd", white: "#f8f8f2",
-  brightBlack: "#6272a4", brightRed: "#ff6e6e", brightGreen: "#69ff94", brightYellow: "#ffca85",
-  brightBlue: "#ff92d0", brightMagenta: "#d6acff", brightCyan: "#a4ffff", brightWhite: "#ffffff",
+  background: "#282a36",
+  foreground: "#f8f8f2",
+  cursor: "#f8f8f2",
+  cursorAccent: "#282a36",
+  selectionBackground: "#44475a",
+  black: "#000000",
+  red: "#ff5555",
+  green: "#50fa7b",
+  yellow: "#ffb86c",
+  blue: "#ff79c6",
+  magenta: "#bd93f9",
+  cyan: "#8be9fd",
+  white: "#f8f8f2",
+  brightBlack: "#6272a4",
+  brightRed: "#ff6e6e",
+  brightGreen: "#69ff94",
+  brightYellow: "#ffca85",
+  brightBlue: "#ff92d0",
+  brightMagenta: "#d6acff",
+  brightCyan: "#a4ffff",
+  brightWhite: "#ffffff",
 };

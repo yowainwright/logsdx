@@ -18,7 +18,11 @@ import {
   renderLines,
 } from "./renderer";
 import { validateTheme, validateThemeSafe } from "./schema/validator";
-import { isValidationError, formatValidationIssues, ValidationError } from "./lib/validate";
+import {
+  isValidationError,
+  formatValidationIssues,
+  ValidationError,
+} from "./lib/validate";
 import {
   createTheme,
   createSimpleTheme,
@@ -38,7 +42,13 @@ import { solarizedDark } from "./themes/presets/solarized-dark";
 
 import type { Theme, ThemePair, StyleOptions, SchemaConfig } from "./types";
 import type { Token, TokenList } from "./schema/types";
-import type { RenderOptions, OutputFormat, HtmlStyleFormat, MatchType, TokenWithStyle } from "./renderer/types";
+import type {
+  RenderOptions,
+  OutputFormat,
+  HtmlStyleFormat,
+  MatchType,
+  TokenWithStyle,
+} from "./renderer/types";
 
 export const BUNDLED_THEMES = {
   "oh-my-zsh": ohMyZsh,
@@ -87,7 +97,11 @@ export function processLine(line: string, theme: Theme): string {
   return tokensToString(styled, true);
 }
 
-export function processLineHtml(line: string, theme: Theme, useClasses = false): string {
+export function processLineHtml(
+  line: string,
+  theme: Theme,
+  useClasses = false,
+): string {
   const tokens = tokenize(line, theme);
   const styled = applyTheme(tokens, theme);
   return useClasses ? tokensToClassNames(styled) : tokensToHtml(styled);

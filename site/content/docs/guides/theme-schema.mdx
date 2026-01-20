@@ -11,36 +11,36 @@ Themes in logsDX use a JSON schema to define how log content is matched and styl
 
 The root theme object defines the overall theme configuration:
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | `string` | Yes | Unique identifier for the theme |
-| `description` | `string` | No | Human-readable description |
-| `mode` | `"light" \| "dark" \| "auto"` | No | Theme color mode for terminal detection |
-| `schema` | `SchemaConfig` | Yes | Matching rules and styling definitions |
-| `colors` | `Record<string, string>` | No | Named color palette for the theme |
+| Property      | Type                          | Required | Description                             |
+| ------------- | ----------------------------- | -------- | --------------------------------------- |
+| `name`        | `string`                      | Yes      | Unique identifier for the theme         |
+| `description` | `string`                      | No       | Human-readable description              |
+| `mode`        | `"light" \| "dark" \| "auto"` | No       | Theme color mode for terminal detection |
+| `schema`      | `SchemaConfig`                | Yes      | Matching rules and styling definitions  |
+| `colors`      | `Record<string, string>`      | No       | Named color palette for the theme       |
 
 ## SchemaConfig
 
 Defines how log content is matched and styled:
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `defaultStyle` | `StyleOptions` | Default styling for unmatched content |
-| `matchWords` | `Record<string, StyleOptions>` | Exact word matches (case-insensitive) |
-| `matchStartsWith` | `Record<string, StyleOptions>` | Match tokens starting with a prefix |
-| `matchEndsWith` | `Record<string, StyleOptions>` | Match tokens ending with a suffix |
-| `matchContains` | `Record<string, StyleOptions>` | Match tokens containing a substring |
-| `matchPatterns` | `PatternMatch[]` | Regex patterns for complex matching |
+| Property          | Type                           | Description                           |
+| ----------------- | ------------------------------ | ------------------------------------- |
+| `defaultStyle`    | `StyleOptions`                 | Default styling for unmatched content |
+| `matchWords`      | `Record<string, StyleOptions>` | Exact word matches (case-insensitive) |
+| `matchStartsWith` | `Record<string, StyleOptions>` | Match tokens starting with a prefix   |
+| `matchEndsWith`   | `Record<string, StyleOptions>` | Match tokens ending with a suffix     |
+| `matchContains`   | `Record<string, StyleOptions>` | Match tokens containing a substring   |
+| `matchPatterns`   | `PatternMatch[]`               | Regex patterns for complex matching   |
 
 ## StyleOptions
 
 Styling applied to matched content:
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `color` | `string` | Yes | Hex color code for the text |
-| `styleCodes` | `StyleCode[]` | No | Text decorations: bold, italic, underline, dim, etc. |
-| `htmlStyleFormat` | `"css" \| "className"` | No | HTML output format preference |
+| Property          | Type                   | Required | Description                                          |
+| ----------------- | ---------------------- | -------- | ---------------------------------------------------- |
+| `color`           | `string`               | Yes      | Hex color code for the text                          |
+| `styleCodes`      | `StyleCode[]`          | No       | Text decorations: bold, italic, underline, dim, etc. |
+| `htmlStyleFormat` | `"css" \| "className"` | No       | HTML output format preference                        |
 
 ## Matching Priority
 

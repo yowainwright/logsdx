@@ -10,10 +10,10 @@ The `LogsDX` class is the primary interface for processing and styling log conte
 ## Quick Start
 
 ```typescript
-import { getLogsDX } from 'logsdx';
+import { getLogsDX } from "logsdx";
 
-const logsdx = await getLogsDX({ theme: 'dracula' });
-const styled = logsdx.processLine('[INFO] Application started');
+const logsdx = await getLogsDX({ theme: "dracula" });
+const styled = logsdx.processLine("[INFO] Application started");
 console.log(styled);
 ```
 
@@ -25,21 +25,21 @@ Creates or retrieves the LogsDX singleton instance.
 
 ```typescript
 const logsdx = await getLogsDX({
-  theme: 'nord',
-  outputFormat: 'ansi',
+  theme: "nord",
+  outputFormat: "ansi",
 });
 ```
 
 ## Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `theme` | `string \| Theme \| ThemePair` | `'oh-my-zsh'` | Theme to use for styling |
-| `outputFormat` | `'ansi' \| 'html'` | `'ansi'` | Output format |
-| `htmlStyleFormat` | `'css' \| 'className'` | `'css'` | HTML styling method |
-| `escapeHtml` | `boolean` | `true` | Escape HTML entities |
-| `autoAdjustTerminal` | `boolean` | `true` | Auto-adjust for terminal background |
-| `debug` | `boolean` | `false` | Enable debug logging |
+| Option               | Type                           | Default       | Description                         |
+| -------------------- | ------------------------------ | ------------- | ----------------------------------- |
+| `theme`              | `string \| Theme \| ThemePair` | `'oh-my-zsh'` | Theme to use for styling            |
+| `outputFormat`       | `'ansi' \| 'html'`             | `'ansi'`      | Output format                       |
+| `htmlStyleFormat`    | `'css' \| 'className'`         | `'css'`       | HTML styling method                 |
+| `escapeHtml`         | `boolean`                      | `true`        | Escape HTML entities                |
+| `autoAdjustTerminal` | `boolean`                      | `true`        | Auto-adjust for terminal background |
+| `debug`              | `boolean`                      | `false`       | Enable debug logging                |
 
 ## Instance Methods
 
@@ -48,7 +48,7 @@ const logsdx = await getLogsDX({
 Process a single log line with current theme.
 
 ```typescript
-const styled = logsdx.processLine('[ERROR] Connection failed');
+const styled = logsdx.processLine("[ERROR] Connection failed");
 ```
 
 ### processLines(lines)
@@ -56,7 +56,7 @@ const styled = logsdx.processLine('[ERROR] Connection failed');
 Process multiple log lines.
 
 ```typescript
-const lines = ['[INFO] Start', '[WARN] Memory high'];
+const lines = ["[INFO] Start", "[WARN] Memory high"];
 const styled = logsdx.processLines(lines);
 ```
 
@@ -65,7 +65,7 @@ const styled = logsdx.processLines(lines);
 Process entire log content (string with newlines).
 
 ```typescript
-const content = fs.readFileSync('app.log', 'utf-8');
+const content = fs.readFileSync("app.log", "utf-8");
 const styled = logsdx.processLog(content);
 ```
 
@@ -74,11 +74,13 @@ const styled = logsdx.processLog(content);
 Change the current theme.
 
 ```typescript
-await logsdx.setTheme('github-dark');
+await logsdx.setTheme("github-dark");
 // or with custom theme
 await logsdx.setTheme({
-  name: 'custom',
-  schema: { /* ... */ }
+  name: "custom",
+  schema: {
+    /* ... */
+  },
 });
 ```
 
@@ -96,7 +98,7 @@ console.log(theme.name); // 'dracula'
 Switch between ANSI and HTML output.
 
 ```typescript
-logsdx.setOutputFormat('html');
+logsdx.setOutputFormat("html");
 ```
 
 ### setHtmlStyleFormat(format)
@@ -104,7 +106,7 @@ logsdx.setOutputFormat('html');
 Switch HTML styling method.
 
 ```typescript
-logsdx.setHtmlStyleFormat('className');
+logsdx.setHtmlStyleFormat("className");
 ```
 
 ### getAllThemes()
@@ -132,7 +134,7 @@ const names = logsdx.getThemeNames();
 Get or create the singleton instance.
 
 ```typescript
-const logsdx = await LogsDX.getInstance({ theme: 'nord' });
+const logsdx = await LogsDX.getInstance({ theme: "nord" });
 ```
 
 ### LogsDX.resetInstance()
@@ -150,19 +152,14 @@ Use different themes based on terminal background:
 ```typescript
 const logsdx = await getLogsDX({
   theme: {
-    light: 'github-light',
-    dark: 'github-dark',
-  }
+    light: "github-light",
+    dark: "github-dark",
+  },
 });
 ```
 
 ## TypeScript Types
 
 ```typescript
-import type {
-  Theme,
-  ThemePair,
-  StyleOptions,
-  LogsDXOptions,
-} from 'logsdx';
+import type { Theme, ThemePair, StyleOptions, LogsDXOptions } from "logsdx";
 ```

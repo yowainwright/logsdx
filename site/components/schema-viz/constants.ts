@@ -28,7 +28,8 @@ export const CLASSES = {
   wrapper: "mx-auto max-w-6xl",
   header: {
     title: "mb-4 text-center text-5xl lg:text-6xl font-bold",
-    gradient: "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+    gradient:
+      "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
     description: "mb-12 text-center text-xl text-slate-600 dark:text-slate-400",
   },
   grid: "grid gap-8 lg:grid-cols-2",
@@ -37,7 +38,8 @@ export const CLASSES = {
     button: {
       base: "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
       active: "bg-blue-600 text-white",
-      inactive: "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
+      inactive:
+        "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600",
     },
   },
   card: "bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700",
@@ -48,7 +50,8 @@ export const CLASSES = {
     wrapper: "border-l-2 border-blue-600/30 pl-4",
     header: "flex items-center gap-2 mb-1",
     name: "text-blue-600 dark:text-blue-400 font-semibold",
-    required: "text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded",
+    required:
+      "text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded",
     type: "text-xs text-slate-500 dark:text-slate-400",
     description: "text-sm text-slate-600 dark:text-slate-400",
     example: "text-xs text-slate-500 dark:text-slate-500 mt-1 block",
@@ -56,7 +59,8 @@ export const CLASSES = {
   priority: {
     wrapper: "space-y-2",
     item: "flex items-center gap-3",
-    number: "w-6 h-6 rounded-full bg-blue-600/20 text-blue-600 dark:text-blue-400 text-xs flex items-center justify-center font-bold",
+    number:
+      "w-6 h-6 rounded-full bg-blue-600/20 text-blue-600 dark:text-blue-400 text-xs flex items-center justify-center font-bold",
     name: "text-sm text-blue-600 dark:text-blue-400",
     description: "text-xs text-slate-500",
   },
@@ -74,7 +78,8 @@ export const CLASSES = {
     code: "text-slate-300",
   },
   howMatching: {
-    wrapper: "mt-6 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-lg p-6 border border-blue-600/20",
+    wrapper:
+      "mt-6 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-lg p-6 border border-blue-600/20",
     title: "font-semibold mb-3 text-blue-600 dark:text-blue-400",
     list: "space-y-3 text-sm text-slate-600 dark:text-slate-400",
     item: "flex gap-2",

@@ -362,7 +362,13 @@ export type {
   LogsDXOptions,
 };
 
-export type { OutputFormat, HtmlStyleFormat, MatchType, TokenWithStyle, RenderOptions };
+export type {
+  OutputFormat,
+  HtmlStyleFormat,
+  MatchType,
+  TokenWithStyle,
+  RenderOptions,
+};
 
 export {
   getTheme,
@@ -382,7 +388,11 @@ export {
   THEME_PRESETS,
 };
 
-export { isValidationError, formatValidationIssues, ValidationError } from "./schema";
+export {
+  isValidationError,
+  formatValidationIssues,
+  ValidationError,
+} from "./schema";
 
 export { tokenize, applyTheme };
 

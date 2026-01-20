@@ -14,20 +14,20 @@ The renderer converts styled tokens into ANSI escape codes for terminals or HTML
 Render a single log line with styling.
 
 ```typescript
-import { renderLine, getTheme } from 'logsdx';
+import { renderLine, getTheme } from "logsdx";
 
-const theme = await getTheme('dracula');
-const ansi = renderLine('[INFO] Started', theme);
-const html = renderLine('[INFO] Started', theme, { outputFormat: 'html' });
+const theme = await getTheme("dracula");
+const ansi = renderLine("[INFO] Started", theme);
+const html = renderLine("[INFO] Started", theme, { outputFormat: "html" });
 ```
 
 ### Render Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `outputFormat` | `'ansi' \| 'html'` | `'ansi'` | Output format |
-| `htmlStyleFormat` | `'css' \| 'className'` | `'css'` | HTML styling method |
-| `escapeHtml` | `boolean` | `true` | Escape HTML entities |
+| Option            | Type                   | Default  | Description          |
+| ----------------- | ---------------------- | -------- | -------------------- |
+| `outputFormat`    | `'ansi' \| 'html'`     | `'ansi'` | Output format        |
+| `htmlStyleFormat` | `'css' \| 'className'` | `'css'`  | HTML styling method  |
+| `escapeHtml`      | `boolean`              | `true`   | Escape HTML entities |
 
 ## Token Rendering
 
@@ -36,7 +36,7 @@ const html = renderLine('[INFO] Started', theme, { outputFormat: 'html' });
 Convert tokens to ANSI string.
 
 ```typescript
-import { tokensToString } from 'logsdx';
+import { tokensToString } from "logsdx";
 
 const ansi = tokensToString(styledTokens);
 ```
@@ -46,7 +46,7 @@ const ansi = tokensToString(styledTokens);
 Convert tokens to HTML with inline styles.
 
 ```typescript
-import { tokensToHtml } from 'logsdx';
+import { tokensToHtml } from "logsdx";
 
 const html = tokensToHtml(styledTokens);
 // <span style="color: #ff5555">ERROR</span>
@@ -57,7 +57,7 @@ const html = tokensToHtml(styledTokens);
 Convert tokens to HTML with CSS classes.
 
 ```typescript
-import { tokensToClassNames } from 'logsdx';
+import { tokensToClassNames } from "logsdx";
 
 const html = tokensToClassNames(styledTokens);
 // <span class="log-error log-bold">ERROR</span>
@@ -70,7 +70,7 @@ const html = tokensToClassNames(styledTokens);
 Detect terminal/browser background color.
 
 ```typescript
-import { detectBackground } from 'logsdx';
+import { detectBackground } from "logsdx";
 
 const info = detectBackground();
 // { scheme: 'dark', confidence: 0.9 }
@@ -81,7 +81,7 @@ const info = detectBackground();
 Check if background is dark.
 
 ```typescript
-import { isDarkBackground } from 'logsdx';
+import { isDarkBackground } from "logsdx";
 
 if (isDarkBackground()) {
   // Use dark theme
@@ -93,7 +93,7 @@ if (isDarkBackground()) {
 Get recommended theme mode based on environment.
 
 ```typescript
-import { getRecommendedThemeMode } from 'logsdx';
+import { getRecommendedThemeMode } from "logsdx";
 
 const mode = getRecommendedThemeMode();
 // 'dark' or 'light'
@@ -104,10 +104,10 @@ const mode = getRecommendedThemeMode();
 Watch for background color changes (browser).
 
 ```typescript
-import { watchBackgroundChanges } from 'logsdx';
+import { watchBackgroundChanges } from "logsdx";
 
 const unsubscribe = watchBackgroundChanges((info) => {
-  console.log('Background changed:', info.scheme);
+  console.log("Background changed:", info.scheme);
 });
 
 // Later: unsubscribe();
@@ -120,25 +120,20 @@ const unsubscribe = watchBackgroundChanges((info) => {
 Apply color to text (ANSI).
 
 ```typescript
-import { applyColor } from 'logsdx';
+import { applyColor } from "logsdx";
 
-const colored = applyColor('ERROR', '#ff5555');
+const colored = applyColor("ERROR", "#ff5555");
 ```
 
 ### Style Functions
 
 ```typescript
-import {
-  applyBold,
-  applyItalic,
-  applyUnderline,
-  applyDim,
-} from 'logsdx';
+import { applyBold, applyItalic, applyUnderline, applyDim } from "logsdx";
 
-const bold = applyBold('Important');
-const italic = applyItalic('Note');
-const underlined = applyUnderline('Link');
-const dimmed = applyDim('Debug info');
+const bold = applyBold("Important");
+const italic = applyItalic("Note");
+const underlined = applyUnderline("Link");
+const dimmed = applyDim("Debug info");
 ```
 
 ## LightBox Rendering
@@ -150,9 +145,9 @@ For highlighted/boxed output:
 Render content in a highlighted box.
 
 ```typescript
-import { renderLightBox } from 'logsdx';
+import { renderLightBox } from "logsdx";
 
-const boxed = renderLightBox('Important message');
+const boxed = renderLightBox("Important message");
 ```
 
 ### renderLightBoxLine(line)
@@ -160,9 +155,9 @@ const boxed = renderLightBox('Important message');
 Render a single line with highlight background.
 
 ```typescript
-import { renderLightBoxLine } from 'logsdx';
+import { renderLightBoxLine } from "logsdx";
 
-const highlighted = renderLightBoxLine('[CRITICAL] System failure');
+const highlighted = renderLightBoxLine("[CRITICAL] System failure");
 ```
 
 ## Color Utilities
@@ -172,7 +167,7 @@ const highlighted = renderLightBoxLine('[CRITICAL] System failure');
 Generate 256-color ANSI code.
 
 ```typescript
-import { fg256 } from 'logsdx';
+import { fg256 } from "logsdx";
 
 const orange = fg256(208);
 ```
@@ -182,7 +177,7 @@ const orange = fg256(208);
 Generate true color ANSI code.
 
 ```typescript
-import { fgRGB } from 'logsdx';
+import { fgRGB } from "logsdx";
 
 const custom = fgRGB(255, 128, 0);
 ```
@@ -190,15 +185,11 @@ const custom = fgRGB(255, 128, 0);
 ## TypeScript Types
 
 ```typescript
-import type {
-  RenderOptions,
-  BackgroundInfo,
-  ColorScheme,
-} from 'logsdx';
+import type { RenderOptions, BackgroundInfo, ColorScheme } from "logsdx";
 
 interface RenderOptions {
-  outputFormat?: 'ansi' | 'html';
-  htmlStyleFormat?: 'css' | 'className';
+  outputFormat?: "ansi" | "html";
+  htmlStyleFormat?: "css" | "className";
   escapeHtml?: boolean;
   theme?: Theme;
 }
@@ -208,5 +199,5 @@ interface BackgroundInfo {
   confidence: number;
 }
 
-type ColorScheme = 'dark' | 'light' | 'unknown';
+type ColorScheme = "dark" | "light" | "unknown";
 ```
