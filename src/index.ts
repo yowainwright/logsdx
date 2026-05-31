@@ -14,7 +14,7 @@ import {
   extendTheme,
   THEME_PRESETS,
 } from "./themes";
-import { validateTheme, validateThemeSafe } from "./schema/validator";
+import { validateTheme, validateThemeSafe } from "./schema";
 import { tokenize, applyTheme } from "./tokenizer";
 import { createLogger } from "./utils/logger";
 import type { TokenList } from "./schema/types";

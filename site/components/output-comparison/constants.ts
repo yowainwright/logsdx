@@ -99,8 +99,10 @@ export const THEME_OPTIONS = [
   "oh-my-zsh",
 ];
 
+const ANSI_ESCAPE = String.fromCharCode(27);
+
 export const ANSI_ESCAPE_REPLACEMENTS: [RegExp, string][] = [
-  [/\x1b/g, "\\x1b"],
+  [new RegExp(ANSI_ESCAPE, "g"), "\\x" + "1b"],
   [/\[/g, "["],
 ];
 

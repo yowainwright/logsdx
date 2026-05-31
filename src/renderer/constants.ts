@@ -36,6 +36,8 @@ export const CLASS_ITALIC = "logsdx-italic";
 export const CLASS_UNDERLINE = "logsdx-underline";
 export const CLASS_DIM = "logsdx-dim";
 
+export const HEX_COLOR_PATTERN = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+
 function getEnv(key: string): string | undefined {
   const hasProcess = typeof process !== "undefined" && process.env;
   return hasProcess ? process.env[key] : undefined;
@@ -56,8 +58,8 @@ function isColorTerm(term: string): boolean {
 }
 
 export function supportsColors(): boolean {
-  if (getEnv("NO_COLOR")) return false;
   if (getEnv("FORCE_COLOR")) return true;
+  if (getEnv("NO_COLOR")) return false;
   if (!isTTY()) return false;
 
   const term = getEnv("TERM");
@@ -215,14 +217,13 @@ export function getColorDefinition(
 }
 
 function hexToRgb(hex: string): [number, number, number] {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16),
-      ]
-    : [0, 0, 0];
+  const result = HEX_COLOR_PATTERN.exec(hex);
+  if (!result) return [0, 0, 0];
+  return [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16),
+  ];
 }
 
 export const BACKGROUND_COLORS: Record<string, ColorDefinition> = {
@@ -279,6 +280,101 @@ export const BACKGROUND_COLORS: Record<string, ColorDefinition> = {
     className: "logsdx__bg--brightWhite",
   },
 };
+
+export const FAST_MODE_COLORS = {
+  reset: "\x1b[0m",
+  redBold: "\x1b[31;1m",
+  yellowBold: "\x1b[33;1m",
+  blue: "\x1b[34m",
+  green: "\x1b[32m",
+  gray: "\x1b[90m",
+} as const;
+
+export const FAST_LOG_LEVELS = {
+  ERROR: FAST_MODE_COLORS.redBold,
+  ERR: FAST_MODE_COLORS.redBold,
+  FATAL: FAST_MODE_COLORS.redBold,
+  WARN: FAST_MODE_COLORS.yellowBold,
+  WARNING: FAST_MODE_COLORS.yellowBold,
+  INFO: FAST_MODE_COLORS.blue,
+  SUCCESS: FAST_MODE_COLORS.green,
+  DEBUG: FAST_MODE_COLORS.gray,
+  TRACE: FAST_MODE_COLORS.gray,
+} as const;
+
+export const FAST_LOG_LEVEL_HTML_COLORS: Record<
+  keyof typeof FAST_LOG_LEVELS,
+  string
+> = {
+  ERROR: "#ff5555",
+  ERR: "#ff5555",
+  FATAL: "#ff0000",
+  WARN: "#ffb86c",
+  WARNING: "#ffb86c",
+  INFO: "#8be9fd",
+  SUCCESS: "#50fa7b",
+  DEBUG: "#6272a4",
+  TRACE: "#6272a4",
+};
+
+export const FAST_REGEX = new RegExp(
+  `\\b(${Object.keys(FAST_LOG_LEVELS).join("|")})\\b`,
+  "gi",
+);
+
+export const LIGHTBOX_BORDERS = {
+  rounded: {
+    topLeft: "╭",
+    topRight: "╮",
+    bottomLeft: "╰",
+    bottomRight: "╯",
+    horizontal: "─",
+    vertical: "│",
+  },
+  square: {
+    topLeft: "┌",
+    topRight: "┐",
+    bottomLeft: "└",
+    bottomRight: "┘",
+    horizontal: "─",
+    vertical: "│",
+  },
+  double: {
+    topLeft: "╔",
+    topRight: "╗",
+    bottomLeft: "╚",
+    bottomRight: "╝",
+    horizontal: "═",
+    vertical: "║",
+  },
+  simple: {
+    topLeft: "+",
+    topRight: "+",
+    bottomLeft: "+",
+    bottomRight: "+",
+    horizontal: "-",
+    vertical: "|",
+  },
+} as const;
+
+export const LIGHTBOX_THEME_BACKGROUNDS: Readonly<Record<string, string>> = {
+  "github-light": "\x1b[48;2;255;255;255m",
+  "solarized-light": "\x1b[48;2;253;246;227m",
+  "one-light": "\x1b[48;2;250;250;250m",
+  "atom-one-light": "\x1b[48;2;250;250;250m",
+} as const;
+
+export const LIGHTBOX_DEFAULT_BACKGROUND = "\x1b[48;5;255m";
+export const LIGHTBOX_DEFAULT_WIDTH = 80;
+export const LIGHTBOX_DEFAULT_PADDING = 2;
+export const LIGHTBOX_DEFAULT_BORDER = true;
+export const LIGHTBOX_DEFAULT_BORDER_STYLE = "rounded" as const;
+
+export const CONFIDENCE_ORDER = {
+  high: 3,
+  medium: 2,
+  low: 1,
+} as const;
 
 export const STYLE_CODES = {
   reset: "\x1b[0m",

@@ -50,9 +50,21 @@ describe("LogPlayground", () => {
     expect(screen.getByText("Reset")).toBeDefined();
   });
 
-  it("shows usage code example", () => {
+  it("shows the default log content", () => {
     render(<LogPlayground />);
-    expect(screen.getByText("Usage")).toBeDefined();
+    const textarea = screen.getByLabelText("Input Logs") as HTMLTextAreaElement;
+    expect(textarea.value).toContain("Application starting");
+  });
+
+  it("resets edited log content", () => {
+    render(<LogPlayground />);
+    const textarea = screen.getByLabelText("Input Logs") as HTMLTextAreaElement;
+
+    fireEvent.change(textarea, { target: { value: "ERROR: custom" } });
+    expect(textarea.value).toBe("ERROR: custom");
+
+    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
+    expect(textarea.value).toContain("Application starting");
   });
 
   it("uses default theme from props", () => {

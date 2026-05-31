@@ -1,12 +1,5 @@
-export interface Spinner {
-  start(): Spinner;
-  succeed(text?: string): Spinner;
-  fail(text?: string): Spinner;
-  stop(): Spinner;
-  text: string;
-}
-
-const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+import type { Spinner } from "./types";
+import { SPINNER_FRAMES } from "./constants";
 
 export function spinner(initialText: string): Spinner {
   let text = initialText;
@@ -29,8 +22,8 @@ export function spinner(initialText: string): Spinner {
       process.stdout.write("\x1B[?25l");
 
       interval = setInterval(() => {
-        const frame = frames[frameIndex];
-        frameIndex = (frameIndex + 1) % frames.length;
+        const frame = SPINNER_FRAMES[frameIndex];
+        frameIndex = (frameIndex + 1) % SPINNER_FRAMES.length;
         process.stdout.write(`\r\x1B[36m${frame}\x1B[0m ${text}`);
       }, 80);
 

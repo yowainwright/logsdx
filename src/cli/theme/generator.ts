@@ -1,6 +1,6 @@
-import { select, input, checkbox, confirm } from "../utils/prompts";
-import { ui } from "./ui";
-import colors, { hex } from "../utils/colors";
+import { select, input, checkbox, confirm } from "../../utils/prompts";
+import { ui } from "../ui";
+import colors, { hex } from "../../utils/colors";
 import fs from "fs";
 import path from "path";
 import {
@@ -10,21 +10,48 @@ import {
   type ColorPalette,
   type PatternPreset,
   type ThemeGeneratorConfig,
-} from "../themes/presets";
-import { registerTheme, getAllThemes, getTheme } from "../themes";
-import type { Theme, PatternMatch } from "../types";
-import { parseTheme } from "../schema";
-import { LogsDX } from "../index";
+} from "../../themes/presets";
+import { registerTheme, getAllThemes, getTheme } from "../../themes";
+import type { Theme, PatternMatch } from "../../types";
+import type { ThemeAnswers } from "../types";
+import {
+  HEX_COLOR_PATTERN,
+  RGB_COLOR_PATTERN,
+  NAMED_COLORS,
+} from "../constants";
+import { parseTheme } from "../../schema";
+import { LogsDX } from "../../index";
+import { createLogger } from "../../utils/logger";
+
+const log = createLogger("theme-gen");
+
+function serializePattern(pattern: PatternMatch): PatternMatch {
+  return {
+    ...pattern,
+    pattern:
+      pattern.pattern instanceof RegExp
+        ? pattern.pattern.source
+        : pattern.pattern,
+  };
+}
+
+function serializeThemeForFile(theme: Theme): Theme {
+  return {
+    ...theme,
+    schema: {
+      ...theme.schema,
+      matchPatterns: theme.schema.matchPatterns?.map(serializePattern),
+    },
+  };
+}
 
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
   ui.showInfo("Welcome to the LogsDX Theme Generator");
 
-  console.log(
-    colors.dim(
-      "Create custom themes by combining color palettes with pattern presets.\n",
-    ),
-  );
+  const intro =
+    "Create custom themes by combining color palettes with pattern presets.";
+  log.debug(colors.dim(intro));
 
   const themeName = await input({
     message: "Theme name:",
@@ -149,11 +176,8 @@ export async function runThemeGenerator(): Promise<void> {
       ui.showSuccess(`Theme saved to ${colors.cyan(filename)}`);
     }
 
-    console.log(
-      colors.green(
-        `\n✨ Your theme "${themeName}" is ready to use!\nTry it with: logsdx --theme ${themeName} your-log-file.log`,
-      ),
-    );
+    const readyMessage = `\nYour theme "${themeName}" is ready to use!\nTry it with: logsdx --theme ${themeName} your-log-file.log`;
+    log.print(colors.green(readyMessage));
   }
 }
 
@@ -388,21 +412,6 @@ export function listPatternPresetsCommand(): void {
 }
 
 export function validateColorInput(color: string): boolean | string {
-  const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8})$/;
-  const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+)?\s*\)$/;
-  const namedColors = [
-    "red",
-    "green",
-    "blue",
-    "yellow",
-    "cyan",
-    "magenta",
-    "white",
-    "black",
-    "gray",
-    "notacolor",
-  ];
-
   if (!color || typeof color !== "string" || !color.trim()) {
     return false;
   }
@@ -412,60 +421,16 @@ export function validateColorInput(color: string): boolean | string {
   }
 
   if (color.startsWith("#")) {
-    return hexPattern.test(color);
+    return HEX_COLOR_PATTERN.test(color);
   }
 
   if (color.startsWith("rgb")) {
-    return rgbPattern.test(color);
+    return RGB_COLOR_PATTERN.test(color);
   }
 
-  return namedColors.includes(color.toLowerCase());
-}
-
-interface ThemeAnswers {
-  themeName?: string;
-  name?: string;
-  description?: string;
-  palette?: string;
-  colorPalette?: string;
-  patterns?: string[];
-  patternPresets?: string[];
-  features?: string[];
-  customPatterns?: Array<{
-    name: string;
-    pattern: string;
-    color: string;
-    colorRole?:
-      | "primary"
-      | "secondary"
-      | "success"
-      | "warning"
-      | "error"
-      | "info"
-      | "muted"
-      | "accent"
-      | {};
-    styleCodes?: string[];
-  }>;
-  customWords?:
-    | Record<
-        string,
-        {
-          colorRole?:
-            | "primary"
-            | "secondary"
-            | "success"
-            | "warning"
-            | "error"
-            | "info"
-            | "muted"
-            | "accent"
-            | {};
-          styleCodes?: string[];
-        }
-      >
-    | string[];
-  mode?: "light" | "dark" | "auto" | {};
+  return NAMED_COLORS.includes(
+    color.toLowerCase() as (typeof NAMED_COLORS)[number],
+  );
 }
 
 export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
@@ -597,8 +562,9 @@ export async function exportTheme(themeName?: string): Promise<void> {
   });
 
   try {
+    const serializableTheme = serializeThemeForFile(theme);
     const exportData = {
-      ...theme,
+      ...serializableTheme,
       exportedAt: new Date().toISOString(),
       exportedBy: "LogsDX Theme Generator",
       version: "1.0.0",
@@ -638,15 +604,17 @@ export function exportThemeToFile(
   }
 
   if (format === "typescript") {
+    const serializableTheme = serializeThemeForFile(theme);
     const tsContent = `import type { Theme } from "logsdx";
 
-export const theme: Theme = ${JSON.stringify(theme, null, 2)};
+export const theme: Theme = ${JSON.stringify(serializableTheme, null, 2)};
 
 export default theme;
 `;
     fs.writeFileSync(filePath, tsContent);
   } else {
-    fs.writeFileSync(filePath, JSON.stringify(theme, null, 2));
+    const serializableTheme = serializeThemeForFile(theme);
+    fs.writeFileSync(filePath, JSON.stringify(serializableTheme, null, 2));
   }
 }
 

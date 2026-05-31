@@ -17,12 +17,13 @@ import {
   renderLine,
   renderLines,
 } from "./renderer";
-import { validateTheme, validateThemeSafe } from "./schema/validator";
 import {
+  validateTheme,
+  validateThemeSafe,
   isValidationError,
   formatValidationIssues,
   ValidationError,
-} from "./lib/validate";
+} from "./schema";
 import {
   createTheme,
   createSimpleTheme,

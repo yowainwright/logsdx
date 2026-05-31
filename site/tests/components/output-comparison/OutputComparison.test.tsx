@@ -17,41 +17,41 @@ describe("OutputComparison", () => {
     expect(screen.getByText("Output Comparison")).toBeDefined();
   });
 
-  it("renders Terminal and HTML view tabs", () => {
+  it("renders terminal and browser output panels", () => {
     render(<OutputComparison />);
-    expect(screen.getByRole("button", { name: "Terminal" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "HTML" })).toBeDefined();
+    expect(screen.getByText("Terminal (ANSI)")).toBeDefined();
+    expect(screen.getByText("Browser (HTML)")).toBeDefined();
   });
 
   it("renders Rendered and Source mode tabs", () => {
     render(<OutputComparison />);
-    expect(screen.getByRole("button", { name: "Rendered" })).toBeDefined();
-    expect(screen.getByRole("button", { name: "Source" })).toBeDefined();
+    expect(screen.getAllByRole("button", { name: "Rendered" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "Source" })).toHaveLength(2);
   });
 
   it("renders theme selector", () => {
     render(<OutputComparison />);
     expect(screen.getByText("Theme")).toBeDefined();
-    expect(screen.getByRole("combobox")).toBeDefined();
+    expect(screen.getByRole("button", { name: "dracula" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "github-dark" })).toBeDefined();
   });
 
-  it("renders custom log input", () => {
+  it("renders terminal significance text", () => {
     render(<OutputComparison />);
-    expect(
-      screen.getByPlaceholderText("Paste your own logs here..."),
-    ).toBeDefined();
+    expect(screen.getByText(/The Terminal panel uses Ghostty/)).toBeDefined();
   });
 
-  it("switches to HTML view when clicked", () => {
+  it("switches terminal panel to source mode when clicked", () => {
     render(<OutputComparison />);
-    const htmlTab = screen.getByRole("button", { name: "HTML" });
-    fireEvent.click(htmlTab);
-    expect(screen.getByText("Browser")).toBeDefined();
+    const sourceTabs = screen.getAllByRole("button", { name: "Source" });
+    fireEvent.click(sourceTabs[0]);
+    expect(sourceTabs[0].className).toContain("bg-white/20");
   });
 
-  it("shows format descriptions", () => {
+  it("switches browser panel to source mode when clicked", () => {
     render(<OutputComparison />);
-    expect(screen.getByText("Escape codes for terminals")).toBeDefined();
-    expect(screen.getByText("Styled spans for browsers")).toBeDefined();
+    const sourceTabs = screen.getAllByRole("button", { name: "Source" });
+    fireEvent.click(sourceTabs[1]);
+    expect(sourceTabs[1].className).toContain("bg-white/20");
   });
 });

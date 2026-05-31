@@ -1,19 +1,6 @@
 import colors from "./colors";
-
-export type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
-
-const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
-  silent: 0,
-  error: 1,
-  warn: 2,
-  info: 3,
-  debug: 4,
-};
-
-interface LoggerConfig {
-  level: LogLevel;
-  prefix?: string;
-}
+import type { LogLevel, LoggerConfig } from "./types";
+import { LOG_LEVEL_PRIORITY } from "./constants";
 
 let globalConfig: LoggerConfig = {
   level: "info",
@@ -37,40 +24,37 @@ export function getLogLevel(): LogLevel {
   return globalConfig.level;
 }
 
+function createLogMethod(
+  level: LogLevel,
+  label: string,
+  color: (s: string) => string,
+  prefix?: string,
+  useStderr = false,
+) {
+  return (message: string): void => {
+    if (!shouldLog(level)) return;
+    const output = useStderr ? console.error : console.log;
+    output(color(label), formatMessage(prefix, message));
+  };
+}
+
 export function createLogger(prefix?: string) {
+  const print = (message: string): void => {
+    if (!shouldLog("info")) return;
+    console.log(message);
+  };
+
   return {
-    info(message: string): void {
-      if (shouldLog("info")) {
-        console.log(colors.blue("[info]"), formatMessage(prefix, message));
-      }
-    },
-
-    success(message: string): void {
-      if (shouldLog("info")) {
-        console.log(colors.green("[ok]"), formatMessage(prefix, message));
-      }
-    },
-
-    warn(message: string): void {
-      if (shouldLog("warn")) {
-        console.log(colors.yellow("[warn]"), formatMessage(prefix, message));
-      }
-    },
-
-    error(message: string): void {
-      if (shouldLog("error")) {
-        console.error(colors.red("[error]"), formatMessage(prefix, message));
-      }
-    },
-
-    debug(message: string): void {
-      if (shouldLog("debug")) {
-        console.log(colors.gray("[debug]"), formatMessage(prefix, message));
-      }
-    },
+    print,
+    info: createLogMethod("info", "[info]", colors.blue, prefix),
+    success: createLogMethod("info", "[ok]", colors.green, prefix),
+    warn: createLogMethod("warn", "[warn]", colors.yellow, prefix),
+    error: createLogMethod("error", "[error]", colors.red, prefix, true),
+    debug: createLogMethod("debug", "[debug]", colors.gray, prefix),
   };
 }
 
 export const logger = createLogger();
 
 export default logger;
+export type { LogLevel };

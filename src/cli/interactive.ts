@@ -2,168 +2,194 @@ import { select, confirm } from "../utils/prompts";
 import { LogsDX, getThemeNames, getTheme } from "../index";
 import { ui } from "./ui";
 import colors from "../utils/colors";
+import { createLogger } from "../utils/logger";
+import { INTERACTIVE_SAMPLE_LOG, PROMPTS, OUTPUT_FORMATS } from "./constants";
+import type {
+  InteractiveConfig,
+  ThemeChoice,
+  FormatChoice,
+  FormatValue,
+} from "./types";
 
-export type InteractiveConfig = {
-  theme: string;
-  outputFormat: "ansi" | "html";
-  preview: boolean;
-};
+const log = createLogger("interactive");
 
-export type ThemeChoice = {
-  name: string;
-  value: string;
-  description: string;
-};
+async function buildThemeChoices(themeNames: string[]): Promise<ThemeChoice[]> {
+  const buildChoice = async (themeName: string): Promise<ThemeChoice> => {
+    const theme = await getTheme(themeName);
+    const description = theme?.description || PROMPTS.noDescription;
+    const styledName = colors.cyan(themeName);
+    return { name: styledName, value: themeName, description };
+  };
+  return Promise.all(themeNames.map(buildChoice));
+}
 
-const SAMPLE_LOG = `2024-01-15 10:30:45 INFO [server] Application started successfully
-2024-01-15 10:30:46 DEBUG [auth] Loading user credentials from /etc/config
-2024-01-15 10:30:47 WARN [database] Connection pool at 80% capacity
-2024-01-15 10:30:48 ERROR [api] Failed to process request: /users/123/profile
-2024-01-15 10:30:49 INFO [cache] Cache hit ratio: 94.5%
-GET /api/users/123 200 142ms - "Mozilla/5.0"
-POST /api/auth/login 401 23ms - Invalid credentials
-192.168.1.100 - "GET /health HTTP/1.1" 200 5ms`;
+async function showSingleThemePreview(themeName: string): Promise<void> {
+  const logsDX = await LogsDX.getInstance({
+    theme: themeName,
+    outputFormat: "ansi",
+  });
+  const styledSample = logsDX.processLog(INTERACTIVE_SAMPLE_LOG);
+  ui.showThemePreview(themeName, styledSample);
+}
+
+async function showAllThemePreviews(themeNames: string[]): Promise<void> {
+  log.info(PROMPTS.themePreviews);
+  const reducer = (p: Promise<void>, name: string) =>
+    p.then(() => showSingleThemePreview(name));
+  await themeNames.reduce(reducer, Promise.resolve());
+}
+
+function buildFormatChoice(
+  label: string,
+  hint: string,
+  desc: string,
+  value: FormatValue,
+  colorFn: (s: string) => string,
+): FormatChoice {
+  const name = colorFn(label) + colors.dim(` (${hint})`);
+  return { name, value, description: desc };
+}
+
+function buildOutputFormatChoices(): FormatChoice[] {
+  const ansi = OUTPUT_FORMATS.ansi;
+  const html = OUTPUT_FORMATS.html;
+  const ansiChoice = buildFormatChoice(
+    ansi.label,
+    ansi.hint,
+    ansi.desc,
+    "ansi",
+    colors.green,
+  );
+  const htmlChoice = buildFormatChoice(
+    html.label,
+    html.hint,
+    html.desc,
+    "html",
+    colors.blue,
+  );
+  return [ansiChoice, htmlChoice];
+}
+
+async function selectTheme(themeChoices: ThemeChoice[]): Promise<string> {
+  const previewLabel = colors.yellow(PROMPTS.previewThemes);
+  const previewOption = {
+    name: previewLabel,
+    value: "__preview__",
+    description: PROMPTS.previewDescription,
+  };
+  const choices = [...themeChoices, previewOption];
+  return select({ message: PROMPTS.chooseTheme, choices });
+}
+
+async function showSettingsPreview(
+  theme: string,
+  format: "ansi" | "html",
+): Promise<void> {
+  log.info(PROMPTS.previewWithSettings);
+  const logsDX = await LogsDX.getInstance({ theme, outputFormat: format });
+  const styledSample = logsDX.processLog(INTERACTIVE_SAMPLE_LOG);
+  const formatUpper = format.toUpperCase();
+  const previewTitle = `${theme} (${formatUpper})`;
+  ui.showThemePreview(previewTitle, styledSample);
+}
+
+async function resolveTheme(
+  selectedTheme: string,
+  themeNames: string[],
+  themeChoices: ThemeChoice[],
+): Promise<string> {
+  const wantsPreview = selectedTheme === "__preview__";
+  if (!wantsPreview) return selectedTheme;
+
+  await showAllThemePreviews(themeNames);
+  return select({ message: PROMPTS.nowChooseTheme, choices: themeChoices });
+}
+
+async function promptForSettings(
+  finalTheme: string,
+): Promise<{ outputFormat: FormatValue; wantPreview: boolean }> {
+  const formatChoices = buildOutputFormatChoices();
+  const formatMessage = PROMPTS.chooseOutputFormat;
+  const outputFormat = (await select({
+    message: formatMessage,
+    choices: formatChoices,
+  })) as FormatValue;
+  const previewMessage = PROMPTS.showPreview;
+  const wantPreview = await confirm({ message: previewMessage, default: true });
+  if (wantPreview) await showSettingsPreview(finalTheme, outputFormat);
+  return { outputFormat, wantPreview };
+}
 
 export async function runInteractiveMode(): Promise<InteractiveConfig> {
   ui.showHeader();
-  ui.showInfo("Welcome to LogsDX Interactive Mode!");
-
-  console.log(
-    colors.dim(
-      "This wizard will help you select the perfect theme and settings for your logs.\n",
-    ),
-  );
+  log.info(PROMPTS.welcomeInteractive);
+  log.debug(PROMPTS.wizardHelp);
 
   const themeNames = getThemeNames();
-  const themeChoices: ThemeChoice[] = await Promise.all(
-    themeNames.map(async (name: string) => ({
-      name: colors.cyan(name),
-      value: name,
-      description:
-        (await getTheme(name))?.description || "No description available",
-    })),
+  const themeChoices = await buildThemeChoices(themeNames);
+  const selectedTheme = await selectTheme(themeChoices);
+  const finalTheme = await resolveTheme(
+    selectedTheme,
+    themeNames,
+    themeChoices,
   );
 
-  const selectedTheme = await select({
-    message: "Choose a theme:",
-    choices: [
-      ...themeChoices,
-      {
-        name: colors.yellow("Preview themes"),
-        value: "__preview__",
-        description: "See how each theme looks with sample logs",
-      },
-    ],
-  });
-
-  let finalTheme = selectedTheme;
-
-  if (selectedTheme === "__preview__") {
-    ui.showInfo("Theme Previews:\n");
-
-    for (const themeName of themeNames) {
-      const logsDX = await LogsDX.getInstance({
-        theme: themeName,
-        outputFormat: "ansi",
-      });
-      const styledSample = logsDX.processLog(SAMPLE_LOG);
-      ui.showThemePreview(themeName, styledSample);
-    }
-
-    finalTheme = await select({
-      message: "Now choose your theme:",
-      choices: themeChoices,
-    });
-  }
-
-  const outputFormat = await select({
-    message: "Choose output format:",
-    choices: [
-      {
-        name: colors.green("ANSI") + colors.dim(" (terminal colors)"),
-        value: "ansi" as const,
-        description: "Perfect for terminal output with colors and styling",
-      },
-      {
-        name: colors.blue("HTML") + colors.dim(" (web/browser)"),
-        value: "html" as const,
-        description: "Generates HTML with inline styles for web display",
-      },
-    ],
-  });
-
-  const wantPreview = await confirm({
-    message: "Show a preview with your settings?",
-    default: true,
-  });
-
-  if (wantPreview) {
-    console.log("\n" + colors.bold("Preview with your selected settings:"));
-    const logsDX = await LogsDX.getInstance({
-      theme: finalTheme,
-      outputFormat: outputFormat as "ansi" | "html",
-    });
-    const styledSample = logsDX.processLog(SAMPLE_LOG);
-    ui.showThemePreview(
-      `${finalTheme} (${outputFormat.toUpperCase()})`,
-      styledSample,
-    );
-  }
-
+  const { outputFormat, wantPreview } = await promptForSettings(finalTheme);
   const saveConfig = await confirm({
-    message: "Save these settings as default?",
+    message: PROMPTS.saveAsDefault,
     default: false,
   });
+  if (saveConfig) log.success(PROMPTS.configSaved);
 
-  if (saveConfig) {
-    ui.showInfo("Configuration saved to ~/.logsdxrc.json");
-  }
-
-  return {
-    theme: finalTheme,
-    outputFormat: outputFormat as "ansi" | "html",
-    preview: wantPreview,
-  };
+  return { theme: finalTheme, outputFormat, preview: wantPreview };
 }
 
 export async function selectThemeInteractively(): Promise<string> {
   const themeNames = getThemeNames();
+  const buildChoice = (name: string) => {
+    const styledName = colors.cyan(name);
+    return { name: styledName, value: name };
+  };
+  const choices = themeNames.map(buildChoice);
+  return select({ message: PROMPTS.selectTheme, choices });
+}
 
-  return await select({
-    message: "Select a theme:",
-    choices: themeNames.map((name: string) => ({
-      name: colors.cyan(name),
-      value: name,
-    })),
-  });
+async function displayThemeEntry(
+  logsDX: LogsDX,
+  themeName: string,
+  index: number,
+): Promise<void> {
+  const theme = await getTheme(themeName);
+  const label = `${index + 1}. ${themeName}:`;
+  const styledLabel = colors.bold.cyan(label);
+  const sampleLog = `INFO Sample log with ${themeName} theme - GET /api/test 200 OK`;
+  const styledSample = logsDX.processLine(sampleLog);
+  const description = theme?.description;
+  const indentedDescription = `   ${description}`;
+  const indentedSample = `   ${styledSample}`;
+
+  log.info(styledLabel);
+  if (description) log.debug(indentedDescription);
+  log.info(indentedSample);
 }
 
 export async function showThemeList(): Promise<void> {
-  ui.showInfo("Available Themes:\n");
+  log.info(PROMPTS.availableThemes);
 
   const themeNames = getThemeNames();
+  const firstTheme = themeNames[0];
   const logsDX = await LogsDX.getInstance({
-    theme: themeNames[0],
+    theme: firstTheme,
     outputFormat: "ansi",
   });
+  const displayEntry = (name: string, i: number) =>
+    displayThemeEntry(logsDX, name, i);
 
-  for (const themeName of themeNames) {
-    const theme = await getTheme(themeName);
-    const index = themeNames.indexOf(themeName);
-    const sample = `${index + 1}. ${themeName}`;
-    const styledSample = logsDX.processLine(
-      `INFO Sample log with ${themeName} theme - GET /api/test 200 OK`,
-    );
-
-    console.log(colors.bold.cyan(`\n${sample}:`));
-    if (theme?.description) {
-      console.log(colors.dim(`   ${theme.description}`));
-    }
-    console.log(`   ${styledSample}`);
-  }
-
-  console.log(colors.yellow("\nUse --interactive for guided theme selection"));
-  console.log(
-    colors.yellow("Use --preview to see all themes with sample logs"),
+  await themeNames.reduce(
+    (p, name, i) => p.then(() => displayEntry(name, i)),
+    Promise.resolve(),
   );
+
+  log.info(PROMPTS.useInteractive);
+  log.info(PROMPTS.usePreview);
 }

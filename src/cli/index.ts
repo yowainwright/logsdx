@@ -1,16 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { LogsDX, getThemeNames } from "../index";
-import type { CliOptions, CommanderOptions } from "./types";
+import type { CliOptions, CommanderOptions, InteractiveConfig } from "./types";
 import type { LogsDXOptions } from "../types";
 import { ui } from "./ui";
-import type { InteractiveConfig } from "./interactive";
 import {
   runThemeGenerator,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "./theme-gen";
-import { exportTheme, importTheme, listThemeFiles } from "./theme-gen";
+} from "./theme/generator";
+import { exportTheme, importTheme, listThemeFiles } from "./theme/generator";
 import { createLogger } from "../utils/logger";
 
 const log = createLogger("cli");

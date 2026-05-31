@@ -1,3 +1,6 @@
+export const MAX_CACHE_SIZE = 10;
+export const CACHE_TTL = 60000; // 1 minute
+
 export const TIMESTAMP_PATTERN =
   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})/;
 export const LOG_LEVEL_PATTERN = /\b(ERROR|WARN|INFO|DEBUG)\b/;

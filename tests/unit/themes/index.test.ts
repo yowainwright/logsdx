@@ -9,7 +9,7 @@ import {
   preloadAllThemes,
   registerThemeLoader,
 } from "../../../src/themes/index";
-import { THEMES, DEFAULT_THEME } from "../../../src/themes/constants";
+import { DEFAULT_THEME } from "../../../src/themes/constants";
 
 describe("Theme Management", () => {
   const originalConsoleLog = console.log;

@@ -7,7 +7,7 @@ import { ThemeControls } from "./ThemeControls";
 import { CodeExample } from "./CodeExample";
 import { SAMPLE_LOGS, THEME_PAIRS } from "./constants";
 import { THEME_BACKGROUNDS } from "./CodeExample/constants";
-import type { ColorMode, ThemePair } from "./types";
+import type { ColorMode } from "./types";
 
 export function InteractiveExamplesSection() {
   const [selectedTheme, setSelectedTheme] = useState("GitHub");

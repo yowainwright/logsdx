@@ -114,7 +114,7 @@ test.describe("Homepage", () => {
       expect(newState).toBe(!initialState);
     });
 
-    test("preset toggle updates preview without console errors", async ({
+    test("preset toggle keeps preview stable without console errors", async ({
       page,
     }) => {
       const errors: string[] = [];
@@ -124,10 +124,7 @@ test.describe("Homepage", () => {
         }
       });
 
-      const previewBefore = await page
-        .locator("[class*='font-mono']")
-        .first()
-        .innerHTML();
+      const preview = page.locator("[class*='font-mono']").first();
 
       const checkbox = page
         .locator("input[type='checkbox']")
@@ -136,11 +133,7 @@ test.describe("Homepage", () => {
       await checkbox.first().click();
 
       await page.waitForTimeout(500);
-
-      const previewAfter = await page
-        .locator("[class*='font-mono']")
-        .first()
-        .innerHTML();
+      await expect(preview).toBeVisible();
 
       const criticalErrors = errors.filter(
         (e) =>

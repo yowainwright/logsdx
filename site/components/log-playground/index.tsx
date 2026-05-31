@@ -126,6 +126,7 @@ function InputPane({ value, onChange, placeholder }: InputPaneProps) {
     <div className={wrapperClass}>
       <div className={CLASS_PANE_HEADER}>{TEXT_LABEL_INPUT_LOGS}</div>
       <textarea
+        aria-label={TEXT_LABEL_INPUT_LOGS}
         value={value}
         onChange={handleChange}
         className={CLASS_TEXTAREA}

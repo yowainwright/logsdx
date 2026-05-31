@@ -1,30 +1,11 @@
 import * as readline from "readline";
 import { logger } from "./logger";
-
-interface InputPrompt {
-  message: string;
-  default?: string;
-  validate?: (value: string) => boolean | string | Promise<boolean | string>;
-  transformer?: (value: string) => string;
-}
-
-interface SelectPrompt {
-  message: string;
-  choices: Array<
-    { name?: string; value: string; description?: string } | string
-  >;
-  default?: string;
-}
-
-interface CheckboxPrompt {
-  message: string;
-  choices: Array<{ name: string; value: string; checked?: boolean }>;
-}
-
-interface ConfirmPrompt {
-  message: string;
-  default?: boolean;
-}
+import type {
+  InputPrompt,
+  SelectPrompt,
+  CheckboxPrompt,
+  ConfirmPrompt,
+} from "./types";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -39,6 +20,18 @@ function question(prompt: string): Promise<string> {
   });
 }
 
+async function validateInput(
+  value: string,
+  validate?: InputPrompt["validate"],
+): Promise<boolean> {
+  if (!validate) return true;
+  const result = await Promise.resolve(validate(value));
+  if (result === true) return true;
+  const errorMsg = typeof result === "string" ? result : "Invalid input";
+  logger.error(errorMsg);
+  return false;
+}
+
 export async function input(options: InputPrompt): Promise<string> {
   const defaultText = options.default ? ` (${options.default})` : "";
   const prompt = `${options.message}${defaultText}: `;
@@ -46,48 +39,37 @@ export async function input(options: InputPrompt): Promise<string> {
   while (true) {
     const answer = await question(prompt);
     const value = answer.trim() || options.default || "";
-
-    if (options.validate) {
-      const validation = await Promise.resolve(options.validate(value));
-      if (validation === true) {
-        return value;
-      }
-      logger.error(
-        typeof validation === "string" ? validation : "Invalid input",
-      );
-      continue;
-    }
-
-    return value;
+    const isValid = await validateInput(value, options.validate);
+    if (isValid) return value;
   }
 }
 
-export async function select(options: SelectPrompt): Promise<string> {
-  const choices = options.choices.map((choice) =>
-    typeof choice === "string" ? { name: choice, value: choice } : choice,
-  );
+function normalizeChoice(choice: SelectPrompt["choices"][0]) {
+  return typeof choice === "string" ? { name: choice, value: choice } : choice;
+}
 
-  console.log(options.message);
+function printChoices(choices: ReturnType<typeof normalizeChoice>[]) {
   choices.forEach((choice, index) => {
     const display = choice.name || choice.value;
     const desc = choice.description ? ` - ${choice.description}` : "";
     console.log(`  ${index + 1}. ${display}${desc}`);
   });
+}
 
-  const defaultIndex = options.default
+export async function select(options: SelectPrompt): Promise<string> {
+  const choices = options.choices.map(normalizeChoice);
+  const defaultIdx = options.default
     ? choices.findIndex((c) => c.value === options.default) + 1
     : 1;
-  const defaultText = ` (${defaultIndex})`;
+
+  console.log(options.message);
+  printChoices(choices);
 
   while (true) {
-    const answer = await question(`Select${defaultText}: `);
-    const index = answer.trim()
-      ? parseInt(answer.trim(), 10) - 1
-      : defaultIndex - 1;
-
-    if (index >= 0 && index < choices.length) {
-      return choices[index].value;
-    }
+    const answer = await question(`Select (${defaultIdx}): `);
+    const trimmed = answer.trim();
+    const index = trimmed ? parseInt(trimmed, 10) - 1 : defaultIdx - 1;
+    if (index >= 0 && index < choices.length) return choices[index].value;
     logger.error("Invalid selection");
   }
 }
@@ -95,8 +77,8 @@ export async function select(options: SelectPrompt): Promise<string> {
 export async function checkbox(options: CheckboxPrompt): Promise<string[]> {
   console.log(options.message);
   options.choices.forEach((choice, index) => {
-    const checked = choice.checked ? "◉" : "◯";
-    console.log(`  ${checked} ${index + 1}. ${choice.name}`);
+    const marker = choice.checked ? "◉" : "◯";
+    console.log(`  ${marker} ${index + 1}. ${choice.name}`);
   });
 
   const answer = await question("Select (comma-separated numbers): ");
@@ -108,20 +90,18 @@ export async function checkbox(options: CheckboxPrompt): Promise<string[]> {
   return indices.map((i) => options.choices[i].value);
 }
 
-export async function confirm(options: ConfirmPrompt): Promise<boolean> {
-  const defaultText =
-    options.default !== undefined
-      ? ` (${options.default ? "Y/n" : "y/N"})`
-      : " (y/n)";
-  const prompt = `${options.message}${defaultText}: `;
+function getConfirmDefault(defaultVal?: boolean): string {
+  if (defaultVal === undefined) return " (y/n)";
+  return defaultVal ? " (Y/n)" : " (y/N)";
+}
 
+export async function confirm(options: ConfirmPrompt): Promise<boolean> {
+  const defaultText = getConfirmDefault(options.default);
+  const prompt = `${options.message}${defaultText}: `;
   const answer = await question(prompt);
   const value = answer.trim().toLowerCase();
 
-  if (!value && options.default !== undefined) {
-    return options.default;
-  }
-
+  if (!value && options.default !== undefined) return options.default;
   return value === "y" || value === "yes";
 }
 

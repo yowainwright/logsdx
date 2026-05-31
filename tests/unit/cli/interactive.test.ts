@@ -36,6 +36,9 @@ describe("showThemeList", () => {
 
     const themeNames = getThemeNames();
     expect(themeNames.length).toBeGreaterThan(0);
+    themeNames.forEach((themeName) => {
+      expect(allOutput).toContain(themeName);
+    });
   });
 
   test("should show theme descriptions if available", async () => {

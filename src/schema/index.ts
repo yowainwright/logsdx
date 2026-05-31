@@ -1,9 +1,184 @@
-import {
-  v,
-  ValidationError,
-  isValidationError,
-  formatValidationIssues,
-} from "../lib/validate";
+type ValidationResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: ValidationError };
+
+export class ValidationError extends Error {
+  constructor(
+    message: string,
+    public path: string[] = [],
+    public issues: { path: string[]; message: string }[] = [],
+  ) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+type Validator<T> = {
+  parse: (value: unknown) => T;
+  safeParse: (value: unknown) => ValidationResult<T>;
+  optional: () => Validator<T | undefined>;
+};
+
+function createValidator<T>(
+  validate: (value: unknown, path: string[]) => T,
+): Validator<T> {
+  return {
+    parse(value: unknown): T {
+      return validate(value, []);
+    },
+    safeParse(value: unknown): ValidationResult<T> {
+      try {
+        return { success: true, data: validate(value, []) };
+      } catch (e) {
+        return { success: false, error: e as ValidationError };
+      }
+    },
+    optional(): Validator<T | undefined> {
+      return createValidator((v, path) =>
+        v === undefined ? undefined : validate(v, path),
+      );
+    },
+  };
+}
+
+function fail(message: string, path: string[]): never {
+  throw new ValidationError(message, path, [{ path, message }]);
+}
+
+export const v = {
+  string(): Validator<string> {
+    return createValidator((value, path) => {
+      if (typeof value !== "string")
+        fail(`Expected string, got ${typeof value}`, path);
+      return value;
+    });
+  },
+
+  number(): Validator<number> {
+    return createValidator((value, path) => {
+      if (typeof value !== "number")
+        fail(`Expected number, got ${typeof value}`, path);
+      return value;
+    });
+  },
+
+  boolean(): Validator<boolean> {
+    return createValidator((value, path) => {
+      if (typeof value !== "boolean")
+        fail(`Expected boolean, got ${typeof value}`, path);
+      return value;
+    });
+  },
+
+  literal<T extends string | number | boolean>(expected: T): Validator<T> {
+    return createValidator((value, path) => {
+      if (value !== expected)
+        fail(`Expected ${String(expected)}, got ${String(value)}`, path);
+      return expected;
+    });
+  },
+
+  enum<T extends string>(values: readonly T[]): Validator<T> {
+    return createValidator((value, path) => {
+      if (typeof value !== "string" || !values.includes(value as T)) {
+        fail(`Expected one of: ${values.join(", ")}`, path);
+      }
+      return value as T;
+    });
+  },
+
+  array<T>(itemValidator: Validator<T>): Validator<T[]> {
+    return createValidator((value, path) => {
+      if (!Array.isArray(value)) fail("Expected array", path);
+      return value.map((item) => itemValidator.parse(item));
+    });
+  },
+
+  object<T extends Record<string, Validator<unknown>>>(
+    shape: T,
+  ): Validator<{
+    [K in keyof T]: T[K] extends Validator<infer U> ? U : never;
+  }> {
+    return createValidator((value, path) => {
+      if (typeof value !== "object" || value === null)
+        fail("Expected object", path);
+      const obj = value as Record<string, unknown>;
+      const parseEntry = ([key, validator]: [string, Validator<unknown>]) => {
+        try {
+          return [key, validator.parse(obj[key])] as const;
+        } catch (e) {
+          if (e instanceof ValidationError) fail(e.message, [...path, key]);
+          throw e;
+        }
+      };
+      const entries = Object.entries(shape).map(parseEntry);
+      return Object.fromEntries(entries) as {
+        [K in keyof T]: T[K] extends Validator<infer U> ? U : never;
+      };
+    });
+  },
+
+  record<T>(valueValidator: Validator<T>): Validator<Record<string, T>> {
+    return createValidator((value, path) => {
+      if (typeof value !== "object" || value === null)
+        fail("Expected object", path);
+      const entries = Object.entries(value).map(
+        ([k, val]) => [k, valueValidator.parse(val)] as const,
+      );
+      return Object.fromEntries(entries) as Record<string, T>;
+    });
+  },
+
+  union<T extends Validator<unknown>[]>(
+    ...validators: T
+  ): Validator<T[number] extends Validator<infer U> ? U : never> {
+    type ResultType = T[number] extends Validator<infer U> ? U : never;
+    return createValidator((value, path) => {
+      const results = validators.map((validator) => validator.safeParse(value));
+      const match = results.find((r) => r.success);
+      if (!match) fail("Value did not match any variant", path);
+      return match.data as ResultType;
+    });
+  },
+
+  refine<T>(
+    validator: Validator<T>,
+    check: (value: T) => boolean,
+    message: string,
+  ): Validator<T> {
+    return createValidator((value, path) => {
+      const parsed = validator.parse(value);
+      if (!check(parsed)) fail(message, path);
+      return parsed;
+    });
+  },
+
+  withDefault<T>(validator: Validator<T>, defaultValue: T): Validator<T> {
+    return createValidator((value) => {
+      if (value === undefined) return defaultValue;
+      return validator.parse(value);
+    });
+  },
+};
+
+export function isValidationError(error: unknown): error is ValidationError {
+  return (
+    error instanceof ValidationError ||
+    (typeof error === "object" &&
+      error !== null &&
+      "issues" in error &&
+      Array.isArray((error as ValidationError).issues))
+  );
+}
+
+export function formatValidationIssues(
+  issues: { path: string[]; message: string }[],
+): string {
+  return issues
+    .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+    .join(", ");
+}
+
 import {
   COLOR_VALIDATION_MESSAGE,
   STYLE_CODES,
@@ -13,9 +188,13 @@ import {
   HTML_STYLE_FORMATS,
   DEFAULT_WHITESPACE,
   DEFAULT_NEWLINE,
+  TOKEN_SCHEMA_NAME,
+  TOKEN_SCHEMA_DESCRIPTION,
+  THEME_SCHEMA_NAME,
+  THEME_SCHEMA_DESCRIPTION,
 } from "./constants";
 import { isValidColorFormat } from "./utils";
-import type { StyleOptions, PatternMatch, SchemaConfig, Theme } from "../types";
+import type { StyleOptions, Theme } from "../types";
 
 const styleOptionsValidator = v.object({
   color: v.refine(v.string(), isValidColorFormat, COLOR_VALIDATION_MESSAGE),
@@ -140,4 +319,12 @@ export function validateThemeSafe(theme: unknown): {
   return parseThemeSafe(theme);
 }
 
-export { isValidationError, formatValidationIssues, ValidationError };
+export type { JsonSchemaOptions } from "./types";
+
+export function createTokenJsonSchemaOptions() {
+  return { name: TOKEN_SCHEMA_NAME, description: TOKEN_SCHEMA_DESCRIPTION };
+}
+
+export function createThemeJsonSchemaOptions() {
+  return { name: THEME_SCHEMA_NAME, description: THEME_SCHEMA_DESCRIPTION };
+}
