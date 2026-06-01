@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import type { GhosttyTerminalProps } from "./types";
+import type { GhosttyTerminalProps, GhosttyTheme } from "./types";
 import { TERMINAL } from "./constants";
+
+type ThemedTerminal = { options: { theme: GhosttyTheme } };
 
 export function GhosttyTerminal({
   ansiOutputs,
@@ -11,59 +13,58 @@ export function GhosttyTerminal({
 }: GhosttyTerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<unknown>(null);
+  const themeRef = useRef<GhosttyTheme>(theme);
+  themeRef.current = theme;
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  const initTerminal = useCallback(
-    async (mounted: { current: boolean }) => {
-      if (!containerRef.current) return;
+  const initTerminal = useCallback(async (mounted: { current: boolean }) => {
+    if (!containerRef.current) return;
 
-      setError(null);
+    setError(null);
 
-      try {
-        const initPromise = (async () => {
-          const ghostty = await import("ghostty-web");
-          await ghostty.init();
-          return ghostty;
-        })();
+    try {
+      const initPromise = (async () => {
+        const ghostty = await import("ghostty-web");
+        await ghostty.init();
+        return ghostty;
+      })();
 
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(
-            () => reject(new Error("Terminal initialization timed out")),
-            TERMINAL.initTimeoutMs,
-          );
-        });
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Terminal initialization timed out")),
+          TERMINAL.initTimeoutMs,
+        );
+      });
 
-        const ghostty = (await Promise.race([
-          initPromise,
-          timeoutPromise,
-        ])) as typeof import("ghostty-web");
+      const ghostty = (await Promise.race([
+        initPromise,
+        timeoutPromise,
+      ])) as typeof import("ghostty-web");
 
-        if (!mounted.current || !containerRef.current) return;
+      if (!mounted.current || !containerRef.current) return;
 
-        containerRef.current.innerHTML = "";
+      containerRef.current.innerHTML = "";
 
-        const term = new ghostty.Terminal({
-          fontSize: TERMINAL.fontSize,
-          fontFamily: TERMINAL.fontFamily,
-          theme,
-        });
+      const term = new ghostty.Terminal({
+        fontSize: TERMINAL.fontSize,
+        fontFamily: TERMINAL.fontFamily,
+        theme: themeRef.current,
+      });
 
-        term.open(containerRef.current);
-        terminalRef.current = term;
-        setIsInitialized(true);
-      } catch (err) {
-        console.error("Failed to initialize Ghostty terminal:", err);
-        if (mounted.current) {
-          setError(
-            err instanceof Error ? err.message : "Failed to load terminal",
-          );
-        }
+      term.open(containerRef.current);
+      terminalRef.current = term;
+      setIsInitialized(true);
+    } catch (err) {
+      console.error("Failed to initialize Ghostty terminal:", err);
+      if (mounted.current) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load terminal",
+        );
       }
-    },
-    [theme],
-  );
+    }
+  }, []);
 
   const handleRetry = useCallback(() => {
     setRetryCount((c) => c + 1);
@@ -87,6 +88,11 @@ export function GhosttyTerminal({
       }
     };
   }, [initTerminal, retryCount]);
+
+  useEffect(() => {
+    if (!isInitialized || !terminalRef.current) return;
+    (terminalRef.current as ThemedTerminal).options.theme = theme;
+  }, [theme, isInitialized]);
 
   useEffect(() => {
     if (!isInitialized || !terminalRef.current || isLoading) return;

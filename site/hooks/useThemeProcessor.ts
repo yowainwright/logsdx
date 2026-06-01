@@ -19,7 +19,16 @@ interface CachedProcessedLogs {
   theme: Theme;
 }
 
+const LOG_CACHE_MAX_ENTRIES = 100;
 const LOG_CACHE = new Map<string, CachedProcessedLogs>();
+
+function setCacheEntry(key: string, value: CachedProcessedLogs): void {
+  LOG_CACHE.set(key, value);
+  const hasOverflowed = LOG_CACHE.size > LOG_CACHE_MAX_ENTRIES;
+  if (!hasOverflowed) return;
+  const oldestKey = LOG_CACHE.keys().next().value;
+  if (oldestKey !== undefined) LOG_CACHE.delete(oldestKey);
+}
 
 export function useThemeProcessor(
   themeName: string,
@@ -34,7 +43,7 @@ export function useThemeProcessor(
     let cancelled = false;
 
     async function processLogs() {
-      const cacheKey = `${themeName}:${logs.join("|")}`;
+      const cacheKey = JSON.stringify([themeName, logs]);
 
       if (LOG_CACHE.has(cacheKey)) {
         const cached = LOG_CACHE.get(cacheKey)!;
@@ -72,7 +81,7 @@ export function useThemeProcessor(
           results.push({ html, ansi });
         }
 
-        LOG_CACHE.set(cacheKey, { processedLogs: results, theme: loadedTheme });
+        setCacheEntry(cacheKey, { processedLogs: results, theme: loadedTheme });
         setProcessedLogs(results);
       } catch (err) {
         if (!cancelled) {

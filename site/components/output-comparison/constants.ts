@@ -103,7 +103,6 @@ const ANSI_ESCAPE = String.fromCharCode(27);
 
 export const ANSI_ESCAPE_REPLACEMENTS: [RegExp, string][] = [
   [new RegExp(ANSI_ESCAPE, "g"), "\\x" + "1b"],
-  [/\[/g, "["],
 ];
 
 export const DEFAULT_GHOSTTY_THEME: GhosttyTheme = {
