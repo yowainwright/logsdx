@@ -11,6 +11,8 @@ import {
   DEFAULT_BACKGROUND,
 } from "./constants";
 import type { ThemeCardProps } from "./types";
+// @ts-ignore - ansi-to-html does not publish TypeScript declarations.
+import AnsiToHtml from "ansi-to-html";
 
 export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
   const logs = useMemo(() => SAMPLE_LOGS, []);
@@ -19,10 +21,24 @@ export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
     logs,
   );
   const colors = THEME_BACKGROUNDS[themeName] || DEFAULT_BACKGROUND;
+  const htmlLogs = useMemo(
+    () => processedLogs.map((log) => log.html),
+    [processedLogs],
+  );
+  const terminalLogs = useMemo(() => {
+    const foreground =
+      theme?.colors?.text ??
+      theme?.schema.defaultStyle?.color ??
+      (colors.mode === "light" ? "#24292f" : "#f8f8f2");
+    const convert = new AnsiToHtml({
+      fg: foreground,
+      bg: theme?.colors?.background ?? colors.bg,
+    });
+
+    return processedLogs.map((log) => convert.toHtml(log.ansi));
+  }, [colors.bg, colors.mode, processedLogs, theme]);
 
   if (!isVisible) return null;
-
-  const htmlLogs = processedLogs.map((log) => log.html);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow mb-6">
@@ -50,7 +66,7 @@ export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
           <div className="relative">
             <LogPane
               title="Terminal"
-              logs={htmlLogs.slice(0, 6)}
+              logs={terminalLogs.slice(0, 6)}
               backgroundColor={colors.bg}
               mode={colors.mode}
               isLoading={isLoading}
