@@ -25,13 +25,6 @@ const GhosttyTerminal = dynamic(
   { ssr: false, loading: TerminalLoader },
 );
 
-function escapeHtmlForDisplay(html: string): string {
-  return html
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 const WINDOW_DOTS = ["red", "yellow", "green"] as const;
 const MODE_BUTTONS = [
   { id: "rendered", label: "Rendered" },
@@ -222,14 +215,11 @@ function BrowserContentRendered({ outputs }: { outputs: ProcessedOutput[] }) {
 }
 
 function BrowserContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
-  const items = outputs.map((output, i) => {
-    const escaped = escapeHtmlForDisplay(output.html);
-    return (
-      <div key={i} className="font-mono text-xs text-emerald-400 break-all">
-        {escaped}
-      </div>
-    );
-  });
+  const items = outputs.map((output, i) => (
+    <div key={i} className="font-mono text-xs text-emerald-400 break-all">
+      {output.html}
+    </div>
+  ));
   return <div className="space-y-2 p-4 h-full min-h-[300px]">{items}</div>;
 }
 
