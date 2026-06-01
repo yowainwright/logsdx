@@ -154,6 +154,7 @@ function ThemeSidebar({ themeName, onThemeChange }: ThemeSidebarProps) {
 
 interface TerminalContentProps {
   isLoading: boolean;
+  error: string | null;
   mode: ViewMode;
   outputs: ProcessedOutput[];
   ghosttyTheme: GhosttyTheme;
@@ -170,6 +171,7 @@ function TerminalContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
 
 function TerminalContent({
   isLoading,
+  error,
   mode,
   outputs,
   ghosttyTheme,
@@ -181,6 +183,7 @@ function TerminalContent({
       </div>
     );
   }
+  if (error) return <OutputError message={error} />;
   if (mode === "rendered") {
     const ansiOutputs = outputs.map((o) => o.ansi);
     return (
@@ -196,6 +199,7 @@ function TerminalContent({
 
 interface BrowserContentProps {
   isLoading: boolean;
+  error: string | null;
   mode: ViewMode;
   outputs: ProcessedOutput[];
 }
@@ -223,7 +227,23 @@ function BrowserContentSource({ outputs }: { outputs: ProcessedOutput[] }) {
   return <div className="space-y-2 p-4 h-full min-h-[300px]">{items}</div>;
 }
 
-function BrowserContent({ isLoading, mode, outputs }: BrowserContentProps) {
+function OutputError({ message }: { message: string }) {
+  return (
+    <div
+      role="alert"
+      className="flex items-center justify-center h-full min-h-[300px] p-4 text-center text-sm text-red-300 bg-red-950/20"
+    >
+      {message}
+    </div>
+  );
+}
+
+function BrowserContent({
+  isLoading,
+  error,
+  mode,
+  outputs,
+}: BrowserContentProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[300px] text-slate-500">
@@ -231,6 +251,7 @@ function BrowserContent({ isLoading, mode, outputs }: BrowserContentProps) {
       </div>
     );
   }
+  if (error) return <OutputError message={error} />;
   if (mode === "rendered") {
     return <BrowserContentRendered outputs={outputs} />;
   }
@@ -240,11 +261,13 @@ function BrowserContent({ isLoading, mode, outputs }: BrowserContentProps) {
 function useThemeLoader(themeName: string) {
   const [outputs, setOutputs] = useState<ProcessedOutput[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [ghosttyTheme, setGhosttyTheme] = useState(DEFAULT_GHOSTTY_THEME);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    setError(null);
 
     getTheme(themeName)
       .then((loadedTheme) => {
@@ -252,9 +275,13 @@ function useThemeLoader(themeName: string) {
         setGhosttyTheme(themeToGhostty(loadedTheme));
         setOutputs(processLogsWithTheme(SAMPLE_LOGS, loadedTheme));
       })
-      .catch(
-        (err) => !cancelled && console.error("Failed to process logs:", err),
-      )
+      .catch((err) => {
+        if (cancelled) return;
+        const message =
+          err instanceof Error ? err.message : "Unable to load theme output.";
+        setError(`Failed to load theme: ${message}`);
+        setOutputs([]);
+      })
       .finally(() => !cancelled && setIsLoading(false));
 
     return () => {
@@ -262,7 +289,7 @@ function useThemeLoader(themeName: string) {
     };
   }, [themeName]);
 
-  return { outputs, isLoading, ghosttyTheme };
+  return { outputs, isLoading, error, ghosttyTheme };
 }
 
 function SectionHeader() {
@@ -285,6 +312,7 @@ interface OutputPanelsProps {
   onBrowserModeChange: (mode: ViewMode) => void;
   outputs: ProcessedOutput[];
   isLoading: boolean;
+  error: string | null;
   ghosttyTheme: GhosttyTheme;
 }
 
@@ -295,6 +323,7 @@ function OutputPanels({
   onBrowserModeChange,
   outputs,
   isLoading,
+  error,
   ghosttyTheme,
 }: OutputPanelsProps) {
   const bgColor = ghosttyTheme.background;
@@ -309,6 +338,7 @@ function OutputPanels({
         >
           <TerminalContent
             isLoading={isLoading}
+            error={error}
             mode={terminalMode}
             outputs={outputs}
             ghosttyTheme={ghosttyTheme}
@@ -322,6 +352,7 @@ function OutputPanels({
         >
           <BrowserContent
             isLoading={isLoading}
+            error={error}
             mode={browserMode}
             outputs={outputs}
           />
@@ -357,6 +388,7 @@ function buildPanelProps(
     onBrowserModeChange: state.setBrowserMode,
     outputs: state.outputs,
     isLoading: state.isLoading,
+    error: state.error,
     ghosttyTheme: state.ghosttyTheme,
   };
 }

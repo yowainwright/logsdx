@@ -16,20 +16,26 @@ mock.module("ghostty-web", () => ({
   },
 }));
 
+const defaultTheme = async (themeName: string) => ({
+  name: themeName,
+  mode: "dark",
+  schema: { defaultStyle: { color: "#f8f8f2" } },
+});
+
+let getThemeImpl = defaultTheme;
+const getTheme = mock((themeName: string) => getThemeImpl(themeName));
+const renderLine = mock(
+  (line: string, _theme: unknown, options?: { outputFormat?: string }) => {
+    if (options?.outputFormat === "html") {
+      return `<span style="color: #f8f8f2">${line}</span>`;
+    }
+    return line;
+  },
+);
+
 mock.module("logsdx", () => ({
-  getTheme: mock(async (themeName: string) => ({
-    name: themeName,
-    mode: "dark",
-    schema: { defaultStyle: { color: "#f8f8f2" } },
-  })),
-  renderLine: mock(
-    (line: string, _theme: unknown, options?: { outputFormat?: string }) => {
-      if (options?.outputFormat === "html") {
-        return `<span style="color: #f8f8f2">${line}</span>`;
-      }
-      return line;
-    },
-  ),
+  getTheme,
+  renderLine,
 }));
 
 import {
@@ -51,6 +57,9 @@ async function renderOutputComparison() {
 describe("OutputComparison", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
+    getThemeImpl = defaultTheme;
+    getTheme.mockClear();
+    renderLine.mockClear();
   });
 
   afterEach(() => {
@@ -113,5 +122,20 @@ describe("OutputComparison", () => {
       ).toBeGreaterThan(0);
     });
     expect(screen.queryByText(/&lt;span/)).toBeNull();
+  });
+
+  it("shows a visible error when theme loading fails", async () => {
+    getThemeImpl = async () => {
+      throw new Error("theme unavailable");
+    };
+
+    render(<OutputComparison />);
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByText("Failed to load theme: theme unavailable"),
+      ).toHaveLength(2);
+    });
+    expect(screen.getAllByRole("alert")).toHaveLength(2);
   });
 });
