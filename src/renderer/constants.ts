@@ -58,8 +58,8 @@ function isColorTerm(term: string): boolean {
 }
 
 export function supportsColors(): boolean {
-  if (getEnv("NO_COLOR")) return false;
   if (getEnv("FORCE_COLOR")) return true;
+  if (getEnv("NO_COLOR")) return false;
   if (!isTTY()) return false;
 
   const term = getEnv("TERM");
