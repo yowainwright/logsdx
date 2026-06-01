@@ -1,4 +1,7 @@
 import type { Theme } from "../types";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("themes");
 
 type ThemeLoader = () => Promise<{ default: Theme }>;
 
@@ -40,7 +43,7 @@ class ThemeRegistry {
     try {
       await this.preloadTheme(this.defaultThemeName);
     } catch (error) {
-      console.warn("Failed to preload default theme:", error);
+      log.debug(`Failed to preload default theme: ${error}`);
     }
   }
 

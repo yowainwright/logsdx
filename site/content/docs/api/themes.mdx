@@ -1,0 +1,219 @@
+---
+title: Themes API
+description: Theme loading, registration, and creation utilities
+---
+
+## Overview
+
+logsDX provides utilities for loading built-in themes, registering custom themes, and creating new themes programmatically.
+
+## Loading Themes
+
+### getTheme(name)
+
+Load a theme by name (async).
+
+```typescript
+import { getTheme } from "logsdx";
+
+const theme = await getTheme("dracula");
+```
+
+### getAllThemes()
+
+Get all loaded themes.
+
+```typescript
+import { getAllThemes } from "logsdx";
+
+const themes = getAllThemes();
+// { dracula: Theme, nord: Theme, ... }
+```
+
+### getThemeNames()
+
+Get list of available theme names.
+
+```typescript
+import { getThemeNames } from "logsdx";
+
+const names = getThemeNames();
+// ['dracula', 'nord', 'monokai', ...]
+```
+
+## Preloading
+
+### preloadTheme(name)
+
+Preload a theme for faster access.
+
+```typescript
+import { preloadTheme } from "logsdx";
+
+await preloadTheme("dracula");
+```
+
+### preloadAllThemes()
+
+Preload all built-in themes.
+
+```typescript
+import { preloadAllThemes } from "logsdx";
+
+await preloadAllThemes();
+```
+
+## Registration
+
+### registerTheme(theme)
+
+Register a custom theme.
+
+```typescript
+import { registerTheme } from "logsdx";
+
+registerTheme({
+  name: "my-theme",
+  mode: "dark",
+  schema: {
+    defaultStyle: { color: "#f8f8f2" },
+    matchWords: {
+      ERROR: { color: "#ff5555", styleCodes: ["bold"] },
+    },
+  },
+});
+```
+
+### registerThemeLoader(name, loader)
+
+Register a lazy-loaded theme.
+
+```typescript
+import { registerThemeLoader } from "logsdx";
+
+registerThemeLoader("my-theme", async () => {
+  const response = await fetch("/themes/my-theme.json");
+  return response.json();
+});
+```
+
+## Theme Builder
+
+### ThemeBuilder
+
+Fluent API for building themes.
+
+```typescript
+import { ThemeBuilder } from "logsdx";
+
+const theme = new ThemeBuilder("my-theme")
+  .mode("dark")
+  .defaultStyle({ color: "#f8f8f2" })
+  .matchWord("ERROR", { color: "#ff5555", styleCodes: ["bold"] })
+  .matchWord("WARN", { color: "#ffb86c" })
+  .matchWord("INFO", { color: "#8be9fd" })
+  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: "#6272a4" })
+  .build();
+```
+
+### createTheme(config)
+
+Create a theme from configuration.
+
+```typescript
+import { createTheme } from "logsdx";
+
+const theme = createTheme({
+  name: "my-theme",
+  mode: "dark",
+  colors: {
+    error: "#ff5555",
+    warning: "#ffb86c",
+    info: "#8be9fd",
+  },
+  schema: {
+    defaultStyle: { color: "#f8f8f2" },
+    matchWords: {
+      ERROR: { color: "#ff5555" },
+    },
+  },
+});
+```
+
+### createSimpleTheme(config)
+
+Create a theme with simplified configuration.
+
+```typescript
+import { createSimpleTheme } from "logsdx";
+
+const theme = createSimpleTheme({
+  name: "simple",
+  mode: "dark",
+  colors: {
+    error: "#ff0000",
+    warning: "#ffff00",
+    info: "#00ffff",
+    success: "#00ff00",
+    debug: "#808080",
+  },
+});
+```
+
+### extendTheme(base, overrides)
+
+Extend an existing theme.
+
+```typescript
+import { extendTheme, getTheme } from "logsdx";
+
+const dracula = await getTheme("dracula");
+const customDracula = extendTheme(dracula, {
+  name: "dracula-custom",
+  schema: {
+    matchWords: {
+      CUSTOM: { color: "#ff79c6" },
+    },
+  },
+});
+```
+
+## Built-in Themes
+
+| Theme             | Mode  | Description          |
+| ----------------- | ----- | -------------------- |
+| `dracula`         | dark  | Vibrant dark theme   |
+| `github-dark`     | dark  | GitHub dark mode     |
+| `github-light`    | light | GitHub light mode    |
+| `nord`            | dark  | Arctic color palette |
+| `monokai`         | dark  | Classic Monokai      |
+| `solarized-dark`  | dark  | Solarized dark       |
+| `solarized-light` | light | Solarized light      |
+| `oh-my-zsh`       | dark  | Oh My Zsh inspired   |
+
+## Theme Validation
+
+### validateTheme(theme)
+
+Validate a theme object.
+
+```typescript
+import { validateTheme } from "logsdx";
+
+const validated = validateTheme(myTheme);
+```
+
+### validateThemeSafe(theme)
+
+Validate without throwing errors.
+
+```typescript
+import { validateThemeSafe } from "logsdx";
+
+const result = validateThemeSafe(myTheme);
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.error);
+}
+```

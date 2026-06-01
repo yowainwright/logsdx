@@ -1,0 +1,291 @@
+---
+title: Integrations
+description: Use logsDX with popular tools and frameworks
+---
+
+## Node.js
+
+### Basic Usage
+
+```typescript
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "dracula" });
+
+// Style console output
+const originalLog = console.log;
+console.log = (...args) => {
+  const styled = args.map((arg) =>
+    typeof arg === "string" ? logsdx.processLine(arg) : arg,
+  );
+  originalLog(...styled);
+};
+```
+
+### With Winston
+
+```typescript
+import winston from "winston";
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "nord" });
+
+const styledFormat = winston.format((info) => {
+  info.message = logsdx.processLine(info.message);
+  return info;
+});
+
+const logger = winston.createLogger({
+  format: winston.format.combine(styledFormat(), winston.format.simple()),
+  transports: [new winston.transports.Console()],
+});
+```
+
+### With Pino
+
+```typescript
+import pino from "pino";
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "monokai" });
+
+const logger = pino({
+  transport: {
+    target: "pino-pretty",
+    options: {
+      messageFormat: (log) => logsdx.processLine(log.msg),
+    },
+  },
+});
+```
+
+## Browser
+
+### React
+
+```tsx
+import { useEffect, useState } from "react";
+import { getLogsDX } from "logsdx";
+
+function LogViewer({ logs }: { logs: string[] }) {
+  const [styled, setStyled] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function styleLogs() {
+      const logsdx = await getLogsDX({
+        theme: "dracula",
+        outputFormat: "html",
+      });
+      setStyled(logs.map((log) => logsdx.processLine(log)));
+    }
+    styleLogs();
+  }, [logs]);
+
+  return (
+    <div className="log-container">
+      {styled.map((html, i) => (
+        <div key={i} dangerouslySetInnerHTML={{ __html: html }} />
+      ))}
+    </div>
+  );
+}
+```
+
+### Vue
+
+```vue
+<script setup>
+import { ref, watch } from "vue";
+import { getLogsDX } from "logsdx";
+
+const props = defineProps(["logs"]);
+const styled = ref([]);
+
+watch(
+  () => props.logs,
+  async (logs) => {
+    const logsdx = await getLogsDX({
+      theme: "nord",
+      outputFormat: "html",
+    });
+    styled.value = logs.map((log) => logsdx.processLine(log));
+  },
+  { immediate: true },
+);
+</script>
+
+<template>
+  <div class="log-container">
+    <div v-for="(html, i) in styled" :key="i" v-html="html" />
+  </div>
+</template>
+```
+
+### Vanilla JavaScript
+
+```html
+<script type="module">
+  import { getLogsDX } from "https://esm.sh/logsdx";
+
+  const logsdx = await getLogsDX({
+    theme: "github-dark",
+    outputFormat: "html",
+  });
+
+  const logs = ["[INFO] Application started", "[ERROR] Connection failed"];
+
+  const container = document.getElementById("logs");
+  logs.forEach((log) => {
+    const div = document.createElement("div");
+    div.innerHTML = logsdx.processLine(log);
+    container.appendChild(div);
+  });
+</script>
+```
+
+## Build Tools
+
+### Vite
+
+```typescript
+// vite.config.ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  optimizeDeps: {
+    include: ["logsdx"],
+  },
+});
+```
+
+### Next.js
+
+```typescript
+// next.config.js
+module.exports = {
+  transpilePackages: ["logsdx"],
+};
+```
+
+## Terminal Tools
+
+### With chalk
+
+```typescript
+import chalk from "chalk";
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "dracula" });
+
+// logsDX handles ANSI colors, chalk adds extras
+const prefix = chalk.gray("[app]");
+console.log(prefix, logsdx.processLine("[INFO] Started"));
+```
+
+### File Processing
+
+```typescript
+import fs from "fs";
+import readline from "readline";
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "nord" });
+
+const rl = readline.createInterface({
+  input: fs.createReadStream("app.log"),
+});
+
+for await (const line of rl) {
+  console.log(logsdx.processLine(line));
+}
+```
+
+### Streaming
+
+```typescript
+import { Transform } from "stream";
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "monokai" });
+
+const styleTransform = new Transform({
+  transform(chunk, encoding, callback) {
+    const lines = chunk.toString().split("\n");
+    const styled = lines
+      .map((line) => (line ? logsdx.processLine(line) : ""))
+      .join("\n");
+    callback(null, styled);
+  },
+});
+
+process.stdin.pipe(styleTransform).pipe(process.stdout);
+```
+
+## Docker
+
+```dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Use logsDX in your scripts
+CMD ["node", "index.js"]
+```
+
+```javascript
+// index.js
+import { getLogsDX } from "logsdx";
+
+const logsdx = await getLogsDX({ theme: "nord" });
+
+// Force colors in Docker
+process.env.FORCE_COLOR = "1";
+
+console.log(logsdx.processLine("[INFO] Container started"));
+```
+
+## Testing
+
+### Jest
+
+```typescript
+import { getLogsDX, LogsDX } from "logsdx";
+
+describe("Log styling", () => {
+  beforeEach(() => {
+    LogsDX.resetInstance();
+  });
+
+  it("styles error logs", async () => {
+    const logsdx = await getLogsDX({ theme: "dracula" });
+    const result = logsdx.processLine("[ERROR] Test");
+    expect(result).toContain("\x1b["); // Contains ANSI codes
+  });
+});
+```
+
+### Vitest
+
+```typescript
+import { describe, it, expect, beforeEach } from "vitest";
+import { getLogsDX, LogsDX } from "logsdx";
+
+describe("Log styling", () => {
+  beforeEach(() => {
+    LogsDX.resetInstance();
+  });
+
+  it("produces HTML output", async () => {
+    const logsdx = await getLogsDX({
+      theme: "nord",
+      outputFormat: "html",
+    });
+    const result = logsdx.processLine("[INFO] Test");
+    expect(result).toContain("<span");
+  });
+});
+```

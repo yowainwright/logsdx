@@ -35,7 +35,8 @@ describe("gradient", () => {
     const lines = result.split("\n");
     expect(lines).toHaveLength(3);
     lines.forEach((line) => {
-      expect(line).toMatch(/\x1B\[36m.*\x1B\[0m/);
+      const escape = String.fromCharCode(27);
+      expect(line).toMatch(new RegExp(`${escape}\\[36m.*${escape}\\[0m`));
     });
   });
 

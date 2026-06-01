@@ -373,9 +373,10 @@ export function renderLines(
   return lines.map((line) => renderLine(line, theme, options));
 }
 
-export { renderLightBox, renderLightBoxLine, isLightTheme } from "./lightBox";
-
 export {
+  renderLightBox,
+  renderLightBoxLine,
+  isLightTheme,
   detectBackground,
   detectTerminalBackground,
   detectBrowserBackground,
@@ -384,7 +385,7 @@ export {
   isLightBackground,
   getRecommendedThemeMode,
   watchBackgroundChanges,
-} from "./detectBackground";
+} from "./utils";
 
 export type { BackgroundInfo, ColorScheme } from "./types";
 

@@ -14,10 +14,17 @@ import {
   extendTheme,
   THEME_PRESETS,
 } from "./themes";
-import { validateTheme, validateThemeSafe } from "./schema/validator";
+import { validateTheme, validateThemeSafe } from "./schema";
 import { tokenize, applyTheme } from "./tokenizer";
+import { createLogger, setLogLevel } from "./utils/logger";
 import type { TokenList } from "./schema/types";
-import type { RenderOptions } from "./renderer/types";
+import type {
+  RenderOptions,
+  OutputFormat,
+  HtmlStyleFormat,
+  MatchType,
+  TokenWithStyle,
+} from "./renderer/types";
 import type {
   LineParser,
   ParsedLine,
@@ -36,6 +43,8 @@ import {
   isDarkBackground,
   getRecommendedThemeMode,
 } from "./renderer";
+
+const log = createLogger("logsdx");
 
 /**
  * LogsDX - A powerful log processing and styling tool
@@ -79,6 +88,10 @@ export class LogsDX {
       autoAdjustTerminal: true,
       ...options,
     };
+
+    if (this.options.debug) {
+      setLogLevel("debug");
+    }
 
     this.currentTheme = theme;
   }
@@ -161,9 +174,7 @@ export class LogsDX {
       try {
         return validateTheme(theme as Theme);
       } catch (error) {
-        if (this.options.debug) {
-          console.warn("Invalid custom theme:", error);
-        }
+        log.debug(`Invalid custom theme: ${error}`);
 
         return {
           name: "none",
@@ -208,6 +219,10 @@ export class LogsDX {
           ...options,
         };
 
+        if (options.debug) {
+          setLogLevel("debug");
+        }
+
         if (options.theme) {
           instance.currentTheme = await instance.resolveTheme(options.theme);
         }
@@ -216,22 +231,19 @@ export class LogsDX {
     }
 
     LogsDX.instancePromise = (async () => {
-      const theme = await new LogsDX(
-        {},
-        {
-          name: "none",
-          description: "No styling applied",
-          mode: "auto",
-          schema: {
-            defaultStyle: { color: "" },
-            matchWords: {},
-            matchStartsWith: {},
-            matchEndsWith: {},
-            matchContains: {},
-            matchPatterns: [],
-          },
+      const theme = await new LogsDX(options, {
+        name: "none",
+        description: "No styling applied",
+        mode: "auto",
+        schema: {
+          defaultStyle: { color: "" },
+          matchWords: {},
+          matchStartsWith: {},
+          matchEndsWith: {},
+          matchContains: {},
+          matchPatterns: [],
         },
-      ).resolveTheme(options.theme || "oh-my-zsh");
+      }).resolveTheme(options.theme || "oh-my-zsh");
 
       const instance = new LogsDX(options, theme);
       LogsDX.instance = instance;
@@ -307,9 +319,7 @@ export class LogsDX {
       this.currentTheme = await this.resolveTheme(theme);
       return true;
     } catch (error) {
-      if (this.options.debug) {
-        console.warn("Invalid theme:", error);
-      }
+      log.debug(`Invalid theme: ${error}`);
       return false;
     }
   }
@@ -354,6 +364,15 @@ export type {
   TokenList,
   LineParser,
   ParsedLine,
+  LogsDXOptions,
+};
+
+export type {
+  OutputFormat,
+  HtmlStyleFormat,
+  MatchType,
+  TokenWithStyle,
+  RenderOptions,
 };
 
 export {
@@ -374,6 +393,12 @@ export {
   THEME_PRESETS,
 };
 
+export {
+  isValidationError,
+  formatValidationIssues,
+  ValidationError,
+} from "./schema";
+
 export { tokenize, applyTheme };
 
 export {
@@ -381,6 +406,7 @@ export {
   renderLightBox,
   renderLightBoxLine,
   isLightThemeRenderer as isLightThemeStyle,
+  isLightThemeRenderer as isLightTheme,
 };
 
 export {

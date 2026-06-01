@@ -1,20 +1,18 @@
 import fs from "fs";
 import path from "path";
 import { LogsDX, getThemeNames } from "../index";
-import {
-  type CliOptions,
-  type CommanderOptions,
-  cliOptionsSchema,
-} from "./types";
+import type { CliOptions, CommanderOptions, InteractiveConfig } from "./types";
 import type { LogsDXOptions } from "../types";
 import { ui } from "./ui";
-import type { InteractiveConfig } from "./interactive";
 import {
   runThemeGenerator,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "./theme-gen";
-import { exportTheme, importTheme, listThemeFiles } from "./theme-gen";
+} from "./theme/generator";
+import { exportTheme, importTheme, listThemeFiles } from "./theme/generator";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("cli");
 
 export function loadConfig(configPath?: string): LogsDXOptions {
   const defaultConfig: LogsDXOptions = {
@@ -41,7 +39,7 @@ export function loadConfig(configPath?: string): LogsDXOptions {
       }
     }
   } catch (error) {
-    console.warn(`Failed to load config: ${error}`);
+    log.debug(`Failed to load config: ${error}`);
   }
 
   return defaultConfig;
@@ -185,30 +183,28 @@ export async function main(
   input: string | undefined,
   rawOptions: CommanderOptions,
 ): Promise<void> {
-  const validatedOptions = cliOptionsSchema.parse(rawOptions);
-
-  const options: CliOptions = cliOptionsSchema.parse({
+  const options: CliOptions = {
     input,
-    output: validatedOptions.output,
-    theme: validatedOptions.theme,
-    config: validatedOptions.config,
-    debug: validatedOptions.debug,
-    quiet: validatedOptions.quiet,
-    listThemes: validatedOptions.listThemes,
-    interactive: validatedOptions.interactive,
-    preview: validatedOptions.preview,
-    noSpinner: validatedOptions.noSpinner,
-    generateTheme: validatedOptions.generateTheme,
-    listPalettes: validatedOptions.listPalettes,
-    listPatterns: validatedOptions.listPatterns,
-    exportTheme: validatedOptions.exportTheme,
-    importTheme: validatedOptions.importTheme,
-    listThemeFiles: validatedOptions.listThemeFiles,
+    output: rawOptions.output,
+    theme: rawOptions.theme,
+    config: rawOptions.config,
+    debug: rawOptions.debug ?? false,
+    quiet: rawOptions.quiet ?? false,
+    listThemes: rawOptions.listThemes ?? false,
+    interactive: rawOptions.interactive ?? false,
+    preview: rawOptions.preview ?? false,
+    noSpinner: rawOptions.noSpinner ?? false,
+    generateTheme: rawOptions.generateTheme ?? false,
+    listPalettes: rawOptions.listPalettes ?? false,
+    listPatterns: rawOptions.listPatterns ?? false,
+    exportTheme: rawOptions.exportTheme,
+    importTheme: rawOptions.importTheme,
+    listThemeFiles: rawOptions.listThemeFiles ?? false,
     format:
-      validatedOptions.format === "ansi" || validatedOptions.format === "html"
-        ? validatedOptions.format
+      rawOptions.format === "ansi" || rawOptions.format === "html"
+        ? rawOptions.format
         : undefined,
-  });
+  };
   if (options.interactive) {
     try {
       const { runInteractiveMode } = await import("./interactive");
@@ -289,8 +285,8 @@ export async function main(
       getThemeNames().forEach((theme) => {
         console.log(`  • ${theme}`);
       });
-      console.log("\n💡 Use --preview to see themes with sample logs");
-      console.log("💡 Use --interactive for guided selection");
+      console.log("\nUse --preview to see themes with sample logs");
+      console.log("Use --interactive for guided selection");
     }
     return;
   }

@@ -1,70 +1,61 @@
 import type { StyleName, ChainableColorFunction } from "./types";
+import { STYLES } from "./constants";
+import { HEX_COLOR_PATTERN } from "../renderer/constants";
 
-const styles = {
-  black: "\x1B[30m",
-  red: "\x1B[31m",
-  green: "\x1B[32m",
-  yellow: "\x1B[33m",
-  blue: "\x1B[34m",
-  magenta: "\x1B[35m",
-  cyan: "\x1B[36m",
-  white: "\x1B[37m",
-  gray: "\x1B[90m",
-
-  redBright: "\x1B[91m",
-  greenBright: "\x1B[92m",
-  yellowBright: "\x1B[93m",
-  blueBright: "\x1B[94m",
-  magentaBright: "\x1B[95m",
-  cyanBright: "\x1B[96m",
-  whiteBright: "\x1B[97m",
-
-  bold: "\x1B[1m",
-  dim: "\x1B[2m",
-  italic: "\x1B[3m",
-  underline: "\x1B[4m",
-
-  reset: "\x1B[0m",
-};
-
-function createColorFunction(style: string) {
-  return (text: string) => `${style}${text}${styles.reset}`;
+function applyStyles(text: unknown, appliedStyles: string[]): string {
+  const styleSequence = appliedStyles.join("");
+  return `${styleSequence}${String(text)}${STYLES.reset}`;
 }
 
-function createChainableColor(
-  appliedStyles: string[] = [],
-): ChainableColorFunction {
-  const fn = ((text: string) => {
-    const prefix = appliedStyles.join("");
-    return `${prefix}${text}${styles.reset}`;
-  }) as ChainableColorFunction;
+function addStyleProperties(
+  fn: ChainableColorFunction,
+  appliedStyles: string[],
+): void {
+  const styleNames = Object.keys(STYLES).filter(
+    (key) => key !== "reset",
+  ) as StyleName[];
 
-  Object.keys(styles).forEach((key) => {
-    if (key === "reset") return;
-    Object.defineProperty(fn, key, {
-      get() {
-        return createChainableColor([
-          ...appliedStyles,
-          styles[key as StyleName],
-        ]);
-      },
+  styleNames.forEach((styleName) => {
+    Object.defineProperty(fn, styleName, {
+      get: () => createChainableFunction([...appliedStyles, STYLES[styleName]]),
+      enumerable: true,
     });
   });
+}
 
+function createChainableFunction(
+  appliedStyles: string[] = [],
+): ChainableColorFunction {
+  const fn = ((text: unknown) =>
+    applyStyles(text, appliedStyles)) as ChainableColorFunction;
+  addStyleProperties(fn, appliedStyles);
   return fn;
 }
 
-export const colors = createChainableColor();
+const colors = createChainableFunction();
 
-export const red = createColorFunction(styles.red);
-export const green = createColorFunction(styles.green);
-export const yellow = createColorFunction(styles.yellow);
-export const blue = createColorFunction(styles.blue);
-export const magenta = createColorFunction(styles.magenta);
-export const cyan = createColorFunction(styles.cyan);
-export const white = createColorFunction(styles.white);
-export const gray = createColorFunction(styles.gray);
-export const dim = createColorFunction(styles.dim);
-export const bold = createColorFunction(styles.bold);
+export function hex(hexColor: string): (text: unknown) => string {
+  const match = hexColor.match(HEX_COLOR_PATTERN);
+  if (!match) return (text: unknown) => String(text);
+
+  const r = parseInt(match[1], 16);
+  const g = parseInt(match[2], 16);
+  const b = parseInt(match[3], 16);
+
+  return (text: unknown) =>
+    `\x1B[38;2;${r};${g};${b}m${String(text)}${STYLES.reset}`;
+}
+
+export function bgHex(hexColor: string): (text: unknown) => string {
+  const match = hexColor.match(HEX_COLOR_PATTERN);
+  if (!match) return (text: unknown) => String(text);
+
+  const r = parseInt(match[1], 16);
+  const g = parseInt(match[2], 16);
+  const b = parseInt(match[3], 16);
+
+  return (text: unknown) =>
+    `\x1B[48;2;${r};${g};${b}m${String(text)}${STYLES.reset}`;
+}
 
 export default colors;

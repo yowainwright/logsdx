@@ -1,4 +1,3 @@
 [test]
 preload = ["./test-setup.ts"]
 root = "./tests"
-isolate = true

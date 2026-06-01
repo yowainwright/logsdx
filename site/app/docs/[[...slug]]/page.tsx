@@ -7,9 +7,9 @@ import { extractHeadings } from "@/lib/toc";
 import { TableOfContents } from "@/components/docs/TableOfContents";
 
 interface DocPageProps {
-  params: {
+  params: Promise<{
     slug?: string[];
-  };
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -24,7 +24,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: DocPageProps) {
-  const slug = params.slug?.length ? params.slug : ["index"];
+  const { slug: slugParam } = await params;
+  const slug = slugParam?.length ? slugParam : ["index"];
   const doc = getDocBySlug(slug);
 
   if (!doc) {
@@ -62,7 +63,8 @@ async function getDocContent(slug: string[]) {
 }
 
 export default async function DocPage({ params }: DocPageProps) {
-  const slug = params.slug?.length ? params.slug : ["index"];
+  const { slug: slugParam } = await params;
+  const slug = slugParam?.length ? slugParam : ["index"];
   const meta = getDocBySlug(slug);
 
   if (!meta) {
@@ -111,10 +113,7 @@ export default async function DocPage({ params }: DocPageProps) {
             </div>
           </header>
 
-          <div
-            className="mdx-content"
-            dangerouslySetInnerHTML={{ __html: doc.html }}
-          />
+          <div dangerouslySetInnerHTML={{ __html: doc.html }} />
         </div>
       </article>
 

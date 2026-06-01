@@ -1,13 +1,19 @@
-import { expect, test, describe, beforeEach, afterEach } from "bun:test";
+import { expect, test, describe, beforeEach, afterEach, mock } from "bun:test";
 import stripAnsi from "strip-ansi";
 import { LogsDX, getLogsDX } from "../../src/index";
+import { getLogLevel, setLogLevel } from "../../src/utils/logger";
+import type { LogLevel } from "../../src/utils/logger";
 
 describe("LogsDX", () => {
   const originalConsoleWarn = console.warn;
+  const originalConsoleLog = console.log;
+  let originalLogLevel: LogLevel;
   let consoleWarnings: string[] = [];
 
   beforeEach(() => {
     LogsDX.resetInstance();
+    originalLogLevel = getLogLevel();
+    setLogLevel("info");
     consoleWarnings = [];
     console.warn = (message: string) => {
       consoleWarnings.push(message);
@@ -16,6 +22,8 @@ describe("LogsDX", () => {
 
   afterEach(() => {
     console.warn = originalConsoleWarn;
+    console.log = originalConsoleLog;
+    setLogLevel(originalLogLevel);
   });
 
   describe("getInstance", () => {
@@ -132,11 +140,39 @@ describe("LogsDX", () => {
     });
 
     test("returns true even for invalid theme (fails silently)", async () => {
-      const instance = await LogsDX.getInstance({ debug: true });
+      const instance = await LogsDX.getInstance();
 
       expect(await instance.setTheme({ invalid: "theme" } as any)).toBe(true);
 
       expect(instance.getCurrentTheme().name).toBe("none");
+    });
+
+    test("debug option surfaces invalid custom theme diagnostics", async () => {
+      const logMock = mock(() => {});
+      console.log = logMock;
+      const instance = await LogsDX.getInstance({ debug: true });
+
+      expect(await instance.setTheme({ invalid: "theme" } as any)).toBe(true);
+
+      expect(logMock).toHaveBeenCalledWith(
+        expect.stringContaining("[debug]"),
+        expect.stringContaining("Invalid custom theme"),
+      );
+    });
+
+    test("debug option surfaces initial invalid custom theme diagnostics", async () => {
+      const logMock = mock(() => {});
+      console.log = logMock;
+      const instance = await LogsDX.getInstance({
+        theme: { invalid: "theme" } as any,
+        debug: true,
+      });
+
+      expect(instance.getCurrentTheme().name).toBe("none");
+      expect(logMock).toHaveBeenCalledWith(
+        expect.stringContaining("[debug]"),
+        expect.stringContaining("Invalid custom theme"),
+      );
     });
   });
 

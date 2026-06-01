@@ -1,4 +1,7 @@
 import type { Token } from "../schema/types";
+import { createLogger } from "../utils/logger";
+
+const log = createLogger("tokenizer:utils");
 
 export function escapeRegexPattern(pattern: string): string {
   return pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -42,7 +45,8 @@ export function isTrimmedWhitespace(value: unknown): boolean {
 export function createSafeRegex(pattern: string): RegExp | undefined {
   try {
     return new RegExp(pattern);
-  } catch {
+  } catch (error) {
+    log.debug(`Invalid regex pattern "${pattern}": ${error}`);
     return undefined;
   }
 }

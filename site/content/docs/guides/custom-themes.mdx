@@ -1,0 +1,239 @@
+---
+title: Custom Themes
+description: Create and customize your own logsDX themes
+---
+
+## Overview
+
+logsDX themes define how log content is styled. You can create custom themes to match your preferences or brand.
+
+## Theme Structure
+
+A theme consists of:
+
+```typescript
+interface Theme {
+  name: string;
+  description?: string;
+  mode?: "light" | "dark" | "auto";
+  schema: SchemaConfig;
+  colors?: Record<string, string>;
+}
+```
+
+## Creating a Theme
+
+### Using ThemeBuilder
+
+The easiest way to create a theme:
+
+```typescript
+import { ThemeBuilder } from "logsdx";
+
+const theme = new ThemeBuilder("my-theme")
+  .mode("dark")
+  .description("My custom dark theme")
+  .defaultStyle({ color: "#f8f8f2" })
+  .matchWord("ERROR", { color: "#ff5555", styleCodes: ["bold"] })
+  .matchWord("WARN", { color: "#ffb86c" })
+  .matchWord("INFO", { color: "#8be9fd" })
+  .matchWord("DEBUG", { color: "#6272a4" })
+  .matchWord("SUCCESS", { color: "#50fa7b" })
+  .matchPattern(/\d{4}-\d{2}-\d{2}/, { color: "#6272a4" })
+  .matchPattern(/\d{2}:\d{2}:\d{2}/, { color: "#6272a4" })
+  .build();
+```
+
+### Using JSON
+
+Create a JSON file:
+
+```json
+{
+  "name": "my-theme",
+  "mode": "dark",
+  "description": "My custom theme",
+  "schema": {
+    "defaultStyle": { "color": "#f8f8f2" },
+    "matchWords": {
+      "ERROR": { "color": "#ff5555", "styleCodes": ["bold"] },
+      "WARN": { "color": "#ffb86c" },
+      "INFO": { "color": "#8be9fd" },
+      "DEBUG": { "color": "#6272a4" }
+    },
+    "matchPatterns": [
+      {
+        "pattern": "\\d{4}-\\d{2}-\\d{2}",
+        "options": { "color": "#6272a4" }
+      }
+    ]
+  }
+}
+```
+
+## Matching Rules
+
+### matchWords
+
+Exact word matches (case-insensitive):
+
+```typescript
+matchWords: {
+  'ERROR': { color: '#ff5555', styleCodes: ['bold'] },
+  'WARN': { color: '#ffb86c' },
+  'INFO': { color: '#8be9fd' },
+}
+```
+
+### matchStartsWith
+
+Match tokens starting with a prefix:
+
+```typescript
+matchStartsWith: {
+  '[': { color: '#6272a4' },
+  'http': { color: '#8be9fd' },
+}
+```
+
+### matchEndsWith
+
+Match tokens ending with a suffix:
+
+```typescript
+matchEndsWith: {
+  'ms': { color: '#bd93f9' },
+  's': { color: '#bd93f9' },
+}
+```
+
+### matchContains
+
+Match tokens containing a substring:
+
+```typescript
+matchContains: {
+  '://': { color: '#8be9fd' },
+  '@': { color: '#ff79c6' },
+}
+```
+
+### matchPatterns
+
+Regex patterns for complex matching:
+
+```typescript
+matchPatterns: [
+  {
+    name: "timestamp",
+    pattern: "\\d{4}-\\d{2}-\\d{2}",
+    options: { color: "#6272a4" },
+  },
+  {
+    name: "ip-address",
+    pattern: "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
+    options: { color: "#bd93f9" },
+  },
+  {
+    name: "uuid",
+    pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    options: { color: "#ff79c6" },
+  },
+];
+```
+
+## Style Options
+
+Each match can have these style options:
+
+```typescript
+interface StyleOptions {
+  color: string; // Hex color code
+  styleCodes?: StyleCode[]; // Text decorations
+  htmlStyleFormat?: "css" | "className";
+}
+
+type StyleCode =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "dim"
+  | "blink"
+  | "reverse"
+  | "strikethrough";
+```
+
+## Extending Themes
+
+Extend an existing theme:
+
+```typescript
+import { extendTheme, getTheme } from "logsdx";
+
+const dracula = await getTheme("dracula");
+
+const myTheme = extendTheme(dracula, {
+  name: "dracula-extended",
+  schema: {
+    matchWords: {
+      CUSTOM: { color: "#ff79c6" },
+      SPECIAL: { color: "#50fa7b", styleCodes: ["bold"] },
+    },
+  },
+});
+```
+
+## Registering Themes
+
+### Register Immediately
+
+```typescript
+import { registerTheme } from "logsdx";
+
+registerTheme(myTheme);
+```
+
+### Lazy Loading
+
+```typescript
+import { registerThemeLoader } from "logsdx";
+
+registerThemeLoader("my-theme", async () => {
+  const response = await fetch("/themes/my-theme.json");
+  return response.json();
+});
+```
+
+## Color Palette
+
+Define reusable colors:
+
+```typescript
+const theme = {
+  name: "my-theme",
+  colors: {
+    background: "#282a36",
+    foreground: "#f8f8f2",
+    error: "#ff5555",
+    warning: "#ffb86c",
+    info: "#8be9fd",
+    success: "#50fa7b",
+    debug: "#6272a4",
+  },
+  schema: {
+    defaultStyle: { color: "#f8f8f2" },
+    matchWords: {
+      ERROR: { color: "#ff5555" },
+      // Use colors from palette
+    },
+  },
+};
+```
+
+## Best Practices
+
+1. **Use semantic names** for patterns (`timestamp`, `log-level`)
+2. **Test with real logs** before deploying
+3. **Consider accessibility** - ensure sufficient contrast
+4. **Start simple** - add patterns as needed
+5. **Use `mode`** to help auto-detection work correctly

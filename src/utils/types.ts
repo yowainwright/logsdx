@@ -1,32 +1,66 @@
-const styles = {
-  black: "\x1B[30m",
-  red: "\x1B[31m",
-  green: "\x1B[32m",
-  yellow: "\x1B[33m",
-  blue: "\x1B[34m",
-  magenta: "\x1B[35m",
-  cyan: "\x1B[36m",
-  white: "\x1B[37m",
-  gray: "\x1B[90m",
+import { STYLES } from "./constants";
 
-  redBright: "\x1B[91m",
-  greenBright: "\x1B[92m",
-  yellowBright: "\x1B[93m",
-  blueBright: "\x1B[94m",
-  magentaBright: "\x1B[95m",
-  cyanBright: "\x1B[96m",
-  whiteBright: "\x1B[97m",
+export type StyleName = keyof typeof STYLES;
 
-  bold: "\x1B[1m",
-  dim: "\x1B[2m",
-  italic: "\x1B[3m",
-  underline: "\x1B[4m",
-
-  reset: "\x1B[0m",
-} as const;
-
-export type StyleName = keyof typeof styles;
-
-export type ChainableColorFunction = ((text: string) => string) & {
+export type ChainableColorFunction = ((text: unknown) => string) & {
   [K in Exclude<StyleName, "reset">]: ChainableColorFunction;
 };
+
+export interface Spinner {
+  start(): Spinner;
+  succeed(text?: string): Spinner;
+  fail(text?: string): Spinner;
+  stop(): Spinner;
+  text: string;
+}
+
+export interface ProgressBar {
+  start(total: number, startValue: number): void;
+  update(value: number): void;
+  stop(): void;
+}
+
+export interface BoxenOptions {
+  padding?:
+    | number
+    | { top?: number; bottom?: number; left?: number; right?: number };
+  margin?:
+    | number
+    | { top?: number; bottom?: number; left?: number; right?: number };
+  borderStyle?: "single" | "double" | "round" | "bold" | "classic";
+  borderColor?: string;
+  backgroundColor?: string;
+  title?: string;
+}
+
+export type LogLevel = "silent" | "error" | "warn" | "info" | "debug";
+
+export interface LoggerConfig {
+  level: LogLevel;
+  prefix?: string;
+}
+
+export interface InputPrompt {
+  message: string;
+  default?: string;
+  validate?: (value: string) => boolean | string | Promise<boolean | string>;
+  transformer?: (value: string) => string;
+}
+
+export interface SelectPrompt {
+  message: string;
+  choices: Array<
+    { name?: string; value: string; description?: string } | string
+  >;
+  default?: string;
+}
+
+export interface CheckboxPrompt {
+  message: string;
+  choices: Array<{ name: string; value: string; checked?: boolean }>;
+}
+
+export interface ConfirmPrompt {
+  message: string;
+  default?: boolean;
+}

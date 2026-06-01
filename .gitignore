@@ -157,3 +157,8 @@ tmp
 test-results/
 playwright-report/
 playwright/.cache/
+.beads/
+
+# WASM files copied from node_modules
+site/public/ghostty-vt.wasm
+.DS_Store

@@ -1,7 +1,7 @@
 import type { Theme } from "../types";
 import { SimpleLexer, createLexer } from "./index";
-import type { CachedLexer, CacheOptions } from "./cache-types";
-import { MAX_CACHE_SIZE, CACHE_TTL } from "./cache-constants";
+import type { CachedLexer, CacheOptions } from "./types";
+import { MAX_CACHE_SIZE, CACHE_TTL } from "./constants";
 
 class TokenizerCache {
   private cache = new Map<string, CachedLexer>();
@@ -54,7 +54,7 @@ class TokenizerCache {
 
   private createLexer(
     theme: Theme | undefined,
-    options?: CacheOptions,
+    _options?: CacheOptions,
   ): SimpleLexer {
     return createLexer(theme);
   }

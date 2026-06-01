@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-
-const inter = Inter({ subsets: ["latin"] });
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "logsDx - Schema-based Styling for Logs",
@@ -18,8 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <body className="flex min-h-screen flex-col font-sans">
+        <Providers>
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

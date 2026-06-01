@@ -1,9 +1,7 @@
-import { z } from "zod";
-import { styleOptionsSchema, tokenSchema, tokenListSchema } from "./index";
+import type { StyleOptions } from "../types";
+import type { Token, TokenList } from "./index";
 
-export type StyleOptions = z.infer<typeof styleOptionsSchema>;
-export type Token = z.infer<typeof tokenSchema>;
-export type TokenList = z.infer<typeof tokenListSchema>;
+export type { StyleOptions, Token, TokenList };
 
 export type JsonSchemaOptions = {
   name?: string;

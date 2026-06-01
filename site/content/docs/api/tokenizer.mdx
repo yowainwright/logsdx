@@ -1,0 +1,164 @@
+---
+title: Tokenizer API
+description: Low-level tokenization and theme application
+---
+
+## Overview
+
+The tokenizer breaks log lines into tokens and applies theme-based styling. This is the core engine that powers logsDX's pattern matching.
+
+## Functions
+
+### tokenize(line, theme?)
+
+Tokenize a log line into individual tokens.
+
+```typescript
+import { tokenize } from "logsdx";
+
+const tokens = tokenize("[INFO] Server started", theme);
+// Returns TokenList array
+```
+
+### applyTheme(tokens, theme)
+
+Apply theme styling to tokens.
+
+```typescript
+import { tokenize, applyTheme } from "logsdx";
+
+const tokens = tokenize(line, theme);
+const styledTokens = applyTheme(tokens, theme);
+```
+
+## Token Structure
+
+Each token has the following structure:
+
+```typescript
+interface Token {
+  content: string;
+  metadata?: {
+    matchType: MatcherType;
+    matchPattern: string;
+    style?: StyleOptions;
+  };
+}
+
+type TokenList = Token[];
+```
+
+## Match Types
+
+Tokens are categorized by how they were matched:
+
+| Type        | Description                   |
+| ----------- | ----------------------------- |
+| `word`      | Matched via `matchWords`      |
+| `regex`     | Matched via `matchPatterns`   |
+| `timestamp` | Timestamp pattern             |
+| `level`     | Log level (INFO, ERROR, etc.) |
+| `space`     | Single space                  |
+| `spaces`    | Multiple spaces               |
+| `tab`       | Tab character                 |
+| `newline`   | Newline character             |
+| `default`   | No specific match             |
+
+## Lexer API
+
+For advanced use cases, you can create custom lexers:
+
+### createLexer(theme?)
+
+Create a lexer instance.
+
+```typescript
+import { createLexer } from "logsdx/tokenizer";
+
+const lexer = createLexer(theme);
+const tokens = lexer.tokenize(line);
+```
+
+### SimpleLexer
+
+Low-level lexer class.
+
+```typescript
+import { SimpleLexer } from "logsdx/tokenizer";
+
+const lexer = new SimpleLexer();
+
+// Add rules
+lexer.rule(/\d+/, (ctx) => {
+  ctx.accept("number");
+});
+
+lexer.rule(/[a-z]+/i, (ctx) => {
+  ctx.accept("word");
+});
+
+// Tokenize
+const tokens = lexer.tokenize("hello 123 world");
+```
+
+### Adding Rules
+
+```typescript
+import {
+  addWhitespaceRules,
+  addDefaultLogRules,
+  addWordMatchRules,
+  addPatternMatchRules,
+} from "logsdx/tokenizer";
+
+const lexer = new SimpleLexer();
+addWhitespaceRules(lexer);
+addDefaultLogRules(lexer);
+addWordMatchRules(lexer, { ERROR: { color: "#ff0000" } });
+```
+
+## Pattern Matching Priority
+
+When tokenizing, patterns are matched in this order:
+
+1. **matchPatterns** - Regex patterns (highest priority)
+2. **matchWords** - Exact word matches
+3. **matchStartsWith** - Prefix matches
+4. **matchEndsWith** - Suffix matches
+5. **matchContains** - Substring matches
+6. **defaultStyle** - Fallback (lowest priority)
+
+## Example: Custom Tokenization
+
+```typescript
+import { tokenize, applyTheme } from "logsdx";
+
+const theme = {
+  name: "custom",
+  schema: {
+    defaultStyle: { color: "#ffffff" },
+    matchWords: {
+      ERROR: { color: "#ff0000", styleCodes: ["bold"] },
+      WARN: { color: "#ffff00" },
+    },
+    matchPatterns: [
+      {
+        pattern: "\\d{4}-\\d{2}-\\d{2}",
+        options: { color: "#888888" },
+      },
+    ],
+  },
+};
+
+const line = "[2024-01-15] ERROR: Connection failed";
+const tokens = tokenize(line, theme);
+const styled = applyTheme(tokens, theme);
+
+// styled tokens now have style metadata attached
+```
+
+## TypeScript Types
+
+```typescript
+import type { Token, TokenList, MatcherType } from "logsdx";
+```

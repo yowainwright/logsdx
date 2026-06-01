@@ -1,0 +1,95 @@
+---
+title: CLI Usage
+description: Style your logs from anywhere with a single command
+---
+
+## Installation
+
+Install logsDX globally using your preferred package manager:
+
+```bash
+# npm
+npm install -g logsdx
+
+# pnpm
+pnpm add -g logsdx
+
+# bun
+bun add -g logsdx
+```
+
+## Commands
+
+### Pipe Logs
+
+Pipe any log output through logsdx for instant styling:
+
+```bash
+cat server.log | logsdx --theme dracula
+```
+
+### Process Files
+
+Process log files directly with your chosen theme:
+
+```bash
+logsdx app.log --theme github-dark
+```
+
+### Interactive Theme Creator
+
+Create custom themes with an interactive wizard:
+
+```bash
+logsdx --generate-theme
+```
+
+### Preview Themes
+
+Preview all themes with sample logs before using:
+
+```bash
+logsdx --list-themes --preview
+```
+
+### Tail with Style
+
+Follow logs in real-time with beautiful styling:
+
+```bash
+tail -f /var/log/app.log | logsdx --theme monokai
+```
+
+### List Themes
+
+View all available built-in themes:
+
+```bash
+logsdx --list-themes
+```
+
+## Available Themes
+
+logsDX comes with several built-in themes:
+
+- **dracula** - Dark theme with vibrant colors
+- **github-dark** - GitHub's dark mode
+- **github-light** - GitHub's light mode
+- **nord** - Arctic, north-bluish color palette
+- **monokai** - Classic Monokai colors
+- **solarized-dark** - Solarized dark variant
+- **solarized-light** - Solarized light variant
+- **oh-my-zsh** - Inspired by Oh My Zsh
+
+## Options
+
+| Option             | Description                     |
+| ------------------ | ------------------------------- |
+| `--theme <name>`   | Specify theme to use            |
+| `--output <file>`  | Save output to file             |
+| `--format <type>`  | Output format: `ansi` or `html` |
+| `--list-themes`    | Show available themes           |
+| `--preview`        | Preview themes when listing     |
+| `--generate-theme` | Launch the theme generator      |
+| `--help`           | Show help information           |
+| `--version`        | Show version number             |

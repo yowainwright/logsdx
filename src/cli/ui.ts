@@ -1,10 +1,15 @@
 import boxen from "../utils/boxen";
-import spinner, { type Spinner } from "../utils/spinner";
+import spinner from "../utils/spinner";
 import colors from "../utils/colors";
 import ascii from "../utils/ascii";
 import gradient from "../utils/gradient";
 import { createProgressBar } from "../utils/progress";
+import { createLogger } from "../utils/logger";
+import { UI_LABELS, SIZE_UNITS, SIZE_UNIT_MULTIPLIER } from "./constants";
+import type { Spinner } from "../utils/types";
 import { SpinnerLike, ProgressBarLike } from "./types";
+
+const log = createLogger("ui");
 
 export class CliUI {
   private spinner?: Spinner;
@@ -41,78 +46,82 @@ export class CliUI {
 
   showHeader() {
     const title = ascii.textSync("LogsDX");
-
     const gradientTitle = gradient()(title);
-
-    console.log(
-      boxen(gradientTitle, {
-        padding: 1,
-        margin: 1,
-        borderStyle: "round",
-        borderColor: "cyan",
-        backgroundColor: "black",
-      }),
-    );
+    const box = boxen(gradientTitle, {
+      padding: 1,
+      margin: 1,
+      borderStyle: "round",
+      borderColor: "cyan",
+      backgroundColor: "black",
+    });
+    log.info(box);
   }
 
   showSuccess(message: string) {
-    console.log(colors.green("✅"), colors.bold(message));
+    const label = colors.green(UI_LABELS.ok);
+    const text = colors.bold(message);
+    log.success(`${label} ${text}`);
   }
 
   showError(message: string, suggestion?: string) {
-    console.log(colors.red("❌"), colors.bold.red("Error:"), message);
-    if (suggestion) {
-      console.log(colors.yellow("💡"), colors.italic(suggestion));
-    }
+    const label = colors.red(UI_LABELS.error);
+    const text = colors.bold.red(message);
+    log.error(`${label} ${text}`);
+    if (!suggestion) return;
+    const hint = colors.yellow(`  ${UI_LABELS.hint}`);
+    const suggestionText = colors.italic(suggestion);
+    log.warn(`${hint} ${suggestionText}`);
   }
 
   showWarning(message: string) {
-    console.log(colors.yellow("⚠️"), colors.bold.yellow("Warning:"), message);
+    const label = colors.yellow(UI_LABELS.warn);
+    const text = colors.bold.yellow(message);
+    log.warn(`${label} ${text}`);
   }
 
   showInfo(message: string) {
-    console.log(colors.blue("ℹ️"), message);
+    const label = colors.blue(UI_LABELS.info);
+    log.info(`${label} ${message}`);
   }
 
   showThemePreview(themeName: string, sample: string) {
+    const title = colors.bold.cyan(themeName);
     const box = boxen(sample, {
-      title: colors.bold.cyan(themeName),
+      title,
       padding: 1,
       margin: { top: 0, bottom: 1, left: 2, right: 2 },
       borderStyle: "single",
       borderColor: "gray",
     });
-    console.log(box);
+    log.info(box);
   }
 
   showFileStats(filename: string, lineCount: number, fileSize: number) {
-    const stats = [
-      `📄 File: ${colors.cyan(filename)}`,
-      `📊 Lines: ${colors.yellow(lineCount.toLocaleString())}`,
-      `📐 Size: ${colors.green(this.formatFileSize(fileSize))}`,
-    ].join("  ");
-
-    console.log(
-      boxen(stats, {
-        padding: { top: 0, bottom: 0, left: 1, right: 1 },
-        margin: { top: 1, bottom: 1, left: 0, right: 0 },
-        borderStyle: "single",
-        borderColor: "blue",
-      }),
-    );
+    const fileLabel = `${UI_LABELS.file} ${colors.cyan(filename)}`;
+    const lineLabel = `${UI_LABELS.lines} ${colors.yellow(lineCount.toLocaleString())}`;
+    const sizeLabel = `${UI_LABELS.size} ${colors.green(this.formatFileSize(fileSize))}`;
+    const stats = [fileLabel, lineLabel, sizeLabel].join("  ");
+    const box = boxen(stats, {
+      padding: { top: 0, bottom: 0, left: 1, right: 1 },
+      margin: { top: 1, bottom: 1, left: 0, right: 0 },
+      borderStyle: "single",
+      borderColor: "blue",
+    });
+    log.info(box);
   }
 
   private formatFileSize(bytes: number): string {
-    const units = ["B", "KB", "MB", "GB"];
     let size = bytes;
     let unitIndex = 0;
+    const maxIndex = SIZE_UNITS.length - 1;
 
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
+    while (size >= SIZE_UNIT_MULTIPLIER && unitIndex < maxIndex) {
+      size /= SIZE_UNIT_MULTIPLIER;
       unitIndex++;
     }
 
-    return `${size.toFixed(1)} ${units[unitIndex]}`;
+    const unit = SIZE_UNITS[unitIndex];
+    return `${size.toFixed(1)} ${unit}`;
   }
 
   cleanup() {

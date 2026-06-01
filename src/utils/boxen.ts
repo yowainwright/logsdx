@@ -1,58 +1,5 @@
-interface BoxenOptions {
-  padding?:
-    | number
-    | { top?: number; bottom?: number; left?: number; right?: number };
-  margin?:
-    | number
-    | { top?: number; bottom?: number; left?: number; right?: number };
-  borderStyle?: "single" | "double" | "round" | "bold" | "classic";
-  borderColor?: string;
-  backgroundColor?: string;
-  title?: string;
-}
-
-const borderStyles = {
-  single: {
-    topLeft: "┌",
-    topRight: "┐",
-    bottomLeft: "└",
-    bottomRight: "┘",
-    horizontal: "─",
-    vertical: "│",
-  },
-  double: {
-    topLeft: "╔",
-    topRight: "╗",
-    bottomLeft: "╚",
-    bottomRight: "╝",
-    horizontal: "═",
-    vertical: "║",
-  },
-  round: {
-    topLeft: "╭",
-    topRight: "╮",
-    bottomLeft: "╰",
-    bottomRight: "╯",
-    horizontal: "─",
-    vertical: "│",
-  },
-  bold: {
-    topLeft: "┏",
-    topRight: "┓",
-    bottomLeft: "┗",
-    bottomRight: "┛",
-    horizontal: "━",
-    vertical: "┃",
-  },
-  classic: {
-    topLeft: "+",
-    topRight: "+",
-    bottomLeft: "+",
-    bottomRight: "+",
-    horizontal: "-",
-    vertical: "|",
-  },
-};
+import type { BoxenOptions } from "./types";
+import { BORDER_STYLES, ANSI_ESCAPE_REGEX } from "./constants";
 
 function normalizePadding(
   value:
@@ -72,13 +19,13 @@ function normalizePadding(
 }
 
 export function boxen(text: string, options: BoxenOptions = {}): string {
-  const border = borderStyles[options.borderStyle || "single"];
+  const border = BORDER_STYLES[options.borderStyle || "single"];
   const padding = normalizePadding(options.padding);
   const margin = normalizePadding(options.margin);
 
   const lines = text.split("\n");
   const contentWidth = Math.max(
-    ...lines.map((line) => line.replace(/\x1B\[[0-9;]*m/g, "").length),
+    ...lines.map((line) => line.replace(ANSI_ESCAPE_REGEX, "").length),
   );
   const boxWidth = contentWidth + padding.left + padding.right;
 
@@ -107,7 +54,7 @@ export function boxen(text: string, options: BoxenOptions = {}): string {
   }
 
   lines.forEach((line) => {
-    const cleanLength = line.replace(/\x1B\[[0-9;]*m/g, "").length;
+    const cleanLength = line.replace(ANSI_ESCAPE_REGEX, "").length;
     const paddingRight = " ".repeat(Math.max(0, contentWidth - cleanLength));
     result.push(
       leftMargin +

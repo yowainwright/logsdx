@@ -1,15 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, mock } from "bun:test";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import {
   generateTemplateFromAnswers,
   validateColorInput,
   generatePatternFromPreset,
   listColorPalettesCommand,
   listPatternPresetsCommand,
-} from "../../../../src/cli/theme-gen";
+  exportThemeToFile,
+  importThemeFromFile,
+  listThemeFilesCommand,
+  getThemeFiles,
+} from "../../../../src/cli/theme/generator";
 import {
   COLOR_PALETTES,
   PATTERN_PRESETS,
 } from "../../../../src/themes/presets";
+import type { Theme } from "../../../../src/types";
 
 const originalLog = console.log;
 const originalWarn = console.warn;
@@ -358,6 +366,427 @@ describe("Theme Generator", () => {
 
       expect(allOutput).toContain("patterns");
       expect(allOutput).toContain("word matches");
+    });
+  });
+
+  describe("exportThemeToFile", () => {
+    it("should export theme as JSON", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "test-theme.json");
+
+      const theme: Theme = {
+        name: "export-test",
+        description: "Test theme for export",
+        schema: {
+          defaultStyle: { color: "#ffffff" },
+          matchWords: { ERROR: { color: "#ff0000" } },
+        },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath, "json");
+
+        expect(fs.existsSync(filePath)).toBe(true);
+        const content = JSON.parse(fs.readFileSync(filePath, "utf8"));
+        expect(content.name).toBe("export-test");
+        expect(content.schema.matchWords.ERROR.color).toBe("#ff0000");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should export theme as TypeScript", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "test-theme.ts");
+
+      const theme: Theme = {
+        name: "ts-export-test",
+        schema: {
+          defaultStyle: { color: "#ffffff" },
+        },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath, "typescript");
+
+        expect(fs.existsSync(filePath)).toBe(true);
+        const content = fs.readFileSync(filePath, "utf8");
+        expect(content).toContain("import type { Theme }");
+        expect(content).toContain("export const theme");
+        expect(content).toContain("export default theme");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should create directory if it does not exist", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const nestedDir = path.join(tempDir, "nested", "deep");
+      const filePath = path.join(nestedDir, "test-theme.json");
+
+      const theme: Theme = {
+        name: "nested-test",
+        schema: { defaultStyle: { color: "#ffffff" } },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath);
+
+        expect(fs.existsSync(nestedDir)).toBe(true);
+        expect(fs.existsSync(filePath)).toBe(true);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should serialize RegExp patterns as strings", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "regexp-theme.json");
+
+      const theme: Theme = {
+        name: "regexp-test",
+        schema: {
+          matchPatterns: [
+            {
+              name: "log-level",
+              pattern: /ERROR|WARN/gi,
+              options: { color: "#ff0000" },
+            },
+          ],
+        },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath);
+
+        const content = JSON.parse(fs.readFileSync(filePath, "utf8"));
+        expect(content.schema.matchPatterns[0].pattern).toBe("ERROR|WARN");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+  });
+
+  describe("importThemeFromFile", () => {
+    it("should import theme from JSON file", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "theme.json");
+
+      const themeData = {
+        name: "imported-theme",
+        description: "An imported theme",
+        schema: {
+          defaultStyle: { color: "#ffffff" },
+          matchWords: { INFO: { color: "#00ff00" } },
+        },
+      };
+
+      fs.writeFileSync(filePath, JSON.stringify(themeData));
+
+      try {
+        const theme = importThemeFromFile(filePath);
+
+        expect(theme.name).toBe("imported-theme");
+        expect(theme.description).toBe("An imported theme");
+        expect(theme.schema.matchWords?.INFO?.color).toBe("#00ff00");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should throw error for invalid JSON theme missing required fields", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "invalid.json");
+
+      fs.writeFileSync(filePath, JSON.stringify({ invalid: true }));
+
+      try {
+        expect(() => importThemeFromFile(filePath)).toThrow(
+          "Invalid theme JSON: Missing required fields",
+        );
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should throw error for JSON theme missing name", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "no-name.json");
+
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({ schema: { defaultStyle: { color: "#fff" } } }),
+      );
+
+      try {
+        expect(() => importThemeFromFile(filePath)).toThrow("'name'");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should throw error for JSON theme missing schema", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "no-schema.json");
+
+      fs.writeFileSync(filePath, JSON.stringify({ name: "test" }));
+
+      try {
+        expect(() => importThemeFromFile(filePath)).toThrow("'schema'");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should throw error for invalid TypeScript theme file", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "invalid.ts");
+
+      fs.writeFileSync(filePath, "const foo = 'bar';");
+
+      try {
+        expect(() => importThemeFromFile(filePath)).toThrow(
+          "Failed to parse theme file",
+        );
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+  });
+
+  describe("getThemeFiles", () => {
+    it("should find theme files in directory", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+
+      fs.writeFileSync(
+        path.join(tempDir, "my.theme.json"),
+        JSON.stringify({ name: "test", schema: {} }),
+      );
+      fs.writeFileSync(
+        path.join(tempDir, "other.theme.ts"),
+        "export const theme = {}",
+      );
+      fs.writeFileSync(path.join(tempDir, "not-a-theme.txt"), "hello");
+
+      try {
+        const files = getThemeFiles(tempDir);
+
+        expect(files.length).toBe(2);
+        expect(files.some((f) => f.includes("my.theme.json"))).toBe(true);
+        expect(files.some((f) => f.includes("other.theme.ts"))).toBe(true);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should return empty array for non-existent directory", () => {
+      const files = getThemeFiles("/non/existent/path");
+      expect(files).toEqual([]);
+    });
+
+    it("should find theme files in nested directories", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const nestedDir = path.join(tempDir, "themes");
+      fs.mkdirSync(nestedDir);
+
+      fs.writeFileSync(
+        path.join(nestedDir, "nested.theme.json"),
+        JSON.stringify({ name: "nested", schema: {} }),
+      );
+
+      try {
+        const files = getThemeFiles(tempDir);
+
+        expect(files.length).toBe(1);
+        expect(files[0]).toContain("nested.theme.json");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should handle errors gracefully", () => {
+      const files = getThemeFiles("/root/no-permission");
+      expect(files).toEqual([]);
+    });
+  });
+
+  describe("listThemeFilesCommand", () => {
+    it("should show message when no theme files found", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const originalCwd = process.cwd();
+
+      try {
+        process.chdir(tempDir);
+        listThemeFilesCommand(tempDir);
+
+        const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+        const allOutput = calls.map((call) => call.join(" ")).join("\n");
+        expect(allOutput).toContain("No theme files found");
+      } finally {
+        process.chdir(originalCwd);
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should list theme files with details", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+
+      const themeData = {
+        name: "list-test",
+        description: "A test theme",
+        exportedAt: new Date().toISOString(),
+      };
+      fs.writeFileSync(
+        path.join(tempDir, "test.theme.json"),
+        JSON.stringify(themeData),
+      );
+
+      try {
+        listThemeFilesCommand(tempDir);
+
+        const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+        const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+        expect(allOutput).toContain("test.theme.json");
+        expect(allOutput).toContain("list-test");
+        expect(allOutput).toContain("A test theme");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should handle invalid theme files gracefully", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+
+      fs.writeFileSync(
+        path.join(tempDir, "invalid.theme.json"),
+        "not valid json",
+      );
+
+      try {
+        listThemeFilesCommand(tempDir);
+
+        const calls = (console.log as ReturnType<typeof mock>).mock.calls;
+        const allOutput = calls.map((call) => call.join(" ")).join("\n");
+
+        expect(allOutput).toContain("invalid.theme.json");
+        expect(allOutput).toContain("Error");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+  });
+
+  describe("import/export integration", () => {
+    it("should round-trip theme through export and import", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "round-trip.json");
+
+      const theme: Theme = {
+        name: "round-trip-test",
+        description: "Round trip theme",
+        mode: "dark",
+        schema: {
+          defaultStyle: { color: "#ffffff" },
+          matchWords: { ERROR: { color: "#ff0000" } },
+        },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath, "json");
+        const imported = importThemeFromFile(filePath);
+        expect(imported).toEqual(theme);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should round-trip TypeScript theme", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "round-trip.ts");
+
+      const theme: Theme = {
+        name: "ts-round-trip",
+        schema: { defaultStyle: { color: "#ffffff" } },
+      };
+
+      try {
+        exportThemeToFile(theme, filePath, "typescript");
+        const imported = importThemeFromFile(filePath);
+        expect(imported.name).toBe(theme.name);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+  });
+
+  describe("importThemeFromFile edge cases", () => {
+    it("should import TypeScript theme with export default", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "theme.ts");
+
+      const tsContent = `export default {"name": "default-theme", "schema": {"defaultStyle": {"color": "#000"}}}`;
+      fs.writeFileSync(filePath, tsContent);
+
+      try {
+        const theme = importThemeFromFile(filePath);
+        expect(theme.name).toBe("default-theme");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should import JavaScript theme file", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "theme.js");
+
+      const jsContent = `export const theme: Theme = {"name": "js-theme", "schema": {"defaultStyle": {"color": "#123"}}};`;
+      fs.writeFileSync(filePath, jsContent);
+
+      try {
+        const theme = importThemeFromFile(filePath);
+        expect(theme.name).toBe("js-theme");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+
+    it("should throw for malformed TypeScript export", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const filePath = path.join(tempDir, "bad.ts");
+
+      fs.writeFileSync(filePath, `export const notTheme = "just a string"`);
+
+      try {
+        expect(() => importThemeFromFile(filePath)).toThrow("Failed to parse");
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
+    });
+  });
+
+  describe("getThemeFiles edge cases", () => {
+    it("should be aliased as listThemeFiles", () => {
+      const { listThemeFiles } = require("../../../../src/cli/theme/generator");
+      expect(getThemeFiles).toBe(listThemeFiles);
+    });
+
+    it("should find deeply nested theme files", () => {
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "logsdx-test-"));
+      const deepDir = path.join(tempDir, "a", "b", "c");
+      fs.mkdirSync(deepDir, { recursive: true });
+
+      fs.writeFileSync(
+        path.join(deepDir, "deep.theme.json"),
+        JSON.stringify({ name: "deep" }),
+      );
+
+      try {
+        const files = getThemeFiles(tempDir);
+        expect(files.some((f) => f.includes("deep.theme.json"))).toBe(true);
+      } finally {
+        fs.rmSync(tempDir, { recursive: true });
+      }
     });
   });
 });

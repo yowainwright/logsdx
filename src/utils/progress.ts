@@ -1,8 +1,4 @@
-export interface ProgressBar {
-  start(total: number, startValue: number): void;
-  update(value: number): void;
-  stop(): void;
-}
+import type { ProgressBar } from "./types";
 
 export function createProgressBar(total: number): ProgressBar {
   let currentValue = 0;

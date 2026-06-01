@@ -1,133 +1,75 @@
-import { z } from "zod";
 import type { ThemePreset, StyleOptions, PatternMatch } from "../types";
 import { filterStyleCodes } from "../types";
 
-export const colorPaletteSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  colors: z.object({
-    primary: z.string().describe("Main accent color"),
-    secondary: z.string().describe("Secondary accent color"),
-    success: z.string().describe("Success/OK color"),
-    warning: z.string().describe("Warning/attention color"),
-    error: z.string().describe("Error/danger color"),
-    info: z.string().describe("Information color"),
-    muted: z.string().describe("Muted/subtle color"),
-    background: z.string().describe("Background color"),
-    text: z.string().describe("Primary text color"),
-    accent: z.string().optional().describe("Additional accent color"),
-  }),
-  accessibility: z.object({
-    contrastRatio: z.number().min(1).max(21).describe("WCAG contrast ratio"),
-    colorBlindSafe: z.boolean().describe("Safe for color blind users"),
-    darkMode: z.boolean().describe("Optimized for dark backgrounds"),
-  }),
-});
+type ColorRole =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "error"
+  | "info"
+  | "muted"
+  | "accent";
 
-export type ColorPalette = z.infer<typeof colorPaletteSchema>;
+export type ColorPalette = {
+  name: string;
+  description: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    success: string;
+    warning: string;
+    error: string;
+    info: string;
+    muted: string;
+    background: string;
+    text: string;
+    accent?: string;
+  };
+  accessibility: {
+    contrastRatio: number;
+    colorBlindSafe: boolean;
+    darkMode: boolean;
+  };
+};
 
-export const patternPresetSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  category: z.enum([
-    "api",
-    "system",
-    "application",
-    "security",
-    "database",
-    "generic",
-  ]),
-  patterns: z.array(
-    z.object({
-      name: z.string(),
-      pattern: z.string(),
-      description: z.string(),
-      colorRole: z.enum([
-        "primary",
-        "secondary",
-        "success",
-        "warning",
-        "error",
-        "info",
-        "muted",
-        "accent",
-      ]),
-      styleCodes: z.array(z.string()).optional(),
-    }),
-  ),
-  matchWords: z.record(
-    z.string(),
-    z.object({
-      colorRole: z.enum([
-        "primary",
-        "secondary",
-        "success",
-        "warning",
-        "error",
-        "info",
-        "muted",
-        "accent",
-      ]),
-      styleCodes: z.array(z.string()).optional(),
-    }),
-  ),
-});
+export type PatternPreset = {
+  name: string;
+  description: string;
+  category:
+    | "api"
+    | "system"
+    | "application"
+    | "security"
+    | "database"
+    | "generic";
+  patterns: {
+    name: string;
+    pattern: string;
+    description: string;
+    colorRole: ColorRole;
+    styleCodes?: string[];
+  }[];
+  matchWords: Record<string, { colorRole: ColorRole; styleCodes?: string[] }>;
+};
 
-export type PatternPreset = z.infer<typeof patternPresetSchema>;
-
-export const themeGeneratorConfigSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  colorPalette: z.string().describe("Color palette name to use"),
-  patternPresets: z
-    .array(z.string())
-    .describe("Pattern preset names to combine"),
-  customPatterns: z
-    .array(
-      z.object({
-        name: z.string(),
-        pattern: z.string(),
-        colorRole: z.enum([
-          "primary",
-          "secondary",
-          "success",
-          "warning",
-          "error",
-          "info",
-          "muted",
-          "accent",
-        ]),
-        styleCodes: z.array(z.string()).optional(),
-      }),
-    )
-    .optional(),
-  customWords: z
-    .record(
-      z.string(),
-      z.object({
-        colorRole: z.enum([
-          "primary",
-          "secondary",
-          "success",
-          "warning",
-          "error",
-          "info",
-          "muted",
-          "accent",
-        ]),
-        styleCodes: z.array(z.string()).optional(),
-      }),
-    )
-    .optional(),
-  options: z
-    .object({
-      whiteSpace: z.enum(["preserve", "trim"]).optional(),
-      newLine: z.enum(["preserve", "trim"]).optional(),
-    })
-    .optional(),
-});
-
-export type ThemeGeneratorConfig = z.infer<typeof themeGeneratorConfigSchema>;
+export type ThemeGeneratorConfig = {
+  name: string;
+  description?: string;
+  colorPalette: string;
+  patternPresets: string[];
+  customPatterns?: {
+    name: string;
+    pattern: string;
+    colorRole: ColorRole;
+    styleCodes?: string[];
+  }[];
+  customWords?: Record<string, { colorRole: ColorRole; styleCodes?: string[] }>;
+  options?: {
+    whiteSpace?: "preserve" | "trim";
+    newLine?: "preserve" | "trim";
+  };
+};
 
 export const COLOR_PALETTES: ColorPalette[] = [
   {

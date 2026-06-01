@@ -19,6 +19,12 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
     },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.cjs",
+      "default": "./dist/core.mjs"
+    },
     "./themes": {
       "types": "./dist/themes/index.d.ts",
       "import": "./dist/themes/index.mjs",
@@ -30,6 +36,12 @@
       "import": "./dist/themes/presets/*.mjs",
       "require": "./dist/themes/presets/*.cjs",
       "default": "./dist/themes/presets/*.mjs"
+    },
+    "./tokenizer": {
+      "types": "./dist/tokenizer/index.d.ts",
+      "import": "./dist/tokenizer/index.mjs",
+      "require": "./dist/tokenizer/index.cjs",
+      "default": "./dist/tokenizer/index.mjs"
     },
     "./renderer": {
       "types": "./dist/renderer/index.d.ts",
@@ -51,9 +63,17 @@
   "scripts": {
     "setup": "bash scripts/setup.sh",
     "clean": "rm -rf dist node_modules/.bun site/node_modules",
-    "build": "bun run build:cjs && bun run build:esm && bun run build:cli && bun run build:types && bun run generate-schema",
+    "build": "bun run build:clean && bun run build:cjs && bun run build:esm && bun run build:core && bun run build:exports && bun run build:cli && bun run build:types",
+    "build:clean": "rm -rf dist",
     "build:cjs": "bun build src/index.ts --outfile dist/index.cjs --format cjs --minify",
     "build:esm": "bun build src/index.ts --outfile dist/index.mjs --format esm --minify",
+    "build:core": "bun build src/core.ts --outfile dist/core.mjs --format esm --minify && bun build src/core.ts --outfile dist/core.cjs --format cjs --minify",
+    "build:exports": "bun run build:themes && bun run build:theme-presets && bun run build:tokenizer && bun run build:renderer && bun run build:fast",
+    "build:themes": "bun build src/themes/index.ts --outfile dist/themes/index.mjs --format esm --minify && bun build src/themes/index.ts --outfile dist/themes/index.cjs --format cjs --minify",
+    "build:theme-presets": "bun build src/themes/presets/*.ts --outdir dist/themes/presets --entry-naming '[name].mjs' --format esm --minify && bun build src/themes/presets/*.ts --outdir dist/themes/presets --entry-naming '[name].cjs' --format cjs --minify",
+    "build:tokenizer": "bun build src/tokenizer/index.ts --outfile dist/tokenizer/index.mjs --format esm --minify && bun build src/tokenizer/index.ts --outfile dist/tokenizer/index.cjs --format cjs --minify",
+    "build:renderer": "bun build src/renderer/index.ts --outfile dist/renderer/index.mjs --format esm --minify && bun build src/renderer/index.ts --outfile dist/renderer/index.cjs --format cjs --minify",
+    "build:fast": "bun build src/renderer/fast-mode.ts --outfile dist/renderer/fast-mode.mjs --format esm --minify && bun build src/renderer/fast-mode.ts --outfile dist/renderer/fast-mode.cjs --format cjs --minify",
     "build:cli": "bun build src/cli/bin.ts --outfile dist/cli.js --format cjs --minify --target node",
     "build:types": "tsc -p tsconfig.build.json",
     "test": "bun test tests/",
@@ -66,7 +86,6 @@
     "format:check": "bun run prettier --check .",
     "check": "bun run lint && bun run format:check && bun run test",
     "generate-css": "bun run scripts/generate-css.ts",
-    "generate-schema": "bun run scripts/generate-schema.ts",
     "demo": "bun run demo-dracula-consistency.js",
     "turbo:build": "turbo run build",
     "turbo:dev": "turbo run dev",
@@ -75,6 +94,7 @@
     "site:start": "cd site && bun run start",
     "dev": "mprocs",
     "create-theme": "bun run src/cli/index.ts theme create",
+    "prepack": "bun run build",
     "postinstall": "bun run scripts/install-hooks.ts"
   },
   "homepage": "https://jeffry.in/logsdx",
@@ -91,10 +111,7 @@
     "oxlint": "^0.15.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.6",
-    "typescript": "^5.0.0",
-    "zod-to-json-schema": "^3.24.6"
+    "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "zod": "^3.25.74"
-  }
+  "dependencies": {}
 }
