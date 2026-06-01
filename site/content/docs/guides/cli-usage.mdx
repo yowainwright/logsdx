@@ -33,7 +33,7 @@ cat server.log | logsdx --theme dracula
 Process log files directly with your chosen theme:
 
 ```bash
-logsdx process app.log --theme github-dark
+logsdx app.log --theme github-dark
 ```
 
 ### Interactive Theme Creator
@@ -41,15 +41,15 @@ logsdx process app.log --theme github-dark
 Create custom themes with an interactive wizard:
 
 ```bash
-logsdx create-theme
+logsdx --generate-theme
 ```
 
 ### Preview Themes
 
-Preview any theme with sample logs before using:
+Preview all themes with sample logs before using:
 
 ```bash
-logsdx preview --theme nord
+logsdx --list-themes --preview
 ```
 
 ### Tail with Style
@@ -65,7 +65,7 @@ tail -f /var/log/app.log | logsdx --theme monokai
 View all available built-in themes:
 
 ```bash
-logsdx themes
+logsdx --list-themes
 ```
 
 ## Available Themes
@@ -83,10 +83,13 @@ logsDX comes with several built-in themes:
 
 ## Options
 
-| Option            | Description                     |
-| ----------------- | ------------------------------- |
-| `--theme <name>`  | Specify theme to use            |
-| `--output <file>` | Save output to file             |
-| `--format <type>` | Output format: `ansi` or `html` |
-| `--help`          | Show help information           |
-| `--version`       | Show version number             |
+| Option             | Description                     |
+| ------------------ | ------------------------------- |
+| `--theme <name>`   | Specify theme to use            |
+| `--output <file>`  | Save output to file             |
+| `--format <type>`  | Output format: `ansi` or `html` |
+| `--list-themes`    | Show available themes           |
+| `--preview`        | Preview themes when listing     |
+| `--generate-theme` | Launch the theme generator      |
+| `--help`           | Show help information           |
+| `--version`        | Show version number             |

@@ -118,6 +118,24 @@ export const v = {
     });
   },
 
+  passthrough<T extends Record<string, Validator<unknown>>>(
+    shape: T,
+  ): Validator<
+    {
+      [K in keyof T]: T[K] extends Validator<infer U> ? U : never;
+    } & Record<string, unknown>
+  > {
+    const validated = this.object(shape);
+    return createValidator((value) => {
+      const known = validated.safeParse(value);
+      if (!known.success) throw known.error;
+      const extras = value as Record<string, unknown>;
+      return { ...extras, ...known.data } as {
+        [K in keyof T]: T[K] extends Validator<infer U> ? U : never;
+      } & Record<string, unknown>;
+    });
+  },
+
   record<T>(valueValidator: Validator<T>): Validator<Record<string, T>> {
     return createValidator((value, path) => {
       if (typeof value !== "object" || value === null)
@@ -227,7 +245,7 @@ const themePresetValidator = v.object({
 });
 
 const tokenMetadataValidator = v
-  .object({
+  .passthrough({
     style: styleOptionsValidator.optional(),
   })
   .optional();

@@ -14,7 +14,12 @@ interface ThemeProcessorResult {
   theme: Theme | null;
 }
 
-const LOG_CACHE = new Map<string, ProcessedLog[]>();
+interface CachedProcessedLogs {
+  processedLogs: ProcessedLog[];
+  theme: Theme;
+}
+
+const LOG_CACHE = new Map<string, CachedProcessedLogs>();
 
 export function useThemeProcessor(
   themeName: string,
@@ -32,7 +37,10 @@ export function useThemeProcessor(
       const cacheKey = `${themeName}:${logs.join("|")}`;
 
       if (LOG_CACHE.has(cacheKey)) {
-        setProcessedLogs(LOG_CACHE.get(cacheKey)!);
+        const cached = LOG_CACHE.get(cacheKey)!;
+        setProcessedLogs(cached.processedLogs);
+        setTheme(cached.theme);
+        setError(null);
         setIsLoading(false);
         return;
       }
@@ -64,7 +72,7 @@ export function useThemeProcessor(
           results.push({ html, ansi });
         }
 
-        LOG_CACHE.set(cacheKey, results);
+        LOG_CACHE.set(cacheKey, { processedLogs: results, theme: loadedTheme });
         setProcessedLogs(results);
       } catch (err) {
         if (!cancelled) {

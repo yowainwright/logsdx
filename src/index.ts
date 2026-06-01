@@ -16,7 +16,7 @@ import {
 } from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema";
 import { tokenize, applyTheme } from "./tokenizer";
-import { createLogger } from "./utils/logger";
+import { createLogger, setLogLevel } from "./utils/logger";
 import type { TokenList } from "./schema/types";
 import type {
   RenderOptions,
@@ -88,6 +88,10 @@ export class LogsDX {
       autoAdjustTerminal: true,
       ...options,
     };
+
+    if (this.options.debug) {
+      setLogLevel("debug");
+    }
 
     this.currentTheme = theme;
   }
@@ -215,6 +219,10 @@ export class LogsDX {
           ...options,
         };
 
+        if (options.debug) {
+          setLogLevel("debug");
+        }
+
         if (options.theme) {
           instance.currentTheme = await instance.resolveTheme(options.theme);
         }
@@ -223,22 +231,19 @@ export class LogsDX {
     }
 
     LogsDX.instancePromise = (async () => {
-      const theme = await new LogsDX(
-        {},
-        {
-          name: "none",
-          description: "No styling applied",
-          mode: "auto",
-          schema: {
-            defaultStyle: { color: "" },
-            matchWords: {},
-            matchStartsWith: {},
-            matchEndsWith: {},
-            matchContains: {},
-            matchPatterns: [],
-          },
+      const theme = await new LogsDX(options, {
+        name: "none",
+        description: "No styling applied",
+        mode: "auto",
+        schema: {
+          defaultStyle: { color: "" },
+          matchWords: {},
+          matchStartsWith: {},
+          matchEndsWith: {},
+          matchContains: {},
+          matchPatterns: [],
         },
-      ).resolveTheme(options.theme || "oh-my-zsh");
+      }).resolveTheme(options.theme || "oh-my-zsh");
 
       const instance = new LogsDX(options, theme);
       LogsDX.instance = instance;

@@ -161,3 +161,4 @@ playwright/.cache/
 
 # WASM files copied from node_modules
 site/public/ghostty-vt.wasm
+.DS_Store
