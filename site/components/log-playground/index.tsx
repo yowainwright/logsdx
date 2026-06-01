@@ -48,14 +48,6 @@ import {
   DARK_BG,
 } from "./constants";
 
-const GhosttyTerminal = dynamic(
-  () =>
-    import("../output-comparison/GhosttyTerminal").then(
-      (mod) => mod.GhosttyTerminal,
-    ),
-  { ssr: false },
-);
-
 const HEADER_STYLE = { filter: HEADER_DROP_SHADOW };
 
 function OutputPaneHeader({ title }: { title: string }) {
@@ -232,6 +224,18 @@ function TerminalPaneLoading({ bgColor }: { bgColor: string }) {
     </div>
   );
 }
+
+function GhosttyTerminalLoader() {
+  return <TerminalPaneLoading bgColor={DARK_BG} />;
+}
+
+const GhosttyTerminal = dynamic(
+  () =>
+    import("../output-comparison/GhosttyTerminal").then(
+      (mod) => mod.GhosttyTerminal,
+    ),
+  { ssr: false, loading: GhosttyTerminalLoader },
+);
 
 function TerminalPane({
   ansiContent,

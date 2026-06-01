@@ -26,6 +26,8 @@ export function processLogsWithTheme(
 }
 
 function adjustBrightness(hex: string, percent: number): string {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return hex || "#000000";
+
   const num = parseInt(hex.replace("#", ""), 16);
   const r = Math.min(
     255,
