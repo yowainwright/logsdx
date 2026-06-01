@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useThemeProcessor } from "@/hooks/useThemeProcessor";
 import { PreviewPane } from "./PreviewPane";
 import { ThemeControls } from "./ThemeControls";
@@ -58,7 +58,7 @@ export function InteractiveExamplesSection() {
   const currentThemeName = currentThemePair[effectiveMode];
   const isDarkOnly = currentThemePair.light === currentThemePair.dark;
 
-  const logs = useMemo(() => SAMPLE_LOGS, []);
+  const logs = SAMPLE_LOGS;
   const { processedLogs, isLoading } = useThemeProcessor(
     currentThemeName,
     logs,

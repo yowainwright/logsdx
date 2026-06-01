@@ -44,20 +44,18 @@ export function useThemeProcessor(
     let cancelled = false;
 
     async function processLogs() {
-      const currentLogs = JSON.parse(logsKey) as string[];
-      const cacheKey = JSON.stringify([themeName, currentLogs]);
+      const cacheKey = JSON.stringify([themeName, logs]);
+
+      setIsLoading(true);
+      setError(null);
 
       if (LOG_CACHE.has(cacheKey)) {
         const cached = LOG_CACHE.get(cacheKey)!;
         setProcessedLogs(cached.processedLogs);
         setTheme(cached.theme);
-        setError(null);
         setIsLoading(false);
         return;
       }
-
-      setIsLoading(true);
-      setError(null);
 
       try {
         const loadedTheme = await getTheme(themeName);
@@ -67,7 +65,7 @@ export function useThemeProcessor(
 
         const results: ProcessedLog[] = [];
 
-        for (const log of currentLogs) {
+        for (const log of logs) {
           if (cancelled) return;
 
           const html = renderLine(log, loadedTheme, {
