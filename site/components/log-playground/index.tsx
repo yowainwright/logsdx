@@ -232,13 +232,12 @@ function TerminalPane({
   bgColor,
 }: TerminalPaneProps) {
   const wrapperClass = `${CLASS_PANE_WRAPPER} flex flex-col h-full`;
-  const showLoading = !ghosttyTheme || isLoading;
 
   return (
     <div className={wrapperClass}>
       <OutputPaneHeader title={TEXT_LABEL_TERMINAL} />
-      {showLoading && <TerminalPaneLoading bgColor={bgColor} />}
-      {ghosttyTheme && !isLoading && (
+      {!ghosttyTheme && <TerminalPaneLoading bgColor={bgColor} />}
+      {ghosttyTheme && (
         <div className="flex-1 min-h-[400px]">
           <GhosttyTerminal
             ansiOutputs={ansiContent}
