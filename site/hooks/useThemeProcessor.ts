@@ -34,6 +34,7 @@ export function useThemeProcessor(
   themeName: string,
   logs: string[],
 ): ThemeProcessorResult {
+  const logsKey = JSON.stringify(logs);
   const [processedLogs, setProcessedLogs] = useState<ProcessedLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,8 @@ export function useThemeProcessor(
     let cancelled = false;
 
     async function processLogs() {
-      const cacheKey = JSON.stringify([themeName, logs]);
+      const currentLogs = JSON.parse(logsKey) as string[];
+      const cacheKey = JSON.stringify([themeName, currentLogs]);
 
       if (LOG_CACHE.has(cacheKey)) {
         const cached = LOG_CACHE.get(cacheKey)!;
@@ -65,7 +67,7 @@ export function useThemeProcessor(
 
         const results: ProcessedLog[] = [];
 
-        for (const log of logs) {
+        for (const log of currentLogs) {
           if (cancelled) return;
 
           const html = renderLine(log, loadedTheme, {
@@ -101,7 +103,7 @@ export function useThemeProcessor(
     return () => {
       cancelled = true;
     };
-  }, [themeName, logs]);
+  }, [themeName, logsKey]);
 
   return { processedLogs, isLoading, error, theme };
 }

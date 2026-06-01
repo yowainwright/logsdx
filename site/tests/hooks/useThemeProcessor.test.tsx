@@ -61,4 +61,39 @@ describe("useThemeProcessor", () => {
     );
     expect(getTheme).toHaveBeenCalledTimes(2);
   });
+
+  it("does not reprocess when log contents are unchanged but array identity changes", async () => {
+    const { result, rerender } = renderHook(
+      ({ logs }) => useThemeProcessor("unstable-array-theme", logs),
+      { initialProps: { logs: ["INFO same content"] } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.processedLogs[0]?.html).toBe(
+        "unstable-array-theme:html:INFO same content",
+      );
+    });
+    expect(getTheme).toHaveBeenCalledTimes(1);
+    expect(renderLine).toHaveBeenCalledTimes(2);
+
+    rerender({ logs: ["INFO same content"] });
+
+    await waitFor(() => {
+      expect(result.current.processedLogs[0]?.html).toBe(
+        "unstable-array-theme:html:INFO same content",
+      );
+    });
+    expect(getTheme).toHaveBeenCalledTimes(1);
+    expect(renderLine).toHaveBeenCalledTimes(2);
+
+    rerender({ logs: ["INFO changed content"] });
+
+    await waitFor(() => {
+      expect(result.current.processedLogs[0]?.html).toBe(
+        "unstable-array-theme:html:INFO changed content",
+      );
+    });
+    expect(getTheme).toHaveBeenCalledTimes(2);
+    expect(renderLine).toHaveBeenCalledTimes(4);
+  });
 });

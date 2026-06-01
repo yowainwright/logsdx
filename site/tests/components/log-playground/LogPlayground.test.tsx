@@ -29,30 +29,37 @@ const ghosttyRenderProps: MockGhosttyTerminalProps[] = [];
 let ghosttyMountCount = 0;
 let ghosttyUnmountCount = 0;
 
+function MockGhosttyTerminal(props: MockGhosttyTerminalProps) {
+  ghosttyRenderProps.push(props);
+
+  React.useEffect(() => {
+    ghosttyMountCount += 1;
+    return () => {
+      ghosttyUnmountCount += 1;
+    };
+  }, []);
+
+  return React.createElement("div", {
+    "data-loading": String(props.isLoading),
+    "data-testid": "ghostty-terminal",
+  });
+}
+
 mock.module("@/hooks/useThemeProcessor", () => ({
   useThemeProcessor: () => processorState,
 }));
 
+mock.module("next/dynamic", () => ({
+  default: () => MockGhosttyTerminal,
+}));
+
 mock.module("@/components/output-comparison/GhosttyTerminal", () => ({
-  GhosttyTerminal: (props: MockGhosttyTerminalProps) => {
-    ghosttyRenderProps.push(props);
-
-    React.useEffect(() => {
-      ghosttyMountCount += 1;
-      return () => {
-        ghosttyUnmountCount += 1;
-      };
-    }, []);
-
-    return React.createElement("div", {
-      "data-loading": String(props.isLoading),
-      "data-testid": "ghostty-terminal",
-    });
-  },
+  GhosttyTerminal: MockGhosttyTerminal,
 }));
 
 import { render, screen, cleanup, fireEvent } from "../../utils/test-utils";
-import { LogPlayground } from "@/components/log-playground";
+
+const { LogPlayground } = await import("@/components/log-playground");
 
 describe("LogPlayground", () => {
   beforeEach(() => {

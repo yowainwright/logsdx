@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { useThemeProcessor } from "@/hooks/useThemeProcessor";
 import { ThemeSelector } from "./ThemeSelector";
-import { GhosttyTerminal } from "../output-comparison/GhosttyTerminal";
 import { themeToGhostty } from "../output-comparison/utils";
 import type { GhosttyTheme } from "../output-comparison/types";
 import type {
@@ -47,6 +47,14 @@ import {
   LIGHT_BG,
   DARK_BG,
 } from "./constants";
+
+const GhosttyTerminal = dynamic(
+  () =>
+    import("../output-comparison/GhosttyTerminal").then(
+      (mod) => mod.GhosttyTerminal,
+    ),
+  { ssr: false },
+);
 
 const HEADER_STYLE = { filter: HEADER_DROP_SHADOW };
 
