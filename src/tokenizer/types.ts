@@ -1,5 +1,3 @@
-import type { SimpleLexer } from "./index";
-
 export type MatcherType =
   | "word"
   | "regex"
@@ -14,13 +12,3 @@ export type MatcherType =
   | "newline"
   | "carriage-return"
   | "default";
-
-export interface CachedLexer {
-  lexer: SimpleLexer;
-  themeHash: string;
-  lastUsed: number;
-}
-
-export interface CacheOptions {
-  trim?: string;
-}
