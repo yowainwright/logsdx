@@ -43,7 +43,6 @@ interface TerminalInitialization {
   error: string | null;
   handleRetry: () => void;
   isInitialized: boolean;
-  retryCount: number;
   terminalRef: React.MutableRefObject<unknown>;
 }
 
@@ -93,6 +92,20 @@ function disposeTerminal(terminalRef: React.MutableRefObject<unknown>) {
   if (canDispose) terminal.dispose?.();
 }
 
+function useTerminalRetry(
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setIsInitialized: React.Dispatch<React.SetStateAction<boolean>>,
+) {
+  const [retryCount, setRetryCount] = useState(0);
+  const handleRetry = useCallback(() => {
+    setRetryCount((count) => count + 1);
+    setError(null);
+    setIsInitialized(false);
+  }, [setError, setIsInitialized]);
+
+  return { handleRetry, retryCount };
+}
+
 function useTerminalInitialization(
   theme: GhosttyTheme,
 ): TerminalInitialization {
@@ -102,7 +115,10 @@ function useTerminalInitialization(
   themeRef.current = theme;
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const { handleRetry, retryCount } = useTerminalRetry(
+    setError,
+    setIsInitialized,
+  );
 
   const initTerminal = useCallback(
     (mounted: { current: boolean }) =>
@@ -115,12 +131,6 @@ function useTerminalInitialization(
       }),
     [],
   );
-
-  const handleRetry = useCallback(() => {
-    setRetryCount((count) => count + 1);
-    setError(null);
-    setIsInitialized(false);
-  }, []);
 
   useEffect(() => {
     const mounted = { current: true };
@@ -137,7 +147,6 @@ function useTerminalInitialization(
     error,
     handleRetry,
     isInitialized,
-    retryCount,
     terminalRef,
   };
 }

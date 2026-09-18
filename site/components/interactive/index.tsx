@@ -295,6 +295,34 @@ function IntegrationExamples({
   );
 }
 
+function InteractivePreview({
+  background,
+  isLoading,
+  logs,
+  themeName,
+  themePair,
+}: {
+  background: { bg: string; border: string; headerBg: string };
+  isLoading: boolean;
+  logs: string[];
+  themeName: string;
+  themePair: { light: string; dark: string };
+}) {
+  return (
+    <div className="container mx-auto px-4">
+      <div className="mx-auto max-w-6xl">
+        <PreviewGrid
+          background={background}
+          isLoading={isLoading}
+          logs={logs}
+          themeName={themeName}
+        />
+        <IntegrationExamples themeName={themeName} themePair={themePair} />
+      </div>
+    </div>
+  );
+}
+
 export function InteractiveExamplesSection() {
   const [colorMode, setColorMode] = useState<ColorMode>("system");
   const { handleThemeChange, selectedTheme } = useAutoRotateTheme();
@@ -324,20 +352,13 @@ export function InteractiveExamplesSection() {
         onThemeChange={handleThemeChange}
         onColorModeChange={setColorMode}
       />
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-6xl">
-          <PreviewGrid
-            background={bg}
-            isLoading={isLoading}
-            logs={htmlLogs}
-            themeName={currentThemeName}
-          />
-          <IntegrationExamples
-            themeName={currentThemeName}
-            themePair={currentThemePair}
-          />
-        </div>
-      </div>
+      <InteractivePreview
+        background={bg}
+        isLoading={isLoading}
+        logs={htmlLogs}
+        themeName={currentThemeName}
+        themePair={currentThemePair}
+      />
     </section>
   );
 }

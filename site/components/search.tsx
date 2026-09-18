@@ -292,7 +292,7 @@ interface SearchDialogProps {
   selectedIndex: number;
 }
 
-function SearchDialog({
+function SearchDialogPanel({
   inputRef,
   onClose,
   onQueryChange,
@@ -302,33 +302,39 @@ function SearchDialog({
   searchRef,
   selectedIndex,
 }: SearchDialogProps) {
+  return (
+    <div className="fixed inset-0 z-[101] overflow-y-auto">
+      <div className="flex min-h-full items-start justify-center pt-[10vh] p-4">
+        <div
+          ref={searchRef}
+          className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
+        >
+          <SearchDialogHeader
+            inputRef={inputRef}
+            query={query}
+            onQueryChange={onQueryChange}
+          />
+          <SearchDialogBody
+            onClose={onClose}
+            onResultClick={onResultClick}
+            query={query}
+            results={results}
+            selectedIndex={selectedIndex}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SearchDialog(props: SearchDialogProps) {
   return createPortal(
     <>
       <div
         className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={props.onClose}
       />
-      <div className="fixed inset-0 z-[101] overflow-y-auto">
-        <div className="flex min-h-full items-start justify-center pt-[10vh] p-4">
-          <div
-            ref={searchRef}
-            className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
-          >
-            <SearchDialogHeader
-              inputRef={inputRef}
-              query={query}
-              onQueryChange={onQueryChange}
-            />
-            <SearchDialogBody
-              onClose={onClose}
-              onResultClick={onResultClick}
-              query={query}
-              results={results}
-              selectedIndex={selectedIndex}
-            />
-          </div>
-        </div>
-      </div>
+      <SearchDialogPanel {...props} />
     </>,
     document.body,
   );
