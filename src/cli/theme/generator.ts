@@ -27,7 +27,9 @@ const log = createLogger("theme-gen");
 
 function serializePattern(pattern: PatternMatch): PatternMatch {
   const patternValue =
-    pattern.pattern instanceof RegExp ? pattern.pattern.source : pattern.pattern;
+    pattern.pattern instanceof RegExp
+      ? pattern.pattern.source
+      : pattern.pattern;
   return {
     ...pattern,
     pattern: patternValue,
@@ -172,7 +174,10 @@ function serializeThemeForFile(theme: Theme): Theme {
   };
 }
 
-async function saveGeneratedTheme(theme: Theme, themeName: string): Promise<void> {
+async function saveGeneratedTheme(
+  theme: Theme,
+  themeName: string,
+): Promise<void> {
   const saveLocation = await select({
     message: "Where would you like to save the theme?",
     choices: [
@@ -550,17 +555,16 @@ function tryParseThemeExport(
   if (!match) return undefined;
 
   try {
-    const jsonStr = match[1]
-      .replace(/^\s+/gm, "")
-      .replace(/\s+$/gm, "")
-      .trim();
+    const jsonStr = match[1].replace(/^\s+/gm, "").replace(/\s+$/gm, "").trim();
     return JSON.parse(jsonStr);
   } catch {
     return undefined;
   }
 }
 
-async function resolveExportTheme(themeName?: string): Promise<string | undefined> {
+async function resolveExportTheme(
+  themeName?: string,
+): Promise<string | undefined> {
   const availableThemes = Object.keys(getAllThemes());
   if (availableThemes.length === 0) {
     ui.showWarning("No themes available to export");

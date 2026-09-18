@@ -343,9 +343,7 @@ function OutputPanel({
   );
 }
 
-function OutputPanelGrid(
-  props: OutputPanelsProps & { bgColor: string },
-) {
+function OutputPanelGrid(props: OutputPanelsProps & { bgColor: string }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
       <OutputPanel

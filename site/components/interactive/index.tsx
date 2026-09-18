@@ -36,9 +36,7 @@ function useAutoRotateTheme() {
 }
 
 function useEffectiveMode(colorMode: ColorMode) {
-  const [effectiveMode, setEffectiveMode] = useState<"light" | "dark">(
-    "dark",
-  );
+  const [effectiveMode, setEffectiveMode] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     if (colorMode !== "system") {
@@ -307,7 +305,10 @@ export function InteractiveExamplesSection() {
   const currentThemeName = currentThemePair[effectiveMode];
   const isDarkOnly = currentThemePair.light === currentThemePair.dark;
 
-  const { processedLogs, isLoading } = useThemeProcessor(currentThemeName, SAMPLE_LOGS);
+  const { processedLogs, isLoading } = useThemeProcessor(
+    currentThemeName,
+    SAMPLE_LOGS,
+  );
 
   const bg =
     THEME_BACKGROUNDS[currentThemeName] || THEME_BACKGROUNDS["github-dark"];

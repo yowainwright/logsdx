@@ -75,9 +75,7 @@ function DocHeader({ meta }: { meta: DocMeta }) {
     <header className="mb-8 not-prose">
       <h1 className="text-4xl font-bold tracking-tight">{meta.title}</h1>
       {meta.description && (
-        <p className="mt-4 text-lg text-muted-foreground">
-          {meta.description}
-        </p>
+        <p className="mt-4 text-lg text-muted-foreground">{meta.description}</p>
       )}
       <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
         {meta.readingTime && <span>{meta.readingTime}</span>}
@@ -104,13 +102,7 @@ function DocHeader({ meta }: { meta: DocMeta }) {
   );
 }
 
-function DocArticle({
-  doc,
-  meta,
-}: {
-  doc: DocContent;
-  meta: DocMeta;
-}) {
+function DocArticle({ doc, meta }: { doc: DocContent; meta: DocMeta }) {
   return (
     <article className="min-w-0 flex-1">
       <div className="prose prose-slate dark:prose-invert max-w-none">

@@ -372,7 +372,10 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
 
   const matchPatterns = schema.matchPatterns;
   if (isValidMatchPatternsArray(matchPatterns)) {
-    addPatternMatchRules(lexer, matchPatterns as ReadonlyArray<PatternMatchRule>);
+    addPatternMatchRules(
+      lexer,
+      matchPatterns as ReadonlyArray<PatternMatchRule>,
+    );
     return;
   }
 

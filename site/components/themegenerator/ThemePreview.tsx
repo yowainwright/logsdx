@@ -6,13 +6,7 @@ interface ThemePreviewProps {
   colors: ThemeColors;
 }
 
-function PreviewLogLines({
-  logs,
-  prefix,
-}: {
-  logs: string[];
-  prefix: string;
-}) {
+function PreviewLogLines({ logs, prefix }: { logs: string[]; prefix: string }) {
   return (
     <>
       {logs.map((log, index) => (

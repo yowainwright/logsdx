@@ -200,7 +200,13 @@ function useSetupAnimation() {
 
 type SetupContent = (typeof SETUP_CONTENT)[SetupStep];
 
-function SetupCodeHeader({ content, activeStep }: { content: SetupContent; activeStep: SetupStep }) {
+function SetupCodeHeader({
+  content,
+  activeStep,
+}: {
+  content: SetupContent;
+  activeStep: SetupStep;
+}) {
   return (
     <div className="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
       <div className="flex items-center gap-3">
@@ -274,10 +280,7 @@ function SetupCodeLine({
     content.language === "bash" ? "text-green-400" : "text-slate-300";
 
   return (
-    <div
-      className="transition-all duration-300 ease-in-out"
-      style={lineStyle}
-    >
+    <div className="transition-all duration-300 ease-in-out" style={lineStyle}>
       <SetupCodeLineContent
         line={line}
         index={index}
@@ -382,7 +385,13 @@ const SETUP_STEPS: Array<{
   },
 ];
 
-function SetupStepNumber({ isActive, number }: { isActive: boolean; number: string }) {
+function SetupStepNumber({
+  isActive,
+  number,
+}: {
+  isActive: boolean;
+  number: string;
+}) {
   const activeClass = "bg-gradient-to-r from-blue-600 to-purple-600 text-white";
   const inactiveClass =
     "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400";

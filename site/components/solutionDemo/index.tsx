@@ -73,12 +73,7 @@ function StyledLog({ log }: { log: DemoLog }) {
   return <span style={{ color, fontWeight }}>{log.text}</span>;
 }
 
-function LogEntry({
-  activeIndex,
-  index,
-  log,
-  showWithLogsDx,
-}: LogEntryProps) {
+function LogEntry({ activeIndex, index, log, showWithLogsDx }: LogEntryProps) {
   const activeClassName =
     index === activeIndex ? "bg-slate-800/50 ring-1 ring-blue-500/30" : "";
   const className = `px-2 py-1 rounded transition-all duration-500 ${activeClassName}`;
@@ -250,10 +245,7 @@ function DemoCard({
       <DemoHeader />
       <CodeEditor showWithLogsDx={showWithLogsDx} />
       <div className="border-t border-slate-700"></div>
-      <OutputPanes
-        activeIndex={activeIndex}
-        showWithLogsDx={showWithLogsDx}
-      />
+      <OutputPanes activeIndex={activeIndex} showWithLogsDx={showWithLogsDx} />
       <StatusBar showWithLogsDx={showWithLogsDx} />
     </Card>
   );

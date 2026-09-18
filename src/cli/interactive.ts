@@ -48,7 +48,8 @@ interface FormatChoiceOptions {
 }
 
 function buildFormatChoice(options: FormatChoiceOptions): FormatChoice {
-  const name = options.colorFn(options.label) + colors.dim(` (${options.hint})`);
+  const name =
+    options.colorFn(options.label) + colors.dim(` (${options.hint})`);
   return {
     name,
     value: options.value,

@@ -13,7 +13,9 @@ function ProblemPoints() {
       </li>
       <li className="flex items-start">
         <span className="mr-2 text-red-500">×</span>
-        <span>Lost context when switching between terminal and browser logs</span>
+        <span>
+          Lost context when switching between terminal and browser logs
+        </span>
       </li>
     </ul>
   );

@@ -56,11 +56,7 @@ async function copyConfig(
   setTimeout(() => setCopied(false), 2000);
 }
 
-function downloadTheme(
-  name: string,
-  colors: ThemeColors,
-  presets: string[],
-) {
+function downloadTheme(name: string, colors: ThemeColors, presets: string[]) {
   const code = generateThemeCode(name, colors, presets);
   const blob = new Blob([code], { type: "text/javascript" });
   const url = URL.createObjectURL(blob);
@@ -169,11 +165,7 @@ function ExportButtons({
         <Copy className="h-4 w-4" />
         {copiedCode ? "Copied!" : "Copy Code"}
       </Button>
-      <Button
-        variant="outline"
-        className="w-full gap-2"
-        onClick={onCopyConfig}
-      >
+      <Button variant="outline" className="w-full gap-2" onClick={onCopyConfig}>
         <Copy className="h-4 w-4" />
         {copiedConfig ? "Copied!" : "Copy Config JSON"}
       </Button>
@@ -366,12 +358,7 @@ export function CustomThemeCreator() {
   const { mutate: saveTheme } = useCreateTheme();
 
   const handleSave = () => saveTheme({ name, colors, presets });
-  const actions = useThemeCreatorActions(
-    name,
-    colors,
-    presets,
-    handleSave,
-  );
+  const actions = useThemeCreatorActions(name, colors, presets, handleSave);
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-8">

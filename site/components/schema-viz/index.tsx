@@ -24,9 +24,7 @@ function SchemaTabs({
       {SCHEMA_SECTIONS.map((item, index) => {
         const isActive = activeSection === index;
         const buttonClassName = `${CLASSES.tabs.button.base} ${
-          isActive
-            ? CLASSES.tabs.button.active
-            : CLASSES.tabs.button.inactive
+          isActive ? CLASSES.tabs.button.active : CLASSES.tabs.button.inactive
         }`;
 
         return (
@@ -61,13 +59,9 @@ function SchemaProperties({
             )}
             <code className={CLASSES.property.type}>{property.type}</code>
           </div>
-          <p className={CLASSES.property.description}>
-            {property.description}
-          </p>
+          <p className={CLASSES.property.description}>{property.description}</p>
           {property.example && (
-            <code className={CLASSES.property.example}>
-              {property.example}
-            </code>
+            <code className={CLASSES.property.example}>{property.example}</code>
           )}
         </div>
       ))}
@@ -125,9 +119,7 @@ function ExampleTheme() {
       </div>
 
       <div className={CLASSES.howMatching.wrapper}>
-        <h4 className={CLASSES.howMatching.title}>
-          {TEXT.labels.howMatching}
-        </h4>
+        <h4 className={CLASSES.howMatching.title}>{TEXT.labels.howMatching}</h4>
         <ol className={CLASSES.howMatching.list}>
           {TEXT.matchingSteps.map((step, index) => (
             <li key={index} className={CLASSES.howMatching.item}>

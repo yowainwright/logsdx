@@ -221,7 +221,13 @@ function ExampleGrid({ examples }: { examples: Example[] }) {
   );
 }
 
-function ExampleGroup({ title, examples }: { title: string; examples: Example[] }) {
+function ExampleGroup({
+  title,
+  examples,
+}: {
+  title: string;
+  examples: Example[];
+}) {
   return (
     <div>
       <h3 className="mb-4 text-2xl font-semibold">{title}</h3>

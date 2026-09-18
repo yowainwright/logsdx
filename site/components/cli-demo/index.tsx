@@ -99,7 +99,11 @@ function PackageManagerSelector({
   );
 }
 
-function InstallCommand({ packageManager }: { packageManager: PackageManager }) {
+function InstallCommand({
+  packageManager,
+}: {
+  packageManager: PackageManager;
+}) {
   return (
     <div
       className={CLASSES.packageManager.command}
@@ -172,7 +176,13 @@ function TerminalHeader() {
   );
 }
 
-function TerminalContent({ command, lines }: { command: string; lines: TerminalLine[] }) {
+function TerminalContent({
+  command,
+  lines,
+}: {
+  command: string;
+  lines: TerminalLine[];
+}) {
   return (
     <div
       className={CLASSES.terminal.content}
@@ -192,14 +202,23 @@ function TerminalContent({ command, lines }: { command: string; lines: TerminalL
   );
 }
 
-function CliTerminal({ featureIndex, command }: { featureIndex: number; command: string }) {
+function CliTerminal({
+  featureIndex,
+  command,
+}: {
+  featureIndex: number;
+  command: string;
+}) {
   return (
     <div
       className="rounded-lg overflow-hidden"
       style={{ border: `1px solid ${TERMINAL_COLORS.border}` }}
     >
       <TerminalHeader />
-      <TerminalContent command={command} lines={FEATURE_OUTPUTS[featureIndex]} />
+      <TerminalContent
+        command={command}
+        lines={FEATURE_OUTPUTS[featureIndex]}
+      />
     </div>
   );
 }

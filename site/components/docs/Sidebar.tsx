@@ -90,11 +90,7 @@ interface SidebarItemProps {
   readonly depth?: number;
 }
 
-function SidebarItemContent({
-  item,
-  pathname,
-  depth,
-}: SidebarItemProps) {
+function SidebarItemContent({ item, pathname, depth }: SidebarItemProps) {
   const isActive = item.href === pathname;
 
   if (item.href) {

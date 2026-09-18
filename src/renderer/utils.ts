@@ -464,9 +464,13 @@ function createTopBorderWithTitle(
   );
   const left = repeatString(borderChars.horizontal, leftPad);
   const right = repeatString(borderChars.horizontal, rightPad);
-  return [borderChars.topLeft, left, paddedTitle, right, borderChars.topRight].join(
-    "",
-  );
+  return [
+    borderChars.topLeft,
+    left,
+    paddedTitle,
+    right,
+    borderChars.topRight,
+  ].join("");
 }
 
 function createTopBorder(
@@ -513,7 +517,8 @@ function createPaddedLine(line: string, options: PaddedLineOptions): string {
   const rightPadStr = repeatString(" ", rightPad);
   const content = `${padStr}${line}${rightPadStr}${padStr}`;
 
-  if (!options.borderChar) return `${options.backgroundColor}${content}${RESET}`;
+  if (!options.borderChar)
+    return `${options.backgroundColor}${content}${RESET}`;
   return `${options.borderChar}${options.backgroundColor}${content}${RESET}${options.borderChar}`;
 }
 

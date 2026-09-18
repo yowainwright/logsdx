@@ -147,11 +147,7 @@ function SearchResultItem({
   }`;
 
   return (
-    <a
-      href={result.href}
-      className={resultClassName}
-      onClick={onClick}
-    >
+    <a href={result.href} className={resultClassName} onClick={onClick}>
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-900/30">
           <SearchDocumentIcon />
@@ -327,7 +323,8 @@ function SearchDialog({
               onClose={onClose}
               onResultClick={onResultClick}
               query={query}
-              results={results} selectedIndex={selectedIndex}
+              results={results}
+              selectedIndex={selectedIndex}
             />
           </div>
         </div>

@@ -23,7 +23,10 @@ function PreviewLogs({
   isLoading,
   logs,
   showBorder,
-}: Pick<PreviewPaneProps, "borderColor" | "isLoading" | "logs" | "showBorder">) {
+}: Pick<
+  PreviewPaneProps,
+  "borderColor" | "isLoading" | "logs" | "showBorder"
+>) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">

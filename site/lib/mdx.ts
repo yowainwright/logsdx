@@ -103,9 +103,7 @@ export function getAllDocsMeta(): DocMeta[] {
     }
   }
 
-  const sortedDocs = [...docs].sort(
-    (a, b) => (a.order || 0) - (b.order || 0),
-  );
+  const sortedDocs = [...docs].sort((a, b) => (a.order || 0) - (b.order || 0));
   return sortedDocs;
 }
 

@@ -34,10 +34,7 @@ export function calculateChannelLuminance(channelValue: number): number {
 
   const adjusted =
     (normalized + CONTRAST.GAMMA_OFFSET) / CONTRAST.GAMMA_MULTIPLIER;
-  return Math.pow(
-    adjusted,
-    CONTRAST.GAMMA_EXPONENT,
-  );
+  return Math.pow(adjusted, CONTRAST.GAMMA_EXPONENT);
 }
 
 export function calculateRelativeLuminance(

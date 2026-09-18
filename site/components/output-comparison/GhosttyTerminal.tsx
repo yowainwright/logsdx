@@ -93,7 +93,9 @@ function disposeTerminal(terminalRef: React.MutableRefObject<unknown>) {
   if (canDispose) terminal.dispose?.();
 }
 
-function useTerminalInitialization(theme: GhosttyTheme): TerminalInitialization {
+function useTerminalInitialization(
+  theme: GhosttyTheme,
+): TerminalInitialization {
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<unknown>(null);
   const themeRef = useRef<GhosttyTheme>(theme);
@@ -131,7 +133,8 @@ function useTerminalInitialization(theme: GhosttyTheme): TerminalInitialization 
   }, [initTerminal, retryCount]);
 
   return {
-    containerRef, error,
+    containerRef,
+    error,
     handleRetry,
     isInitialized,
     retryCount,
@@ -173,7 +176,13 @@ function useTerminalOutput(
   }, [ansiOutputs, isInitialized, isLoading, terminalRef]);
 }
 
-function TerminalError({ error, onRetry }: { error: string; onRetry: () => void }) {
+function TerminalError({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
   return (
     <div className="flex items-center justify-center h-64 text-red-400">
       <div className="text-center">
@@ -206,13 +215,8 @@ export function GhosttyTerminal({
   isLoading,
   theme,
 }: GhosttyTerminalProps) {
-  const {
-    containerRef,
-    error,
-    handleRetry,
-    isInitialized,
-    terminalRef,
-  } = useTerminalInitialization(theme);
+  const { containerRef, error, handleRetry, isInitialized, terminalRef } =
+    useTerminalInitialization(theme);
   useTerminalTheme(terminalRef, theme, isInitialized);
   useTerminalOutput(terminalRef, ansiOutputs, isInitialized, isLoading);
 
