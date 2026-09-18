@@ -19,15 +19,15 @@ export function AnimatedSection({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), delay);
-          observer.disconnect();
-        }
+        if (!entry.isIntersecting) return;
+        setTimeout(() => setIsVisible(true), delay);
+        observer.disconnect();
       },
       { threshold: 0.1 },
     );
 
-    if (ref.current) observer.observe(ref.current);
+    if (!ref.current) return () => observer.disconnect();
+    observer.observe(ref.current);
     return () => observer.disconnect();
   }, [delay]);
 

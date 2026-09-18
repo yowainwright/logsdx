@@ -55,9 +55,9 @@ describe("PresetSelector", () => {
 
     const checkboxes = screen.getAllByRole("checkbox") as HTMLInputElement[];
 
-    expect(checkboxes[0].checked).toBe(true); // logLevels
-    expect(checkboxes[1].checked).toBe(true); // numbers
-    expect(checkboxes[2].checked).toBe(false); // strings
+    expect(checkboxes[0].checked).toBe(true);
+    expect(checkboxes[1].checked).toBe(true);
+    expect(checkboxes[2].checked).toBe(false);
   });
 
   it("calls onToggle when preset is clicked", () => {

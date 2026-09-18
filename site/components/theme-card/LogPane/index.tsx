@@ -4,6 +4,20 @@ import React from "react";
 import type { LogPaneProps } from "./types";
 import { HEADER_GRADIENTS, HEADER_TEXT_COLORS } from "./constants";
 
+function LogItems({ logs }: { logs: string[] }) {
+  return (
+    <>
+      {logs.map((log, index) => (
+        <div
+          key={index}
+          className="px-2 py-0.5 text-xs leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: log }}
+        />
+      ))}
+    </>
+  );
+}
+
 export function LogPane({
   title,
   logs,
@@ -37,13 +51,7 @@ export function LogPane({
             <div className="animate-pulse text-slate-400">Loading...</div>
           </div>
         ) : (
-          logs.map((log, i) => (
-            <div
-              key={i}
-              className="px-2 py-0.5 text-xs leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: log }}
-            />
-          ))
+          <LogItems logs={logs} />
         )}
       </div>
     </div>

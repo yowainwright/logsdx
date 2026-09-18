@@ -39,34 +39,40 @@ async function showAllThemePreviews(themeNames: string[]): Promise<void> {
   await themeNames.reduce(reducer, Promise.resolve());
 }
 
-function buildFormatChoice(
-  label: string,
-  hint: string,
-  desc: string,
-  value: FormatValue,
-  colorFn: (s: string) => string,
-): FormatChoice {
-  const name = colorFn(label) + colors.dim(` (${hint})`);
-  return { name, value, description: desc };
+interface FormatChoiceOptions {
+  label: string;
+  hint: string;
+  description: string;
+  value: FormatValue;
+  colorFn: (s: string) => string;
+}
+
+function buildFormatChoice(options: FormatChoiceOptions): FormatChoice {
+  const name = options.colorFn(options.label) + colors.dim(` (${options.hint})`);
+  return {
+    name,
+    value: options.value,
+    description: options.description,
+  };
 }
 
 function buildOutputFormatChoices(): FormatChoice[] {
   const ansi = OUTPUT_FORMATS.ansi;
   const html = OUTPUT_FORMATS.html;
-  const ansiChoice = buildFormatChoice(
-    ansi.label,
-    ansi.hint,
-    ansi.desc,
-    "ansi",
-    colors.green,
-  );
-  const htmlChoice = buildFormatChoice(
-    html.label,
-    html.hint,
-    html.desc,
-    "html",
-    colors.blue,
-  );
+  const ansiChoice = buildFormatChoice({
+    label: ansi.label,
+    hint: ansi.hint,
+    description: ansi.desc,
+    value: "ansi",
+    colorFn: colors.green,
+  });
+  const htmlChoice = buildFormatChoice({
+    label: html.label,
+    hint: html.hint,
+    description: html.desc,
+    value: "html",
+    colorFn: colors.blue,
+  });
   return [ansiChoice, htmlChoice];
 }
 

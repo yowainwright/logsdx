@@ -8,7 +8,9 @@ export function escapeRegexPattern(pattern: string): string {
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  const isObjectValue = typeof value === "object";
+  const isNonNull = value !== null;
+  return isObjectValue && isNonNull;
 }
 
 export function createWordBoundaryPattern(word: string): RegExp {
@@ -28,7 +30,11 @@ export function extractPattern(value: unknown): string | undefined {
     return undefined;
   }
   const pattern = value.pattern;
-  return typeof pattern === "string" ? pattern : undefined;
+  const isStringPattern = typeof pattern === "string";
+  if (!isStringPattern) {
+    return undefined;
+  }
+  return pattern;
 }
 
 export function hasStyleMetadata(token: Token): boolean {

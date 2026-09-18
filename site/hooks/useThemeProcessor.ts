@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getTheme, renderLine } from "logsdx";
+import { getTheme, styleLine, tokensToHtml, tokensToString } from "logsdx";
 import type { Theme } from "logsdx";
 
 interface ProcessedLog {
@@ -19,6 +19,29 @@ interface CachedProcessedLogs {
   theme: Theme;
 }
 
+function processLog(log: string, theme: Theme): ProcessedLog {
+  const tokens = styleLine(log, theme);
+  const html = tokensToHtml(tokens, {
+    theme,
+    htmlStyleFormat: "css",
+    escapeHtml: true,
+  });
+  const ansi = tokensToString(tokens, true, "truecolor", theme);
+  return { html, ansi };
+}
+
+function renderLog(log: string, theme: Theme, format: "html" | "ansi"): string {
+  const tokens = styleLine(log, theme);
+  if (format === "html") {
+    return tokensToHtml(tokens, {
+      theme,
+      htmlStyleFormat: "css",
+      escapeHtml: true,
+    });
+  }
+  return tokensToString(tokens, true, "truecolor", theme);
+}
+
 const LOG_CACHE_MAX_ENTRIES = 100;
 const LOG_CACHE = new Map<string, CachedProcessedLogs>();
 
@@ -28,6 +51,51 @@ function setCacheEntry(key: string, value: CachedProcessedLogs): void {
   if (!hasOverflowed) return;
   const oldestKey = LOG_CACHE.keys().next().value;
   if (oldestKey !== undefined) LOG_CACHE.delete(oldestKey);
+}
+
+interface ThemeProcessingState {
+  isCancelled: () => boolean;
+  setProcessedLogs: (value: ProcessedLog[]) => void;
+  setTheme: (value: Theme) => void;
+  setIsLoading: (value: boolean) => void;
+  setError: (value: string | null) => void;
+}
+
+async function processThemeLogs(
+  themeName: string,
+  logs: string[],
+  state: ThemeProcessingState,
+): Promise<void> {
+  const cacheKey = JSON.stringify([themeName, logs]);
+  state.setIsLoading(true);
+  state.setError(null);
+
+  const cached = LOG_CACHE.get(cacheKey);
+  if (cached) {
+    state.setProcessedLogs(cached.processedLogs);
+    state.setTheme(cached.theme);
+    state.setIsLoading(false);
+    return;
+  }
+
+  try {
+    const loadedTheme = await getTheme(themeName);
+    if (state.isCancelled()) return;
+    state.setTheme(loadedTheme);
+
+    const results = logs.map((log) => processLog(log, loadedTheme));
+    if (state.isCancelled()) return;
+    setCacheEntry(cacheKey, { processedLogs: results, theme: loadedTheme });
+    state.setProcessedLogs(results);
+  } catch (error) {
+    if (!state.isCancelled()) {
+      const message =
+        error instanceof Error ? error.message : "Failed to process logs";
+      state.setError(message);
+    }
+  } finally {
+    if (!state.isCancelled()) state.setIsLoading(false);
+  }
 }
 
 export function useThemeProcessor(
@@ -42,61 +110,13 @@ export function useThemeProcessor(
 
   useEffect(() => {
     let cancelled = false;
-
-    async function processLogs() {
-      const cacheKey = JSON.stringify([themeName, logs]);
-
-      setIsLoading(true);
-      setError(null);
-
-      if (LOG_CACHE.has(cacheKey)) {
-        const cached = LOG_CACHE.get(cacheKey)!;
-        setProcessedLogs(cached.processedLogs);
-        setTheme(cached.theme);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const loadedTheme = await getTheme(themeName);
-
-        if (cancelled) return;
-        setTheme(loadedTheme);
-
-        const results: ProcessedLog[] = [];
-
-        for (const log of logs) {
-          if (cancelled) return;
-
-          const html = renderLine(log, loadedTheme, {
-            outputFormat: "html",
-            htmlStyleFormat: "css",
-            escapeHtml: true,
-          });
-
-          const ansi = renderLine(log, loadedTheme, {
-            outputFormat: "ansi",
-          });
-
-          results.push({ html, ansi });
-        }
-
-        setCacheEntry(cacheKey, { processedLogs: results, theme: loadedTheme });
-        setProcessedLogs(results);
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to process logs",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    processLogs();
+    void processThemeLogs(themeName, logs, {
+      isCancelled: () => cancelled,
+      setProcessedLogs,
+      setTheme,
+      setIsLoading,
+      setError,
+    });
 
     return () => {
       cancelled = true;
@@ -118,11 +138,7 @@ export function useLogProcessor() {
       setIsProcessing(true);
       try {
         const theme = await getTheme(themeName);
-        return renderLine(log, theme, {
-          outputFormat: format,
-          htmlStyleFormat: "css",
-          escapeHtml: true,
-        });
+        return renderLog(log, theme, format);
       } finally {
         setIsProcessing(false);
       }
@@ -139,13 +155,7 @@ export function useLogProcessor() {
       setIsProcessing(true);
       try {
         const theme = await getTheme(themeName);
-        return logs.map((log) =>
-          renderLine(log, theme, {
-            outputFormat: format,
-            htmlStyleFormat: "css",
-            escapeHtml: true,
-          }),
-        );
+        return logs.map((log) => renderLog(log, theme, format));
       } finally {
         setIsProcessing(false);
       }

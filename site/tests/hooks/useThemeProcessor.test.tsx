@@ -6,17 +6,24 @@ const getTheme = mock(async (themeName: string) => ({
   schema: { defaultStyle: { color: "#fff" } },
 }));
 
-const renderLine = mock(
+const styleLine = mock((line: string) => [{ content: line }]);
+const tokensToHtml = mock(
   (
-    line: string,
-    theme: { name: string },
-    options?: { outputFormat?: "ansi" | "html" },
-  ) => `${theme.name}:${options?.outputFormat}:${line}`,
+    tokens: Array<{ content: string }>,
+    options?: { theme?: { name: string } },
+  ) =>
+    `${options?.theme?.name}:html:${tokens.map((token) => token.content).join("")}`,
+);
+const tokensToString = mock(
+  (tokens: Array<{ content: string }>, _forceColors?: boolean) =>
+    `ansi:${tokens.map((token) => token.content).join("")}`,
 );
 
 mock.module("logsdx", () => ({
   getTheme,
-  renderLine,
+  styleLine,
+  tokensToHtml,
+  tokensToString,
 }));
 
 import { renderHook, waitFor } from "../utils/test-utils";
@@ -25,7 +32,9 @@ import { useThemeProcessor } from "@/hooks/useThemeProcessor";
 describe("useThemeProcessor", () => {
   beforeEach(() => {
     getTheme.mockClear();
-    renderLine.mockClear();
+    styleLine.mockClear();
+    tokensToHtml.mockClear();
+    tokensToString.mockClear();
   });
 
   it("restores the cached theme when processing cached logs", async () => {
@@ -74,7 +83,9 @@ describe("useThemeProcessor", () => {
       );
     });
     expect(getTheme).toHaveBeenCalledTimes(1);
-    expect(renderLine).toHaveBeenCalledTimes(2);
+    expect(styleLine).toHaveBeenCalledTimes(1);
+    expect(tokensToHtml).toHaveBeenCalledTimes(1);
+    expect(tokensToString).toHaveBeenCalledTimes(1);
 
     rerender({ logs: ["INFO same content"] });
 
@@ -84,7 +95,7 @@ describe("useThemeProcessor", () => {
       );
     });
     expect(getTheme).toHaveBeenCalledTimes(1);
-    expect(renderLine).toHaveBeenCalledTimes(2);
+    expect(styleLine).toHaveBeenCalledTimes(1);
 
     rerender({ logs: ["INFO changed content"] });
 
@@ -94,6 +105,6 @@ describe("useThemeProcessor", () => {
       );
     });
     expect(getTheme).toHaveBeenCalledTimes(2);
-    expect(renderLine).toHaveBeenCalledTimes(4);
+    expect(styleLine).toHaveBeenCalledTimes(2);
   });
 });

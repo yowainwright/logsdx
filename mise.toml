@@ -1,6 +1,42 @@
 [env]
-BUN_VERSION = "1.2.9"
+BUN_VERSION = "1.4.0"
 
 [tools]
-bun = "1.2.9"
+bun = "1.4.0"
 node = "24"
+
+[tasks.lint]
+description = "Run Oxlint with legibility rules"
+run = "bun run lint"
+
+[tasks."lint:changed"]
+description = "Check changed JavaScript and TypeScript files"
+run = "bunx --no-install lint-changed"
+
+[tasks."lint:fs"]
+description = "Validate scripts/fs-lint.json"
+run = "fs-lint --config scripts/fs-lint.json"
+
+[tasks."lint:fs:staged"]
+description = "Check staged additions against scripts/fs-lint.json"
+run = "fs-lint check --config scripts/fs-lint.json --staged"
+
+[tasks."lint:src"]
+description = "Check source import boundaries"
+run = "src-lint check src --format text"
+
+[tasks."lint:struct"]
+description = "Check source declaration and function order"
+run = "struct-lint --profile ci src"
+
+[tasks."format:check"]
+description = "Check formatting"
+run = "bun run format:check"
+
+[tasks.test]
+description = "Run tests"
+run = "bun run test"
+
+[tasks.check]
+description = "Run the repository checks"
+depends = ["lint", "lint:changed", "lint:fs", "lint:src", "format:check", "test"]

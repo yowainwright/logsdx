@@ -16,10 +16,16 @@ export function useThemes() {
 }
 
 export function useTheme(id: string | undefined) {
+  const queryFn = () => {
+    if (!id) return Promise.resolve(undefined);
+    return getTheme(id);
+  };
+  const isEnabled = Boolean(id);
+
   return useQuery({
     queryKey: ["themes", id],
-    queryFn: () => (id ? getTheme(id) : Promise.resolve(undefined)),
-    enabled: !!id,
+    queryFn,
+    enabled: isEnabled,
   });
 }
 

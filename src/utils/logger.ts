@@ -24,13 +24,19 @@ export function getLogLevel(): LogLevel {
   return globalConfig.level;
 }
 
+interface LogMethodOptions {
+  prefix?: string;
+  useStderr?: boolean;
+}
+
 function createLogMethod(
   level: LogLevel,
   label: string,
   color: (s: string) => string,
-  prefix?: string,
-  useStderr = false,
+  options: LogMethodOptions = {},
 ) {
+  const { prefix, useStderr = false } = options;
+
   return (message: string): void => {
     if (!shouldLog(level)) return;
     const output = useStderr ? console.error : console.log;
@@ -46,11 +52,14 @@ export function createLogger(prefix?: string) {
 
   return {
     print,
-    info: createLogMethod("info", "[info]", colors.blue, prefix),
-    success: createLogMethod("info", "[ok]", colors.green, prefix),
-    warn: createLogMethod("warn", "[warn]", colors.yellow, prefix),
-    error: createLogMethod("error", "[error]", colors.red, prefix, true),
-    debug: createLogMethod("debug", "[debug]", colors.gray, prefix),
+    info: createLogMethod("info", "[info]", colors.blue, { prefix }),
+    success: createLogMethod("info", "[ok]", colors.green, { prefix }),
+    warn: createLogMethod("warn", "[warn]", colors.yellow, { prefix }),
+    error: createLogMethod("error", "[error]", colors.red, {
+      prefix,
+      useStderr: true,
+    }),
+    debug: createLogMethod("debug", "[debug]", colors.gray, { prefix }),
   };
 }
 

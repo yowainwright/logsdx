@@ -99,24 +99,27 @@ export class SimpleLexer {
       pattern.lastIndex = 0;
       const match = pattern.exec(slice);
 
-      if (match && match.index === 0) {
-        const text = match[0];
-        const ctx = new TokenContext(text, "");
+      if (!match) continue;
 
-        action(ctx);
+      const startsAtBeginning = match.index === 0;
+      if (!startsAtBeginning) continue;
 
-        this.position += text.length;
+      const text = match[0];
+      const ctx = new TokenContext(text, "");
 
-        if (ctx.ignored) {
-          return this.token();
-        }
+      action(ctx);
 
-        return {
-          type: ctx.type,
-          text: ctx.text,
-          value: ctx.value,
-        };
+      this.position += text.length;
+
+      if (ctx.ignored) {
+        return this.token();
       }
+
+      return {
+        type: ctx.type,
+        text: ctx.text,
+        value: ctx.value,
+      };
     }
 
     return null;
@@ -129,11 +132,9 @@ export class SimpleLexer {
     while (end < this.inputContent.length) {
       const slice = this.inputContent.slice(end);
 
-      const hasMatch = this.rules.some(({ pattern }) => {
-        pattern.lastIndex = 0;
-        const match = pattern.exec(slice);
-        return match && match.index === 0;
-      });
+      const hasMatch = this.rules.some(({ pattern }) =>
+        this.matchesRuleAtStart(pattern, slice),
+      );
 
       if (hasMatch) break;
       end++;
@@ -150,15 +151,23 @@ export class SimpleLexer {
     };
   }
 
+  private matchesRuleAtStart(pattern: RegExp, slice: string): boolean {
+    pattern.lastIndex = 0;
+    const match = pattern.exec(slice);
+    if (!match) return false;
+    return match.index === 0;
+  }
+
   tokenize(
     input: string,
   ): ReadonlyArray<{ type: string; text: string; value?: unknown }> {
     this.input(input);
     const tokens: Array<{ type: string; text: string; value?: unknown }> = [];
-    let token;
+    let token = this.token();
 
-    while ((token = this.token()) !== null) {
+    while (token !== null) {
       tokens.push(token);
+      token = this.token();
     }
 
     return tokens;
@@ -263,61 +272,82 @@ function validatePatternMatch(
 
   fullRegex.lastIndex = 0;
   const fullMatch = fullRegex.exec(ctx.text);
-  return fullMatch !== null && fullMatch[0] === ctx.text;
+  if (!fullMatch) return false;
+  return fullMatch[0] === ctx.text;
+}
+
+interface PatternMatchRule {
+  pattern: string | RegExp;
+  name?: string;
+  identifier?: string;
+  options?: StyleOptions;
+}
+
+function addIdentifierPatternRule(
+  lexer: SimpleLexer,
+  patternObj: PatternMatchRule,
+  index: number,
+  identifier: string,
+): void {
+  const identifierRegex = createIdentifierPattern(identifier);
+
+  lexer.rule(identifierRegex, (ctx) => {
+    const isFullMatch = validatePatternMatch(ctx, patternObj.pattern);
+    if (!isFullMatch) {
+      ctx.ignore();
+      return;
+    }
+
+    ctx.accept(TOKEN_TYPE_REGEX, {
+      matchType: MATCH_TYPE_REGEX,
+      pattern: patternObj.pattern,
+      name: patternObj.name,
+      index,
+      style: patternObj.options,
+    });
+  });
+}
+
+function addRegexPatternRule(
+  lexer: SimpleLexer,
+  patternObj: PatternMatchRule,
+  index: number,
+): void {
+  const regex =
+    typeof patternObj.pattern === "string"
+      ? createSafeRegex(patternObj.pattern)
+      : patternObj.pattern;
+
+  if (!regex) {
+    log.debug(`Invalid regex pattern in theme: ${patternObj.pattern}`);
+    return;
+  }
+
+  lexer.rule(regex, (ctx) => {
+    ctx.accept(TOKEN_TYPE_REGEX, {
+      matchType: MATCH_TYPE_REGEX,
+      pattern: patternObj.pattern,
+      name: patternObj.name,
+      index,
+      style: patternObj.options,
+    });
+  });
 }
 
 export function addPatternMatchRules(
   lexer: SimpleLexer,
-  matchPatterns: ReadonlyArray<{
-    pattern: string | RegExp;
-    name?: string;
-    identifier?: string;
-    options?: StyleOptions;
-  }>,
+  matchPatterns: ReadonlyArray<PatternMatchRule>,
 ): void {
   for (let index = 0; index < matchPatterns.length; index++) {
     const patternObj = matchPatterns[index];
+    const identifier = patternObj.identifier;
 
-    if (patternObj.identifier && typeof patternObj.identifier === "string") {
-      const identifierRegex = createIdentifierPattern(patternObj.identifier);
-
-      lexer.rule(identifierRegex, (ctx) => {
-        if (!validatePatternMatch(ctx, patternObj.pattern)) {
-          ctx.ignore();
-          return;
-        }
-
-        ctx.accept(TOKEN_TYPE_REGEX, {
-          matchType: MATCH_TYPE_REGEX,
-          pattern: patternObj.pattern,
-          name: patternObj.name,
-          index,
-          style: patternObj.options,
-        });
-      });
-
+    if (!identifier) {
+      addRegexPatternRule(lexer, patternObj, index);
       continue;
     }
 
-    const regex =
-      typeof patternObj.pattern === "string"
-        ? createSafeRegex(patternObj.pattern)
-        : patternObj.pattern;
-
-    if (!regex) {
-      log.debug(`Invalid regex pattern in theme: ${patternObj.pattern}`);
-      continue;
-    }
-
-    lexer.rule(regex, (ctx) => {
-      ctx.accept(TOKEN_TYPE_REGEX, {
-        matchType: MATCH_TYPE_REGEX,
-        pattern: patternObj.pattern,
-        name: patternObj.name,
-        index,
-        style: patternObj.options,
-      });
-    });
+    addIdentifierPatternRule(lexer, patternObj, index, identifier);
   }
 }
 
@@ -340,17 +370,13 @@ export function addThemeRules(lexer: SimpleLexer, theme: Theme): void {
     addWordMatchRules(lexer, schema.matchWords);
   }
 
-  if (schema.matchPatterns && isValidMatchPatternsArray(schema.matchPatterns)) {
-    addPatternMatchRules(
-      lexer,
-      schema.matchPatterns as ReadonlyArray<{
-        pattern: string | RegExp;
-        name?: string;
-        identifier?: string;
-        options?: StyleOptions;
-      }>,
-    );
-  } else if (schema.matchPatterns) {
+  const matchPatterns = schema.matchPatterns;
+  if (isValidMatchPatternsArray(matchPatterns)) {
+    addPatternMatchRules(lexer, matchPatterns as ReadonlyArray<PatternMatchRule>);
+    return;
+  }
+
+  if (matchPatterns) {
     log.debug("matchPatterns is not an array in theme schema");
   }
 }
@@ -387,14 +413,9 @@ export function shouldUseDefaultToken(theme?: Theme): boolean {
     return true;
   }
 
-  if (
-    theme.schema.matchPatterns &&
-    !isValidMatchPatternsArray(theme.schema.matchPatterns)
-  ) {
-    return true;
-  }
-
-  return false;
+  const matchPatterns = theme.schema.matchPatterns;
+  if (!matchPatterns) return false;
+  return !isValidMatchPatternsArray(matchPatterns);
 }
 
 export function createTokenMetadata(
@@ -504,9 +525,8 @@ export function findPatternByIndex(
 export function applyWordStyle(token: Token, theme: Theme): Token | undefined {
   const metadata = token.metadata;
 
-  if (!metadata || metadata.matchType !== MATCH_TYPE_WORD) {
-    return undefined;
-  }
+  if (!metadata) return undefined;
+  if (metadata.matchType !== MATCH_TYPE_WORD) return undefined;
 
   const pattern = metadata.pattern;
   if (typeof pattern !== "string") {
@@ -538,9 +558,8 @@ export function applyPatternStyleByName(
 ): Token | undefined {
   const metadata = token.metadata;
 
-  if (!metadata || metadata.matchType !== MATCH_TYPE_REGEX) {
-    return undefined;
-  }
+  if (!metadata) return undefined;
+  if (metadata.matchType !== MATCH_TYPE_REGEX) return undefined;
 
   const name = (metadata as Record<string, unknown>).name;
   if (!name) {
@@ -548,9 +567,8 @@ export function applyPatternStyleByName(
   }
 
   const pattern = findPatternByName(theme.schema?.matchPatterns, name);
-  if (!pattern || !pattern.options) {
-    return undefined;
-  }
+  if (!pattern) return undefined;
+  if (!pattern.options) return undefined;
 
   return {
     content: token.content,
@@ -567,9 +585,8 @@ export function applyPatternStyleByIndex(
 ): Token | undefined {
   const metadata = token.metadata;
 
-  if (!metadata || metadata.matchType !== MATCH_TYPE_REGEX) {
-    return undefined;
-  }
+  if (!metadata) return undefined;
+  if (metadata.matchType !== MATCH_TYPE_REGEX) return undefined;
 
   const index = (metadata as Record<string, unknown>).index;
   if (typeof index !== "number") {
@@ -577,9 +594,8 @@ export function applyPatternStyleByIndex(
   }
 
   const pattern = findPatternByIndex(theme.schema?.matchPatterns, index);
-  if (!pattern || !pattern.options) {
-    return undefined;
-  }
+  if (!pattern) return undefined;
+  if (!pattern.options) return undefined;
 
   return {
     content: token.content,
@@ -634,9 +650,8 @@ export function applyTokenStyle(token: Token, theme: Theme): Token {
 }
 
 export function applyTheme(tokens: TokenList, theme: Theme): TokenList {
-  if (!theme || !theme.schema) {
-    return tokens;
-  }
+  if (!theme) return tokens;
+  if (!theme.schema) return tokens;
 
   return tokens.map((token) => applyTokenStyle(token, theme));
 }

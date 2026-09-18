@@ -1,19 +1,31 @@
-import { createSimpleTheme, registerTheme, getLogsDX } from "logsdx";
+import { createSimpleTheme, styleLine, tokensToHtml } from "logsdx";
 import type { ThemeColors, SampleLog } from "@/components/themegenerator/types";
-import type { LogsDXInstance } from "@/types/logsdx";
 
 type ColorPalette = ThemeColors & { [key: string]: string | undefined };
 
-const createFallbackLog = (text: string, textColor: string): string =>
-  `<span style="color: ${textColor}">${text}</span>`;
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
-const processLogWithLogsDX = async (
+const createFallbackLog = (text: string, textColor: string): string => {
+  const safeText = escapeHtml(text);
+  const safeTextColor = escapeHtml(textColor);
+  return `<span style="color: ${safeTextColor}">${safeText}</span>`;
+};
+
+const processLogWithLogsDX = (
   log: SampleLog,
-  processor: LogsDXInstance,
+  theme: ReturnType<typeof createSimpleTheme>,
   fallbackColor: string,
-): Promise<string> => {
+): string => {
   try {
-    return processor.processLine(log.text);
+    const tokens = styleLine(log.text, theme);
+    return tokensToHtml(tokens, { theme, escapeHtml: true });
   } catch {
     return createFallbackLog(log.text, fallbackColor);
   }
@@ -31,18 +43,7 @@ export async function processLogs(
       presets,
     });
 
-    registerTheme(theme);
-
-    const processor = await getLogsDX({
-      theme: themeName,
-      outputFormat: "html",
-      htmlStyleFormat: "css",
-      escapeHtml: false,
-    });
-
-    return Promise.all(
-      logs.map((log) => processLogWithLogsDX(log, processor, colors.text)),
-    );
+    return logs.map((log) => processLogWithLogsDX(log, theme, colors.text));
   } catch (error) {
     console.error("Log processing failed:", error);
     return logs.map((log) => createFallbackLog(log.text, colors.text));

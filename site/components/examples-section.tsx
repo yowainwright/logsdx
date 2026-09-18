@@ -1,23 +1,17 @@
 import React from "react";
 import { CodeBlock } from "./codeblock";
 
-export function ExamplesSection() {
-  return (
-    <section id="examples" className="bg-slate-50 dark:bg-slate-900 py-24">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-12 text-center text-4xl font-bold">Examples</h2>
+interface Example {
+  title?: string;
+  theme: string;
+  code: string;
+}
 
-          <div className="space-y-12">
-            <div>
-              <h3 className="mb-4 text-2xl font-semibold">
-                With Popular Loggers
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <h4 className="mb-2 font-medium">Winston</h4>
-                  <CodeBlock theme="monokai" language="javascript">
-                    {`import winston from 'winston'
+const LOGGER_EXAMPLES: Example[] = [
+  {
+    title: "Winston",
+    theme: "monokai",
+    code: `import winston from 'winston'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -26,14 +20,12 @@ const logger = winston.createLogger({
   format: winston.format.printf(info => {
     return logsDX.processLine(info.message)
   })
-})`}
-                  </CodeBlock>
-                </div>
-
-                <div>
-                  <h4 className="mb-2 font-medium">Pino</h4>
-                  <CodeBlock theme="nord" language="javascript">
-                    {`import pino from 'pino'
+})`,
+  },
+  {
+    title: "Pino",
+    theme: "nord",
+    code: `import pino from 'pino'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -47,14 +39,12 @@ const logger = pino({
       }
     }
   }
-})`}
-                  </CodeBlock>
-                </div>
-
-                <div>
-                  <h4 className="mb-2 font-medium">Console.log</h4>
-                  <CodeBlock theme="github-dark" language="javascript">
-                    {`import { getLogsDX } from 'logsdx'
+})`,
+  },
+  {
+    title: "Console.log",
+    theme: "github-dark",
+    code: `import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
 
@@ -67,14 +57,12 @@ console.log = (...args) => {
       : arg
   )
   originalLog(...styled)
-}`}
-                  </CodeBlock>
-                </div>
-
-                <div>
-                  <h4 className="mb-2 font-medium">Bunyan</h4>
-                  <CodeBlock theme="solarized-dark" language="javascript">
-                    {`import bunyan from 'bunyan'
+}`,
+  },
+  {
+    title: "Bunyan",
+    theme: "solarized-dark",
+    code: `import bunyan from 'bunyan'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -84,17 +72,15 @@ const logger = bunyan.createLogger({
   stream: {
     write: (rec) => {
       const msg = logsDX.processLine(rec.msg)
-      process.stdout.write(msg + '\n')
+      process.stdout.write(msg + '\\n')
     }
   }
-})`}
-                  </CodeBlock>
-                </div>
-
-                <div>
-                  <h4 className="mb-2 font-medium">Debug</h4>
-                  <CodeBlock theme="dracula" language="javascript">
-                    {`import debug from 'debug'
+})`,
+  },
+  {
+    title: "Debug",
+    theme: "dracula",
+    code: `import debug from 'debug'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -104,14 +90,12 @@ debug.formatters.h = (v) => {
 }
 
 const log = debug('app')
-log('%h', 'Server started')`}
-                  </CodeBlock>
-                </div>
-
-                <div>
-                  <h4 className="mb-2 font-medium">Log4js</h4>
-                  <CodeBlock theme="oh-my-zsh" language="javascript">
-                    {`import log4js from 'log4js'
+log('%h', 'Server started')`,
+  },
+  {
+    title: "Log4js",
+    theme: "oh-my-zsh",
+    code: `import log4js from 'log4js'
 import { getLogsDX } from 'logsdx'
 
 const logsDX = getLogsDX('dracula')
@@ -132,19 +116,14 @@ log4js.configure({
   categories: {
     default: { appenders: ['styled'], level: 'info' }
   }
-})`}
-                  </CodeBlock>
-                </div>
-              </div>
-            </div>
+})`,
+  },
+];
 
-            <div>
-              <h3 className="mb-4 text-2xl font-semibold">
-                Advanced Theme Configuration
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <CodeBlock theme="github-dark" language="javascript">
-                  {`// Using createTheme helper
+const ADVANCED_EXAMPLES: Example[] = [
+  {
+    theme: "github-dark",
+    code: `// Using createTheme helper
 import { createTheme } from 'logsdx'
 
 const simpleTheme = createTheme({
@@ -158,10 +137,11 @@ const simpleTheme = createTheme({
     muted: '#6b7280'
   },
   presets: ['logLevels', 'timestamps', 'numbers']
-})`}
-                </CodeBlock>
-                <CodeBlock theme="monokai" language="javascript">
-                  {`// Define full schema manually
+})`,
+  },
+  {
+    theme: "monokai",
+    code: `// Define full schema manually
 const advancedTheme = {
   name: 'advanced',
   mode: 'dark',
@@ -179,18 +159,14 @@ const advancedTheme = {
       }
     ]
   }
-}`}
-                </CodeBlock>
-              </div>
-            </div>
+}`,
+  },
+];
 
-            <div>
-              <h3 className="mb-4 text-2xl font-semibold">
-                Browser Console Integration
-              </h3>
-              <div className="grid gap-6 md:grid-cols-2">
-                <CodeBlock theme="dracula" language="javascript">
-                  {`import { getLogsDX } from 'logsdx'
+const BROWSER_EXAMPLES: Example[] = [
+  {
+    theme: "dracula",
+    code: `import { getLogsDX } from 'logsdx'
 
 // Create HTML logger for browser
 const logger = getLogsDX('dracula', {
@@ -204,10 +180,11 @@ function renderLog(message) {
   // styledHTML contains escaped HTML with inline styles
   // Use a safe rendering method in your framework
   return styledHTML
-}`}
-                </CodeBlock>
-                <CodeBlock theme="nord" language="javascript">
-                  {`// Example outputs:
+}`,
+  },
+  {
+    theme: "nord",
+    code: `// Example outputs:
 renderLog('ERROR: Connection failed')
 // <span style="color: #ff4444; font-weight: bold">ERROR</span>: Connection failed
 
@@ -218,10 +195,61 @@ renderLog('WARN: Memory usage high')
 // <span style="color: #ffaa00">WARN</span>: Memory usage high
 
 renderLog('SUCCESS: Build completed')
-// <span style="color: #00ff00">SUCCESS</span>: Build completed`}
-                </CodeBlock>
-              </div>
-            </div>
+// <span style="color: #00ff00">SUCCESS</span>: Build completed`,
+  },
+];
+
+function ExampleGrid({ examples }: { examples: Example[] }) {
+  const hasTitles = examples.some((example) => example.title);
+  const gridClassName = hasTitles
+    ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+    : "grid gap-6 md:grid-cols-2";
+
+  return (
+    <div className={gridClassName}>
+      {examples.map((example) => (
+        <div key={example.code}>
+          {example.title && (
+            <h4 className="mb-2 font-medium">{example.title}</h4>
+          )}
+          <CodeBlock theme={example.theme} language="javascript">
+            {example.code}
+          </CodeBlock>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ExampleGroup({ title, examples }: { title: string; examples: Example[] }) {
+  return (
+    <div>
+      <h3 className="mb-4 text-2xl font-semibold">{title}</h3>
+      <ExampleGrid examples={examples} />
+    </div>
+  );
+}
+
+export function ExamplesSection() {
+  return (
+    <section id="examples" className="bg-slate-50 dark:bg-slate-900 py-24">
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mb-12 text-center text-4xl font-bold">Examples</h2>
+
+          <div className="space-y-12">
+            <ExampleGroup
+              title="With Popular Loggers"
+              examples={LOGGER_EXAMPLES}
+            />
+            <ExampleGroup
+              title="Advanced Theme Configuration"
+              examples={ADVANCED_EXAMPLES}
+            />
+            <ExampleGroup
+              title="Browser Console Integration"
+              examples={BROWSER_EXAMPLES}
+            />
           </div>
         </div>
       </div>

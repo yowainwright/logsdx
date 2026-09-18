@@ -34,5 +34,14 @@ export const renderLine = mock(
   },
 );
 
+export const styleLine = mock((line: string) => [{ content: line }]);
+export const tokensToHtml = mock(
+  (tokens: Array<{ content: string }>) =>
+    `<span>${tokens.map((token) => token.content).join("")}</span>`,
+);
+export const tokensToString = mock((tokens: Array<{ content: string }>) =>
+  tokens.map((token) => token.content).join(""),
+);
+
 export const getAllThemes = mock(() => ({}));
 export const getThemeNames = mock(() => []);

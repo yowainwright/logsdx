@@ -81,7 +81,8 @@ function extractAllIds(items: readonly TOCItem[]): readonly string[] {
   function traverse(items: readonly TOCItem[]) {
     for (const item of items) {
       ids.push(item.id);
-      if (item.children && item.children.length > 0) {
+      const hasChildren = item.children.length > 0;
+      if (hasChildren) {
         traverse(item.children);
       }
     }

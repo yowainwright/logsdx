@@ -7,7 +7,6 @@ export default function DocsLayout({
 }) {
   return (
     <div className="flex min-h-screen">
-      {/* Mobile sidebar drawer */}
       <div className="lg:hidden">{/* TODO: Add mobile drawer */}</div>
 
       {/* Desktop sidebar */}

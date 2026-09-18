@@ -1,5 +1,24 @@
 import React from "react";
 
+function ProblemPoints() {
+  return (
+    <ul className="mx-auto max-w-xl space-y-3 text-left">
+      <li className="flex items-start">
+        <span className="mr-2 text-red-500">×</span>
+        <span>Inconsistent log appearance across environments</span>
+      </li>
+      <li className="flex items-start">
+        <span className="mr-2 text-red-500">×</span>
+        <span>Duplicate styling code for different outputs</span>
+      </li>
+      <li className="flex items-start">
+        <span className="mr-2 text-red-500">×</span>
+        <span>Lost context when switching between terminal and browser logs</span>
+      </li>
+    </ul>
+  );
+}
+
 export function ProblemSection() {
   return (
     <section id="problem" className="bg-slate-50 dark:bg-slate-900 py-24">
@@ -16,22 +35,7 @@ export function ProblemSection() {
               terminal-specific ANSI codes or browser-specific CSS styling. This
               leads to:
             </p>
-            <ul className="mx-auto max-w-xl space-y-3 text-left">
-              <li className="flex items-start">
-                <span className="mr-2 text-red-500">×</span>
-                <span>Inconsistent log appearance across environments</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-2 text-red-500">×</span>
-                <span>Duplicate styling code for different outputs</span>
-              </li>
-              <li className="flex items-start">
-                <span className="mr-2 text-red-500">×</span>
-                <span>
-                  Lost context when switching between terminal and browser logs
-                </span>
-              </li>
-            </ul>
+            <ProblemPoints />
             <p className="mt-8 font-semibold">
               logsDx provides a unified theming engine that automatically
               translates your styling between ANSI and HTML/CSS formats.

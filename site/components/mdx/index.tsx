@@ -119,15 +119,16 @@ function extractCodeContent(children: ReactNode): string | null {
     return children;
   }
 
-  if (!children || typeof children !== "object") {
+  const isObject = Boolean(children) && typeof children === "object";
+  if (!isObject) {
     return null;
   }
 
   if ("props" in children) {
     const element = children as React.ReactElement<{ children?: ReactNode }>;
-    if (element.props?.children) {
-      return extractCodeContent(element.props.children);
-    }
+    const elementChildren = element.props?.children;
+    if (!elementChildren) return null;
+    return extractCodeContent(elementChildren);
   }
 
   if (Array.isArray(children)) {

@@ -19,28 +19,34 @@ export function getAccessibleTextColors(
   const isDark = isDarkColor(backgroundColor);
 
   if (isDark) {
+    const textLevel = contrastLevel === "AAA" ? 50 : 100;
+    const accentLevel = contrastLevel === "AAA" ? 300 : 400;
+
     return {
-      text: contrastLevel === "AAA" ? colors.gray[50] : colors.gray[100],
-      info: contrastLevel === "AAA" ? colors.sky[300] : colors.sky[400],
-      warn: contrastLevel === "AAA" ? colors.amber[300] : colors.amber[400],
-      error: contrastLevel === "AAA" ? colors.red[300] : colors.red[400],
-      success: contrastLevel === "AAA" ? colors.green[300] : colors.green[400],
-      debug: contrastLevel === "AAA" ? colors.purple[300] : colors.purple[400],
-      number: contrastLevel === "AAA" ? colors.cyan[300] : colors.cyan[400],
-      string: contrastLevel === "AAA" ? colors.lime[300] : colors.lime[400],
-    };
-  } else {
-    return {
-      text: contrastLevel === "AAA" ? colors.gray[900] : colors.gray[800],
-      info: contrastLevel === "AAA" ? colors.sky[700] : colors.sky[600],
-      warn: contrastLevel === "AAA" ? colors.amber[700] : colors.amber[600],
-      error: contrastLevel === "AAA" ? colors.red[700] : colors.red[600],
-      success: contrastLevel === "AAA" ? colors.green[700] : colors.green[600],
-      debug: contrastLevel === "AAA" ? colors.purple[700] : colors.purple[600],
-      number: contrastLevel === "AAA" ? colors.cyan[700] : colors.cyan[600],
-      string: contrastLevel === "AAA" ? colors.lime[700] : colors.lime[600],
+      text: colors.gray[textLevel],
+      info: colors.sky[accentLevel],
+      warn: colors.amber[accentLevel],
+      error: colors.red[accentLevel],
+      success: colors.green[accentLevel],
+      debug: colors.purple[accentLevel],
+      number: colors.cyan[accentLevel],
+      string: colors.lime[accentLevel],
     };
   }
+
+  const textLevel = contrastLevel === "AAA" ? 900 : 800;
+  const accentLevel = contrastLevel === "AAA" ? 700 : 600;
+
+  return {
+    text: colors.gray[textLevel],
+    info: colors.sky[accentLevel],
+    warn: colors.amber[accentLevel],
+    error: colors.red[accentLevel],
+    success: colors.green[accentLevel],
+    debug: colors.purple[accentLevel],
+    number: colors.cyan[accentLevel],
+    string: colors.lime[accentLevel],
+  };
 }
 
 export function getWCAGLevel(
@@ -51,12 +57,12 @@ export function getWCAGLevel(
     if (ratio >= 4.5) return "AAA";
     if (ratio >= 3) return "AA";
     return "FAIL";
-  } else {
-    if (ratio >= 7) return "AAA";
-    if (ratio >= 4.5) return "AA";
-    if (ratio >= 3) return "A";
-    return "FAIL";
   }
+
+  if (ratio >= 7) return "AAA";
+  if (ratio >= 4.5) return "AA";
+  if (ratio >= 3) return "A";
+  return "FAIL";
 }
 
 export function getWCAGRecommendations(ratio: number): string[] {

@@ -53,11 +53,10 @@ export function hexToRgb(hex: string): readonly [number, number, number] {
     return DEFAULT_RGB;
   }
 
-  return [
-    parseInt(result[1], 16),
-    parseInt(result[2], 16),
-    parseInt(result[3], 16),
-  ] as const;
+  const red = parseInt(result[1], 16);
+  const green = parseInt(result[2], 16);
+  const blue = parseInt(result[3], 16);
+  return [red, green, blue] as const;
 }
 
 export const stripAnsi = stripAnsiLib;
@@ -105,11 +104,16 @@ export function calculateCenterPadding(
 }
 
 export function isBrowser(): boolean {
-  return typeof window !== "undefined";
+  const windowType = typeof window;
+  const hasWindow = windowType !== "undefined";
+  return hasWindow;
 }
 
 export function hasMatchMedia(): boolean {
-  return isBrowser() && typeof window.matchMedia === "function";
+  const browserAvailable = isBrowser();
+  if (!browserAvailable) return false;
+  const matchMediaType = typeof window.matchMedia;
+  return matchMediaType === "function";
 }
 
 export function getEnv(key: string): string | undefined {
@@ -257,7 +261,10 @@ function detectFromLinux(): BackgroundInfo | undefined {
   const desktopSession = getEnv("DESKTOP_SESSION");
   const xdgCurrentDesktop = getEnv("XDG_CURRENT_DESKTOP");
 
-  if (!desktopSession && !xdgCurrentDesktop) return undefined;
+  const hasDesktopSession = Boolean(desktopSession);
+  const hasXdgDesktop = Boolean(xdgCurrentDesktop);
+  const hasDesktopInfo = hasDesktopSession || hasXdgDesktop;
+  if (!hasDesktopInfo) return undefined;
   return createBackgroundInfo("auto", "medium", "system", {
     systemPreference: desktopSession || xdgCurrentDesktop,
   });
@@ -295,7 +302,9 @@ function selectBestBackground(
 }
 
 function isTerminalReliable(info: BackgroundInfo): boolean {
-  return info.confidence === "high" || info.confidence === "medium";
+  const isHighConfidence = info.confidence === "high";
+  const isMediumConfidence = info.confidence === "medium";
+  return isHighConfidence || isMediumConfidence;
 }
 
 function tryBrowserBackground(): BackgroundInfo | undefined {
@@ -322,7 +331,8 @@ export function isDarkBackground(): boolean {
   const info = detectBackground();
   const isDefaultAuto = info.scheme === "auto" && info.source === "default";
 
-  return info.scheme === "dark" || isDefaultAuto;
+  const isDarkScheme = info.scheme === "dark";
+  return isDarkScheme || isDefaultAuto;
 }
 
 export function isLightBackground(): boolean {
@@ -417,7 +427,7 @@ export function processFastHtml(line: string): string {
 }
 
 export function isFastModeEnabled(options?: { fast?: boolean }): boolean {
-  return options?.fast === true;
+  return Boolean(options?.fast);
 }
 
 function getThemeName(theme: Theme | string): string {
@@ -439,7 +449,7 @@ function createTopBorderNoTitle(
   borderChars: BorderChars,
 ): string {
   const middle = repeatString(borderChars.horizontal, width - 2);
-  return borderChars.topLeft + middle + borderChars.topRight;
+  return [borderChars.topLeft, middle, borderChars.topRight].join("");
 }
 
 function createTopBorderWithTitle(
@@ -454,8 +464,8 @@ function createTopBorderWithTitle(
   );
   const left = repeatString(borderChars.horizontal, leftPad);
   const right = repeatString(borderChars.horizontal, rightPad);
-  return (
-    borderChars.topLeft + left + paddedTitle + right + borderChars.topRight
+  return [borderChars.topLeft, left, paddedTitle, right, borderChars.topRight].join(
+    "",
   );
 }
 
@@ -470,7 +480,7 @@ function createTopBorder(
 
 function createBottomBorder(width: number, borderChars: BorderChars): string {
   const middle = repeatString(borderChars.horizontal, width - 2);
-  return borderChars.bottomLeft + middle + borderChars.bottomRight;
+  return [borderChars.bottomLeft, middle, borderChars.bottomRight].join("");
 }
 
 function getBorderWidth(hasBorder: boolean): number {
@@ -485,24 +495,26 @@ function calculateContentWidth(
 ): number {
   const borderWidth = getBorderWidth(hasBorder);
   const paddingWidth = padding * 2;
-  return width - borderWidth - paddingWidth;
+  const widthAfterBorder = width - borderWidth;
+  return widthAfterBorder - paddingWidth;
 }
 
-function createPaddedLine(
-  line: string,
-  contentWidth: number,
-  padding: number,
-  backgroundColor: string,
-  borderChar?: string,
-): string {
+interface PaddedLineOptions {
+  contentWidth: number;
+  padding: number;
+  backgroundColor: string;
+  borderChar?: string;
+}
+
+function createPaddedLine(line: string, options: PaddedLineOptions): string {
   const lineLength = stripAnsi(line).length;
-  const rightPad = Math.max(0, contentWidth - lineLength);
-  const padStr = repeatString(" ", padding);
+  const rightPad = Math.max(0, options.contentWidth - lineLength);
+  const padStr = repeatString(" ", options.padding);
   const rightPadStr = repeatString(" ", rightPad);
   const content = `${padStr}${line}${rightPadStr}${padStr}`;
 
-  if (!borderChar) return `${backgroundColor}${content}${RESET}`;
-  return `${borderChar}${backgroundColor}${content}${RESET}${borderChar}`;
+  if (!options.borderChar) return `${options.backgroundColor}${content}${RESET}`;
+  return `${options.borderChar}${options.backgroundColor}${content}${RESET}${options.borderChar}`;
 }
 
 function getBorderChar(
@@ -528,13 +540,12 @@ export function renderLightBoxLine(
   const contentWidth = calculateContentWidth(width, border, padding);
   const borderChar = getBorderChar(border, borderChars);
 
-  return createPaddedLine(
-    line,
+  return createPaddedLine(line, {
     contentWidth,
     padding,
     backgroundColor,
     borderChar,
-  );
+  });
 }
 
 function renderContentLines(
@@ -575,8 +586,9 @@ export function renderLightBox(
 }
 
 export function isLightTheme(theme: Theme | string): boolean {
-  if (typeof theme === "object" && theme.mode) {
-    return theme.mode === "light";
+  if (typeof theme === "object") {
+    const hasMode = Boolean(theme.mode);
+    if (hasMode) return theme.mode === "light";
   }
 
   const themeName = getThemeName(theme);

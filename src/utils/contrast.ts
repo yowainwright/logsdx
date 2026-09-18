@@ -6,9 +6,12 @@ export function hexToRgb(hex: string): [number, number, number] {
   let r: number, g: number, b: number;
 
   if (cleaned.length === 3) {
-    r = parseInt(cleaned[0] + cleaned[0], 16);
-    g = parseInt(cleaned[1] + cleaned[1], 16);
-    b = parseInt(cleaned[2] + cleaned[2], 16);
+    const red = cleaned[0] + cleaned[0];
+    const green = cleaned[1] + cleaned[1];
+    const blue = cleaned[2] + cleaned[2];
+    r = parseInt(red, 16);
+    g = parseInt(green, 16);
+    b = parseInt(blue, 16);
   } else if (cleaned.length === 6) {
     r = parseInt(cleaned.substring(0, 2), 16);
     g = parseInt(cleaned.substring(2, 4), 16);
@@ -29,8 +32,10 @@ export function calculateChannelLuminance(channelValue: number): number {
     return normalized / CONTRAST.GAMMA_DIVISOR;
   }
 
+  const adjusted =
+    (normalized + CONTRAST.GAMMA_OFFSET) / CONTRAST.GAMMA_MULTIPLIER;
   return Math.pow(
-    (normalized + CONTRAST.GAMMA_OFFSET) / CONTRAST.GAMMA_MULTIPLIER,
+    adjusted,
     CONTRAST.GAMMA_EXPONENT,
   );
 }
@@ -44,11 +49,11 @@ export function calculateRelativeLuminance(
   const gLuminance = calculateChannelLuminance(g);
   const bLuminance = calculateChannelLuminance(b);
 
-  return (
+  const luminance =
     rLuminance * CONTRAST.R_COEFFICIENT +
     gLuminance * CONTRAST.G_COEFFICIENT +
-    bLuminance * CONTRAST.B_COEFFICIENT
-  );
+    bLuminance * CONTRAST.B_COEFFICIENT;
+  return luminance;
 }
 
 export function hexContrastRatio(hex1: string, hex2: string): number {
@@ -61,7 +66,9 @@ export function hexContrastRatio(hex1: string, hex2: string): number {
   const lighter = Math.max(luminance1, luminance2);
   const darker = Math.min(luminance1, luminance2);
 
-  return (lighter + 0.05) / (darker + 0.05);
+  const numerator = lighter + 0.05;
+  const denominator = darker + 0.05;
+  return numerator / denominator;
 }
 
 export default hexContrastRatio;

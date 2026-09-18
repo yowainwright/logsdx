@@ -84,12 +84,66 @@ const SETUP_CONTENT = {
   },
 };
 
-export function SetupSection() {
-  const [activeStep, setActiveStep] = useState<SetupStep>("install");
-  const [isHovered, setIsHovered] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState(0);
+function getStepNumber(step: SetupStep) {
+  if (step === "install") return "1";
+  if (step === "import") return "2";
+  return "3";
+}
 
-  // Auto-cycle through steps
+function getHighlightedLines(step: SetupStep) {
+  return SETUP_CONTENT[step].lines
+    .map((line, index) => (line.highlight ? index : null))
+    .filter((index): index is number => index !== null);
+}
+
+function getLanguageColor(language: string) {
+  if (language === "bash") return "#89e051";
+  if (language === "javascript") return "#f1e05a";
+  return "#6b7280";
+}
+
+function getLineStyle({
+  lineIndex,
+  line,
+  highlightedLines,
+  highlightIndex,
+  isHovered,
+}: {
+  lineIndex: number;
+  line: CodeLine;
+  highlightedLines: number[];
+  highlightIndex: number;
+  isHovered: boolean;
+}) {
+  if (isHovered) {
+    return { opacity: 1, background: "transparent", transform: "scale(1)" };
+  }
+
+  const isCurrentlyHighlighted =
+    line.highlight && highlightedLines[highlightIndex] === lineIndex;
+  if (!line.highlight) {
+    return { opacity: 0.4, background: "transparent", transform: "scale(1)" };
+  }
+
+  return {
+    opacity: isCurrentlyHighlighted ? 1 : 0.5,
+    background: isCurrentlyHighlighted
+      ? "rgba(59, 130, 246, 0.1)"
+      : "transparent",
+    transform: isCurrentlyHighlighted ? "scale(1.02)" : "scale(1)",
+    borderLeft: isCurrentlyHighlighted
+      ? "3px solid rgb(59, 130, 246)"
+      : "3px solid transparent",
+    paddingLeft: "12px",
+    marginLeft: "-12px",
+  };
+}
+
+function useStepCycle(
+  isHovered: boolean,
+  setActiveStep: React.Dispatch<React.SetStateAction<SetupStep>>,
+  setHighlightIndex: React.Dispatch<React.SetStateAction<number>>,
+) {
   React.useEffect(() => {
     if (isHovered) return;
 
@@ -97,311 +151,434 @@ export function SetupSection() {
     const interval = setInterval(() => {
       setActiveStep((current) => {
         const currentIndex = steps.indexOf(current);
-        const nextStep = steps[(currentIndex + 1) % steps.length];
-        setHighlightIndex(0); // Reset highlight when changing steps
-        return nextStep;
+        const nextIndex = (currentIndex + 1) % steps.length;
+        setHighlightIndex(0);
+        return steps[nextIndex];
       });
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, setActiveStep, setHighlightIndex]);
+}
 
-  // Animate through highlighted lines
+function useHighlightCycle(
+  activeStep: SetupStep,
+  isHovered: boolean,
+  setHighlightIndex: React.Dispatch<React.SetStateAction<number>>,
+) {
   React.useEffect(() => {
     if (isHovered) return;
 
-    const currentContent = SETUP_CONTENT[activeStep];
-    const highlightedLines = currentContent.lines
-      .map((line, index) => (line.highlight ? index : null))
-      .filter((i) => i !== null) as number[];
-
+    const highlightedLines = getHighlightedLines(activeStep);
     if (highlightedLines.length === 0) return;
 
     const interval = setInterval(() => {
-      setHighlightIndex((prev) => (prev + 1) % highlightedLines.length);
+      setHighlightIndex((previous) => (previous + 1) % highlightedLines.length);
     }, 800);
 
     return () => clearInterval(interval);
-  }, [activeStep, isHovered]);
+  }, [activeStep, isHovered, setHighlightIndex]);
+}
 
-  const getLineStyle = (lineIndex: number, line: CodeLine) => {
-    const currentContent = SETUP_CONTENT[activeStep];
-    const highlightedLines = currentContent.lines
-      .map((l, i) => (l.highlight ? i : null))
-      .filter((i) => i !== null) as number[];
+function useSetupAnimation() {
+  const [activeStep, setActiveStep] = useState<SetupStep>("install");
+  const [isHovered, setIsHovered] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(0);
 
-    const isHighlightable = line.highlight;
-    const isCurrentlyHighlighted =
-      isHighlightable && highlightedLines[highlightIndex] === lineIndex;
+  useStepCycle(isHovered, setActiveStep, setHighlightIndex);
+  useHighlightCycle(activeStep, isHovered, setHighlightIndex);
 
-    // When hovering, show all lines normally
-    if (isHovered) {
-      return {
-        opacity: 1,
-        background: "transparent",
-        transform: "scale(1)",
-      };
-    }
-
-    // When not hovering, apply spotlight effect
-    if (isHighlightable) {
-      return {
-        opacity: isCurrentlyHighlighted ? 1 : 0.5,
-        background: isCurrentlyHighlighted
-          ? "rgba(59, 130, 246, 0.1)"
-          : "transparent",
-        transform: isCurrentlyHighlighted ? "scale(1.02)" : "scale(1)",
-        borderLeft: isCurrentlyHighlighted
-          ? "3px solid rgb(59, 130, 246)"
-          : "3px solid transparent",
-        paddingLeft: "12px",
-        marginLeft: "-12px",
-      };
-    }
-
-    return {
-      opacity: 0.4,
-      background: "transparent",
-      transform: "scale(1)",
-    };
+  return {
+    activeStep,
+    setActiveStep,
+    isHovered,
+    setIsHovered,
+    highlightIndex,
+    setHighlightIndex,
   };
+}
 
-  const getLanguageColor = (lang: string) => {
-    switch (lang) {
-      case "bash":
-        return "#89e051";
-      case "javascript":
-        return "#f1e05a";
-      default:
-        return "#6b7280";
-    }
-  };
+type SetupContent = (typeof SETUP_CONTENT)[SetupStep];
+
+function SetupCodeHeader({ content, activeStep }: { content: SetupContent; activeStep: SetupStep }) {
+  return (
+    <div className="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
+      <div className="flex items-center gap-3">
+        <div className="flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-red-500" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500" />
+          <div className="w-3 h-3 rounded-full bg-green-500" />
+        </div>
+        <div className="text-xs text-slate-400 flex items-center gap-2">
+          <span>{activeStep === "install" ? "terminal" : "app.js"}</span>
+          <div
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: getLanguageColor(content.language) }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SetupCodeLineContent({
+  line,
+  index,
+  codeClassName,
+}: {
+  line: CodeLine;
+  index: number;
+  codeClassName: string;
+}) {
+  return (
+    <div className="flex">
+      <span
+        className="text-slate-600 select-none pr-4 text-xs"
+        style={{ minWidth: "2rem" }}
+      >
+        {index + 1}
+      </span>
+      <pre className="flex-1">
+        <code
+          className={codeClassName}
+          dangerouslySetInnerHTML={{ __html: line.text || "&nbsp;" }}
+        />
+      </pre>
+    </div>
+  );
+}
+
+function SetupCodeLine({
+  line,
+  index,
+  content,
+  highlightedLines,
+  highlightIndex,
+  isHovered,
+}: {
+  line: CodeLine;
+  index: number;
+  content: SetupContent;
+  highlightedLines: number[];
+  highlightIndex: number;
+  isHovered: boolean;
+}) {
+  const lineStyle = getLineStyle({
+    lineIndex: index,
+    line,
+    highlightedLines,
+    highlightIndex,
+    isHovered,
+  });
+  const codeClassName =
+    content.language === "bash" ? "text-green-400" : "text-slate-300";
+
+  return (
+    <div
+      className="transition-all duration-300 ease-in-out"
+      style={lineStyle}
+    >
+      <SetupCodeLineContent
+        line={line}
+        index={index}
+        codeClassName={codeClassName}
+      />
+    </div>
+  );
+}
+
+function SetupCodeLines({
+  content,
+  highlightedLines,
+  highlightIndex,
+  isHovered,
+}: {
+  content: SetupContent;
+  highlightedLines: number[];
+  highlightIndex: number;
+  isHovered: boolean;
+}) {
+  return (
+    <div className="p-4 font-mono text-sm">
+      <div className="space-y-0">
+        {content.lines.map((line, index) => (
+          <SetupCodeLine
+            key={index}
+            line={line}
+            index={index}
+            content={content}
+            highlightedLines={highlightedLines}
+            highlightIndex={highlightIndex}
+            isHovered={isHovered}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SetupCodeCard({
+  activeStep,
+  isHovered,
+  setIsHovered,
+  highlightIndex,
+}: {
+  activeStep: SetupStep;
+  isHovered: boolean;
+  setIsHovered: (value: boolean) => void;
+  highlightIndex: number;
+}) {
+  const content = SETUP_CONTENT[activeStep];
+  const highlightedLines = getHighlightedLines(activeStep);
+
+  return (
+    <div className="relative lg:sticky lg:top-24">
+      <div className="absolute -top-2 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full shadow-lg">
+        Step {getStepNumber(activeStep)} of 3
+      </div>
+      <Card
+        className="overflow-hidden bg-slate-900 border-slate-700 h-fit"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <SetupCodeHeader content={content} activeStep={activeStep} />
+        <SetupCodeLines
+          content={content}
+          highlightedLines={highlightedLines}
+          highlightIndex={highlightIndex}
+          isHovered={isHovered}
+        />
+        <div className="px-4 pb-3 pt-2 border-t border-slate-700 text-xs">
+          <div className="text-slate-500">{content.title}</div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+const SETUP_STEPS: Array<{
+  step: SetupStep;
+  number: string;
+  title: string;
+  description: string;
+}> = [
+  {
+    step: "install",
+    number: "1",
+    title: "Install Package",
+    description: "Works with npm, yarn, pnpm, or bun",
+  },
+  {
+    step: "import",
+    number: "2",
+    title: "Import & Use",
+    description: "Choose from built-in themes or create your own",
+  },
+  {
+    step: "custom",
+    number: "3",
+    title: "Customize Themes",
+    description: "Match your brand with custom color schemes",
+  },
+];
+
+function SetupStepNumber({ isActive, number }: { isActive: boolean; number: string }) {
+  const activeClass = "bg-gradient-to-r from-blue-600 to-purple-600 text-white";
+  const inactiveClass =
+    "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400";
+
+  return (
+    <div
+      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+        isActive ? activeClass : inactiveClass
+      }`}
+    >
+      {number}
+    </div>
+  );
+}
+
+function SetupStepCopy({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        {title}
+      </h3>
+      <p className="text-sm text-slate-600 dark:text-slate-400">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function SetupStepButton({
+  item,
+  activeStep,
+  onSelect,
+  setIsHovered,
+  setHighlightIndex,
+}: {
+  item: (typeof SETUP_STEPS)[number];
+  activeStep: SetupStep;
+  onSelect: (step: SetupStep) => void;
+  setIsHovered: (value: boolean) => void;
+  setHighlightIndex: (value: number) => void;
+}) {
+  const isActive = activeStep === item.step;
+  const activeButton = "border-blue-500 bg-blue-50 dark:bg-blue-950/30";
+  const inactiveButton =
+    "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600";
+
+  return (
+    <button
+      onClick={() => {
+        onSelect(item.step);
+        setHighlightIndex(0);
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`text-left p-4 rounded-lg border transition-all ${
+        isActive ? activeButton : inactiveButton
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <SetupStepNumber isActive={isActive} number={item.number} />
+        <SetupStepCopy title={item.title} description={item.description} />
+      </div>
+    </button>
+  );
+}
+
+function SetupStepButtons({
+  activeStep,
+  setActiveStep,
+  setIsHovered,
+  setHighlightIndex,
+}: {
+  activeStep: SetupStep;
+  setActiveStep: (step: SetupStep) => void;
+  setIsHovered: (value: boolean) => void;
+  setHighlightIndex: (value: number) => void;
+}) {
+  return (
+    <div className="pt-6 space-y-4">
+      <div className="flex flex-col gap-3">
+        {SETUP_STEPS.map((item) => (
+          <SetupStepButton
+            key={item.step}
+            item={item}
+            activeStep={activeStep}
+            onSelect={setActiveStep}
+            setIsHovered={setIsHovered}
+            setHighlightIndex={setHighlightIndex}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SetupIntro() {
+  return (
+    <h2 className="mb-8 text-5xl lg:text-6xl font-bold">
+      Quick Start
+      <br />
+      <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        in 30 seconds
+      </span>
+    </h2>
+  );
+}
+
+function SetupCopy() {
+  return (
+    <>
+      <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+        Get up and running with logsDx in less than a minute. No configuration
+        needed to start.
+      </p>
+      <p>
+        logsDx works out of the box with zero configuration. Just install,
+        import, and your logs will look beautiful in both terminal and browser
+        environments.
+      </p>
+    </>
+  );
+}
+
+function SetupConclusion() {
+  return (
+    <div className="pt-6 border-t">
+      <p className="font-semibold text-slate-900 dark:text-slate-100">
+        That's it! Your logs now look identical in terminal and browser, with
+        zero additional configuration.
+      </p>
+    </div>
+  );
+}
+
+function SetupDescription({
+  activeStep,
+  setActiveStep,
+  setIsHovered,
+  setHighlightIndex,
+}: {
+  activeStep: SetupStep;
+  setActiveStep: (step: SetupStep) => void;
+  setIsHovered: (value: boolean) => void;
+  setHighlightIndex: (value: number) => void;
+}) {
+  return (
+    <div>
+      <SetupIntro />
+      <div className="space-y-6 text-lg text-slate-600 dark:text-slate-400">
+        <SetupCopy />
+        <SetupStepButtons
+          activeStep={activeStep}
+          setActiveStep={setActiveStep}
+          setIsHovered={setIsHovered}
+          setHighlightIndex={setHighlightIndex}
+        />
+        <SetupConclusion />
+      </div>
+    </div>
+  );
+}
+
+export function SetupSection() {
+  const {
+    activeStep,
+    setActiveStep,
+    isHovered,
+    setIsHovered,
+    highlightIndex,
+    setHighlightIndex,
+  } = useSetupAnimation();
 
   return (
     <section id="setup" className="py-24">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
-            {/* Left side - Interactive code display */}
-            <div className="relative lg:sticky lg:top-24">
-              {/* Step indicator badge */}
-              <div className="absolute -top-2 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full shadow-lg">
-                Step{" "}
-                {activeStep === "install"
-                  ? "1"
-                  : activeStep === "import"
-                    ? "2"
-                    : "3"}{" "}
-                of 3
-              </div>
+            <SetupCodeCard
+              activeStep={activeStep}
+              isHovered={isHovered}
+              setIsHovered={setIsHovered}
+              highlightIndex={highlightIndex}
+            />
 
-              <Card
-                className="overflow-hidden bg-slate-900 border-slate-700 h-fit"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              >
-                {/* Header with file info */}
-                <div className="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <div className="text-xs text-slate-400 flex items-center gap-2">
-                      <span>
-                        {activeStep === "install" ? "terminal" : "app.js"}
-                      </span>
-                      <div
-                        className="w-2 h-2 rounded-full"
-                        style={{
-                          backgroundColor: getLanguageColor(
-                            SETUP_CONTENT[activeStep].language,
-                          ),
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Code content with line-by-line spotlight */}
-                <div className="p-4 font-mono text-sm">
-                  <div className="space-y-0">
-                    {SETUP_CONTENT[activeStep].lines.map((line, index) => (
-                      <div
-                        key={index}
-                        className="transition-all duration-300 ease-in-out"
-                        style={getLineStyle(index, line)}
-                      >
-                        <div className="flex">
-                          <span
-                            className="text-slate-600 select-none pr-4 text-xs"
-                            style={{ minWidth: "2rem" }}
-                          >
-                            {index + 1}
-                          </span>
-                          <pre className="flex-1">
-                            <code
-                              className={`${
-                                SETUP_CONTENT[activeStep].language === "bash"
-                                  ? "text-green-400"
-                                  : "text-slate-300"
-                              }`}
-                              dangerouslySetInnerHTML={{
-                                __html: line.text || "&nbsp;",
-                              }}
-                            />
-                          </pre>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Status bar */}
-                <div className="px-4 pb-3 pt-2 border-t border-slate-700 text-xs">
-                  <div className="text-slate-500">
-                    {SETUP_CONTENT[activeStep].title}
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Right side - Quick start description */}
-            <div>
-              <h2 className="mb-8 text-5xl lg:text-6xl font-bold">
-                Quick Start
-                <br />
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  in 30 seconds
-                </span>
-              </h2>
-              <div className="space-y-6 text-lg text-slate-600 dark:text-slate-400">
-                <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                  Get up and running with logsDx in less than a minute. No
-                  configuration needed to start.
-                </p>
-                <p>
-                  logsDx works out of the box with zero configuration. Just
-                  install, import, and your logs will look beautiful in both
-                  terminal and browser environments.
-                </p>
-
-                {/* Setup buttons */}
-                <div className="pt-6 space-y-4">
-                  <div className="flex flex-col gap-3">
-                    <button
-                      onClick={() => {
-                        setActiveStep("install");
-                        setHighlightIndex(0);
-                      }}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
-                      className={`text-left p-4 rounded-lg border transition-all ${
-                        activeStep === "install"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
-                          : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            activeStep === "install"
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-                              : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                          }`}
-                        >
-                          1
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                            Install Package
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            Works with npm, yarn, pnpm, or bun
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setActiveStep("import");
-                        setHighlightIndex(0);
-                      }}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
-                      className={`text-left p-4 rounded-lg border transition-all ${
-                        activeStep === "import"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
-                          : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            activeStep === "import"
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-                              : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                          }`}
-                        >
-                          2
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                            Import & Use
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            Choose from built-in themes or create your own
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setActiveStep("custom");
-                        setHighlightIndex(0);
-                      }}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
-                      className={`text-left p-4 rounded-lg border transition-all ${
-                        activeStep === "custom"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
-                          : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            activeStep === "custom"
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
-                              : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                          }`}
-                        >
-                          3
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                            Customize Themes
-                          </h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            Match your brand with custom color schemes
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t">
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">
-                    That's it! Your logs now look identical in terminal and
-                    browser, with zero additional configuration.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <SetupDescription
+              activeStep={activeStep}
+              setActiveStep={setActiveStep}
+              setIsHovered={setIsHovered}
+              setHighlightIndex={setHighlightIndex}
+            />
           </div>
         </div>
       </div>

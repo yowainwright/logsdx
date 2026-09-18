@@ -40,7 +40,8 @@ export async function updateTheme(
 
 export async function deleteTheme(id: string): Promise<void> {
   const db = await getDB();
-  await db.delete("themes", id);
+  const deleteRecord = db.delete.bind(db);
+  await deleteRecord("themes", id);
 }
 
 export async function getTheme(id: string): Promise<SavedTheme | undefined> {
@@ -51,5 +52,6 @@ export async function getTheme(id: string): Promise<SavedTheme | undefined> {
 export async function getAllThemes(): Promise<SavedTheme[]> {
   const db = await getDB();
   const themes = await db.getAll("themes");
-  return themes.sort((a, b) => b.updatedAt - a.updatedAt);
+  themes.sort((a, b) => b.updatedAt - a.updatedAt);
+  return themes;
 }

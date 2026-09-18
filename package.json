@@ -2,7 +2,7 @@
   "name": "logsdx",
   "version": "0.1.2",
   "private": false,
-  "packageManager": "bun@1.2.9",
+  "packageManager": "bun@1.4.0",
   "workspaces": [
     "site"
   ],
@@ -80,8 +80,8 @@
     "test:coverage": "bun test tests/ --coverage --coverage-reporter=lcov",
     "test:watch": "bun test tests/ --watch",
     "site:test": "cd site && bun test",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint . --fix",
+    "lint": "oxlint --config scripts/oxlint.json .",
+    "lint:fix": "oxlint --config scripts/oxlint.json . --fix",
     "format": "bun run prettier --write .",
     "format:check": "bun run prettier --check .",
     "check": "bun run lint && bun run format:check && bun run test",
@@ -107,8 +107,9 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.11",
+    "eslint-plugin-legibility": "^0.4.0",
     "mprocs": "^0.7.3",
-    "oxlint": "^0.15.0",
+    "oxlint": "^1.82.0",
     "prettier": "^3.5.3",
     "turbo": "^2.5.6",
     "typescript": "^5.0.0"

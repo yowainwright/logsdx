@@ -32,11 +32,12 @@ export function loadConfig(configPath?: string): LogsDXOptions {
     ].filter(Boolean);
 
     for (const location of configLocations) {
-      if (location && fs.existsSync(location)) {
-        const configContent = fs.readFileSync(location, "utf8");
-        const config = JSON.parse(configContent);
-        return { ...defaultConfig, ...config };
-      }
+      if (!location) continue;
+      const exists = fs.existsSync(location);
+      if (!exists) continue;
+      const configContent = fs.readFileSync(location, "utf8");
+      const config = JSON.parse(configContent);
+      return { ...defaultConfig, ...config };
     }
   } catch (error) {
     log.debug(`Failed to load config: ${error}`);
@@ -106,9 +107,8 @@ const ARG_HANDLERS = {
     const nextIndex = i + 1;
     if (nextIndex < args.length) {
       const format = args[nextIndex];
-      if (format === "ansi" || format === "html") {
-        options.format = format;
-      }
+      const isValidFormat = format === "ansi" || format === "html";
+      if (isValidFormat) options.format = format;
       return nextIndex;
     }
     return i;
@@ -171,19 +171,28 @@ export function parseArgs(args: string[]): CliOptions {
 
     if (arg in ARG_HANDLERS) {
       i = ARG_HANDLERS[arg as keyof typeof ARG_HANDLERS](args, i, options);
-    } else if (!arg?.startsWith("--") && !options.input) {
-      options.input = arg;
+    } else {
+      const isInputArgument = !arg?.startsWith("--") && !options.input;
+      if (isInputArgument) options.input = arg;
     }
   }
 
   return options;
 }
 
-export async function main(
+function getOutputFormat(
+  format: CommanderOptions["format"],
+): "ansi" | "html" | undefined {
+  if (format === "ansi") return "ansi";
+  if (format === "html") return "html";
+  return undefined;
+}
+
+function createCliOptions(
   input: string | undefined,
   rawOptions: CommanderOptions,
-): Promise<void> {
-  const options: CliOptions = {
+): CliOptions {
+  return {
     input,
     output: rawOptions.output,
     theme: rawOptions.theme,
@@ -200,70 +209,168 @@ export async function main(
     exportTheme: rawOptions.exportTheme,
     importTheme: rawOptions.importTheme,
     listThemeFiles: rawOptions.listThemeFiles ?? false,
-    format:
-      rawOptions.format === "ansi" || rawOptions.format === "html"
-        ? rawOptions.format
-        : undefined,
+    format: getOutputFormat(rawOptions.format),
   };
-  if (options.interactive) {
-    try {
-      const { runInteractiveMode } = await import("./interactive");
-      const interactiveConfig: InteractiveConfig = await runInteractiveMode();
-      options.theme = interactiveConfig.theme;
-      options.format = interactiveConfig.outputFormat;
-      options.preview = interactiveConfig.preview;
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes("User force closed")
-      ) {
-        ui.showInfo("👋 Interactive mode cancelled");
-        return;
-      }
-      throw error;
-    }
-  }
+}
 
+function isUserCancellation(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return error.message.includes("User force closed");
+}
+
+async function applyInteractiveOptions(options: CliOptions): Promise<boolean> {
+  if (!options.interactive) return true;
+
+  try {
+    const { runInteractiveMode } = await import("./interactive");
+    const interactiveConfig: InteractiveConfig = await runInteractiveMode();
+    options.theme = interactiveConfig.theme;
+    options.format = interactiveConfig.outputFormat;
+    options.preview = interactiveConfig.preview;
+    return true;
+  } catch (error) {
+    if (!isUserCancellation(error)) throw error;
+    ui.showInfo("👋 Interactive mode cancelled");
+    return false;
+  }
+}
+
+async function handleThemeCommands(options: CliOptions): Promise<boolean> {
   if (options.listPalettes) {
     listColorPalettesCommand();
-    return;
+    return true;
   }
 
   if (options.listPatterns) {
     listPatternPresetsCommand();
-    return;
+    return true;
   }
 
   if (options.listThemeFiles) {
     listThemeFiles();
-    return;
+    return true;
   }
 
   if (options.exportTheme !== undefined) {
     await exportTheme(options.exportTheme || undefined);
-    return;
+    return true;
   }
 
   if (options.importTheme !== undefined) {
     await importTheme(options.importTheme || undefined);
-    return;
+    return true;
   }
 
-  if (options.generateTheme) {
-    try {
-      await runThemeGenerator();
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes("User force closed")
-      ) {
-        ui.showInfo("👋 Theme generation cancelled");
-        return;
-      }
-      throw error;
-    }
-    return;
+  if (!options.generateTheme) return false;
+
+  try {
+    await runThemeGenerator();
+  } catch (error) {
+    if (!isUserCancellation(error)) throw error;
+    ui.showInfo("👋 Theme generation cancelled");
   }
+  return true;
+}
+
+async function handleListThemes(options: CliOptions): Promise<boolean> {
+  if (!options.listThemes) return false;
+
+  if (options.preview) {
+    const { showThemeList } = await import("./interactive");
+    await showThemeList();
+    return true;
+  }
+
+  if (options.quiet) return true;
+
+  ui.showInfo("Available themes:");
+  getThemeNames().forEach((theme) => {
+    console.log(`  • ${theme}`);
+  });
+  console.log("\nUse --preview to see themes with sample logs");
+  console.log("Use --interactive for guided selection");
+  return true;
+}
+
+function writeProcessedLine(
+  line: string,
+  processLine: (value: string) => string,
+  quiet: boolean,
+): void {
+  if (!line.trim()) return;
+
+  const output = processLine(line);
+  const hasOutput = Boolean(output);
+  const shouldPrint = hasOutput && !quiet;
+  if (shouldPrint) console.log(output);
+}
+
+function processInputFile(
+  input: string,
+  options: CliOptions,
+  logsDX: LogsDX,
+): void {
+  try {
+    const content = fs.readFileSync(input, "utf8");
+    const output = logsDX.processLog(content);
+
+    if (options.output) {
+      fs.writeFileSync(options.output, output);
+      ui.showSuccess(`Output written to ${options.output}`);
+      return;
+    }
+
+    if (!options.quiet) console.log(output);
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    if (errorMsg.includes("ENOENT")) {
+      ui.showError(
+        `File not found: ${input}`,
+        "Check the file path and try again",
+      );
+    } else {
+      ui.showError(`Failed to process file: ${errorMsg}`);
+    }
+    process.exit(1);
+  }
+}
+
+function processStdin(options: CliOptions, logsDX: LogsDX): void {
+  process.stdin.setEncoding("utf8");
+
+  let buffer = "";
+  const quiet = options.quiet ?? false;
+  const processLine = (line: string): string => logsDX.processLine(line);
+
+  process.stdin.on("data", (data: string) => {
+    buffer += data;
+    const lines = buffer.split("\n");
+    const nextBuffer = lines[lines.length - 1];
+    lines.length -= 1;
+    buffer = nextBuffer || "";
+    lines.forEach((line) => writeProcessedLine(line, processLine, quiet));
+  });
+
+  process.stdin.on("end", () => {
+    writeProcessedLine(buffer, processLine, quiet);
+  });
+
+  process.stdin.on("error", (error: Error) => {
+    ui.showError("Failed to read from stdin", error.message);
+    process.exit(1);
+  });
+}
+
+export async function main(
+  input: string | undefined,
+  rawOptions: CommanderOptions,
+): Promise<void> {
+  const options = createCliOptions(input, rawOptions);
+  const shouldContinue = await applyInteractiveOptions(options);
+  if (!shouldContinue) return;
+
+  const handledThemeCommand = await handleThemeCommands(options);
+  if (handledThemeCommand) return;
 
   const config = loadConfig(options.config);
   const outputFormat =
@@ -276,80 +383,13 @@ export async function main(
     outputFormat,
   });
 
-  if (options.listThemes) {
-    if (options.preview) {
-      const { showThemeList } = await import("./interactive");
-      await showThemeList();
-    } else if (!options.quiet) {
-      ui.showInfo("Available themes:");
-      getThemeNames().forEach((theme) => {
-        console.log(`  • ${theme}`);
-      });
-      console.log("\nUse --preview to see themes with sample logs");
-      console.log("Use --interactive for guided selection");
-    }
+  const handledThemeList = await handleListThemes(options);
+  if (handledThemeList) return;
+
+  if (input) {
+    processInputFile(input, options, logsDX);
     return;
   }
 
-  const processLine = (line: string): string => {
-    return logsDX.processLine(line);
-  };
-
-  if (input) {
-    try {
-      const content = fs.readFileSync(input, "utf8");
-      const output = logsDX.processLog(content);
-
-      if (options.output) {
-        fs.writeFileSync(options.output, output);
-        ui.showSuccess(`Output written to ${options.output}`);
-      } else if (!options.quiet) {
-        console.log(output);
-      }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      if (errorMsg.includes("ENOENT")) {
-        ui.showError(
-          `File not found: ${input}`,
-          "Check the file path and try again",
-        );
-      } else {
-        ui.showError(`Failed to process file: ${errorMsg}`);
-      }
-      process.exit(1);
-    }
-  } else {
-    process.stdin.setEncoding("utf8");
-
-    let buffer = "";
-
-    process.stdin.on("data", (data: string) => {
-      buffer += data;
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-
-      lines.forEach((line) => {
-        if (line.trim()) {
-          const output = processLine(line);
-          if (output && !options.quiet) {
-            console.log(output);
-          }
-        }
-      });
-    });
-
-    process.stdin.on("end", () => {
-      if (buffer.trim()) {
-        const output = processLine(buffer);
-        if (output && !options.quiet) {
-          console.log(output);
-        }
-      }
-    });
-
-    process.stdin.on("error", (error: Error) => {
-      ui.showError("Failed to read from stdin", error.message);
-      process.exit(1);
-    });
-  }
+  processStdin(options, logsDX);
 }

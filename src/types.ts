@@ -7,8 +7,12 @@ export type StyleCode =
   | "reverse"
   | "strikethrough";
 
+export type ColorDepth = "auto" | "truecolor" | "256" | "16" | "none";
+
 export interface StyleOptions {
   color: string;
+
+  backgroundColor?: string;
 
   styleCodes?: StyleCode[];
 
@@ -81,6 +85,7 @@ export interface LogsDXOptions {
   theme?: string | Theme | ThemePair;
   outputFormat?: "ansi" | "html";
   htmlStyleFormat?: "css" | "className";
+  colorDepth?: ColorDepth;
   escapeHtml?: boolean;
   debug?: boolean;
   customRules?: Record<string, unknown>;

@@ -19,7 +19,8 @@ export const VERSION_FLAGS = ["--version", "-v"];
 export const BOOLEAN_FLAG_PREFIX = "no-";
 
 export function camelCase(str: string): string {
-  return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  const result = str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  return result;
 }
 
 export function findOption(
@@ -31,7 +32,8 @@ export function findOption(
 
 export function extractLongFlag(flags: string): string | null {
   const match = flags.match(/--([a-z-]+)/);
-  return match ? match[1] : null;
+  if (!match) return null;
+  return match[1];
 }
 
 export function expectsValue(flags: string): boolean {
@@ -39,11 +41,186 @@ export function expectsValue(flags: string): boolean {
 }
 
 export function hasOptionalValue(flags: string): boolean {
-  return flags.includes("[") && !flags.startsWith("[");
+  const hasBrackets = flags.includes("[");
+  if (!hasBrackets) return false;
+  return !flags.startsWith("[");
 }
 
 export function isBooleanFlag(flags: string): boolean {
-  return !expectsValue(flags) && !hasOptionalValue(flags);
+  const acceptsValue = expectsValue(flags);
+  const acceptsOptionalValue = hasOptionalValue(flags);
+  if (acceptsValue) return false;
+  return !acceptsOptionalValue;
+}
+
+function getDefaultOptions(
+  optionDefinitions: OptionDefinition[],
+): ParsedOptions {
+  const options: ParsedOptions = {};
+
+  optionDefinitions.forEach((option) => {
+    const longFlag = extractLongFlag(option.flags);
+    if (!longFlag) return;
+
+    const hasDefaultValue = option.defaultValue !== undefined;
+    if (hasDefaultValue) {
+      options[camelCase(longFlag)] = option.defaultValue;
+    }
+  });
+
+  return options;
+}
+
+function applyLongOption(
+  args: string[],
+  index: number,
+  optionDefinitions: OptionDefinition[],
+  options: ParsedOptions,
+): number {
+  const arg = args[index];
+  const flag = arg.slice(2);
+  const option = findOption(optionDefinitions, `--${flag}`);
+  if (!option) return index;
+
+  const longFlag = extractLongFlag(option.flags);
+  if (!longFlag) return index;
+
+  const key = camelCase(longFlag);
+  if (expectsValue(option.flags)) {
+    options[key] = args[index + 1];
+    return index + 1;
+  }
+
+  if (hasOptionalValue(option.flags)) {
+    const next = args[index + 1];
+    const nextIsFlag = next?.startsWith("-") ?? false;
+    const hasValue = Boolean(next) && !nextIsFlag;
+    if (hasValue) {
+      options[key] = next;
+      return index + 1;
+    }
+    options[key] = true;
+    return index;
+  }
+
+  const isNegativeFlag = flag.startsWith(BOOLEAN_FLAG_PREFIX);
+  if (isNegativeFlag) {
+    const positiveKey = camelCase(flag.slice(BOOLEAN_FLAG_PREFIX.length));
+    options[positiveKey] = false;
+    return index;
+  }
+
+  options[key] = true;
+  return index;
+}
+
+function applyShortOption(
+  args: string[],
+  index: number,
+  optionDefinitions: OptionDefinition[],
+  options: ParsedOptions,
+): number {
+  const shortFlag = args[index][1];
+  const option = findOption(optionDefinitions, `-${shortFlag},`);
+  if (!option) return index;
+
+  const longFlag = extractLongFlag(option.flags);
+  if (!longFlag) return index;
+
+  const key = camelCase(longFlag);
+  if (expectsValue(option.flags)) {
+    options[key] = args[index + 1];
+    return index + 1;
+  }
+
+  options[key] = true;
+  return index;
+}
+
+function applyFlag(
+  args: string[],
+  index: number,
+  context: ArgumentParserContext,
+): number | undefined {
+  const arg = args[index];
+  const isLongFlag = arg.startsWith("--");
+  if (isLongFlag) {
+    return applyLongOption(
+      args,
+      index,
+      context.optionDefinitions,
+      context.options,
+    );
+  }
+
+  const isShortFlag = arg.startsWith("-") && arg.length === 2;
+  if (isShortFlag) {
+    return applyShortOption(
+      args,
+      index,
+      context.optionDefinitions,
+      context.options,
+    );
+  }
+
+  return undefined;
+}
+
+interface ArgumentParserContext {
+  optionDefinitions: OptionDefinition[];
+  options: ParsedOptions;
+  showHelp: () => void;
+  version: string;
+}
+
+function parseArguments(
+  args: string[],
+  context: ArgumentParserContext,
+): string | undefined {
+  let positionalArg: string | undefined;
+
+  for (let index = 0; index < args.length; index++) {
+    const arg = args[index];
+    const isHelpFlag = HELP_FLAGS.includes(arg);
+    if (isHelpFlag) {
+      context.showHelp();
+      process.exit(0);
+    }
+
+    const isVersionFlag = VERSION_FLAGS.includes(arg);
+    if (isVersionFlag) {
+      process.stdout.write(context.version + "\n");
+      process.exit(0);
+    }
+
+    const nextIndex = applyFlag(args, index, context);
+    const isFlag = nextIndex !== undefined;
+    if (isFlag) {
+      index = nextIndex;
+      continue;
+    }
+
+    positionalArg = arg;
+  }
+
+  return positionalArg;
+}
+
+function runAction(
+  actionFn: (
+    arg: string | undefined,
+    options: ParsedOptions,
+  ) => Promise<void> | void,
+  positionalArg: string | undefined,
+  options: ParsedOptions,
+): void {
+  const result = actionFn(positionalArg, options);
+  if (!(result instanceof Promise)) return;
+
+  result.catch((err) => {
+    process.stderr.write(String(err) + "\n");
+    process.exit(1);
+  });
 }
 
 export class CLI {
@@ -99,88 +276,17 @@ export class CLI {
   }
 
   parse(argv: string[] = process.argv): void {
+    if (!this.actionFn) return;
+
     const args = argv.slice(2);
-    const options: ParsedOptions = {};
-    let positionalArg: string | undefined;
-
-    this.options.forEach((opt) => {
-      const longFlag = extractLongFlag(opt.flags);
-      if (longFlag && opt.defaultValue !== undefined) {
-        options[camelCase(longFlag)] = opt.defaultValue;
-      }
+    const options = getDefaultOptions(this.options);
+    const positionalArg = parseArguments(args, {
+      optionDefinitions: this.options,
+      options,
+      showHelp: () => this.showHelp(),
+      version: this.programVersion,
     });
-
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-
-      if (HELP_FLAGS.includes(arg)) {
-        this.showHelp();
-        process.exit(0);
-      }
-
-      if (VERSION_FLAGS.includes(arg)) {
-        process.stdout.write(this.programVersion + "\n");
-        process.exit(0);
-      }
-
-      if (arg.startsWith("--")) {
-        const flag = arg.slice(2);
-        const opt = findOption(this.options, `--${flag}`);
-
-        if (opt) {
-          const longFlag = extractLongFlag(opt.flags);
-          if (!longFlag) continue;
-
-          const key = camelCase(longFlag);
-
-          if (expectsValue(opt.flags)) {
-            options[key] = args[++i];
-          } else if (hasOptionalValue(opt.flags)) {
-            const next = args[i + 1];
-            if (next && !next.startsWith("-")) {
-              options[key] = args[++i];
-            } else {
-              options[key] = true;
-            }
-          } else if (flag.startsWith(BOOLEAN_FLAG_PREFIX)) {
-            const positiveKey = camelCase(
-              flag.slice(BOOLEAN_FLAG_PREFIX.length),
-            );
-            options[positiveKey] = false;
-          } else {
-            options[key] = true;
-          }
-        }
-      } else if (arg.startsWith("-") && arg.length === 2) {
-        const shortFlag = arg[1];
-        const opt = findOption(this.options, `-${shortFlag},`);
-
-        if (opt) {
-          const longFlag = extractLongFlag(opt.flags);
-          if (longFlag) {
-            const key = camelCase(longFlag);
-
-            if (expectsValue(opt.flags)) {
-              options[key] = args[++i];
-            } else {
-              options[key] = true;
-            }
-          }
-        }
-      } else {
-        positionalArg = arg;
-      }
-    }
-
-    if (this.actionFn) {
-      const result = this.actionFn(positionalArg, options);
-      if (result instanceof Promise) {
-        result.catch((err) => {
-          process.stderr.write(String(err) + "\n");
-          process.exit(1);
-        });
-      }
-    }
+    runAction(this.actionFn, positionalArg, options);
   }
 
   private showHelp(): void {

@@ -293,81 +293,103 @@ function normalizeStyleOptions(
   return {
     ...options,
     color: resolveColor(options.color, palette),
+    ...(options.backgroundColor && {
+      backgroundColor: resolveColor(options.backgroundColor, palette),
+    }),
   };
+}
+
+const DEFAULT_PRESETS = [
+  "logLevels",
+  "booleans",
+  "brackets",
+  "strings",
+  "numbers",
+  "dates",
+];
+
+function createBaseSchema(config: SimpleThemeConfig): SchemaConfig {
+  const defaultTextColor =
+    config.defaultTextColor || config.colors.text || "white";
+  const defaultStyle = {
+    color: resolveColor(defaultTextColor, config.colors),
+  };
+  return {
+    defaultStyle,
+    matchWords: {},
+    matchPatterns: [],
+    whiteSpace: config.whiteSpace || "preserve",
+    newLine: config.newLine || "preserve",
+  };
+}
+
+function addPreset(
+  schema: SchemaConfig,
+  preset: ThemePreset,
+  palette: ColorPalette,
+): void {
+  if (preset.words) {
+    for (const [word, style] of Object.entries(preset.words)) {
+      schema.matchWords![word] = normalizeStyleOptions(style, palette);
+    }
+  }
+
+  if (preset.patterns) {
+    for (const pattern of preset.patterns) {
+      schema.matchPatterns!.push({
+        ...pattern,
+        options: normalizeStyleOptions(pattern.options, palette),
+      });
+    }
+  }
+}
+
+function addCustomWords(
+  schema: SchemaConfig,
+  words: Record<string, string | StyleOptions>,
+  palette: ColorPalette,
+): void {
+  for (const [word, style] of Object.entries(words)) {
+    schema.matchWords![word] = normalizeStyleOptions(style, palette);
+  }
+}
+
+function addCustomPatterns(
+  schema: SchemaConfig,
+  patterns: NonNullable<SimpleThemeConfig["customPatterns"]>,
+  palette: ColorPalette,
+): void {
+  for (const pattern of patterns) {
+    schema.matchPatterns!.push({
+      name: pattern.name,
+      pattern: pattern.pattern,
+      options: {
+        color: resolveColor(pattern.color, palette),
+        styleCodes: filterStyleCodes(pattern.style),
+      },
+    });
+  }
 }
 
 /**
  * Create a theme from a simple configuration
  */
 export function createTheme(config: SimpleThemeConfig): Theme {
-  const schema: SchemaConfig = {
-    defaultStyle: {
-      color: resolveColor(
-        config.defaultTextColor || config.colors.text || "white",
-        config.colors,
-      ),
-    },
-    matchWords: {},
-    matchPatterns: [],
-    whiteSpace: config.whiteSpace || "preserve",
-    newLine: config.newLine || "preserve",
-  };
-
-  // Add preset patterns and words
-  const presets = config.presets || [
-    "logLevels",
-    "booleans",
-    "brackets",
-    "strings",
-    "numbers",
-    "dates",
-  ];
+  const schema = createBaseSchema(config);
+  const presets = config.presets || DEFAULT_PRESETS;
 
   for (const presetName of presets) {
     const preset = THEME_PRESETS[presetName];
     if (!preset) continue;
-
-    // Add preset words
-    if (preset.words) {
-      for (const [word, style] of Object.entries(preset.words)) {
-        const normalizedStyle = normalizeStyleOptions(style, config.colors);
-        schema.matchWords![word] = normalizedStyle;
-      }
-    }
-
-    // Add preset patterns
-    if (preset.patterns) {
-      for (const pattern of preset.patterns) {
-        const normalizedPattern = {
-          ...pattern,
-          options: normalizeStyleOptions(pattern.options, config.colors),
-        };
-        schema.matchPatterns!.push(normalizedPattern);
-      }
-    }
+    addPreset(schema, preset, config.colors);
   }
 
-  // Add custom words
   if (config.customWords) {
-    for (const [word, style] of Object.entries(config.customWords)) {
-      const normalizedStyle = normalizeStyleOptions(style, config.colors);
-      schema.matchWords![word] = normalizedStyle;
-    }
+    addCustomWords(schema, config.customWords, config.colors);
   }
 
-  // Add custom patterns
   if (config.customPatterns) {
-    for (const pattern of config.customPatterns) {
-      const normalizedPattern: PatternMatch = {
-        name: pattern.name,
-        pattern: pattern.pattern,
-        options: {
-          color: resolveColor(pattern.color, config.colors),
-          styleCodes: filterStyleCodes(pattern.style),
-        },
-      };
-      schema.matchPatterns!.push(normalizedPattern);
-    }
+    addCustomPatterns(schema, config.customPatterns, config.colors);
   }
 
   return {
@@ -516,10 +538,13 @@ export class ThemeBuilder {
   }
 
   build(): Theme {
-    if (!this.config.name || !this.config.colors) {
+    const hasName = Boolean(this.config.name);
+    const hasColors = Boolean(this.config.colors);
+    const hasIncompleteConfig = !hasName || !hasColors;
+    if (hasIncompleteConfig) {
       const missing = [];
-      if (!this.config.name) missing.push("name");
-      if (!this.config.colors) missing.push("colors");
+      if (!hasName) missing.push("name");
+      if (!hasColors) missing.push("colors");
       throw new Error(
         `Theme validation failed: Missing required fields: ${missing.join(", ")}. ` +
           `Please provide a theme name and color configuration.`,

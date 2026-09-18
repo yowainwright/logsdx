@@ -87,7 +87,8 @@ function updateNestedParent(
     const item = items[i];
 
     // Skip if no children
-    if (!item.children || item.children.length === 0) {
+    const hasChildren = item.children.length > 0;
+    if (!hasChildren) {
       continue;
     }
 

@@ -14,6 +14,68 @@ import type { ThemeCardProps } from "./types";
 // @ts-ignore - ansi-to-html does not publish TypeScript declarations.
 import AnsiToHtml from "ansi-to-html";
 
+function ThemeCardHeader({
+  mode,
+  themeName,
+}: {
+  mode?: string;
+  themeName: string;
+}) {
+  return (
+    <CardHeader className="pb-3">
+      <CardTitle className="text-lg flex items-center gap-2">
+        {formatThemeName(themeName)}
+        {mode && (
+          <span className="text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+            {mode}
+          </span>
+        )}
+      </CardTitle>
+    </CardHeader>
+  );
+}
+
+interface ThemeCardContentProps {
+  backgroundColor: string;
+  htmlLogs: string[];
+  isLoading: boolean;
+  mode: "light" | "dark";
+  terminalLogs: string[];
+}
+
+function ThemeCardContent({
+  backgroundColor,
+  htmlLogs,
+  isLoading,
+  mode,
+  terminalLogs,
+}: ThemeCardContentProps) {
+  return (
+    <CardContent className="p-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 min-h-[200px]">
+        <div className="relative border-r border-border">
+          <LogPane
+            title="Browser"
+            logs={htmlLogs.slice(0, 6)}
+            backgroundColor={backgroundColor}
+            mode={mode}
+            isLoading={isLoading}
+          />
+        </div>
+        <div className="relative">
+          <LogPane
+            title="Terminal"
+            logs={terminalLogs.slice(0, 6)}
+            backgroundColor={backgroundColor}
+            mode={mode}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+    </CardContent>
+  );
+}
+
 export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
   const logs = useMemo(() => SAMPLE_LOGS, []);
   const { processedLogs, isLoading, theme } = useThemeProcessor(
@@ -42,38 +104,14 @@ export function ThemeCard({ themeName, isVisible = true }: ThemeCardProps) {
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow mb-6">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          {formatThemeName(themeName)}
-          {theme?.mode && (
-            <span className="text-xs px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-              {theme.mode}
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 min-h-[200px]">
-          <div className="relative border-r border-border">
-            <LogPane
-              title="Browser"
-              logs={htmlLogs.slice(0, 6)}
-              backgroundColor={colors.bg}
-              mode={colors.mode}
-              isLoading={isLoading}
-            />
-          </div>
-          <div className="relative">
-            <LogPane
-              title="Terminal"
-              logs={terminalLogs.slice(0, 6)}
-              backgroundColor={colors.bg}
-              mode={colors.mode}
-              isLoading={isLoading}
-            />
-          </div>
-        </div>
-      </CardContent>
+      <ThemeCardHeader mode={theme?.mode} themeName={themeName} />
+      <ThemeCardContent
+        backgroundColor={colors.bg}
+        htmlLogs={htmlLogs}
+        isLoading={isLoading}
+        mode={colors.mode}
+        terminalLogs={terminalLogs}
+      />
     </Card>
   );
 }

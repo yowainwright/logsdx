@@ -1,61 +1,87 @@
 import type { Spinner } from "./types";
 import { SPINNER_FRAMES } from "./constants";
 
+interface SpinnerState {
+  text: string;
+  frameIndex: number;
+  interval: ReturnType<typeof setInterval> | null;
+  isSpinning: boolean;
+}
+
+function stopSpinner(state: SpinnerState, instance: Spinner): Spinner {
+  const interval = state.interval;
+  if (interval) {
+    clearInterval(interval);
+    state.interval = null;
+  }
+
+  if (!state.isSpinning) return instance;
+
+  process.stdout.write("\r\x1B[K");
+  process.stdout.write("\x1B[?25h");
+  state.isSpinning = false;
+  return instance;
+}
+
+function startSpinner(state: SpinnerState, instance: Spinner): Spinner {
+  if (state.isSpinning) return instance;
+
+  state.isSpinning = true;
+  process.stdout.write("\x1B[?25l");
+
+  state.interval = setInterval(() => {
+    const frame = SPINNER_FRAMES[state.frameIndex];
+    state.frameIndex = (state.frameIndex + 1) % SPINNER_FRAMES.length;
+    process.stdout.write(`\r\x1B[36m${frame}\x1B[0m ${state.text}`);
+  }, 80);
+
+  return instance;
+}
+
+interface FinishSpinnerOptions {
+  text?: string;
+  symbol: string;
+  color: string;
+}
+
+function finishSpinner(
+  state: SpinnerState,
+  instance: Spinner,
+  options: FinishSpinnerOptions,
+): Spinner {
+  stopSpinner(state, instance);
+  const message = options.text || state.text;
+  process.stdout.write(
+    `\r\x1B[${options.color}m${options.symbol}\x1B[0m ${message}\n`,
+  );
+  return instance;
+}
+
 export function spinner(initialText: string): Spinner {
-  let text = initialText;
-  let frameIndex = 0;
-  let interval: ReturnType<typeof setInterval> | null = null;
-  let isSpinning = false;
+  const state: SpinnerState = {
+    text: initialText,
+    frameIndex: 0,
+    interval: null,
+    isSpinning: false,
+  };
 
   const instance: Spinner = {
     get text() {
-      return text;
+      return state.text;
     },
     set text(value: string) {
-      text = value;
+      state.text = value;
     },
 
-    start() {
-      if (isSpinning) return instance;
+    start: () => startSpinner(state, instance),
 
-      isSpinning = true;
-      process.stdout.write("\x1B[?25l");
+    succeed: (text?: string) =>
+      finishSpinner(state, instance, { text, symbol: "✔", color: "32" }),
 
-      interval = setInterval(() => {
-        const frame = SPINNER_FRAMES[frameIndex];
-        frameIndex = (frameIndex + 1) % SPINNER_FRAMES.length;
-        process.stdout.write(`\r\x1B[36m${frame}\x1B[0m ${text}`);
-      }, 80);
+    fail: (text?: string) =>
+      finishSpinner(state, instance, { text, symbol: "✖", color: "31" }),
 
-      return instance;
-    },
-
-    succeed(successText?: string) {
-      instance.stop();
-      const message = successText || text;
-      process.stdout.write(`\r\x1B[32m✔\x1B[0m ${message}\n`);
-      return instance;
-    },
-
-    fail(failText?: string) {
-      instance.stop();
-      const message = failText || text;
-      process.stdout.write(`\r\x1B[31m✖\x1B[0m ${message}\n`);
-      return instance;
-    },
-
-    stop() {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-      if (isSpinning) {
-        process.stdout.write("\r\x1B[K");
-        process.stdout.write("\x1B[?25h");
-        isSpinning = false;
-      }
-      return instance;
-    },
+    stop: () => stopSpinner(state, instance),
   };
 
   return instance;

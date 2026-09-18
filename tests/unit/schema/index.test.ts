@@ -352,6 +352,34 @@ describe("Schema Validator", () => {
       const result = parseThemeSafe(theme);
       expect(result.success).toBe(false);
     });
+
+    test("preserves colors, identifiers, and regular expression patterns", () => {
+      const pattern = /error:\s.*/gi;
+      const theme = {
+        name: "Portable theme",
+        colors: { text: "#ffffff", error: "#ff0000" },
+        schema: {
+          matchPatterns: [
+            {
+              name: "error-line",
+              identifier: "error-line",
+              pattern,
+              options: { color: "error", styleCodes: ["bold"] },
+            },
+          ],
+        },
+      };
+
+      const result = parseTheme(theme);
+
+      expect(result.colors).toEqual(theme.colors);
+      expect(result.schema.matchPatterns?.[0]).toEqual({
+        name: "error-line",
+        identifier: "error-line",
+        pattern,
+        options: { color: "error", styleCodes: ["bold"] },
+      });
+    });
   });
 });
 

@@ -72,8 +72,8 @@ class TokenizerCache {
     }
 
     if (this.cache.size > MAX_CACHE_SIZE) {
-      const sorted = entries.sort((a, b) => a[1].lastUsed - b[1].lastUsed);
-      const toRemove = sorted.slice(0, this.cache.size - MAX_CACHE_SIZE);
+      entries.sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+      const toRemove = entries.slice(0, this.cache.size - MAX_CACHE_SIZE);
       for (const [key] of toRemove) {
         this.cache.delete(key);
       }

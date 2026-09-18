@@ -147,6 +147,7 @@ dist
 examples/*/bun.lock
 .turbo
 CLAUDE.md
+.src-lint/
 
 site/SPECIFICATION.md
 site/DESIGN.md
@@ -157,7 +158,6 @@ tmp
 test-results/
 playwright-report/
 playwright/.cache/
-.beads/
 
 # WASM files copied from node_modules
 site/public/ghostty-vt.wasm

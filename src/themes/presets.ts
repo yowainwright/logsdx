@@ -442,6 +442,74 @@ export function listPatternPresets(
   return [...PATTERN_PRESETS];
 }
 
+function createStyleOptions(
+  palette: ColorPalette,
+  colorRole: ColorRole,
+  styleCodes?: string[],
+): StyleOptions {
+  const color = palette.colors[colorRole] || palette.colors.text;
+  return { color, styleCodes: filterStyleCodes(styleCodes) };
+}
+
+function addPresetMatches(
+  preset: PatternPreset,
+  palette: ColorPalette,
+  matchWords: Record<string, StyleOptions>,
+  matchPatterns: PatternMatch[],
+): void {
+  for (const [word, wordConfig] of Object.entries(preset.matchWords)) {
+    matchWords[word] = createStyleOptions(
+      palette,
+      wordConfig.colorRole,
+      wordConfig.styleCodes,
+    );
+  }
+
+  for (const pattern of preset.patterns) {
+    matchPatterns.push({
+      name: pattern.name,
+      pattern: pattern.pattern,
+      options: createStyleOptions(
+        palette,
+        pattern.colorRole,
+        pattern.styleCodes,
+      ),
+    });
+  }
+}
+
+function addCustomWords(
+  customWords: NonNullable<ThemeGeneratorConfig["customWords"]>,
+  palette: ColorPalette,
+  matchWords: Record<string, StyleOptions>,
+): void {
+  for (const [word, wordConfig] of Object.entries(customWords)) {
+    matchWords[word] = createStyleOptions(
+      palette,
+      wordConfig.colorRole,
+      wordConfig.styleCodes,
+    );
+  }
+}
+
+function addCustomPatterns(
+  customPatterns: NonNullable<ThemeGeneratorConfig["customPatterns"]>,
+  palette: ColorPalette,
+  matchPatterns: PatternMatch[],
+): void {
+  for (const pattern of customPatterns) {
+    matchPatterns.push({
+      name: pattern.name,
+      pattern: pattern.pattern,
+      options: createStyleOptions(
+        palette,
+        pattern.colorRole,
+        pattern.styleCodes,
+      ),
+    });
+  }
+}
+
 export function generateTemplate(config: ThemeGeneratorConfig): ThemePreset {
   const palette = getColorPalette(config.colorPalette);
   if (!palette) {
@@ -460,46 +528,19 @@ export function generateTemplate(config: ThemeGeneratorConfig): ThemePreset {
   const matchPatterns: PatternMatch[] = [];
 
   for (const preset of patternPresets) {
-    for (const [word, config] of Object.entries(preset.matchWords)) {
-      matchWords[word] = {
-        color: palette.colors[config.colorRole] || palette.colors.text,
-        styleCodes: filterStyleCodes(config.styleCodes),
-      };
-    }
-
-    for (const pattern of preset.patterns) {
-      matchPatterns.push({
-        name: pattern.name,
-        pattern: pattern.pattern,
-        options: {
-          color: palette.colors[pattern.colorRole] || palette.colors.text,
-          styleCodes: filterStyleCodes(pattern.styleCodes),
-        },
-      });
-    }
+    addPresetMatches(preset, palette, matchWords, matchPatterns);
   }
 
   if (config.customWords) {
-    for (const [word, wordConfig] of Object.entries(config.customWords)) {
-      matchWords[word] = {
-        color: palette.colors[wordConfig.colorRole] || palette.colors.text,
-        styleCodes: filterStyleCodes(wordConfig.styleCodes),
-      };
-    }
+    addCustomWords(config.customWords, palette, matchWords);
   }
 
   if (config.customPatterns) {
-    for (const pattern of config.customPatterns) {
-      matchPatterns.push({
-        name: pattern.name,
-        pattern: pattern.pattern,
-        options: {
-          color: palette.colors[pattern.colorRole] || palette.colors.text,
-          styleCodes: filterStyleCodes(pattern.styleCodes),
-        },
-      });
-    }
+    addCustomPatterns(config.customPatterns, palette, matchPatterns);
   }
+
+  const whiteSpace = config.options?.whiteSpace || "preserve";
+  const newLine = config.options?.newLine || "preserve";
 
   return {
     name: config.name,
@@ -510,8 +551,8 @@ export function generateTemplate(config: ThemeGeneratorConfig): ThemePreset {
       },
       matchWords,
       matchPatterns,
-      whiteSpace: config.options?.whiteSpace || "preserve",
-      newLine: config.options?.newLine || "preserve",
+      whiteSpace,
+      newLine,
     },
   };
 }

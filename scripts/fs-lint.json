@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "newFiles": {
+    "default": "deny",
+    "allow": [
+      "AGENTS.md",
+      "README.md",
+      "LICENSE",
+      "package.json",
+      "bun.lock",
+      "bunfig.toml",
+      "codecov.yml",
+      "scripts/fs-lint.json",
+      "mise.toml",
+      "mprocs.yaml",
+      "scripts/oxlint.json",
+      "schema.json",
+      ".src-lintrc",
+      "tsconfig.json",
+      "tsconfig.build.json",
+      "turbo.json",
+      "src/**/*.ts",
+      "tests/**/*.ts",
+      "scripts/**/*.ts",
+      "scripts/**/*.sh",
+      "site/**/*.ts",
+      "site/**/*.tsx",
+      "site/**/*.js",
+      "site/**/*.mjs",
+      "site/**/*.md",
+      "site/**/*.mdx",
+      "site/**/*.css",
+      "site/**/*.json",
+      "site/**/*.yaml",
+      "site/**/*.yml",
+      "site/**/*.svg",
+      "site/public/**",
+      "examples/**",
+      "docs/**/*.md"
+    ]
+  }
+}

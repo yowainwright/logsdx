@@ -45,7 +45,11 @@ export function getDocsPaths(): string[] {
 
       if (stat.isDirectory()) {
         traverseDirectory(itemPath, [...slugParts, item]);
-      } else if (item.endsWith(".mdx") || item.endsWith(".md")) {
+        continue;
+      }
+
+      const isDocument = item.endsWith(".mdx") || item.endsWith(".md");
+      if (isDocument) {
         const slug = [...slugParts, item.replace(/\.(mdx|md)$/, "")].join("/");
         paths.push(slug);
       }
@@ -99,7 +103,10 @@ export function getAllDocsMeta(): DocMeta[] {
     }
   }
 
-  return docs.sort((a, b) => (a.order || 0) - (b.order || 0));
+  const sortedDocs = [...docs].sort(
+    (a, b) => (a.order || 0) - (b.order || 0),
+  );
+  return sortedDocs;
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {

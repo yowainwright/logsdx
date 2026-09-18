@@ -30,11 +30,17 @@ export const CSS_BOLD = "font-weight: bold";
 export const CSS_ITALIC = "font-style: italic";
 export const CSS_UNDERLINE = "text-decoration: underline";
 export const CSS_DIM = "opacity: 0.8";
+export const CSS_BLINK = "text-decoration: blink";
+export const CSS_REVERSE = "filter: invert(1)";
+export const CSS_STRIKETHROUGH = "text-decoration: line-through";
 
 export const CLASS_BOLD = "logsdx-bold";
 export const CLASS_ITALIC = "logsdx-italic";
 export const CLASS_UNDERLINE = "logsdx-underline";
 export const CLASS_DIM = "logsdx-dim";
+export const CLASS_BLINK = "logsdx-blink";
+export const CLASS_REVERSE = "logsdx-reverse";
+export const CLASS_STRIKETHROUGH = "logsdx-strikethrough";
 
 export const HEX_COLOR_PATTERN = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
 
@@ -45,16 +51,19 @@ function getEnv(key: string): string | undefined {
 
 function isTTY(): boolean {
   const hasProcess = typeof process !== "undefined" && process.stdout;
-  return hasProcess ? process.stdout.isTTY !== false : true;
+  if (!hasProcess) return true;
+  const ttyFlag = process.stdout.isTTY;
+  if (ttyFlag === undefined) return true;
+  return ttyFlag;
 }
 
 function isColorTerm(term: string): boolean {
   const colorTerms = ["xterm", "screen", "tmux"];
   const hasColorKeyword =
     term.includes("color") || term.includes("256") || term.includes("ansi");
-  return (
-    hasColorKeyword || colorTerms.includes(term) || Boolean(getEnv("COLORTERM"))
-  );
+  const hasKnownColorTerm = colorTerms.includes(term);
+  const hasColorTerminal = hasColorKeyword || hasKnownColorTerm;
+  return hasColorTerminal || Boolean(getEnv("COLORTERM"));
 }
 
 export function supportsColors(): boolean {
@@ -165,6 +174,23 @@ export const TEXT_COLORS: Record<string, ColorDefinition> = {
   },
 };
 
+function getThemeColorDefinition(
+  colorName: string,
+  theme?: Theme,
+): ColorDefinition | undefined {
+  if (!theme) return undefined;
+  if (!("colorDefinitions" in theme)) return undefined;
+
+  const colorDefinitions = theme.colorDefinitions;
+  const isObject = typeof colorDefinitions === "object";
+  const hasDefinitions = isObject && colorDefinitions !== null;
+  if (!hasDefinitions) return undefined;
+
+  const definitions = colorDefinitions as Record<string, ColorDefinition>;
+  if (!(colorName in definitions)) return undefined;
+  return definitions[colorName];
+}
+
 export function getColorDefinition(
   colorName: string,
   theme?: Theme,
@@ -173,17 +199,8 @@ export function getColorDefinition(
     return TEXT_COLORS[colorName];
   }
 
-  if (
-    theme &&
-    "colorDefinitions" in theme &&
-    typeof theme.colorDefinitions === "object" &&
-    theme.colorDefinitions &&
-    colorName in theme.colorDefinitions
-  ) {
-    return (theme.colorDefinitions as Record<string, ColorDefinition>)[
-      colorName
-    ];
-  }
+  const themeDefinition = getThemeColorDefinition(colorName, theme);
+  if (themeDefinition) return themeDefinition;
 
   if (colorName.startsWith("#")) {
     return {
@@ -209,7 +226,9 @@ export function getColorDefinition(
   };
 
   const fallbackColor = fallbackMap[colorName];
-  if (fallbackColor && TEXT_COLORS[fallbackColor]) {
+  const hasFallbackColor =
+    fallbackColor !== undefined && TEXT_COLORS[fallbackColor] !== undefined;
+  if (hasFallbackColor) {
     return TEXT_COLORS[fallbackColor];
   }
 

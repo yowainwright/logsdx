@@ -1,5 +1,5 @@
 import type { Theme } from "logsdx";
-import { renderLine } from "logsdx";
+import { styleLine, tokensToHtml, tokensToString } from "logsdx";
 import type { GhosttyTheme, ProcessedOutput } from "./types";
 import { ANSI_ESCAPE_REPLACEMENTS } from "./constants";
 
@@ -15,9 +15,10 @@ export function processLogsWithTheme(
   theme: Theme,
 ): ProcessedOutput[] {
   return logs.map((log) => {
-    const ansi = renderLine(log, theme, { outputFormat: "ansi" });
-    const html = renderLine(log, theme, {
-      outputFormat: "html",
+    const tokens = styleLine(log, theme);
+    const ansi = tokensToString(tokens, true, "truecolor", theme);
+    const html = tokensToHtml(tokens, {
+      theme,
       htmlStyleFormat: "css",
       escapeHtml: true,
     });
@@ -26,7 +27,8 @@ export function processLogsWithTheme(
 }
 
 function adjustBrightness(hex: string, percent: number): string {
-  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return hex || "#000000";
+  const isInvalidHex = !hex || !/^#[0-9a-fA-F]{6}$/.test(hex);
+  if (isInvalidHex) return hex || "#000000";
 
   const num = parseInt(hex.replace("#", ""), 16);
   const r = Math.min(
@@ -74,7 +76,8 @@ function or<T>(a: T | undefined, b: T): T {
 }
 
 function getModeDefaults(theme: Theme) {
-  if (theme.mode === "dark" || theme.mode === "auto") return DARK;
+  const usesDarkMode = theme.mode === "dark" || theme.mode === "auto";
+  if (usesDarkMode) return DARK;
   return LIGHT;
 }
 

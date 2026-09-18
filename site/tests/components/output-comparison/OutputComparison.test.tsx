@@ -24,18 +24,20 @@ const defaultTheme = async (themeName: string) => ({
 
 let getThemeImpl = defaultTheme;
 const getTheme = mock((themeName: string) => getThemeImpl(themeName));
-const renderLine = mock(
-  (line: string, _theme: unknown, options?: { outputFormat?: string }) => {
-    if (options?.outputFormat === "html") {
-      return `<span style="color: #f8f8f2">${line}</span>`;
-    }
-    return line;
-  },
+const styleLine = mock((line: string) => [{ content: line }]);
+const tokensToString = mock((tokens: Array<{ content: string }>) =>
+  tokens.map((token) => token.content).join(""),
+);
+const tokensToHtml = mock(
+  (tokens: Array<{ content: string }>) =>
+    `<span style="color: #f8f8f2">${tokens.map((token) => token.content).join("")}</span>`,
 );
 
 mock.module("logsdx", () => ({
   getTheme,
-  renderLine,
+  styleLine,
+  tokensToString,
+  tokensToHtml,
 }));
 
 import {
@@ -59,7 +61,9 @@ describe("OutputComparison", () => {
     document.body.innerHTML = "";
     getThemeImpl = defaultTheme;
     getTheme.mockClear();
-    renderLine.mockClear();
+    styleLine.mockClear();
+    tokensToString.mockClear();
+    tokensToHtml.mockClear();
   });
 
   afterEach(() => {

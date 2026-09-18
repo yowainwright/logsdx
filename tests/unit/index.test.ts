@@ -82,6 +82,29 @@ describe("LogsDX", () => {
       expect(result).toContain(">test</span>");
       expect(result).toContain(">:</span>");
     });
+
+    test("passes HTML escaping through the shared renderer", async () => {
+      const theme = {
+        name: "html-options",
+        schema: { defaultStyle: { color: "red" } },
+      };
+      const escapedInstance = await LogsDX.getInstance({
+        theme,
+        outputFormat: "html",
+        escapeHtml: true,
+      });
+
+      expect(escapedInstance.processLine("2 < 3")).toContain("&lt;");
+
+      LogsDX.resetInstance();
+      const unescapedInstance = await LogsDX.getInstance({
+        theme,
+        outputFormat: "html",
+        escapeHtml: false,
+      });
+
+      expect(unescapedInstance.processLine("2 < 3")).toContain("<");
+    });
   });
 
   describe("processLines", () => {
@@ -224,6 +247,24 @@ describe("LogsDX", () => {
       instance.setHtmlStyleFormat("className");
       result = instance.processLine("test");
       expect(result).toContain("class=");
+    });
+  });
+
+  describe("setColorDepth", () => {
+    test("updates ANSI color depth", async () => {
+      const instance = await LogsDX.getInstance({
+        theme: {
+          name: "color-depth",
+          schema: { defaultStyle: { color: "#123456" } },
+        },
+      });
+
+      instance.setColorDepth("truecolor");
+      expect(instance.processLine("text")).toContain("\x1b[38;2;18;52;86m");
+
+      instance.setColorDepth("none");
+      expect(instance.processLine("text")).toBe("text");
+      expect(instance.getColorDepth()).toBe("none");
     });
   });
 });

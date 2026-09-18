@@ -74,8 +74,8 @@ const installHooks = (): void => {
     console.log(`Skipped ${skipped} existing hook(s)`);
   }
 
-  const hasNoChanges = installed === 0 && skipped === 0;
-  if (hasNoChanges) {
+  const hasChanges = installed > 0 || skipped > 0;
+  if (!hasChanges) {
     console.log("No hooks to install");
   }
 };

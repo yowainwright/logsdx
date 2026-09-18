@@ -13,7 +13,25 @@ const navLinks = [
   { href: "#theme-creator", label: "Theme Generator" },
 ];
 
-export function Navbar() {
+function getActiveSection(scrollPosition: number) {
+  const sections = navLinks.map((link) => link.href.substring(1));
+
+  for (const section of sections) {
+    const element = document.getElementById(section);
+    if (!element) continue;
+
+    const rect = element.getBoundingClientRect();
+    const elementTop = rect.top + window.scrollY;
+    const elementBottom = elementTop + element.offsetHeight;
+    const isInSection =
+      scrollPosition >= elementTop && scrollPosition < elementBottom;
+    if (isInSection) return `#${section}`;
+  }
+
+  return "";
+}
+
+function useNavbarState() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -22,31 +40,13 @@ export function Navbar() {
     setIsVisible(true);
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-
-      if (window.scrollY < 300) {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 20);
+      if (scrollY < 300) {
         setActiveSection("");
         return;
       }
-
-      const sections = navLinks.map((link) => link.href.substring(1));
-      const scrollPosition = window.scrollY + 100;
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const elementTop = rect.top + window.scrollY;
-          const elementBottom = elementTop + element.offsetHeight;
-
-          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
-            setActiveSection(`#${section}`);
-            return;
-          }
-        }
-      }
-
-      setActiveSection("");
+      setActiveSection(getActiveSection(scrollY + 100));
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -54,21 +54,96 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
+  return { activeSection, isScrolled, isVisible };
+}
+
+function NavbarBrand() {
+  return (
+    <a href="/" className="text-xl font-bold flex items-center">
+      <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        logsDx
+      </span>
+      <span
+        className="inline-block animate-pulse"
+        style={{
+          width: "3px",
+          height: "1.25rem",
+          backgroundColor: "#ef4444",
+          marginLeft: "2px",
+        }}
+      ></span>
+    </a>
+  );
+}
+
+function handleNavClick(
+  event: React.MouseEvent<HTMLAnchorElement>,
+  href: string,
+) {
+  event.preventDefault();
+  const element = document.querySelector(href);
+  if (!element) return;
+
+  const offsetTop = element.getBoundingClientRect().top + window.scrollY - 80;
+  window.scrollTo({ top: offsetTop, behavior: "smooth" });
+}
+
+function NavbarLinks({
+  activeSection,
+  onNavClick,
+}: {
+  activeSection: string;
+  onNavClick: (
+    event: React.MouseEvent<HTMLAnchorElement>,
     href: string,
-  ) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const offsetTop =
-        element.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
-      });
-    }
-  };
+  ) => void;
+}) {
+  return (
+    <nav className="hidden md:flex items-center gap-4">
+      {navLinks.map((link) => {
+        const isActive = activeSection === link.href;
+        const className = `text-sm transition-all ${
+          isActive
+            ? "font-bold text-slate-900 dark:text-slate-100"
+            : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+        }`;
+
+        return (
+          <a
+            key={link.href}
+            href={link.href}
+            onClick={(event) => onNavClick(event, link.href)}
+            className={className}
+          >
+            {link.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+}
+
+function NavbarActions() {
+  return (
+    <div className="flex items-center gap-2 pr-8">
+      <Search />
+      <Button variant="outline" size="icon" asChild>
+        <a
+          href="https://github.com/yowainwright/logsdx"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaGithub className="h-[1.2rem] w-[1.2rem]" />
+          <span className="sr-only">GitHub</span>
+        </a>
+      </Button>
+      <ThemeToggle />
+    </div>
+  );
+}
+
+export function Navbar() {
+  const { activeSection, isScrolled, isVisible } = useNavbarState();
 
   return (
     <nav
@@ -85,62 +160,14 @@ export function Navbar() {
       >
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-6 pl-8">
-            <a href="/" className="text-xl font-bold flex items-center">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                logsDx
-              </span>
-              <span
-                className="inline-block animate-pulse"
-                style={{
-                  width: "3px",
-                  height: "1.25rem",
-                  backgroundColor: "#ef4444",
-                  marginLeft: "2px",
-                }}
-              ></span>
-            </a>
-
-            <nav className="hidden md:flex items-center gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={`text-sm transition-all ${
-                    activeSection === link.href
-                      ? "font-bold text-slate-900 dark:text-slate-100"
-                      : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                  }`}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
+            <NavbarBrand />
+            <NavbarLinks
+              activeSection={activeSection}
+              onNavClick={handleNavClick}
+            />
           </div>
 
-          <div className="flex items-center gap-2 pr-8">
-            {/* Docs link hidden for now */}
-            {/* <a
-              href="https://docs.claude.com/en/docs/claude-code"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-3"
-            >
-              Docs
-            </a> */}
-            <Search />
-            <Button variant="outline" size="icon" asChild>
-              <a
-                href="https://github.com/yowainwright/logsdx"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGithub className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">GitHub</span>
-              </a>
-            </Button>
-            <ThemeToggle />
-          </div>
+          <NavbarActions />
         </div>
       </div>
     </nav>

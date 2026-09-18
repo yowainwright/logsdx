@@ -26,7 +26,9 @@ async function validateInput(
 ): Promise<boolean> {
   if (!validate) return true;
   const result = await Promise.resolve(validate(value));
-  if (result === true) return true;
+  const isStringResult = typeof result === "string";
+  const isValidBoolean = isStringResult ? false : Boolean(result);
+  if (isValidBoolean) return true;
   const errorMsg = typeof result === "string" ? result : "Invalid input";
   logger.error(errorMsg);
   return false;
@@ -45,7 +47,11 @@ export async function input(options: InputPrompt): Promise<string> {
 }
 
 function normalizeChoice(choice: SelectPrompt["choices"][0]) {
-  return typeof choice === "string" ? { name: choice, value: choice } : choice;
+  const isStringChoice = typeof choice === "string";
+  if (!isStringChoice) {
+    return choice;
+  }
+  return { name: choice, value: choice };
 }
 
 function printChoices(choices: ReturnType<typeof normalizeChoice>[]) {
@@ -69,7 +75,8 @@ export async function select(options: SelectPrompt): Promise<string> {
     const answer = await question(`Select (${defaultIdx}): `);
     const trimmed = answer.trim();
     const index = trimmed ? parseInt(trimmed, 10) - 1 : defaultIdx - 1;
-    if (index >= 0 && index < choices.length) return choices[index].value;
+    const isValidIndex = index >= 0 && index < choices.length;
+    if (isValidIndex) return choices[index].value;
     logger.error("Invalid selection");
   }
 }
@@ -101,8 +108,12 @@ export async function confirm(options: ConfirmPrompt): Promise<boolean> {
   const answer = await question(prompt);
   const value = answer.trim().toLowerCase();
 
-  if (!value && options.default !== undefined) return options.default;
-  return value === "y" || value === "yes";
+  const isAffirmative = value === "y" || value === "yes";
+  if (value) return isAffirmative;
+
+  const defaultValue = options.default;
+  if (defaultValue === undefined) return isAffirmative;
+  return defaultValue;
 }
 
 export function closePrompts() {

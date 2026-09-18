@@ -45,7 +45,7 @@ describe("Color Support Detection", () => {
     (process.stdout as NodeJS.WriteStream & { isTTY?: boolean }).isTTY = true;
     delete process.env.TERM;
 
-    const expectedResult = typeof Bun !== "undefined" ? true : false;
+    const expectedResult = typeof Bun !== "undefined";
     expect(supportsColors()).toBe(expectedResult);
   });
 

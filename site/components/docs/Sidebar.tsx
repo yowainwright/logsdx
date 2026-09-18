@@ -90,60 +90,85 @@ interface SidebarItemProps {
   readonly depth?: number;
 }
 
-function SidebarItem({ item, pathname, depth = 0 }: SidebarItemProps) {
+function SidebarItemContent({
+  item,
+  pathname,
+  depth,
+}: SidebarItemProps) {
   const isActive = item.href === pathname;
-  const hasChildren = item.items && item.items.length > 0;
 
-  if (!item.href && !hasChildren) {
-    return null;
+  if (item.href) {
+    return (
+      <Link
+        href={item.href}
+        className={cn(
+          "block rounded-md px-3 py-2 text-sm transition-colors",
+          "hover:bg-muted hover:text-foreground",
+          depth && "ml-4",
+          isActive
+            ? "bg-muted font-medium text-foreground"
+            : "text-muted-foreground",
+        )}
+        aria-current={isActive ? "page" : undefined}
+      >
+        <SidebarItemLabel item={item} />
+      </Link>
+    );
   }
 
   return (
+    <div
+      className={cn(
+        "px-3 py-2 text-sm font-medium text-foreground",
+        depth && "ml-4",
+      )}
+    >
+      {item.title}
+    </div>
+  );
+}
+
+function SidebarItemLabel({ item }: { item: NavItem }) {
+  return (
+    <span className="flex items-center justify-between">
+      {item.title}
+      {item.badge && (
+        <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+          {item.badge}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function SidebarChildren({ item, pathname, depth }: SidebarItemProps) {
+  const children = item.items ?? [];
+  if (children.length === 0) return null;
+
+  return (
+    <ul className="mt-1 space-y-1">
+      {children.map((child) => (
+        <SidebarItem
+          key={child.href || child.title}
+          item={child}
+          pathname={pathname}
+          depth={depth + 1}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function SidebarItem({ item, pathname, depth = 0 }: SidebarItemProps) {
+  const hasChildren = Boolean(item.items?.length);
+  const isEmptyItem = !item.href && !hasChildren;
+
+  if (isEmptyItem) return null;
+
+  return (
     <li>
-      {item.href ? (
-        <Link
-          href={item.href}
-          className={cn(
-            "block rounded-md px-3 py-2 text-sm transition-colors",
-            "hover:bg-muted hover:text-foreground",
-            depth > 0 && "ml-4",
-            isActive
-              ? "bg-muted font-medium text-foreground"
-              : "text-muted-foreground",
-          )}
-          aria-current={isActive ? "page" : undefined}
-        >
-          <span className="flex items-center justify-between">
-            {item.title}
-            {item.badge && (
-              <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                {item.badge}
-              </span>
-            )}
-          </span>
-        </Link>
-      ) : (
-        <div
-          className={cn(
-            "px-3 py-2 text-sm font-medium text-foreground",
-            depth > 0 && "ml-4",
-          )}
-        >
-          {item.title}
-        </div>
-      )}
-      {hasChildren && item.items && (
-        <ul className="mt-1 space-y-1">
-          {item.items.map((child) => (
-            <SidebarItem
-              key={child.href || child.title}
-              item={child}
-              pathname={pathname}
-              depth={depth + 1}
-            />
-          ))}
-        </ul>
-      )}
+      <SidebarItemContent item={item} pathname={pathname} depth={depth} />
+      <SidebarChildren item={item} pathname={pathname} depth={depth} />
     </li>
   );
 }

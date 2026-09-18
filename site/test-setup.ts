@@ -35,6 +35,14 @@ const logsdxMock = {
     }
     return line;
   },
+  styleLine: (line: string) => [{ content: line }],
+  tokensToHtml: (
+    tokens: Array<{ content: string }>,
+    options?: { theme?: { name?: string } },
+  ) =>
+    `<span style="color: #f8f8f2">${options?.theme?.name || ""}:${tokens.map((token) => token.content).join("")}</span>`,
+  tokensToString: (tokens: Array<{ content: string }>) =>
+    tokens.map((token) => token.content).join(""),
   getAllThemes: () => ({}),
   getThemeNames: () => [],
   LogsDX: class {

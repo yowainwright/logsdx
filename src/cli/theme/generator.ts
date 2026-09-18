@@ -26,12 +26,139 @@ import { createLogger } from "../../utils/logger";
 const log = createLogger("theme-gen");
 
 function serializePattern(pattern: PatternMatch): PatternMatch {
+  const patternValue =
+    pattern.pattern instanceof RegExp ? pattern.pattern.source : pattern.pattern;
   return {
     ...pattern,
-    pattern:
-      pattern.pattern instanceof RegExp
-        ? pattern.pattern.source
-        : pattern.pattern,
+    pattern: patternValue,
+  };
+}
+
+function formatPaletteDescription(palette: ColorPalette): string {
+  const contrast = palette.accessibility.contrastRatio.toFixed(1);
+  const colorBlindLabel = palette.accessibility.colorBlindSafe
+    ? "Color-blind safe"
+    : "Not color-blind safe";
+  const modeLabel = palette.accessibility.darkMode ? "Dark mode" : "Light mode";
+  return `Contrast: ${contrast}, ${colorBlindLabel}, ${modeLabel}`;
+}
+
+type CustomPattern = NonNullable<
+  ThemeGeneratorConfig["customPatterns"]
+>[number];
+type CustomWord = NonNullable<ThemeGeneratorConfig["customWords"]>[string];
+type ThemeColorRole = CustomPattern["colorRole"];
+
+const COLOR_ROLE_CHOICES = [
+  { name: "Primary", value: "primary" as const },
+  { name: "Secondary", value: "secondary" as const },
+  { name: "Success", value: "success" as const },
+  { name: "Warning", value: "warning" as const },
+  { name: "Error", value: "error" as const },
+  { name: "Info", value: "info" as const },
+  { name: "Muted", value: "muted" as const },
+  { name: "Accent", value: "accent" as const },
+];
+
+const STYLE_CODE_CHOICES = [
+  { name: "Bold", value: "bold" },
+  { name: "Italic", value: "italic" },
+  { name: "Underline", value: "underline" },
+  { name: "Dim", value: "dim" },
+];
+
+async function selectColorRole(message: string): Promise<ThemeColorRole> {
+  const colorRole = await select({
+    message,
+    choices: COLOR_ROLE_CHOICES,
+  });
+  return colorRole as ThemeColorRole;
+}
+
+async function selectStyleCodes(message: string): Promise<string[]> {
+  return checkbox({ message, choices: STYLE_CODE_CHOICES });
+}
+
+async function collectThemeName(): Promise<string> {
+  return input({
+    message: "Theme name:",
+    validate: (value) => {
+      if (!value.trim()) return "Theme name is required";
+      if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
+        return "Theme name can only contain letters, numbers, hyphens, and underscores";
+      }
+      return true;
+    },
+  });
+}
+
+async function selectThemePalette(): Promise<string> {
+  const palettes = listColorPalettes();
+  const choices = palettes.map((palette) => ({
+    name: `${colors.bold(palette.name)} - ${palette.description}`,
+    value: palette.name,
+    description: formatPaletteDescription(palette),
+  }));
+  return select({ message: "Choose a color palette:", choices });
+}
+
+async function selectPatternPresets(): Promise<string[]> {
+  const presets = listPatternPresets();
+  const presetsByCategory = presets.reduce(
+    (acc, preset) => {
+      if (!acc[preset.category]) acc[preset.category] = [];
+      acc[preset.category].push(preset);
+      return acc;
+    },
+    {} as Record<string, PatternPreset[]>,
+  );
+  const choices = Object.entries(presetsByCategory).flatMap(
+    ([category, categoryPresets]) =>
+      categoryPresets.map((preset) => ({
+        name: `${category}: ${preset.name} - ${preset.description}`,
+        value: preset.name,
+      })),
+  );
+  return checkbox({ message: "Select pattern presets to include:", choices });
+}
+
+async function collectOptionalPatterns(): Promise<
+  ThemeGeneratorConfig["customPatterns"]
+> {
+  const shouldAdd = await confirm({
+    message: "Add custom patterns?",
+    default: false,
+  });
+  if (!shouldAdd) return [];
+  return collectCustomPatterns();
+}
+
+async function collectOptionalWords(): Promise<
+  ThemeGeneratorConfig["customWords"]
+> {
+  const shouldAdd = await confirm({
+    message: "Add custom word matches?",
+    default: false,
+  });
+  if (!shouldAdd) return {};
+  return collectCustomWords();
+}
+
+async function collectThemeConfig(): Promise<ThemeGeneratorConfig> {
+  const name = await collectThemeName();
+  const description = await input({ message: "Theme description (optional):" });
+  const colorPalette = await selectThemePalette();
+  const patternPresets = await selectPatternPresets();
+  const customPatterns = await collectOptionalPatterns();
+  const customWords = await collectOptionalWords();
+
+  return {
+    name,
+    description: description || undefined,
+    colorPalette,
+    patternPresets,
+    customPatterns,
+    customWords,
   };
 }
 
@@ -45,6 +172,42 @@ function serializeThemeForFile(theme: Theme): Theme {
   };
 }
 
+async function saveGeneratedTheme(theme: Theme, themeName: string): Promise<void> {
+  const saveLocation = await select({
+    message: "Where would you like to save the theme?",
+    choices: [
+      {
+        name: "Register globally (available to all LogsDX instances)",
+        value: "global",
+      },
+      {
+        name: "Save to file (JSON format)",
+        value: "file",
+      },
+      {
+        name: "Both",
+        value: "both",
+      },
+    ],
+  });
+
+  const shouldRegister = saveLocation === "global" || saveLocation === "both";
+  const shouldWriteFile = saveLocation === "file" || saveLocation === "both";
+  if (shouldRegister) {
+    registerTheme(theme);
+    ui.showSuccess(`Theme "${themeName}" registered globally!`);
+  }
+
+  if (shouldWriteFile) {
+    const filename = `${themeName}.theme.json`;
+    fs.writeFileSync(filename, JSON.stringify(theme, null, 2));
+    ui.showSuccess(`Theme saved to ${colors.cyan(filename)}`);
+  }
+
+  const readyMessage = `\nYour theme "${themeName}" is ready to use!\nTry it with: logsdx --theme ${themeName} your-log-file.log`;
+  log.print(colors.green(readyMessage));
+}
+
 export async function runThemeGenerator(): Promise<void> {
   ui.showHeader();
   ui.showInfo("Welcome to the LogsDX Theme Generator");
@@ -53,92 +216,14 @@ export async function runThemeGenerator(): Promise<void> {
     "Create custom themes by combining color palettes with pattern presets.";
   log.debug(colors.dim(intro));
 
-  const themeName = await input({
-    message: "Theme name:",
-    validate: (value) => {
-      if (!value.trim()) return "Theme name is required";
-      if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
-        return "Theme name can only contain letters, numbers, hyphens, and underscores";
-      }
-      return true;
-    },
-  });
-
-  const description = await input({
-    message: "Theme description (optional):",
-  });
-
-  const palettes = listColorPalettes();
-  const selectedPalette = await select({
-    message: "Choose a color palette:",
-    choices: palettes.map((palette) => ({
-      name: `${colors.bold(palette.name)} - ${palette.description}`,
-      value: palette.name,
-      description: `Contrast: ${palette.accessibility.contrastRatio.toFixed(1)}, ${
-        palette.accessibility.colorBlindSafe
-          ? "Color-blind safe"
-          : "Not color-blind safe"
-      }, ${palette.accessibility.darkMode ? "Dark mode" : "Light mode"}`,
-    })),
-  });
-
-  const presets = listPatternPresets();
-  const presetsByCategory = presets.reduce(
-    (acc, preset) => {
-      if (!acc[preset.category]) acc[preset.category] = [];
-      acc[preset.category].push(preset);
-      return acc;
-    },
-    {} as Record<string, PatternPreset[]>,
-  );
-
-  const selectedPresets = await checkbox({
-    message: "Select pattern presets to include:",
-    choices: Object.entries(presetsByCategory).flatMap(
-      ([category, categoryPresets]) =>
-        categoryPresets.map((preset) => ({
-          name: `${category}: ${preset.name} - ${preset.description}`,
-          value: preset.name,
-        })),
-    ),
-  });
-
-  const filteredPresets = selectedPresets;
-
-  const addCustomPatterns = await confirm({
-    message: "Add custom patterns?",
-    default: false,
-  });
-
-  let customPatterns: ThemeGeneratorConfig["customPatterns"] = [];
-  if (addCustomPatterns) {
-    customPatterns = await collectCustomPatterns();
-  }
-
-  const addCustomWords = await confirm({
-    message: "Add custom word matches?",
-    default: false,
-  });
-
-  let customWords: ThemeGeneratorConfig["customWords"] = {};
-  if (addCustomWords) {
-    customWords = await collectCustomWords();
-  }
-
-  const config: ThemeGeneratorConfig = {
-    name: themeName,
-    description: description || undefined,
-    colorPalette: selectedPalette,
-    patternPresets: filteredPresets,
-    customPatterns,
-    customWords,
-  };
-
+  const config = await collectThemeConfig();
   const theme = generateTemplate(config);
 
-  ui.showSuccess(`Generated theme "${themeName}"!`);
+  ui.showSuccess(`Generated theme "${config.name}"!`);
 
-  const palette = listColorPalettes().find((p) => p.name === selectedPalette)!;
+  const palette = listColorPalettes().find(
+    (item) => item.name === config.colorPalette,
+  )!;
   await showThemePreview(theme, palette);
 
   const shouldSave = await confirm({
@@ -146,163 +231,54 @@ export async function runThemeGenerator(): Promise<void> {
     default: true,
   });
 
-  if (shouldSave) {
-    const saveLocation = await select({
-      message: "Where would you like to save the theme?",
-      choices: [
-        {
-          name: "Register globally (available to all LogsDX instances)",
-          value: "global",
-        },
-        {
-          name: "Save to file (JSON format)",
-          value: "file",
-        },
-        {
-          name: "Both",
-          value: "both",
-        },
-      ],
-    });
-
-    if (saveLocation === "global" || saveLocation === "both") {
-      registerTheme(theme);
-      ui.showSuccess(`Theme "${themeName}" registered globally!`);
-    }
-
-    if (saveLocation === "file" || saveLocation === "both") {
-      const filename = `${themeName}.theme.json`;
-      fs.writeFileSync(filename, JSON.stringify(theme, null, 2));
-      ui.showSuccess(`Theme saved to ${colors.cyan(filename)}`);
-    }
-
-    const readyMessage = `\nYour theme "${themeName}" is ready to use!\nTry it with: logsdx --theme ${themeName} your-log-file.log`;
-    log.print(colors.green(readyMessage));
-  }
+  if (shouldSave) await saveGeneratedTheme(theme, config.name);
 }
 
 async function collectCustomPatterns(): Promise<
   ThemeGeneratorConfig["customPatterns"]
 > {
-  const patterns: NonNullable<ThemeGeneratorConfig["customPatterns"]> = [];
-
+  const patterns: CustomPattern[] = [];
   while (true) {
-    const name = await input({
-      message: "Pattern name:",
-      validate: (value) => (value.trim() ? true : "Pattern name is required"),
-    });
-
-    const pattern = await input({
-      message: "Regular expression pattern:",
-      validate: (value) => {
-        if (!value.trim()) return "Pattern is required";
-        try {
-          new RegExp(value);
-          return true;
-        } catch {
-          return "Invalid regular expression";
-        }
-      },
-    });
-
-    const colorRole = await select({
-      message: "Color role for this pattern:",
-      choices: [
-        { name: "Primary", value: "primary" as const },
-        { name: "Secondary", value: "secondary" as const },
-        { name: "Success", value: "success" as const },
-        { name: "Warning", value: "warning" as const },
-        { name: "Error", value: "error" as const },
-        { name: "Info", value: "info" as const },
-        { name: "Muted", value: "muted" as const },
-        { name: "Accent", value: "accent" as const },
-      ],
-    });
-
-    const styleCodes = await checkbox({
-      message: "Style modifiers (optional):",
-      choices: [
-        { name: "Bold", value: "bold" },
-        { name: "Italic", value: "italic" },
-        { name: "Underline", value: "underline" },
-        { name: "Dim", value: "dim" },
-      ],
-    });
-
-    patterns.push({
-      name,
-      pattern,
-      colorRole: colorRole as
-        | "primary"
-        | "secondary"
-        | "error"
-        | "warning"
-        | "info"
-        | "success"
-        | "muted"
-        | "accent",
-      styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
-    });
-
+    patterns.push(await collectCustomPattern());
     const addMore = await confirm({
       message: "Add another custom pattern?",
       default: false,
     });
-
     if (!addMore) break;
   }
-
   return patterns;
+}
+
+async function collectCustomPattern(): Promise<CustomPattern> {
+  const name = await input({
+    message: "Pattern name:",
+    validate: (value) => (value.trim() ? true : "Pattern name is required"),
+  });
+  const pattern = await input({
+    message: "Regular expression pattern:",
+    validate: (value) => {
+      if (!value.trim()) return "Pattern is required";
+      try {
+        new RegExp(value);
+        return true;
+      } catch {
+        return "Invalid regular expression";
+      }
+    },
+  });
+  const colorRole = await selectColorRole("Color role for this pattern:");
+  const styleCodes = await selectStyleCodes("Style modifiers (optional):");
+  const patternStyleCodes = styleCodes.length > 0 ? styleCodes : undefined;
+  return { name, pattern, colorRole, styleCodes: patternStyleCodes };
 }
 
 async function collectCustomWords(): Promise<
   ThemeGeneratorConfig["customWords"]
 > {
-  const words: NonNullable<ThemeGeneratorConfig["customWords"]> = {};
-
+  const words: Record<string, CustomWord> = {};
   while (true) {
-    const word = await input({
-      message: "Word to match:",
-      validate: (value) => (value.trim() ? true : "Word is required"),
-    });
-
-    const colorRole = await select({
-      message: "Color role for this word:",
-      choices: [
-        { name: "Primary", value: "primary" as const },
-        { name: "Secondary", value: "secondary" as const },
-        { name: "Success", value: "success" as const },
-        { name: "Warning", value: "warning" as const },
-        { name: "Error", value: "error" as const },
-        { name: "Info", value: "info" as const },
-        { name: "Muted", value: "muted" as const },
-        { name: "Accent", value: "accent" as const },
-      ],
-    });
-
-    const styleCodes = await checkbox({
-      message: "Style modifiers (optional):",
-      choices: [
-        { name: "Bold", value: "bold" },
-        { name: "Italic", value: "italic" },
-        { name: "Underline", value: "underline" },
-        { name: "Dim", value: "dim" },
-      ],
-    });
-
-    words[word] = {
-      colorRole: colorRole as
-        | "primary"
-        | "secondary"
-        | "error"
-        | "warning"
-        | "info"
-        | "success"
-        | "muted"
-        | "accent",
-      styleCodes: styleCodes.length > 0 ? styleCodes : undefined,
-    };
-
+    const entry = await collectCustomWord();
+    words[entry.word] = entry.config;
     const addMore = await confirm({
       message: "Add another custom word?",
       default: false,
@@ -312,6 +288,23 @@ async function collectCustomWords(): Promise<
   }
 
   return words;
+}
+
+async function collectCustomWord(): Promise<{
+  word: string;
+  config: CustomWord;
+}> {
+  const word = await input({
+    message: "Word to match:",
+    validate: (value) => (value.trim() ? true : "Word is required"),
+  });
+  const colorRole = await selectColorRole("Color role for this word:");
+  const styleCodes = await selectStyleCodes("Style modifiers (optional):");
+  const wordStyleCodes = styleCodes.length > 0 ? styleCodes : undefined;
+  return {
+    word,
+    config: { colorRole, styleCodes: wordStyleCodes },
+  };
 }
 
 async function showThemePreview(theme: Theme, palette: ColorPalette) {
@@ -412,9 +405,9 @@ export function listPatternPresetsCommand(): void {
 }
 
 export function validateColorInput(color: string): boolean | string {
-  if (!color || typeof color !== "string" || !color.trim()) {
-    return false;
-  }
+  const isString = typeof color === "string";
+  if (!isString) return false;
+  if (!color.trim()) return false;
 
   if (color.match(/^[0-9a-fA-F]+$/)) {
     return false;
@@ -433,56 +426,68 @@ export function validateColorInput(color: string): boolean | string {
   );
 }
 
-export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
+function getPatternPresetsFromAnswers(answers: ThemeAnswers): string[] {
   const patternPresets = answers.patterns || answers.patternPresets || [];
-  if (answers.features && answers.features.includes("logLevels")) {
-    patternPresets.push("log-levels");
-  }
+  const hasLogLevels = answers.features?.includes("logLevels");
+  if (hasLogLevels) patternPresets.push("log-levels");
+  return patternPresets;
+}
 
-  const config: ThemeGeneratorConfig = {
-    name: answers.themeName || answers.name || "",
+function createThemeConfig(
+  answers: ThemeAnswers,
+  patternPresets: string[],
+): ThemeGeneratorConfig {
+  const name = answers.themeName || answers.name || "";
+  const colorPalette = answers.palette || answers.colorPalette || "github-dark";
+  return {
+    name,
     description: answers.description,
-    colorPalette: answers.palette || answers.colorPalette || "github-dark",
+    colorPalette,
     patternPresets,
     customPatterns:
       answers.customPatterns as ThemeGeneratorConfig["customPatterns"],
     customWords: answers.customWords as ThemeGeneratorConfig["customWords"],
   };
+}
 
+function applyFeatureStyles(theme: Theme, features?: string[]): void {
+  if (!features) return;
+  if (!theme.schema) theme.schema = {};
+
+  const schema = theme.schema;
+  const hasNumericValues =
+    features.includes("numbers") || features.includes("booleans");
+  if (hasNumericValues) {
+    schema.matchWords = schema.matchWords || {};
+    schema.matchWords.true = { color: "#00ff00" };
+    schema.matchWords.false = { color: "#ff0000" };
+    schema.matchWords.null = { color: "#808080" };
+  }
+
+  const hasBrackets = features.includes("brackets");
+  if (hasBrackets) {
+    schema.matchStartsWith = schema.matchStartsWith || {};
+    schema.matchEndsWith = schema.matchEndsWith || {};
+    schema.matchStartsWith["["] = { color: "#ffff00" };
+    schema.matchEndsWith["]"] = { color: "#ffff00" };
+  }
+
+  const hasHttpStatus = features.includes("httpStatus");
+  if (hasHttpStatus) {
+    schema.matchWords = schema.matchWords || {};
+    schema.matchWords["200"] = { color: "#00ff00" };
+    schema.matchWords["404"] = { color: "#ff8800" };
+    schema.matchWords["500"] = { color: "#ff0000" };
+  }
+}
+
+export function generateTemplateFromAnswers(answers: ThemeAnswers): Theme {
+  const patternPresets = getPatternPresetsFromAnswers(answers);
+  const config = createThemeConfig(answers, patternPresets);
   const theme = generateTemplate(config);
 
-  if (answers.mode) {
-    theme.mode = answers.mode as Theme["mode"];
-  }
-
-  if (!theme.schema) {
-    theme.schema = {};
-  }
-
-  if (answers.features) {
-    if (
-      answers.features.includes("numbers") ||
-      answers.features.includes("booleans")
-    ) {
-      if (!theme.schema.matchWords) theme.schema.matchWords = {};
-      theme.schema.matchWords.true = { color: "#00ff00" };
-      theme.schema.matchWords.false = { color: "#ff0000" };
-      theme.schema.matchWords.null = { color: "#808080" };
-    }
-    if (answers.features.includes("brackets")) {
-      theme.schema.matchStartsWith = theme.schema.matchStartsWith || {};
-      theme.schema.matchEndsWith = theme.schema.matchEndsWith || {};
-      theme.schema.matchStartsWith["["] = { color: "#ffff00" };
-      theme.schema.matchEndsWith["]"] = { color: "#ffff00" };
-    }
-    if (answers.features.includes("httpStatus")) {
-      if (!theme.schema.matchWords) theme.schema.matchWords = {};
-      theme.schema.matchWords["200"] = { color: "#00ff00" };
-      theme.schema.matchWords["404"] = { color: "#ff8800" };
-      theme.schema.matchWords["500"] = { color: "#ff0000" };
-    }
-  }
-
+  if (answers.mode) theme.mode = answers.mode as Theme["mode"];
+  applyFeatureStyles(theme, answers.features);
   return theme;
 }
 
@@ -526,32 +531,62 @@ export function generatePatternFromPreset(
   return patternMap[presetName] || {};
 }
 
-export async function exportTheme(themeName?: string): Promise<void> {
-  const availableThemes = Object.keys(getAllThemes());
+function isThemeFileName(name: string): boolean {
+  const isJsonTheme = name.endsWith(".theme.json");
+  const isTypeScriptTheme = name.endsWith(".theme.ts");
+  const isPrimaryThemeFile = isJsonTheme || isTypeScriptTheme;
+  if (isPrimaryThemeFile) return true;
 
+  const hasThemeName = name.includes("theme");
+  const isJsonOrTypeScript = name.endsWith(".json") || name.endsWith(".ts");
+  return hasThemeName && isJsonOrTypeScript;
+}
+
+function tryParseThemeExport(
+  fileContent: string,
+  pattern: RegExp,
+): Theme | undefined {
+  const match = fileContent.match(pattern);
+  if (!match) return undefined;
+
+  try {
+    const jsonStr = match[1]
+      .replace(/^\s+/gm, "")
+      .replace(/\s+$/gm, "")
+      .trim();
+    return JSON.parse(jsonStr);
+  } catch {
+    return undefined;
+  }
+}
+
+async function resolveExportTheme(themeName?: string): Promise<string | undefined> {
+  const availableThemes = Object.keys(getAllThemes());
   if (availableThemes.length === 0) {
     ui.showWarning("No themes available to export");
-    return;
+    return undefined;
   }
 
-  const themeToExport =
-    themeName ||
-    (await select({
-      message: "Select theme to export:",
-      choices: availableThemes.map((name) => ({
-        name: colors.cyan(name),
-        value: name,
-      })),
-    }));
+  if (themeName) return themeName;
+  return select({
+    message: "Select theme to export:",
+    choices: availableThemes.map((name) => ({
+      name: colors.cyan(name),
+      value: name,
+    })),
+  });
+}
 
-  const theme = await getTheme(themeToExport);
-  if (!theme) {
-    ui.showError(`Theme "${themeToExport}" not found`);
-    return;
-  }
+function showExportPreview(exportData: unknown): void {
+  console.log(colors.dim("\nFile contents:"));
+  console.log(colors.dim("─".repeat(50)));
+  console.log(JSON.stringify(exportData, null, 2));
+  console.log(colors.dim("─".repeat(50)));
+}
 
-  const defaultFilename = `${themeToExport.replace(/[^a-zA-Z0-9-_]/g, "-")}.theme.json`;
-  const filename = await input({
+async function requestExportFilename(themeName: string): Promise<string> {
+  const defaultFilename = `${themeName.replace(/[^a-zA-Z0-9-_]/g, "-")}.theme.json`;
+  return input({
     message: "Export filename:",
     default: defaultFilename,
     validate: (value) => {
@@ -560,6 +595,19 @@ export async function exportTheme(themeName?: string): Promise<void> {
       return true;
     },
   });
+}
+
+export async function exportTheme(themeName?: string): Promise<void> {
+  const themeToExport = await resolveExportTheme(themeName);
+  if (!themeToExport) return;
+
+  const theme = await getTheme(themeToExport);
+  if (!theme) {
+    ui.showError(`Theme "${themeToExport}" not found`);
+    return;
+  }
+
+  const filename = await requestExportFilename(themeToExport);
 
   try {
     const serializableTheme = serializeThemeForFile(theme);
@@ -580,12 +628,7 @@ export async function exportTheme(themeName?: string): Promise<void> {
       default: false,
     });
 
-    if (showPreview) {
-      console.log(colors.dim("\nFile contents:"));
-      console.log(colors.dim("─".repeat(50)));
-      console.log(JSON.stringify(exportData, null, 2));
-      console.log(colors.dim("─".repeat(50)));
-    }
+    if (showPreview) showExportPreview(exportData);
   } catch (error) {
     ui.showError(
       `Failed to export theme: ${error instanceof Error ? error.message : String(error)}`,
@@ -618,10 +661,72 @@ export default theme;
   }
 }
 
+async function resolveImportFile(filename?: string): Promise<string> {
+  if (filename) return filename;
+  return input({
+    message: "Theme file path:",
+    validate: (value) => {
+      if (!value.trim()) return "File path is required";
+      if (!fs.existsSync(value)) return "File does not exist";
+      if (!value.endsWith(".json")) return "File should be a JSON file";
+      return true;
+    },
+  });
+}
+
+async function renameExistingTheme(theme: Theme): Promise<void> {
+  const existingTheme = await getTheme(theme.name);
+  if (!existingTheme) return;
+
+  const shouldOverwrite = await confirm({
+    message: `Theme "${theme.name}" already exists. Overwrite?`,
+    default: false,
+  });
+  if (shouldOverwrite) return;
+
+  const newName = await input({
+    message: "Enter a new name for the theme:",
+    default: `${theme.name}-imported`,
+    validate: (value) => (value.trim() ? true : "Name is required"),
+  });
+  theme.name = newName;
+}
+
+function showImportedTheme(theme: Theme): void {
+  registerTheme(theme);
+  ui.showSuccess(`Theme "${theme.name}" imported successfully!`);
+  console.log(
+    colors.green(
+      `\n✨ Use your imported theme with: logsdx --theme ${theme.name} your-log-file.log`,
+    ),
+  );
+}
+
+function reportImportError(error: unknown): void {
+  if (!(error instanceof Error)) {
+    ui.showError("Import failed", String(error));
+    return;
+  }
+
+  if (error.message.includes("JSON")) {
+    ui.showError("Invalid JSON file", "Make sure the file contains valid JSON");
+    return;
+  }
+  if (error.message.includes("validation")) {
+    ui.showError(
+      "Invalid theme format",
+      "The file doesn't contain a valid LogsDX theme",
+    );
+    return;
+  }
+  ui.showError(`Import failed: ${error.message}`);
+}
+
 export function importThemeFromFile(filePath: string): Theme {
   const fileContent = fs.readFileSync(filePath, "utf8");
 
-  if (filePath.endsWith(".ts") || filePath.endsWith(".js")) {
+  const isScriptFile = filePath.endsWith(".ts") || filePath.endsWith(".js");
+  if (isScriptFile) {
     const patterns = [
       /export\s+const\s+\w+\s*:\s*\w+\s*=\s*(\{[\s\S]*?\})\s*;?\s*$/m,
       /export\s+default\s+(\{[\s\S]*?\})\s*;?\s*$/m,
@@ -629,18 +734,8 @@ export function importThemeFromFile(filePath: string): Theme {
     ];
 
     for (const pattern of patterns) {
-      const match = fileContent.match(pattern);
-      if (match) {
-        try {
-          const jsonStr = match[1]
-            .replace(/^\s+/gm, "")
-            .replace(/\s+$/gm, "")
-            .trim();
-          return JSON.parse(jsonStr);
-        } catch {
-          continue;
-        }
-      }
+      const theme = tryParseThemeExport(fileContent, pattern);
+      if (theme) return theme;
     }
     throw new Error(
       `Failed to parse theme file: The TypeScript/JavaScript file does not contain a valid theme export. ` +
@@ -649,10 +744,13 @@ export function importThemeFromFile(filePath: string): Theme {
   }
 
   const parsed = JSON.parse(fileContent);
-  if (!parsed.name || !parsed.schema) {
+  const hasName = Boolean(parsed.name);
+  const hasSchema = Boolean(parsed.schema);
+  const hasRequiredFields = hasName && hasSchema;
+  if (!hasRequiredFields) {
     const missing = [];
-    if (!parsed.name) missing.push("'name'");
-    if (!parsed.schema) missing.push("'schema'");
+    if (!hasName) missing.push("'name'");
+    if (!hasSchema) missing.push("'schema'");
     throw new Error(
       `Invalid theme JSON: Missing required fields: ${missing.join(", ")}. ` +
         `Theme files must contain both a 'name' string and a 'schema' object.`,
@@ -662,17 +760,7 @@ export function importThemeFromFile(filePath: string): Theme {
 }
 
 export async function importTheme(filename?: string): Promise<void> {
-  const themeFile =
-    filename ||
-    (await input({
-      message: "Theme file path:",
-      validate: (value) => {
-        if (!value.trim()) return "File path is required";
-        if (!fs.existsSync(value)) return "File does not exist";
-        if (!value.endsWith(".json")) return "File should be a JSON file";
-        return true;
-      },
-    }));
+  const themeFile = await resolveImportFile(filename);
 
   try {
     const fileContent = fs.readFileSync(themeFile, "utf8");
@@ -685,22 +773,7 @@ export async function importTheme(filename?: string): Promise<void> {
       console.log(`Description: ${validatedTheme.description}`);
     }
 
-    const existingTheme = await getTheme(validatedTheme.name);
-    if (existingTheme) {
-      const shouldOverwrite = await confirm({
-        message: `Theme "${validatedTheme.name}" already exists. Overwrite?`,
-        default: false,
-      });
-
-      if (!shouldOverwrite) {
-        const newName = await input({
-          message: "Enter a new name for the theme:",
-          default: `${validatedTheme.name}-imported`,
-          validate: (value) => (value.trim() ? true : "Name is required"),
-        });
-        validatedTheme.name = newName;
-      }
-    }
+    await renameExistingTheme(validatedTheme);
 
     const showPreview = await confirm({
       message: "Preview theme before importing?",
@@ -716,35 +789,13 @@ export async function importTheme(filename?: string): Promise<void> {
       default: true,
     });
 
-    if (shouldImport) {
-      registerTheme(validatedTheme);
-      ui.showSuccess(`Theme "${validatedTheme.name}" imported successfully!`);
-      console.log(
-        colors.green(
-          `\n✨ Use your imported theme with: logsdx --theme ${validatedTheme.name} your-log-file.log`,
-        ),
-      );
-    } else {
+    if (!shouldImport) {
       ui.showInfo("Import cancelled");
+      return;
     }
+    showImportedTheme(validatedTheme);
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes("JSON")) {
-        ui.showError(
-          "Invalid JSON file",
-          "Make sure the file contains valid JSON",
-        );
-      } else if (error.message.includes("validation")) {
-        ui.showError(
-          "Invalid theme format",
-          "The file doesn't contain a valid LogsDX theme",
-        );
-      } else {
-        ui.showError(`Import failed: ${error.message}`);
-      }
-    } else {
-      ui.showError("Import failed", String(error));
-    }
+    reportImportError(error);
   }
 }
 
@@ -803,12 +854,7 @@ export function getThemeFiles(directory = "."): string[] {
         const fullPath = path.join(dir, item.name);
         if (item.isDirectory()) {
           scanDir(fullPath);
-        } else if (
-          item.name.endsWith(".theme.json") ||
-          item.name.endsWith(".theme.ts") ||
-          (item.name.includes("theme") &&
-            (item.name.endsWith(".json") || item.name.endsWith(".ts")))
-        ) {
+        } else if (isThemeFileName(item.name)) {
           files.push(fullPath);
         }
       }
@@ -822,6 +868,31 @@ export function getThemeFiles(directory = "."): string[] {
 }
 
 export { getThemeFiles as listThemeFiles };
+
+function printThemeFile(file: string, index: number): void {
+  try {
+    const content = fs.readFileSync(file, "utf8");
+    const themeData = JSON.parse(content);
+
+    console.log(colors.bold.cyan(`${index + 1}. ${path.basename(file)}`));
+    console.log(`   Theme: ${themeData.name || "Unknown"}`);
+    if (themeData.description) {
+      console.log(`   Description: ${themeData.description}`);
+    }
+    if (themeData.exportedAt) {
+      console.log(
+        `   Exported: ${colors.dim(new Date(themeData.exportedAt).toLocaleString())}`,
+      );
+    }
+    console.log(`   File: ${colors.dim(file)}`);
+    console.log();
+  } catch {
+    console.log(colors.bold.red(`${index + 1}. ${path.basename(file)}`));
+    console.log(colors.red("   Error: Invalid theme file"));
+    console.log(`   File: ${colors.dim(file)}`);
+    console.log();
+  }
+}
 
 export function listThemeFilesCommand(directory = "."): void {
   try {
@@ -840,30 +911,7 @@ export function listThemeFilesCommand(directory = "."): void {
 
     ui.showInfo(`Found ${files.length} theme file(s):\n`);
 
-    files.forEach((file, index) => {
-      try {
-        const content = fs.readFileSync(file, "utf8");
-        const themeData = JSON.parse(content);
-
-        console.log(colors.bold.cyan(`${index + 1}. ${path.basename(file)}`));
-        console.log(`   Theme: ${themeData.name || "Unknown"}`);
-        if (themeData.description) {
-          console.log(`   Description: ${themeData.description}`);
-        }
-        if (themeData.exportedAt) {
-          console.log(
-            `   Exported: ${colors.dim(new Date(themeData.exportedAt).toLocaleString())}`,
-          );
-        }
-        console.log(`   File: ${colors.dim(file)}`);
-        console.log();
-      } catch {
-        console.log(colors.bold.red(`${index + 1}. ${path.basename(file)}`));
-        console.log(colors.red(`   Error: Invalid theme file`));
-        console.log(`   File: ${colors.dim(file)}`);
-        console.log();
-      }
-    });
+    files.forEach(printThemeFile);
 
     console.log(
       colors.yellow("Use --import-theme <filename> to import a theme"),

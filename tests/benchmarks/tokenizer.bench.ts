@@ -3,6 +3,7 @@ import { createLexer } from "../../src/tokenizer";
 import { getTheme } from "../../src/themes";
 
 describe("Tokenizer Performance Benchmarks", () => {
+  const largeInput = `[ERROR] ${"x".repeat(5000)} Stack trace follows...`;
   const scenarios = [
     {
       name: "Dense matches - many log levels",
@@ -31,7 +32,7 @@ describe("Tokenizer Performance Benchmarks", () => {
     },
     {
       name: "Large log line",
-      input: "[ERROR] " + "x".repeat(5000) + " Stack trace follows...",
+      input: largeInput,
       description: "5000+ character log line with single match at start",
     },
   ];

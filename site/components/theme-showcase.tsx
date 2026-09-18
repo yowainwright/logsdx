@@ -20,28 +20,95 @@ const getAnimationConfig = (speed: "slow" | "medium" | "fast") => {
   return configs[speed];
 };
 
-export function ThemeShowcase({
-  autoPlay: _autoPlay = true,
-  speed = "medium",
-  themes = [
-    "oh-my-zsh",
-    "dracula",
-    "github-light",
-    "github-dark",
-    "solarized-light",
-    "solarized-dark",
-  ],
-  dimOpacity = 0.3,
-  children,
-}: ThemeShowcaseProps) {
-  const [isCol1Hovered, setIsCol1Hovered] = useState(false);
-  const [isCol2Hovered, setIsCol2Hovered] = useState(false);
-  const [isCol3Hovered, setIsCol3Hovered] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+interface ThemeColumnProps {
+  column: number;
+  hoveredCard: string | null;
+  isHovered: boolean;
+  onCardHover: (cardKey: string | null) => void;
+  onColumnHover: (isHovered: boolean) => void;
+  themes: string[];
+  visibilityClassName?: string;
+}
 
-  const config = getAnimationConfig(speed);
-  const tripleThemes = [...themes, ...themes, ...themes];
+function getCardStyle(isHovered: boolean, isCardHovered: boolean) {
+  let opacity = 0.7;
+  if (isHovered) opacity = 0.5;
+  if (isCardHovered) opacity = 1;
+  const transform = isCardHovered ? "scale(1.02)" : "scale(1)";
 
+  return {
+    opacity,
+    transform,
+    transition: "all 0.3s ease",
+  };
+}
+
+function ThemeCards({
+  column,
+  hoveredCard,
+  isHovered,
+  onCardHover,
+  themes,
+}: Omit<ThemeColumnProps, "onColumnHover" | "visibilityClassName">) {
+  return (
+    <div className="space-y-4 py-4">
+      {themes.map((theme, index) => {
+        const cardKey = `col${column}-${theme}-${index}`;
+        const isCardHovered = hoveredCard === cardKey;
+        const cardStyle = getCardStyle(isHovered, isCardHovered);
+
+        return (
+          <div
+            key={cardKey}
+            style={cardStyle}
+            onMouseEnter={() => onCardHover(cardKey)}
+            onMouseLeave={() => onCardHover(null)}
+          >
+            <ThemeCard themeName={theme} isVisible={true} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ThemeColumn({
+  column,
+  hoveredCard,
+  isHovered,
+  onCardHover,
+  onColumnHover,
+  themes,
+  visibilityClassName = "",
+}: ThemeColumnProps) {
+  const animationClassName = `scroll-animation-${column} ${
+    isHovered ? "animation-paused" : ""
+  }`;
+  const columnClassName = `flex-1 overflow-hidden ${visibilityClassName}`;
+
+  return (
+    <div
+      className={columnClassName}
+      onMouseEnter={() => onColumnHover(true)}
+      onMouseLeave={() => {
+        onColumnHover(false);
+        onCardHover(null);
+      }}
+    >
+      <div className={animationClassName}>
+        <ThemeCards
+          column={column}
+          hoveredCard={hoveredCard}
+          isHovered={isHovered}
+          onCardHover={onCardHover}
+          themes={themes}
+        />
+      </div>
+    </div>
+  );
+}
+
+function useScrollStyles(duration: number) {
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -61,15 +128,15 @@ export function ThemeShowcase({
       }
 
       .scroll-animation-1 {
-        animation: scrollColumn1 ${config.duration}s linear infinite;
+        animation: scrollColumn1 ${duration}s linear infinite;
       }
 
       .scroll-animation-2 {
-        animation: scrollColumn2 ${config.duration}s linear infinite;
+        animation: scrollColumn2 ${duration}s linear infinite;
       }
 
       .scroll-animation-3 {
-        animation: scrollColumn3 ${config.duration}s linear infinite;
+        animation: scrollColumn3 ${duration}s linear infinite;
       }
 
       .animation-paused {
@@ -80,130 +147,88 @@ export function ThemeShowcase({
     return () => {
       document.head.removeChild(style);
     };
-  }, [config]);
+  }, [duration]);
+}
+
+interface ThemeColumnsProps {
+  hoveredCard: string | null;
+  hoveredColumn: number | null;
+  onCardHover: (cardKey: string | null) => void;
+  onColumnHover: (column: number | null) => void;
+  themes: string[];
+}
+
+function ThemeColumns({
+  hoveredCard,
+  hoveredColumn,
+  onCardHover,
+  onColumnHover,
+  themes,
+}: ThemeColumnsProps) {
+  const columns = [
+    { column: 1, visibilityClassName: "" },
+    { column: 2, visibilityClassName: "hidden md:block" },
+    { column: 3, visibilityClassName: "hidden xl:block" },
+  ];
+
+  return (
+    <div className="flex h-full gap-8 px-8">
+      {columns.map(({ column, visibilityClassName }) => {
+        const isHovered = hoveredColumn === column;
+        const handleColumnHover = (columnIsHovered: boolean) => {
+          onColumnHover(columnIsHovered ? column : null);
+        };
+
+        return (
+          <ThemeColumn
+            key={column}
+            column={column}
+            hoveredCard={hoveredCard}
+            isHovered={isHovered}
+            onCardHover={onCardHover}
+            onColumnHover={handleColumnHover}
+            themes={themes}
+            visibilityClassName={visibilityClassName}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export function ThemeShowcase({
+  autoPlay: _autoPlay = true,
+  speed = "medium",
+  themes = [
+    "oh-my-zsh",
+    "dracula",
+    "github-light",
+    "github-dark",
+    "solarized-light",
+    "solarized-dark",
+  ],
+  dimOpacity = 0.3,
+  children,
+}: ThemeShowcaseProps) {
+  const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  const config = getAnimationConfig(speed);
+  const tripleThemes = [...themes, ...themes, ...themes];
+
+  useScrollStyles(config.duration);
 
   return (
     <section className="relative overflow-hidden min-h-screen">
       <div className="absolute inset-0" style={{ opacity: dimOpacity }}>
         <div className="h-full bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-          <div className="flex h-full gap-8 px-8">
-            {/* Column 1 */}
-            <div
-              className="flex-1 overflow-hidden"
-              onMouseEnter={() => setIsCol1Hovered(true)}
-              onMouseLeave={() => {
-                setIsCol1Hovered(false);
-                setHoveredCard(null);
-              }}
-            >
-              <div
-                className={`scroll-animation-1 ${isCol1Hovered ? "animation-paused" : ""}`}
-              >
-                <div className="space-y-4 py-4">
-                  {tripleThemes.map((theme, i) => (
-                    <div
-                      key={`col1-${theme}-${i}`}
-                      style={{
-                        opacity:
-                          hoveredCard === `col1-${theme}-${i}`
-                            ? 1
-                            : isCol1Hovered
-                              ? 0.5
-                              : 0.7,
-                        transform:
-                          hoveredCard === `col1-${theme}-${i}`
-                            ? "scale(1.02)"
-                            : "scale(1)",
-                        transition: "all 0.3s ease",
-                      }}
-                      onMouseEnter={() => setHoveredCard(`col1-${theme}-${i}`)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                    >
-                      <ThemeCard themeName={theme} isVisible={true} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Column 2 */}
-            <div
-              className="flex-1 overflow-hidden hidden md:block"
-              onMouseEnter={() => setIsCol2Hovered(true)}
-              onMouseLeave={() => {
-                setIsCol2Hovered(false);
-                setHoveredCard(null);
-              }}
-            >
-              <div
-                className={`scroll-animation-2 ${isCol2Hovered ? "animation-paused" : ""}`}
-              >
-                <div className="space-y-4 py-4">
-                  {tripleThemes.map((theme, i) => (
-                    <div
-                      key={`col2-${theme}-${i}`}
-                      style={{
-                        opacity:
-                          hoveredCard === `col2-${theme}-${i}`
-                            ? 1
-                            : isCol2Hovered
-                              ? 0.5
-                              : 0.7,
-                        transform:
-                          hoveredCard === `col2-${theme}-${i}`
-                            ? "scale(1.02)"
-                            : "scale(1)",
-                        transition: "all 0.3s ease",
-                      }}
-                      onMouseEnter={() => setHoveredCard(`col2-${theme}-${i}`)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                    >
-                      <ThemeCard themeName={theme} isVisible={true} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Column 3 */}
-            <div
-              className="flex-1 overflow-hidden hidden xl:block"
-              onMouseEnter={() => setIsCol3Hovered(true)}
-              onMouseLeave={() => {
-                setIsCol3Hovered(false);
-                setHoveredCard(null);
-              }}
-            >
-              <div
-                className={`scroll-animation-3 ${isCol3Hovered ? "animation-paused" : ""}`}
-              >
-                <div className="space-y-4 py-4">
-                  {tripleThemes.map((theme, i) => (
-                    <div
-                      key={`col3-${theme}-${i}`}
-                      style={{
-                        opacity:
-                          hoveredCard === `col3-${theme}-${i}`
-                            ? 1
-                            : isCol3Hovered
-                              ? 0.5
-                              : 0.7,
-                        transform:
-                          hoveredCard === `col3-${theme}-${i}`
-                            ? "scale(1.02)"
-                            : "scale(1)",
-                        transition: "all 0.3s ease",
-                      }}
-                      onMouseEnter={() => setHoveredCard(`col3-${theme}-${i}`)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                    >
-                      <ThemeCard themeName={theme} isVisible={true} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ThemeColumns
+            hoveredCard={hoveredCard}
+            hoveredColumn={hoveredColumn}
+            onCardHover={setHoveredCard}
+            onColumnHover={setHoveredColumn}
+            themes={tripleThemes}
+          />
         </div>
       </div>
 

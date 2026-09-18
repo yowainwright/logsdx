@@ -1,16 +1,19 @@
 import createMDX from "@next/mdx";
 
 /** @type {import('next').NextConfig} */
+const isProduction = process.env.NODE_ENV === "production";
+const staticPath = isProduction ? "/logsdx" : "";
+
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   reactStrictMode: true,
   transpilePackages: ["logsdx"],
-  output: process.env.NODE_ENV === "production" ? "export" : undefined,
+  output: isProduction ? "export" : undefined,
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NODE_ENV === "production" ? "/logsdx" : "",
-  assetPrefix: process.env.NODE_ENV === "production" ? "/logsdx" : "",
+  basePath: staticPath,
+  assetPrefix: staticPath,
 };
 
 const withMDX = createMDX({

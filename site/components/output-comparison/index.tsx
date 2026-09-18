@@ -316,48 +316,64 @@ interface OutputPanelsProps {
   ghosttyTheme: GhosttyTheme;
 }
 
-function OutputPanels({
-  terminalMode,
-  browserMode,
-  onTerminalModeChange,
-  onBrowserModeChange,
-  outputs,
-  isLoading,
-  error,
-  ghosttyTheme,
-}: OutputPanelsProps) {
-  const bgColor = ghosttyTheme.background;
+interface OutputPanelProps {
+  bgColor: string;
+  children: React.ReactNode;
+  mode: ViewMode;
+  onModeChange: (mode: ViewMode) => void;
+  title: string;
+}
+
+function OutputPanel({
+  bgColor,
+  children,
+  mode,
+  onModeChange,
+  title,
+}: OutputPanelProps) {
+  return (
+    <TerminalWindow
+      title={title}
+      mode={mode}
+      onModeChange={onModeChange}
+      bgColor={bgColor}
+    >
+      {children}
+    </TerminalWindow>
+  );
+}
+
+function OutputPanelGrid(
+  props: OutputPanelsProps & { bgColor: string },
+) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+      <OutputPanel
+        title="Terminal (ANSI)"
+        mode={props.terminalMode}
+        onModeChange={props.onTerminalModeChange}
+        bgColor={props.bgColor}
+      >
+        <TerminalContent {...props} mode={props.terminalMode} />
+      </OutputPanel>
+      <OutputPanel
+        title="Browser (HTML)"
+        mode={props.browserMode}
+        onModeChange={props.onBrowserModeChange}
+        bgColor={props.bgColor}
+      >
+        <BrowserContent {...props} mode={props.browserMode} />
+      </OutputPanel>
+    </div>
+  );
+}
+
+function OutputPanels(props: OutputPanelsProps) {
+  const bgColor = props.ghosttyTheme.background;
+
   return (
     <div className={CLASSES.content}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-        <TerminalWindow
-          title="Terminal (ANSI)"
-          mode={terminalMode}
-          onModeChange={onTerminalModeChange}
-          bgColor={bgColor}
-        >
-          <TerminalContent
-            isLoading={isLoading}
-            error={error}
-            mode={terminalMode}
-            outputs={outputs}
-            ghosttyTheme={ghosttyTheme}
-          />
-        </TerminalWindow>
-        <TerminalWindow
-          title="Browser (HTML)"
-          mode={browserMode}
-          onModeChange={onBrowserModeChange}
-          bgColor={bgColor}
-        >
-          <BrowserContent
-            isLoading={isLoading}
-            error={error}
-            mode={browserMode}
-            outputs={outputs}
-          />
-        </TerminalWindow>
-      </div>
+      <OutputPanelGrid {...props} bgColor={bgColor} />
     </div>
   );
 }

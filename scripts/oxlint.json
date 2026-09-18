@@ -1,0 +1,70 @@
+{
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "legibility/hoist-if-operators": "warn",
+    "legibility/max-array-chain-depth": "warn",
+    "legibility/max-control-flow-depth": "warn",
+    "legibility/max-expression-operators": "warn",
+    "legibility/max-function-parameters": "warn",
+    "legibility/no-complex-ternaries": "warn",
+    "legibility/no-computed-values": "warn",
+    "legibility/no-hidden-side-effects": "warn",
+    "legibility/no-identity-array-callback": "warn",
+    "legibility/no-mixed-filename-casing": "warn",
+    "legibility/no-redundant-boolean-logic": "warn",
+    "legibility/no-redundant-nullish-fallback": "warn",
+    "legibility/no-unnecessary-block-callback": "warn",
+    "legibility/prefer-early-return": "warn",
+    "legibility/prefer-flat-map": "warn",
+    "legibility/prefer-guard-clauses": "warn",
+    "legibility/prefer-object-lookup": "warn",
+    "legibility/prefer-positive-condition-names": "warn",
+    "legibility/no-automated-comment-attribution": "warn",
+    "legibility/no-stacked-comments": "warn",
+    "legibility/require-jsdoc-multiline-comments": "warn",
+    "complexity": ["warn", 20],
+    "max-lines-per-function": [
+      "warn",
+      {
+        "max": 40,
+        "skipBlankLines": true,
+        "skipComments": true,
+        "IIFEs": true
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["**/tests/**", "**/*.test.*", "**/*.spec.*"],
+      "rules": {
+        "max-lines-per-function": "allow",
+        "legibility/no-hidden-side-effects": "allow"
+      }
+    },
+    {
+      "files": ["**/next-env.d.ts"],
+      "rules": {
+        "legibility/no-stacked-comments": "allow"
+      }
+    }
+  ],
+  "jsPlugins": [
+    {
+      "name": "legibility",
+      "specifier": "eslint-plugin-legibility/oxlint"
+    }
+  ],
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/coverage/**",
+    "**/next-env.d.ts"
+  ]
+}

@@ -14,8 +14,12 @@ import {
   tokensToString,
   tokensToHtml,
   tokensToClassNames,
+  renderAnsi,
+  renderHtml,
   renderLine,
   renderLines,
+  styleLine,
+  resolveColorDepth,
 } from "./renderer";
 import {
   validateTheme,
@@ -49,6 +53,7 @@ import type {
   HtmlStyleFormat,
   MatchType,
   TokenWithStyle,
+  ColorDepth,
 } from "./renderer/types";
 
 export const BUNDLED_THEMES = {
@@ -93,9 +98,7 @@ export function getThemeNames(): string[] {
 }
 
 export function processLine(line: string, theme: Theme): string {
-  const tokens = tokenize(line, theme);
-  const styled = applyTheme(tokens, theme);
-  return tokensToString(styled, true);
+  return renderAnsi(line, { theme, forceColors: true });
 }
 
 export function processLineHtml(
@@ -103,9 +106,10 @@ export function processLineHtml(
   theme: Theme,
   useClasses = false,
 ): string {
-  const tokens = tokenize(line, theme);
-  const styled = applyTheme(tokens, theme);
-  return useClasses ? tokensToClassNames(styled) : tokensToHtml(styled);
+  return renderHtml(line, {
+    theme,
+    htmlStyleFormat: useClasses ? "className" : "css",
+  });
 }
 
 export function processLines(lines: string[], theme: Theme): string[] {
@@ -124,8 +128,12 @@ export {
   tokensToString,
   tokensToHtml,
   tokensToClassNames,
+  renderAnsi,
+  renderHtml,
   renderLine,
   renderLines,
+  styleLine,
+  resolveColorDepth,
   validateTheme,
   validateThemeSafe,
   isValidationError,
@@ -150,6 +158,7 @@ export type {
   HtmlStyleFormat,
   MatchType,
   TokenWithStyle,
+  ColorDepth,
 };
 
 export default {

@@ -10,6 +10,16 @@ function PreviewPlaceholder() {
   return <div className={CLASSES.placeholder}>Preview</div>;
 }
 
+function getPreviewSource(
+  mounted: boolean,
+  resolvedTheme: string | undefined,
+  lightSrc: string | undefined,
+  darkSrc: string | undefined,
+) {
+  const isDark = mounted && resolvedTheme === "dark";
+  return isDark ? darkSrc : lightSrc;
+}
+
 export function NavCard({
   title,
   href,
@@ -32,8 +42,7 @@ export function NavCard({
 
   const lightSrc = previewLight || previewDark;
   const darkSrc = previewDark || previewLight;
-  const isDark = mounted && resolvedTheme === "dark";
-  const preview = isDark ? darkSrc : lightSrc;
+  const preview = getPreviewSource(mounted, resolvedTheme, lightSrc, darkSrc);
 
   const previewContent = preview ? (
     <Image

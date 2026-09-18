@@ -70,6 +70,14 @@ export const v = {
     });
   },
 
+  regexp(): Validator<RegExp> {
+    return createValidator((value, path) => {
+      if (!(value instanceof RegExp))
+        fail(`Expected RegExp, got ${typeof value}`, path);
+      return value;
+    });
+  },
+
   literal<T extends string | number | boolean>(expected: T): Validator<T> {
     return createValidator((value, path) => {
       if (value !== expected)
@@ -80,7 +88,9 @@ export const v = {
 
   enum<T extends string>(values: readonly T[]): Validator<T> {
     return createValidator((value, path) => {
-      if (typeof value !== "string" || !values.includes(value as T)) {
+      const isValidString =
+        typeof value === "string" && values.includes(value as T);
+      if (!isValidString) {
         fail(`Expected one of: ${values.join(", ")}`, path);
       }
       return value as T;
@@ -100,8 +110,8 @@ export const v = {
     [K in keyof T]: T[K] extends Validator<infer U> ? U : never;
   }> {
     return createValidator((value, path) => {
-      if (typeof value !== "object" || value === null)
-        fail("Expected object", path);
+      const isObjectValue = typeof value === "object" && value !== null;
+      if (!isObjectValue) fail("Expected object", path);
       const obj = value as Record<string, unknown>;
       const parseEntry = ([key, validator]: [string, Validator<unknown>]) => {
         try {
@@ -138,8 +148,8 @@ export const v = {
 
   record<T>(valueValidator: Validator<T>): Validator<Record<string, T>> {
     return createValidator((value, path) => {
-      if (typeof value !== "object" || value === null)
-        fail("Expected object", path);
+      const isObjectValue = typeof value === "object" && value !== null;
+      if (!isObjectValue) fail("Expected object", path);
       const entries = Object.entries(value).map(
         ([k, val]) => [k, valueValidator.parse(val)] as const,
       );
@@ -180,13 +190,11 @@ export const v = {
 };
 
 export function isValidationError(error: unknown): error is ValidationError {
-  return (
-    error instanceof ValidationError ||
-    (typeof error === "object" &&
-      error !== null &&
-      "issues" in error &&
-      Array.isArray((error as ValidationError).issues))
-  );
+  if (error instanceof ValidationError) return true;
+  const isNonObject = typeof error !== "object" || error === null;
+  if (isNonObject) return false;
+  if (!("issues" in error)) return false;
+  return Array.isArray((error as ValidationError).issues);
 }
 
 export function formatValidationIssues(
@@ -216,13 +224,15 @@ import type { StyleOptions, Theme } from "../types";
 
 const styleOptionsValidator = v.object({
   color: v.refine(v.string(), isValidColorFormat, COLOR_VALIDATION_MESSAGE),
+  backgroundColor: v.string().optional(),
   styleCodes: v.array(v.enum(STYLE_CODES)).optional(),
   htmlStyleFormat: v.enum(HTML_STYLE_FORMATS).optional(),
 });
 
 const patternMatchValidator = v.object({
   name: v.string(),
-  pattern: v.string(),
+  pattern: v.union(v.string(), v.regexp()),
+  identifier: v.string().optional(),
   options: styleOptionsValidator,
 });
 
@@ -241,6 +251,7 @@ const themePresetValidator = v.object({
   name: v.string(),
   description: v.string().optional(),
   mode: v.enum(THEME_MODES).optional(),
+  colors: v.record(v.string()).optional(),
   schema: schemaConfigValidator,
 });
 
@@ -313,7 +324,9 @@ export function parseThemeSafe(theme: unknown): {
 
 export function createThemeValidationError(error: unknown): Error {
   if (!isValidationError(error)) {
-    return error instanceof Error ? error : new Error(String(error));
+    const normalizedError =
+      error instanceof Error ? error : new Error(String(error));
+    return normalizedError;
   }
   const message = `Theme validation failed: ${formatValidationIssues(error.issues)}`;
   const err = new Error(message);

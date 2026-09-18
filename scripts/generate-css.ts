@@ -15,25 +15,26 @@ export function generateCSS(): string {
   // Add color classes
   css += "/* Color Classes */\n";
   Object.entries(COLORS).forEach(([_name, def]) => {
-    if (def.className) {
-      css += `.${def.className} {\n`;
-      css += `  color: ${def.hex};\n`;
-      css += `}\n\n`;
+    if (!def.className) return;
 
-      css += `.${def.className.replace("--", "--bg-")} {\n`;
-      css += `  background-color: ${def.hex};\n`;
-      css += `}\n\n`;
-    }
+    css += `.${def.className} {\n`;
+    css += `  color: ${def.hex};\n`;
+    css += `}\n\n`;
+
+    css += `.${def.className.replace("--", "--bg-")} {\n`;
+    css += `  background-color: ${def.hex};\n`;
+    css += `}\n\n`;
   });
 
   // Add style classes
   css += "/* Style Classes */\n";
   Object.entries(STYLE_CODES).forEach(([_name, def]) => {
-    if (def.className && def.css) {
-      css += `.${def.className} {\n`;
-      css += `  ${def.css}\n`;
-      css += `}\n\n`;
-    }
+    if (!def.className) return;
+    if (!def.css) return;
+
+    css += `.${def.className} {\n`;
+    css += `  ${def.css}\n`;
+    css += `}\n\n`;
   });
 
   // Add blink animation

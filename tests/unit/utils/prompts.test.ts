@@ -11,7 +11,9 @@ class MockReadline extends EventEmitter {
   }
 
   question(prompt: string, callback: (answer: string) => void) {
-    const response = this.responses[this.responseIndex++] || "";
+    const responseIndex = this.responseIndex;
+    this.responseIndex += 1;
+    const response = this.responses[responseIndex] || "";
     setImmediate(() => callback(response));
   }
 

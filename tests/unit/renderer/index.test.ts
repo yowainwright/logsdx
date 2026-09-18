@@ -1,6 +1,9 @@
 import { expect, test, describe } from "bun:test";
 import {
   renderLine,
+  renderAnsi,
+  renderHtml,
+  styleLine,
   tokensToString,
   tokensToHtml,
   tokensToClassNames,
@@ -9,9 +12,14 @@ import {
   applyItalic,
   applyUnderline,
   applyDim,
+  applyBlink,
+  applyReverse,
+  applyStrikethrough,
   applyBackgroundColor,
+  resolveColorDepth,
 } from "../../../src/renderer/index";
 import { TokenList } from "../../../src/schema/types";
+import type { Theme } from "../../../src/types";
 
 describe("Renderer", () => {
   describe("renderLine", () => {
@@ -44,6 +52,57 @@ describe("Renderer", () => {
       expect(result).toContain("<span");
       expect(result).toContain("class=");
       expect(result).toContain("t</span>");
+    });
+
+    test("uses the same styled tokens for ANSI and HTML output", () => {
+      const theme: Theme = {
+        name: "parity",
+        schema: {
+          defaultStyle: { color: "#e5e7eb" },
+          matchWords: {
+            NOTICE: { color: "#f87171", styleCodes: ["bold"] },
+          },
+        },
+      };
+      const line = "NOTICE: database failed";
+      const tokens = styleLine(line, theme);
+      const ansi = renderAnsi(line, { theme, forceColors: true });
+      const html = renderHtml(line, { theme });
+
+      expect(tokens.map((token) => token.content).join("")).toBe(line);
+      expect(ansi).toContain("\x1b[38;2;248;113;113m");
+      expect(html).toContain("color: #f87171");
+      expect(html).toContain("font-weight: bold");
+      expect(renderLine(line, theme, { forceColors: true })).toBe(ansi);
+      expect(renderLine(line, theme, { outputFormat: "html" })).toBe(html);
+    });
+
+    test("supports explicit ANSI color depths", () => {
+      const theme: Theme = {
+        name: "depths",
+        schema: { defaultStyle: { color: "#123456" } },
+      };
+
+      expect(renderAnsi("text", { theme, colorDepth: "truecolor" })).toContain(
+        "\x1b[38;2;18;52;86m",
+      );
+      expect(renderAnsi("text", { theme, colorDepth: "256" })).toContain(
+        "\x1b[38;5;",
+      );
+      const ansi16 = renderAnsi("text", { theme, colorDepth: "16" });
+      const ansi16Code = ansi16.slice(2, 4);
+      expect(ansi16.startsWith("\x1b[")).toBe(true);
+      expect(ansi16Code.startsWith("3") || ansi16Code.startsWith("9")).toBe(
+        true,
+      );
+      expect(
+        renderAnsi("text", {
+          theme: { name: "named", schema: { defaultStyle: { color: "red" } } },
+          colorDepth: "16",
+        }),
+      ).toContain("\x1b[31m");
+      expect(renderAnsi("text", { theme, colorDepth: "none" })).toBe("text");
+      expect(resolveColorDepth("truecolor", false)).toBe("none");
     });
   });
 
@@ -218,6 +277,12 @@ describe("Renderer", () => {
       expect(result).toBe("\x1b[2mtext\x1b[22m");
     });
 
+    test("applies the remaining ANSI style codes", () => {
+      expect(applyBlink("text")).toBe("\x1b[5mtext\x1b[25m");
+      expect(applyReverse("text")).toBe("\x1b[7mtext\x1b[27m");
+      expect(applyStrikethrough("text")).toBe("\x1b[9mtext\x1b[29m");
+    });
+
     test("applyBackgroundColor adds ANSI background color", () => {
       const result = applyBackgroundColor("text", "blue");
       expect(result).toContain("text");
@@ -264,7 +329,16 @@ describe("Renderer", () => {
           metadata: {
             style: {
               color: "#ff0000",
-              styleCodes: ["bold", "italic", "underline", "dim"],
+              backgroundColor: "#000000",
+              styleCodes: [
+                "bold",
+                "italic",
+                "underline",
+                "dim",
+                "blink",
+                "reverse",
+                "strikethrough",
+              ],
             },
           },
         },
@@ -277,6 +351,14 @@ describe("Renderer", () => {
       expect(resultHtml).toContain("font-weight: bold");
       expect(resultHtml).toContain("font-style: italic");
       expect(resultHtml).toContain("text-decoration: underline");
+      expect(resultHtml).toContain("background-color: #000000");
+      expect(resultHtml).toContain("text-decoration: blink");
+      expect(resultHtml).toContain("filter: invert(1)");
+      expect(resultHtml).toContain("text-decoration: line-through");
+      expect(resultAnsi).toContain("\x1b[5m");
+      expect(resultAnsi).toContain("\x1b[7m");
+      expect(resultAnsi).toContain("\x1b[9m");
+      expect(resultAnsi).toContain("\x1b[48;2;0;0;0m");
     });
 
     test("handles carriage return in HTML", () => {

@@ -1,14 +1,17 @@
-import { Theme } from "../types";
+import type { ColorDepth, Theme } from "../types";
 import type { Token } from "../schema/types";
 
 export type OutputFormat = "ansi" | "html";
 export type HtmlStyleFormat = "css" | "className";
+export type { ColorDepth } from "../types";
 
 export type RenderOptions = {
   theme?: Theme;
   outputFormat?: OutputFormat;
   htmlStyleFormat?: HtmlStyleFormat;
+  colorDepth?: ColorDepth;
   escapeHtml?: boolean;
+  forceColors?: boolean;
   classPrefix?: string;
   useBEM?: boolean;
 };

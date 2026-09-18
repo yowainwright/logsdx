@@ -1,50 +1,111 @@
-import { renderLine } from "./renderer";
 import {
+  getRecommendedThemeMode,
+  isLightTheme as isLightThemeRenderer,
+  renderAnsi,
+  renderHtml,
+  renderLightBox,
+  renderLightBoxLine,
+  renderLine,
+  resolveColorDepth,
+  styleLine,
+  tokensToHtml,
+  tokensToString,
+} from "./renderer";
+import {
+  THEME_PRESETS,
+  ThemeBuilder,
+  createSimpleTheme,
+  createTheme,
+  extendTheme,
+  getAllThemes,
   getTheme,
   getThemeAsync,
-  getAllThemes,
   getThemeNames,
-  preloadTheme,
   preloadAllThemes,
+  preloadTheme,
   registerTheme,
   registerThemeLoader,
-  ThemeBuilder,
-  createTheme,
-  createSimpleTheme,
-  extendTheme,
-  THEME_PRESETS,
 } from "./themes";
 import { validateTheme, validateThemeSafe } from "./schema";
-import { tokenize, applyTheme } from "./tokenizer";
+import { applyTheme, tokenize } from "./tokenizer";
 import { createLogger, setLogLevel } from "./utils/logger";
 import type { TokenList } from "./schema/types";
 import type {
-  RenderOptions,
-  OutputFormat,
+  ColorDepth,
   HtmlStyleFormat,
   MatchType,
+  OutputFormat,
+  RenderOptions,
   TokenWithStyle,
 } from "./renderer/types";
 import type {
   LineParser,
+  LogsDXOptions,
   ParsedLine,
   StyleOptions,
   Theme,
   ThemePair,
-  LogsDXOptions,
 } from "./types";
-import {
-  tokensToString,
-  tokensToHtml,
-  tokensToClassNames,
-  renderLightBox,
-  renderLightBoxLine,
-  isLightTheme as isLightThemeRenderer,
-  isDarkBackground,
-  getRecommendedThemeMode,
-} from "./renderer";
 
 const log = createLogger("logsdx");
+
+const createEmptyTheme = (): Theme => ({
+  description: "No styling applied",
+  mode: "auto",
+  name: "none",
+  schema: {
+    defaultStyle: { color: "" },
+    matchContains: {},
+    matchEndsWith: {},
+    matchPatterns: [],
+    matchStartsWith: {},
+    matchWords: {},
+  },
+});
+
+const isAutoAdjustEnabled = (options: Required<LogsDXOptions>): boolean => {
+  const isAnsiOutput = options.outputFormat === "ansi";
+  const isAutoAdjustConfigured = options.autoAdjustTerminal;
+  const hasProcess = typeof process !== "undefined";
+  const canAutoAdjust = isAnsiOutput && isAutoAdjustConfigured;
+  return canAutoAdjust && hasProcess;
+};
+
+const getAlternateThemeName = (
+  themeName: string,
+  recommendedMode: "light" | "dark",
+): string => {
+  if (themeName.includes("-dark")) {
+    return themeName.replace("-dark", "-light");
+  }
+
+  if (themeName.includes("-light")) {
+    return themeName.replace("-light", "-dark");
+  }
+
+  const alternateMode = recommendedMode === "dark" ? "dark" : "light";
+  return `${themeName}-${alternateMode}`;
+};
+
+const resolveThemeReference = async (theme: string | Theme): Promise<Theme> => {
+  if (typeof theme === "string") {
+    return getTheme(theme);
+  }
+
+  return theme;
+};
+
+const resolveAdjustedTheme = (themeName: string, baseTheme: Theme): Theme => {
+  const recommendedMode = getRecommendedThemeMode();
+  const currentThemeMode = baseTheme.mode ?? "dark";
+
+  if (currentThemeMode === recommendedMode) {
+    return baseTheme;
+  }
+
+  const alternateThemeName = getAlternateThemeName(themeName, recommendedMode);
+  return getAllThemes()[alternateThemeName] ?? baseTheme;
+};
 
 /**
  * LogsDX - A powerful log processing and styling tool
@@ -63,29 +124,18 @@ export class LogsDX {
   private static instance: LogsDX | null = null;
   private static instancePromise: Promise<LogsDX> | null = null;
   private options: Required<LogsDXOptions>;
-  private currentTheme: Theme = {
-    name: "none",
-    description: "No styling applied",
-    mode: "auto",
-    schema: {
-      defaultStyle: { color: "" },
-      matchWords: {},
-      matchStartsWith: {},
-      matchEndsWith: {},
-      matchContains: {},
-      matchPatterns: [],
-    },
-  };
+  private currentTheme: Theme = createEmptyTheme();
 
-  private constructor(options = {}, theme: Theme) {
+  private constructor(theme: Theme, options: LogsDXOptions = {}) {
     this.options = {
-      theme: "none",
-      outputFormat: "ansi",
-      htmlStyleFormat: "css",
-      escapeHtml: true,
-      debug: false,
-      customRules: {},
       autoAdjustTerminal: true,
+      colorDepth: "auto",
+      customRules: {},
+      debug: false,
+      escapeHtml: true,
+      htmlStyleFormat: "css",
+      outputFormat: "ansi",
+      theme: "none",
       ...options,
     };
 
@@ -96,101 +146,51 @@ export class LogsDX {
     this.currentTheme = theme;
   }
 
+  private async resolveThemeName(themeName: string): Promise<Theme> {
+    const baseTheme = await getTheme(themeName);
+    const shouldAdjustTheme = isAutoAdjustEnabled(this.options);
+
+    if (!shouldAdjustTheme) {
+      return baseTheme;
+    }
+
+    return resolveAdjustedTheme(themeName, baseTheme);
+  }
+
+  private async resolveThemePair(themePair: ThemePair): Promise<Theme> {
+    const selectedMode = isAutoAdjustEnabled(this.options)
+      ? getRecommendedThemeMode()
+      : "dark";
+    return resolveThemeReference(themePair[selectedMode]);
+  }
+
+  private resolveCustomTheme(theme: Theme): Theme {
+    try {
+      return validateTheme(theme);
+    } catch (error) {
+      log.debug(`Invalid custom theme: ${error}`);
+      return createEmptyTheme();
+    }
+  }
+
   private async resolveTheme(
     theme: string | Theme | ThemePair | undefined,
   ): Promise<Theme> {
-    if (!theme || theme === "none") {
-      return {
-        name: "none",
-        description: "No styling applied",
-        mode: "auto",
-        schema: {
-          defaultStyle: { color: "" },
-          matchWords: {},
-          matchStartsWith: {},
-          matchEndsWith: {},
-          matchContains: {},
-          matchPatterns: [],
-        },
-      };
+    const isEmptyTheme = !theme || theme === "none";
+    if (isEmptyTheme) {
+      return createEmptyTheme();
     }
 
     if (typeof theme === "string") {
-      const baseTheme = await getTheme(theme);
-
-      if (
-        this.options.outputFormat === "ansi" &&
-        this.options.autoAdjustTerminal !== false &&
-        typeof process !== "undefined"
-      ) {
-        const recommendedMode = getRecommendedThemeMode();
-        const currentThemeMode = baseTheme.mode || "dark";
-
-        if (currentThemeMode !== recommendedMode) {
-          let alternateThemeName: string;
-
-          if (theme.includes("-dark")) {
-            alternateThemeName = theme.replace("-dark", "-light");
-          } else if (theme.includes("-light")) {
-            alternateThemeName = theme.replace("-light", "-dark");
-          } else {
-            alternateThemeName =
-              recommendedMode === "dark" ? `${theme}-dark` : `${theme}-light`;
-          }
-
-          const alternateTheme = getAllThemes()[alternateThemeName];
-          if (alternateTheme) {
-            return alternateTheme;
-          }
-        }
-      }
-      return baseTheme;
-    } else if ("light" in theme && "dark" in theme) {
-      const themePair = theme as ThemePair;
-
-      if (
-        this.options.outputFormat === "ansi" &&
-        this.options.autoAdjustTerminal !== false &&
-        typeof process !== "undefined"
-      ) {
-        const recommendedMode = getRecommendedThemeMode();
-        const selectedTheme =
-          recommendedMode === "light" ? themePair.light : themePair.dark;
-
-        if (typeof selectedTheme === "string") {
-          return await getTheme(selectedTheme);
-        } else {
-          return selectedTheme;
-        }
-      } else {
-        const selectedTheme = themePair.dark;
-        if (typeof selectedTheme === "string") {
-          return await getTheme(selectedTheme);
-        } else {
-          return selectedTheme;
-        }
-      }
-    } else {
-      try {
-        return validateTheme(theme as Theme);
-      } catch (error) {
-        log.debug(`Invalid custom theme: ${error}`);
-
-        return {
-          name: "none",
-          description: "No styling applied",
-          mode: "auto",
-          schema: {
-            defaultStyle: { color: "" },
-            matchWords: {},
-            matchStartsWith: {},
-            matchEndsWith: {},
-            matchContains: {},
-            matchPatterns: [],
-          },
-        };
-      }
+      return this.resolveThemeName(theme);
     }
+
+    const isThemePair = "light" in theme && "dark" in theme;
+    if (isThemePair) {
+      return this.resolveThemePair(theme);
+    }
+
+    return this.resolveCustomTheme(theme);
   }
 
   /**
@@ -231,21 +231,10 @@ export class LogsDX {
     }
 
     LogsDX.instancePromise = (async () => {
-      const theme = await new LogsDX(options, {
-        name: "none",
-        description: "No styling applied",
-        mode: "auto",
-        schema: {
-          defaultStyle: { color: "" },
-          matchWords: {},
-          matchStartsWith: {},
-          matchEndsWith: {},
-          matchContains: {},
-          matchPatterns: [],
-        },
-      }).resolveTheme(options.theme || "oh-my-zsh");
-
-      const instance = new LogsDX(options, theme);
+      const theme = await new LogsDX(createEmptyTheme(), options).resolveTheme(
+        options.theme || "oh-my-zsh",
+      );
+      const instance = new LogsDX(theme, options);
       LogsDX.instance = instance;
       return instance;
     })();
@@ -278,25 +267,14 @@ export class LogsDX {
    */
   processLine(line: string): string {
     const renderOptions: RenderOptions = {
-      theme: this.currentTheme,
-      outputFormat: this.options.outputFormat,
-      htmlStyleFormat: this.options.htmlStyleFormat,
+      colorDepth: this.options.colorDepth,
       escapeHtml: this.options.escapeHtml,
+      htmlStyleFormat: this.options.htmlStyleFormat,
+      outputFormat: this.options.outputFormat,
+      theme: this.currentTheme,
     };
 
-    const tokens = tokenize(line, this.currentTheme);
-
-    const styledTokens = applyTheme(tokens, this.currentTheme);
-
-    if (renderOptions.outputFormat === "html") {
-      if (renderOptions.htmlStyleFormat === "className") {
-        return tokensToClassNames(styledTokens);
-      } else {
-        return tokensToHtml(styledTokens);
-      }
-    } else {
-      return tokensToString(styledTokens);
-    }
+    return renderLine(line, this.currentTheme, renderOptions);
   }
 
   processLines(lines: string[]): string[] {
@@ -351,6 +329,14 @@ export class LogsDX {
   getCurrentHtmlStyleFormat(): "css" | "className" {
     return this.options.htmlStyleFormat;
   }
+
+  setColorDepth(depth: ColorDepth): void {
+    this.options.colorDepth = depth;
+  }
+
+  getColorDepth(): ColorDepth {
+    return this.options.colorDepth;
+  }
 }
 
 export async function getLogsDX(options?: LogsDXOptions): Promise<LogsDX> {
@@ -373,6 +359,7 @@ export type {
   MatchType,
   TokenWithStyle,
   RenderOptions,
+  ColorDepth,
 };
 
 export {
@@ -402,7 +389,13 @@ export {
 export { tokenize, applyTheme };
 
 export {
+  renderAnsi,
+  renderHtml,
   renderLine,
+  styleLine,
+  tokensToString,
+  tokensToHtml,
+  resolveColorDepth,
   renderLightBox,
   renderLightBoxLine,
   isLightThemeRenderer as isLightThemeStyle,

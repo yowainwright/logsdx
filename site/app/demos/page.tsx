@@ -15,49 +15,60 @@ function Separator() {
   );
 }
 
+function DemoLinks() {
+  return (
+    <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
+      <NavCard
+        title="Output Comparison"
+        href="#output-comparison"
+        previewLight="/images/demos/output-comparison-light.png"
+        previewDark="/images/demos/output-comparison-dark.png"
+      />
+      <NavCard
+        title="Log Playground"
+        href="#playground"
+        previewLight="/images/demos/log-playground-light.png"
+        previewDark="/images/demos/log-playground-dark.png"
+      />
+    </div>
+  );
+}
+
+function DemosHero() {
+  return (
+    <section className="pt-32 pb-16">
+      <div className="container mx-auto px-4">
+        <AnimatedSection>
+          <div className="mx-auto max-w-4xl text-center">
+            <h1
+              className="mb-6 text-6xl lg:text-7xl font-bold"
+              style={{
+                filter:
+                  "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
+              }}
+            >
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Live
+              </span>{" "}
+              Demos
+            </h1>
+            <p className="text-xl text-slate-600 dark:text-slate-400 mb-12">
+              See logsDX in action with real terminal and browser output
+              comparisons
+            </p>
+            <DemoLinks />
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
 export default function DemosPage() {
   return (
     <main className="min-h-screen">
       <Navbar />
-
-      <section className="pt-32 pb-16">
-        <div className="container mx-auto px-4">
-          <AnimatedSection>
-            <div className="mx-auto max-w-4xl text-center">
-              <h1
-                className="mb-6 text-6xl lg:text-7xl font-bold"
-                style={{
-                  filter:
-                    "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))",
-                }}
-              >
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Live
-                </span>{" "}
-                Demos
-              </h1>
-              <p className="text-xl text-slate-600 dark:text-slate-400 mb-12">
-                See logsDX in action with real terminal and browser output
-                comparisons
-              </p>
-              <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
-                <NavCard
-                  title="Output Comparison"
-                  href="#output-comparison"
-                  previewLight="/images/demos/output-comparison-light.png"
-                  previewDark="/images/demos/output-comparison-dark.png"
-                />
-                <NavCard
-                  title="Log Playground"
-                  href="#playground"
-                  previewLight="/images/demos/log-playground-light.png"
-                  previewDark="/images/demos/log-playground-dark.png"
-                />
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+      <DemosHero />
 
       <AnimatedSection>
         <div className="py-8">
