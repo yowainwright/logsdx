@@ -23,55 +23,6 @@ export const TOKEN_TYPE_CHAR = "char";
 
 export const MATCH_TYPE_WORD = "word";
 export const MATCH_TYPE_REGEX = "regex";
-export const MATCH_TYPE_DEFAULT = "default";
 
 export const WHITESPACE_TRIM = "trim";
 export const NEWLINE_TRIM = "trim";
-
-export const DEFAULT_RULES = [
-  {
-    pattern:
-      /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?\b/,
-    type: "timestamp",
-  },
-  {
-    pattern: /\b(DEBUG|INFO|WARN(?:ING)?|ERROR|FATAL|TRACE)\b/i,
-    type: "level",
-  },
-  {
-    pattern: /\b([a-zA-Z0-9_-]+)=(['"])((?:\\.|(?!\2).)*?)\2/,
-    type: "key-value",
-  },
-  {
-    pattern: /\b([a-zA-Z0-9_-]+)=([^\s,;]+)/,
-    type: "key-value",
-  },
-  {
-    pattern: /\{[^}]*\}/,
-    type: "json",
-  },
-  {
-    pattern: /\[[^\]]*\]/,
-    type: "brackets",
-  },
-  {
-    pattern: /"[^"]*"/,
-    type: "string",
-  },
-  {
-    pattern: /'[^']*'/,
-    type: "string",
-  },
-  {
-    pattern: /\b\d+\b/,
-    type: "number",
-  },
-  {
-    pattern: /\s+/,
-    type: "whitespace",
-  },
-  {
-    pattern: /./,
-    type: "char",
-  },
-];
