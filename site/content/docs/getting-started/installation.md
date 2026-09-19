@@ -46,24 +46,15 @@ Or use it directly with npx:
 npx logsdx --help
 ```
 
-## Requirements
-
-LogsDX supports the following environments:
-
-- **Node.js** 16.0 or later
-- **Modern browsers** (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- **Deno** 1.0 or later
-- **Bun** 1.0 or later
-
 ## Verify Installation
 
 After installation, you can verify that LogsDX is working correctly:
 
 ```javascript
-import LogsDX from "logsdx";
+import { getLogsDX } from "logsdx";
 
-const logger = new LogsDX();
-logger.info("LogsDX is installed and working!");
+const logger = await getLogsDX({ theme: "dracula" });
+console.log(logger.processLine("[INFO] LogsDX is installed and working!"));
 ```
 
 ## TypeScript Support
@@ -71,14 +62,13 @@ logger.info("LogsDX is installed and working!");
 LogsDX includes TypeScript definitions out of the box. No additional packages are required.
 
 ```typescript
-import LogsDX, { LogsDXOptions, Theme } from "logsdx";
+import { getLogsDX, type LogsDXOptions } from "logsdx";
 
 const options: LogsDXOptions = {
   theme: "dracula",
-  showTimestamp: true,
 };
 
-const logger = new LogsDX(options);
+const logger = await getLogsDX(options);
 ```
 
 ## Next Steps

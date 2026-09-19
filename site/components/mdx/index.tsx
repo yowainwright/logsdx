@@ -119,8 +119,7 @@ function extractCodeContent(children: ReactNode): string | null {
     return children;
   }
 
-  const isObject = Boolean(children) && typeof children === "object";
-  if (!isObject) {
+  if (typeof children !== "object" || children === null) {
     return null;
   }
 

@@ -228,7 +228,7 @@ const myTheme = createTheme({
 
 // Register and use the theme
 registerTheme(myTheme);
-const logger = getLogsDX("my-company-theme");
+const logger = await getLogsDX({ theme: "my-company-theme" });
 ```
 
 ### Method 3: JSON Configuration File
@@ -271,7 +271,7 @@ Load and use:
 
 ```javascript
 import theme from "./my-theme.json";
-const logger = getLogsDX(theme);
+const logger = await getLogsDX({ theme });
 ```
 
 ## Integration with Popular Loggers
@@ -284,7 +284,7 @@ LogsDX works as a styling layer on top of any logger:
 import winston from "winston";
 import { getLogsDX } from "logsdx";
 
-const logsDX = getLogsDX("dracula");
+const logsDX = await getLogsDX({ theme: "dracula" });
 
 const logger = winston.createLogger({
   format: winston.format.printf((info) => {
@@ -304,7 +304,7 @@ logger.error("Database connection failed");
 import pino from "pino";
 import { getLogsDX } from "logsdx";
 
-const logsDX = getLogsDX("nord");
+const logsDX = await getLogsDX({ theme: "nord" });
 
 const logger = pino({
   transport: {
@@ -324,7 +324,7 @@ const logger = pino({
 ```javascript
 import { getLogsDX } from "logsdx";
 
-const logsDX = getLogsDX("github-dark");
+const logsDX = await getLogsDX({ theme: "github-dark" });
 const originalLog = console.log;
 
 console.log = (...args) => {
@@ -341,12 +341,13 @@ console.log("INFO: Process completed");
 
 ### Core Functions
 
-#### `getLogsDX(theme, options?)`
+#### `getLogsDX(options?)`
 
 Returns a LogsDX instance configured with the specified theme.
 
 ```typescript
-const logger = getLogsDX("dracula", {
+const logger = await getLogsDX({
+  theme: "dracula",
   outputFormat: "ansi", // "ansi" | "html"
   htmlStyleFormat: "css", // "css" | "className"
   debug: false, // Enable debug output
@@ -358,7 +359,7 @@ const logger = getLogsDX("dracula", {
 Singleton pattern for getting a LogsDX instance.
 
 ```typescript
-const logger = LogsDX.getInstance({
+const logger = await LogsDX.getInstance({
   theme: "nord",
   outputFormat: "html",
 });

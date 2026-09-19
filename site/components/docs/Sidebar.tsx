@@ -148,7 +148,7 @@ function SidebarChildren({ item, pathname, depth }: SidebarItemProps) {
           key={child.href || child.title}
           item={child}
           pathname={pathname}
-          depth={depth + 1}
+          depth={(depth ?? 0) + 1}
         />
       ))}
     </ul>

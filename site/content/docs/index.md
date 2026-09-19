@@ -35,17 +35,10 @@ yarn add logsdx
 ## Basic Usage
 
 ```javascript
-import LogsDX from "logsdx";
+import { getLogsDX } from "logsdx";
 
-const logger = new LogsDX({ theme: "dracula" });
+const logger = await getLogsDX({ theme: "dracula" });
 
-// Simple logging
-logger.info("Server started on port 3000");
-logger.success("Database connected");
-logger.warn("Cache miss for key: user_123");
-logger.error("Failed to fetch user data");
-
-// Process raw log strings
 const styledLog = logger.processLine("[2024-01-01] ERROR: Connection timeout");
 console.log(styledLog);
 ```
@@ -70,26 +63,29 @@ LogsDX includes these beautiful themes out of the box:
 npm install -g logsdx
 
 # Style a log file
-logsdx style app.log --theme dracula
+logsdx app.log --theme dracula
 
 # Pipe logs through LogsDX
-tail -f server.log | logsdx style --theme nord
+tail -f server.log | logsdx --theme nord
 
 # List available themes
-logsdx themes
+logsdx --list-themes
 
 # Preview all themes
-logsdx preview
+logsdx --list-themes --preview
 ```
 
 ## Browser Usage
 
 ```html
 <script type="module">
-  import LogsDX from "https://unpkg.com/logsdx/dist/index.mjs";
+  import { getLogsDX } from "https://unpkg.com/logsdx/dist/index.mjs";
 
-  const logger = new LogsDX({ theme: "github-dark" });
-  logger.info("Running in browser!");
+  const logger = await getLogsDX({
+    theme: "github-dark",
+    outputFormat: "html",
+  });
+  document.body.innerHTML = logger.processLine("[INFO] Running in browser!");
 </script>
 ```
 

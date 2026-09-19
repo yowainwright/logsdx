@@ -6,174 +6,101 @@ order: 2
 
 ## Quick Start Guide
 
-This guide will help you get started with LogsDX in just a few minutes.
+LogsDX styles the same log text as ANSI for terminals or HTML for browsers.
 
 ## Basic Usage
 
-### Import and Initialize
+```typescript
+import { getLogsDX } from "logsdx";
 
-```javascript
-import LogsDX from "logsdx";
+const logger = await getLogsDX({ theme: "dracula" });
+const lines = [
+  "[INFO] Server started on port 3000",
+  "[WARN] Memory usage is above 80%",
+  "[ERROR] Database connection failed",
+];
 
-// Create a logger instance with default settings
-const logger = new LogsDX();
-
-// Or with a specific theme
-const themedLogger = new LogsDX({ theme: "dracula" });
+const styledLines = logger.processLines(lines);
+styledLines.forEach((line) => console.log(line));
 ```
 
-### Log Levels
+`processLine()` styles one line. `processLines()` handles a list, and
+`processLog()` handles a complete string with newlines.
 
-LogsDX supports multiple log levels for different types of messages:
+## Terminal and Browser Output
 
-```javascript
-logger.info("Information message");
-logger.success("Operation completed successfully");
-logger.warn("Warning: Cache is nearly full");
-logger.error("Error: Failed to connect to database");
-logger.debug("Debug: User ID = 12345");
-```
+Use the same theme and input for both environments:
 
-## Formatting Options
-
-### Timestamps
-
-Add timestamps to your log messages:
-
-```javascript
-const logger = new LogsDX({
-  showTimestamp: true,
-  timestampFormat: "HH:mm:ss",
+```typescript
+const logger = await getLogsDX({
+  theme: "dracula",
+  outputFormat: "ansi",
 });
 
-logger.info("Server started");
-// Output: [14:23:45] INFO Server started
+const line = "[ERROR] Connection timeout";
+const ansi = logger.processLine(line);
+logger.setOutputFormat("html");
+const html = logger.processLine(line);
+
+console.log(ansi);
+document.body.innerHTML = html;
 ```
 
-### Structured Logging
+HTML output uses inline styles by default. Set `htmlStyleFormat: "className"`
+when your application provides the CSS classes.
 
-Log objects and complex data:
+## Built-in Themes
 
-```javascript
-const userData = {
-  id: 123,
-  name: "John Doe",
-  email: "john@example.com",
-};
+```typescript
+import { getThemeNames } from "logsdx";
 
-logger.info("User logged in", userData);
+console.log(getThemeNames());
 ```
 
-### Custom Prefixes
-
-Add custom prefixes to your logs:
-
-```javascript
-const logger = new LogsDX({
-  prefix: "[MyApp]",
-});
-
-logger.info("Application started");
-// Output: [MyApp] INFO Application started
-```
-
-## Using Themes
-
-### Built-in Themes
-
-LogsDX comes with several built-in themes:
-
-```javascript
-// Dark themes
-const dracula = new LogsDX({ theme: "dracula" });
-const nord = new LogsDX({ theme: "nord" });
-const monokai = new LogsDX({ theme: "monokai" });
-
-// Light themes
-const github = new LogsDX({ theme: "github-light" });
-const solarized = new LogsDX({ theme: "solarized-light" });
-```
-
-### List Available Themes
-
-```javascript
-import { getAvailableThemes } from "logsdx";
-
-const themes = getAvailableThemes();
-console.log("Available themes:", themes);
-```
-
-## Browser Usage
-
-LogsDX works seamlessly in browser environments:
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <script type="module">
-      import LogsDX from "https://unpkg.com/logsdx/dist/index.mjs";
-
-      const logger = new LogsDX({ theme: "dracula" });
-      logger.info("LogsDX loaded in browser!");
-    </script>
-  </head>
-</html>
-```
+Built-in themes include `dracula`, `nord`, `monokai`, `github-dark`,
+`github-light`, `solarized-dark`, `solarized-light`, and `oh-my-zsh`.
 
 ## CLI Usage
 
-Use LogsDX from the command line to style log files:
-
 ```bash
-# Style a log file
-logsdx style server.log --theme dracula
+# Process a file
+logsdx server.log --theme dracula
 
-# Pipe logs through LogsDX
-tail -f app.log | logsdx style --theme nord
+# Pipe logs from another command
+tail -f server.log | logsdx --theme nord
 
-# Show available themes
-logsdx themes
+# List and preview themes
+logsdx --list-themes
+logsdx --list-themes --preview
 ```
 
-## Integration Examples
+Use `logsdx --help` for all options, including HTML output and the theme
+generator.
 
-### Express.js
+## Custom Themes
 
-```javascript
-import express from "express";
-import LogsDX from "logsdx";
+Create a theme with `ThemeBuilder`, register it, and pass its name to
+`getLogsDX()`:
 
-const app = express();
-const logger = new LogsDX({ theme: "dracula" });
+```typescript
+import { ThemeBuilder, getLogsDX, registerTheme } from "logsdx";
 
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.url}`);
-  next();
-});
+const theme = new ThemeBuilder("my-theme")
+  .mode("dark")
+  .defaultStyle({ color: "#f8f8f2" })
+  .matchWord("ERROR", { color: "#ff5555", styleCodes: ["bold"] })
+  .matchWord("INFO", { color: "#8be9fd" })
+  .build();
 
-app.listen(3000, () => {
-  logger.success("Server running on port 3000");
-});
+registerTheme(theme);
+const logger = await getLogsDX({ theme: "my-theme" });
+console.log(logger.processLine("[ERROR] Connection failed"));
 ```
 
-### Next.js
-
-```javascript
-// middleware.js
-import { NextResponse } from "next/server";
-import LogsDX from "logsdx";
-
-const logger = new LogsDX({ theme: "github-dark" });
-
-export function middleware(request) {
-  logger.info(`Request: ${request.method} ${request.url}`);
-  return NextResponse.next();
-}
-```
+See [Custom Themes](/docs/guides/custom-themes) for the full schema.
 
 ## Next Steps
 
 - Learn how to [create custom themes](/docs/guides/custom-themes)
 - Explore the [API Reference](/docs/api/logsdx)
-- Check out [advanced configuration](/docs/getting-started/configuration)
+- Check the [CLI guide](/docs/guides/cli-usage)
